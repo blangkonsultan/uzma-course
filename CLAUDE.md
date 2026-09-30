@@ -50,7 +50,7 @@ src/
 │   └── supabase/           # Supabase client (client.ts, server.ts, middleware.ts)
 ├── hooks/                  # Custom React hooks
 ├── types/                  # TypeScript type definitions
-└── middleware.ts            # Supabase auth session refresh (/admin/* only)
+└── proxy.ts                # Supabase auth session refresh (/admin/* only)
 ```
 
 ### Component Architecture
