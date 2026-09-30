@@ -2,6 +2,8 @@ import { Navbar } from "@/components/landing/navbar";
 import { HeroSection } from "@/components/landing/hero-section";
 import { ProgramsSection } from "@/components/landing/programs-section";
 import { WhyUsSection } from "@/components/landing/why-us-section";
+import { FacilitiesSection } from "@/components/landing/facilities-section";
+import { TeamSection } from "@/components/landing/team-section";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { VideoSection } from "@/components/landing/video-section";
 import { LocationsSection } from "@/components/landing/locations-section";
@@ -17,6 +19,8 @@ export default function Home() {
       <HeroSection />
       <ProgramsSection />
       <WhyUsSection />
+      <FacilitiesSection />
+      <TeamSection />
       <TestimonialsSection />
       <VideoSection />
       <LocationsSection />

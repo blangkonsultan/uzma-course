@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 const NAV_LINKS = [
   { label: "Program", href: "#programs" },
   { label: "Keunggulan", href: "#keunggulan" },
+  { label: "Fasilitas", href: "#fasilitas" },
+  { label: "Pengelola", href: "#pengelola" },
   { label: "Testimoni", href: "#testimoni" },
   { label: "Lokasi", href: "#lokasi" },
   { label: "FAQ", href: "#faq" },
