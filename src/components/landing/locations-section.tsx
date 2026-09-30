@@ -23,8 +23,11 @@ export function LocationsSection() {
                     <MapPin className="w-6 h-6" aria-hidden="true" />
                   </div>
                   <h3 className="text-xl font-bold text-slate-800">
-                    {branch.name}
+                    {branch.name} — Les Baca {branch.subName}
                   </h3>
+                  <p className="text-xs font-semibold text-primary-600 uppercase tracking-wider mt-1">
+                    Unit Resmi {branch.subName}
+                  </p>
                   <p className="text-slate-600 mt-2 text-sm leading-relaxed">
                     {branch.address}
                   </p>

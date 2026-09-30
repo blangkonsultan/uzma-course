@@ -26,11 +26,11 @@ export function HeroSection() {
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
           Bimbingan Belajar Terbaik & Ramah Anak
         </h1>
-        <p className="text-lg md:text-xl mt-4 text-primary-100 font-medium">
-          Ahe SumoWangi — Sumokembangsri & Junwangi
+        <p className="text-lg md:text-xl mt-4 text-primary-100 font-semibold">
+          Les Baca AHE Sumokembangsri & AHE Junwangi — Uzma Course
         </p>
-        <p className="text-sm md:text-base mt-2 text-primary-200 max-w-xl mx-auto">
-          Di bawah naungan Ahe Indonesia sejak 2022. Melayani anak mulai usia 3,5 tahun dengan metode ceria tanpa trauma belajar.
+        <p className="text-sm md:text-base mt-2 text-primary-200 max-w-2xl mx-auto leading-relaxed">
+          Pusat bimbingan belajar calistung anak hebat di Sidoarjo. Melayani les baca AHE Sumokembangsri (Balongbendo) dan les baca AHE Junwangi (Krian) sejak 2022 dengan metode ceria tanpa trauma belajar.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-2 justify-center text-xs text-white/90">

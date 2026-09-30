@@ -33,9 +33,21 @@ const FAQS = [
   },
   {
     id: "faq-lokasi",
-    question: "Di mana lokasi Uzma Course?",
+    question: "Di mana lokasi les baca AHE Sumokembangsri dan AHE Junwangi?",
     answer:
-      "Kami memiliki dua cabang: Sumokembangsri (Balongbendo) dan Junwangi (Krian), Sidoarjo.",
+      "Uzma Course memiliki dua unit resmi di Sidoarjo: Unit les baca AHE Sumokembangsri (Sumotuwo, Balongbendo) dan unit les baca AHE Junwangi (Junwatu, Krian). Keduanya dilengkapi fasilitas belajar ramah anak dan guru berlisensi.",
+  },
+  {
+    id: "faq-usia",
+    question: "Kapan anak bisa mulai les baca AHE di Sumokembangsri atau Junwangi?",
+    answer:
+      "Anak dapat mulai belajar les baca tulis AHE sejak usia 3,5 tahun. Metode AHE dirancang bertahap tanpa mengeja dan tanpa beban hafalan sehingga anak belajar dengan ceria tanpa rasa takut.",
+  },
+  {
+    id: "faq-jumlah",
+    question: "Berapa jumlah murid per sesi belajar?",
+    answer:
+      "Sistem pembelajaran sangat privat dan personal: Les Baca AHE maksimal 2 anak per guru, Hitung Dasar maksimal 4 anak, BEE maksimal 2 anak, dan Bimbel Mapel 1 anak 1 guru (private).",
   },
 ] as const;
 

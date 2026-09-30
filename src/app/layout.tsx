@@ -15,24 +15,32 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   title: {
-    default: "Uzma Course — Bimbingan Belajar Anak di Sidoarjo",
+    default:
+      "Uzma Course — Les Baca AHE Sumokembangsri & AHE Junwangi Sidoarjo",
     template: "%s | Uzma Course",
   },
   description:
-    "Bimbingan belajar calistung (AHE), bahasa Inggris (BEE), dan bimbel SD–SMP di Sidoarjo. Metode ramah anak tanpa trauma, guru berlisensi resmi, cabang Balongbendo & Krian.",
+    "Pusat les baca AHE Sumokembangsri (Balongbendo) & les baca AHE Junwangi (Krian) Sidoarjo — Uzma Course. Bimbingan belajar calistung Anak Hebat (AHE), bahasa Inggris BEE, dan bimbel SD-SMP dengan metode ramah anak tanpa trauma.",
   keywords: [
-    "bimbel sidoarjo",
+    "ahe sumokembangsri",
+    "ahe junwangi",
+    "les baca ahe junwangi",
+    "les baca ahe sumokembangsri",
+    "les baca sumokembangsri",
+    "les baca junwangi",
+    "les ahe sumokembangsri",
+    "les ahe junwangi",
+    "ahe sumowangi",
+    "ahe balongbendo",
+    "ahe krian",
     "les baca sidoarjo",
     "calistung sidoarjo",
+    "bimbel sidoarjo",
     "les anak balongbendo",
     "les anak krian",
     "AHE sidoarjo",
-    "AHE sumowangi",
-    "AHE junwangi",
-    "AHE sumokembangsri",
     "Anak Hebat",
     "les bahasa inggris anak sidoarjo",
-    "bimbingan belajar ramah anak",
     "les privat krian",
     "les privat balongbendo",
   ],
@@ -48,23 +56,25 @@ export const metadata: Metadata = {
     locale: "id_ID",
     url: "https://uzmacourse.com",
     siteName: "Uzma Course",
-    title: "Uzma Course — Bimbingan Belajar Anak di Sidoarjo",
+    title:
+      "Uzma Course — Les Baca AHE Sumokembangsri & AHE Junwangi Sidoarjo",
     description:
-      "Bimbingan belajar calistung (AHE), bahasa Inggris (BEE), dan bimbel SD–SMP di Sidoarjo. Metode ramah anak, guru berlisensi, cabang Balongbendo & Krian.",
+      "Pusat les baca AHE Sumokembangsri & les baca AHE Junwangi Sidoarjo. Bimbingan belajar calistung AHE, bahasa Inggris BEE, dan bimbel SD–SMP dengan metode ramah anak dan guru berlisensi.",
     images: [
       {
         url: "/images/logo-ahe-sumowangi.png",
         width: 800,
         height: 800,
-        alt: "Logo Uzma Course Ahe Sumowangi",
+        alt: "Logo Uzma Course - Les Baca AHE Sumokembangsri dan Junwangi",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Uzma Course — Bimbingan Belajar Anak di Sidoarjo",
+    title:
+      "Uzma Course — Les Baca AHE Sumokembangsri & AHE Junwangi Sidoarjo",
     description:
-      "Bimbingan belajar calistung (AHE), bahasa Inggris (BEE), dan bimbel SD–SMP di Sidoarjo. Cabang Balongbendo & Krian.",
+      "Pusat les baca AHE Sumokembangsri & les baca AHE Junwangi Sidoarjo. Bimbingan belajar calistung AHE, BEE, dan bimbel SD-SMP ramah anak.",
     images: ["/images/logo-ahe-sumowangi.png"],
   },
 };
