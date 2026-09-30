@@ -51,6 +51,9 @@ export const metadata: Metadata = {
     icon: "/images/logo-ahe-sumowangi.png",
     apple: "/images/logo-ahe-sumowangi.png",
   },
+  verification: {
+    google: "g62tT0JAY8jPvf81GGVLQaMs2tNmkE92HVBpAgr9jcc",
+  },
   openGraph: {
     type: "website",
     locale: "id_ID",
