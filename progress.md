@@ -14,10 +14,9 @@
   - `WhyUsSection`: 4 key USPs with Lucide icons.
   - `TestimonialsSection`: horizontal snap-scrolling testimonials from parents.
   - `VideoSection`: promo video embed section (conditionally hidden when empty).
-  - `LocationsSection`: cards for Balongbendo and Krian branches with map placeholders and WhatsApp location query links.
   - `FAQSection`: animated accessible accordion (5 items).
   - `CTASection`: full-width gradient call-to-action banner.
-  - `Footer`: 4-column layout with branch addresses, phone, WhatsApp links, and dynamic copyright year.
+  - `LocationsSection`: cards for Balongbendo and Krian branches with interactive Google Maps embeds, direct Google Maps navigation links, and WhatsApp location query links.
   - `FloatingWhatsApp`: sticky green WhatsApp floating button with intro pulse animation.
 - **Supabase Integration**: `@supabase/supabase-js` and `@supabase/ssr` installed, browser client (`client.ts`), server client (`server.ts`), session middleware (`middleware.ts`), and route protection for `/admin/*`.
 - **SEO & Metadata**: Title, description, keywords, OpenGraph in `layout.tsx`, `robots.ts`, `sitemap.ts`.
