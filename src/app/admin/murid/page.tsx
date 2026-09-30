@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { StudentStatusButton } from "@/components/admin/murid/student-status-button";
 import type { Student } from "@/types";
 import { Plus, Eye, Edit2, Phone, MapPin, User } from "lucide-react";
-import { PROGRAMS, BRANCHES } from "@/lib/constants";
+import { PROGRAMS, BRANCHES, getProgramInitials, getProgramName } from "@/lib/constants";
 
 export const metadata = {
   title: "Data Murid | Uzma Course",
@@ -106,7 +106,10 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
     {
       id: "program",
       label: "Program",
-      options: PROGRAMS.map((p) => ({ value: p.id, label: p.name })),
+      options: PROGRAMS.map((p) => ({
+        value: p.id,
+        label: `[${p.initials}] ${p.name}`,
+      })),
     },
     {
       id: "status",
@@ -179,17 +182,15 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
       cell: (student) => (
         <div className="flex flex-wrap gap-1 max-w-xs">
           {student.programs && student.programs.length > 0 ? (
-            student.programs.map((progId) => {
-              const progObj = PROGRAMS.find((p) => p.id === progId);
-              return (
-                <span
-                  key={progId}
-                  className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200/60"
-                >
-                  {progObj ? progObj.name.split(" ")[0] : progId}
-                </span>
-              );
-            })
+            student.programs.map((progId) => (
+              <span
+                key={progId}
+                title={getProgramName(progId)}
+                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs"
+              >
+                {getProgramInitials(progId)}
+              </span>
+            ))
           ) : (
             <span className="text-xs text-slate-400 italic">-</span>
           )}

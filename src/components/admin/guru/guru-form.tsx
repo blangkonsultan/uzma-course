@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import Link from "next/link";
 import { createGuru, updateGuru } from "@/app/admin/guru/actions";
 import {
@@ -10,8 +10,9 @@ import {
 } from "@/components/admin/form-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
-import { AlertCircle, ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { PROGRAMS, BRANCHES } from "@/lib/constants";
+import { showToast } from "@/components/admin/toast";
 import type { Profile } from "@/types";
 
 interface GuruFormProps {
@@ -21,7 +22,18 @@ interface GuruFormProps {
 
 export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [formError, setFormError] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState({
+    full_name: initialData?.full_name || "",
+    email: "",
+    password: "",
+    phone: initialData?.phone || "",
+    branch_id: initialData?.branch_id || "",
+    programs: (initialData?.programs || []) as string[],
+    is_active: initialData?.is_active ?? true,
+  });
+
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const branchOptions = BRANCHES.map((b) => ({
     value: b.id,
@@ -30,32 +42,82 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
 
   const programOptions = PROGRAMS.map((p) => ({
     value: p.id,
-    label: p.name,
+    label: `[${p.initials}] ${p.name}`,
     description: `${p.system} · ${p.duration}`,
   }));
 
-  async function handleSubmit(formData: FormData) {
-    setFormError(null);
+  function updateField<K extends keyof typeof formData>(
+    field: K,
+    value: typeof formData[K]
+  ) {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  }
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    // Client-side pre-validation
+    const errors: Record<string, string> = {};
+    if (!formData.full_name.trim() || formData.full_name.trim().length < 2) {
+      errors.full_name = "Nama lengkap guru minimal 2 karakter.";
+    }
+    if (!isEdit) {
+      if (!formData.email.trim() || !formData.email.includes("@")) {
+        errors.email = "Format email tidak valid.";
+      }
+      if (!formData.password || formData.password.length < 8) {
+        errors.password = "Kata sandi minimal 8 karakter.";
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    setFieldErrors({});
 
     startTransition(async () => {
       try {
+        const data = new FormData();
+        data.append("full_name", formData.full_name.trim());
+        data.append("phone", formData.phone.trim());
+        data.append("branch_id", formData.branch_id);
+        formData.programs.forEach((prog) => data.append("programs", prog));
+
         let res;
         if (isEdit && initialData) {
-          res = await updateGuru(initialData.id, formData);
+          data.append("is_active", formData.is_active ? "true" : "false");
+          res = await updateGuru(initialData.id, data);
         } else {
-          res = await createGuru(formData);
+          data.append("email", formData.email.trim());
+          data.append("password", formData.password);
+          res = await createGuru(data);
         }
 
+        if (res?.fieldErrors) {
+          setFieldErrors(res.fieldErrors);
+        }
         if (res?.error) {
-          setFormError(res.error);
+          showToast(res.error, "error");
         }
       } catch (err: unknown) {
         // Next.js redirect throws a special error which shouldn't be caught as an exception
         if (err instanceof Error && err.message === "NEXT_REDIRECT") {
           throw err;
         }
-        setFormError(
-          err instanceof Error ? err.message : "Terjadi kesalahan saat memproses data."
+        showToast(
+          err instanceof Error
+            ? err.message
+            : "Terjadi kesalahan saat memproses data.",
+          "error"
         );
       }
     });
@@ -64,17 +126,7 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
   return (
     <Card className="max-w-2xl border border-slate-200/80 shadow-xs">
       <CardBody className="p-6 sm:p-8">
-        {formError && (
-          <div
-            role="alert"
-            className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2.5 animate-in fade-in"
-          >
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-            <p className="font-medium leading-relaxed">{formError}</p>
-          </div>
-        )}
-
-        <form action={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">
               Informasi Akun & Pribadi
@@ -86,7 +138,9 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
               label="Nama Lengkap Guru"
               required
               placeholder="Contoh: Siti Rahmawati, S.Pd."
-              defaultValue={initialData?.full_name || ""}
+              value={formData.full_name}
+              onChange={(e) => updateField("full_name", e.target.value)}
+              error={fieldErrors.full_name}
               disabled={isPending}
             />
 
@@ -100,6 +154,9 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
                   required
                   placeholder="guru@uzmacourse.com"
                   hint="Digunakan oleh guru untuk masuk ke portal."
+                  value={formData.email}
+                  onChange={(e) => updateField("email", e.target.value)}
+                  error={fieldErrors.email}
                   disabled={isPending}
                 />
 
@@ -111,6 +168,9 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
                   required
                   placeholder="Minimal 8 karakter"
                   hint="Berikan kata sandi ini kepada guru bersangkutan."
+                  value={formData.password}
+                  onChange={(e) => updateField("password", e.target.value)}
+                  error={fieldErrors.password}
                   disabled={isPending}
                 />
               </>
@@ -122,8 +182,10 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
               type="tel"
               label="Nomor WhatsApp / HP"
               placeholder="Contoh: 081234567890"
-              defaultValue={initialData?.phone || ""}
               hint="Format nomor telepon aktif untuk koordinasi."
+              value={formData.phone}
+              onChange={(e) => updateField("phone", e.target.value)}
+              error={fieldErrors.phone}
               disabled={isPending}
             />
           </div>
@@ -138,7 +200,9 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
               name="branch_id"
               label="Cabang Penugasan"
               options={branchOptions}
-              defaultValue={initialData?.branch_id || ""}
+              value={formData.branch_id}
+              onChange={(e) => updateField("branch_id", e.target.value)}
+              error={fieldErrors.branch_id}
               placeholder="Pilih cabang utama..."
               disabled={isPending}
             />
@@ -148,7 +212,9 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
               name="programs"
               label="Program Bimbingan yang Diampu"
               options={programOptions}
-              defaultValues={initialData?.programs || []}
+              values={formData.programs}
+              onChange={(vals) => updateField("programs", vals)}
+              error={fieldErrors.programs}
               hint="Pilih program kursus yang diajarkan oleh guru ini."
             />
           </div>
@@ -164,8 +230,10 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
                   <input
                     type="checkbox"
                     name="is_active"
-                    value="true"
-                    defaultChecked={initialData?.is_active ?? true}
+                    checked={formData.is_active}
+                    onChange={(e) =>
+                      updateField("is_active", e.target.checked)
+                    }
                     className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                   />
                   <span className="text-sm font-medium text-slate-800">
@@ -189,7 +257,7 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
               type="submit"
               size="md"
               disabled={isPending}
-              className="font-medium"
+              className="font-medium cursor-pointer"
             >
               {isPending ? (
                 <>

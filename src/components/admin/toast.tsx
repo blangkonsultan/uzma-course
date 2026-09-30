@@ -4,6 +4,22 @@ import { useEffect, useState, useCallback, Suspense } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, AlertCircle, X } from "lucide-react";
 
+export type ToastType = "success" | "error";
+
+interface ToastEventDetail {
+  message: string;
+  type: ToastType;
+}
+
+export function showToast(message: string, type: ToastType = "error") {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent<ToastEventDetail>("app-toast", {
+        detail: { message, type },
+      })
+    );
+  }
+}
 function ToastContent() {
   const router = useRouter();
   const pathname = usePathname();
@@ -12,22 +28,44 @@ function ToastContent() {
   const successMessage = searchParams.get("success");
   const errorMessage = searchParams.get("error");
   const message = successMessage || errorMessage;
-  const isSuccess = Boolean(successMessage);
 
   const [dismissedMessage, setDismissedMessage] = useState<string | null>(null);
+  const [dynamicToast, setDynamicToast] = useState<{
+    message: string;
+    type: ToastType;
+  } | null>(null);
 
-  const isVisible = Boolean(message && message !== dismissedMessage);
+  useEffect(() => {
+    function handleToastEvent(e: Event) {
+      const customEvent = e as CustomEvent<ToastEventDetail>;
+      if (customEvent.detail?.message) {
+        setDynamicToast({
+          message: customEvent.detail.message,
+          type: customEvent.detail.type || "error",
+        });
+      }
+    }
 
+    window.addEventListener("app-toast", handleToastEvent);
+    return () => window.removeEventListener("app-toast", handleToastEvent);
+  }, []);
+
+  const currentMessage = dynamicToast?.message || (message !== dismissedMessage ? message : null);
+  const isSuccess = dynamicToast ? dynamicToast.type === "success" : Boolean(successMessage);
+  const isVisible = Boolean(currentMessage);
   const dismissToast = useCallback(() => {
+    if (dynamicToast) {
+      setDynamicToast(null);
+    }
     if (message) {
       setDismissedMessage(message);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("success");
+      params.delete("error");
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     }
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("success");
-    params.delete("error");
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }, [message, pathname, router, searchParams]);
+  }, [dynamicToast, message, pathname, router, searchParams]);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -39,8 +77,7 @@ function ToastContent() {
     return () => clearTimeout(timer);
   }, [isVisible, dismissToast]);
 
-  if (!isVisible || !message) return null;
-
+  if (!isVisible || !currentMessage) return null;
   return (
     <div
       role="status"
@@ -64,7 +101,7 @@ function ToastContent() {
           {isSuccess ? "Berhasil" : "Terjadi Kesalahan"}
         </p>
         <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-          {message}
+          {currentMessage}
         </p>
       </div>
 

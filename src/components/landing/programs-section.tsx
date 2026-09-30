@@ -7,6 +7,7 @@ import {
   Globe,
   GraduationCap,
   MessageCircle,
+  Sparkles,
   Users,
 } from "lucide-react";
 import { PROGRAMS } from "@/lib/constants";
@@ -21,6 +22,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Calculator,
   Globe,
   GraduationCap,
+  Sparkles,
 };
 
 export function ProgramsSection() {
@@ -32,7 +34,7 @@ export function ProgramsSection() {
           subtitle="Sistem belajar intensif dengan rasio murid kecil untuk hasil optimal dan anak senang belajar"
         />
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
           {PROGRAMS.map((program) => {
             const Icon = ICON_MAP[program.icon] || BookOpen;
 

@@ -17,7 +17,7 @@ import {
   ArrowLeft,
   ExternalLink,
 } from "lucide-react";
-import { PROGRAMS, BRANCHES } from "@/lib/constants";
+import { PROGRAMS, BRANCHES, getProgramInitials } from "@/lib/constants";
 
 export const metadata = {
   title: "Detail Murid | Uzma Course",
@@ -225,9 +225,14 @@ export default async function StudentDetailPage({
                       key={progId}
                       className="p-4 rounded-xl border border-slate-200/80 bg-white hover:border-primary-300 transition-colors shadow-2xs"
                     >
-                      <span className="text-[10px] font-bold text-primary-600 uppercase tracking-wider block mb-1">
-                        Program Terdaftar
-                      </span>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
+                          {getProgramInitials(progId)}
+                        </span>
+                        <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                          Program Terdaftar
+                        </span>
+                      </div>
                       <p className="text-sm font-bold text-slate-900">
                         {progObj ? progObj.name : progId}
                       </p>

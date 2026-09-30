@@ -27,8 +27,12 @@ async function requireAdmin() {
 
   return { user, supabase };
 }
+export interface GuruActionResponse {
+  error?: string;
+  fieldErrors?: Record<string, string>;
+}
 
-export async function createGuru(formData: FormData) {
+export async function createGuru(formData: FormData): Promise<GuruActionResponse | void> {
   await requireAdmin();
 
   const fullName = formData.get("full_name")?.toString().trim();
@@ -38,16 +42,21 @@ export async function createGuru(formData: FormData) {
   const branchId = formData.get("branch_id")?.toString().trim() || null;
   const programs = formData.getAll("programs").map((p) => p.toString());
 
+  const fieldErrors: Record<string, string> = {};
+
   if (!fullName || fullName.length < 2) {
-    return { error: "Nama lengkap minimal 2 karakter." };
+    fieldErrors.full_name = "Nama lengkap minimal 2 karakter.";
   }
   if (!email || !email.includes("@")) {
-    return { error: "Email tidak valid." };
+    fieldErrors.email = "Format email tidak valid.";
   }
   if (!password || password.length < 8) {
-    return { error: "Kata sandi minimal 8 karakter." };
+    fieldErrors.password = "Kata sandi minimal 8 karakter.";
   }
 
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
   try {
     const adminClient = createAdminClient();
 
@@ -64,15 +73,18 @@ export async function createGuru(formData: FormData) {
       });
 
     if (authError || !userData.user) {
-      return { error: authError?.message || "Gagal membuat akun autentikasi guru." };
+      const msg = authError?.message || "";
+      if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("exists")) {
+        return { fieldErrors: { email: "Email ini sudah terdaftar sebagai pengguna." } };
+      }
+      return { error: msg || "Gagal membuat akun autentikasi guru." };
     }
-
     const newUserId = userData.user.id;
 
     // 2. Update the profile row (created by trigger or upsert)
     const { error: profileError } = await adminClient.from("profiles").upsert({
       id: newUserId,
-      full_name: fullName,
+      full_name: fullName!,
       phone,
       role: "guru",
       branch_id: branchId as "balongbendo" | "krian" | null,
@@ -98,7 +110,7 @@ export async function createGuru(formData: FormData) {
   redirect("/admin/guru?success=" + encodeURIComponent("Guru berhasil ditambahkan"));
 }
 
-export async function updateGuru(id: string, formData: FormData) {
+export async function updateGuru(id: string, formData: FormData): Promise<GuruActionResponse | void> {
   const { supabase } = await requireAdmin();
 
   const fullName = formData.get("full_name")?.toString().trim();
@@ -107,10 +119,15 @@ export async function updateGuru(id: string, formData: FormData) {
   const programs = formData.getAll("programs").map((p) => p.toString());
   const isActive = formData.get("is_active") === "true";
 
+  const fieldErrors: Record<string, string> = {};
+
   if (!fullName || fullName.length < 2) {
-    return { error: "Nama lengkap minimal 2 karakter." };
+    fieldErrors.full_name = "Nama lengkap minimal 2 karakter.";
   }
 
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
   const { error } = await supabase
     .from("profiles")
     .update({

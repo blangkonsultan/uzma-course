@@ -203,7 +203,9 @@ export interface CheckboxGroupFieldProps {
   name: string;
   label: string;
   options: CheckboxGroupOption[];
+  values?: string[];
   defaultValues?: string[];
+  onChange?: (values: string[]) => void;
   required?: boolean;
   error?: string;
   hint?: string;
@@ -215,12 +217,17 @@ export function CheckboxGroupField({
   name,
   label,
   options,
+  values,
   defaultValues = [],
+  onChange,
   required,
   error,
   hint,
   className,
 }: CheckboxGroupFieldProps) {
+  const isControlled = values !== undefined;
+  const selectedValues = isControlled ? values : defaultValues;
+
   return (
     <div className={cn("space-y-2", className)}>
       <span className="block text-sm font-medium text-slate-700">
@@ -230,19 +237,35 @@ export function CheckboxGroupField({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {options.map((opt) => {
           const optId = `${id}-${opt.value}`;
-          const isChecked = defaultValues.includes(opt.value);
+          const isChecked = selectedValues.includes(opt.value);
           return (
             <label
               key={opt.value}
               htmlFor={optId}
-              className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-primary-300 hover:bg-primary-50/20 transition-all cursor-pointer bg-white"
+              className={cn(
+                "flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer bg-white",
+                isChecked
+                  ? "border-primary-400 bg-primary-50/20 ring-1 ring-primary-500/20"
+                  : error
+                  ? "border-rose-200 hover:border-rose-300"
+                  : "border-slate-200 hover:border-primary-300 hover:bg-primary-50/10"
+              )}
             >
               <input
                 type="checkbox"
                 id={optId}
                 name={name}
                 value={opt.value}
-                defaultChecked={isChecked}
+                checked={isControlled ? isChecked : undefined}
+                defaultChecked={!isControlled ? isChecked : undefined}
+                onChange={(e) => {
+                  if (onChange) {
+                    const next = e.target.checked
+                      ? [...selectedValues, opt.value]
+                      : selectedValues.filter((v) => v !== opt.value);
+                    onChange(next);
+                  }
+                }}
                 className="mt-0.5 h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
               />
               <div className="text-sm">

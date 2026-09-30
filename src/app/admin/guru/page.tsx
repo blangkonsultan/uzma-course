@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { GuruStatusButton } from "@/components/admin/guru/guru-status-button";
 import type { Profile } from "@/types";
 import { Plus, Edit2, Phone, MapPin } from "lucide-react";
-import { PROGRAMS, BRANCHES } from "@/lib/constants";
+import { PROGRAMS, BRANCHES, getProgramInitials, getProgramName } from "@/lib/constants";
 
 export const metadata = {
   title: "Data Guru | Uzma Course",
@@ -152,17 +152,15 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
       cell: (guru) => (
         <div className="flex flex-wrap gap-1 max-w-xs">
           {guru.programs && guru.programs.length > 0 ? (
-            guru.programs.map((progId) => {
-              const progObj = PROGRAMS.find((p) => p.id === progId);
-              return (
-                <span
-                  key={progId}
-                  className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200/60"
-                >
-                  {progObj ? progObj.name.split(" ")[0] : progId}
-                </span>
-              );
-            })
+            guru.programs.map((progId) => (
+              <span
+                key={progId}
+                title={getProgramName(progId)}
+                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs"
+              >
+                {getProgramInitials(progId)}
+              </span>
+            ))
           ) : (
             <span className="text-xs text-slate-400 italic">Semua program</span>
           )}

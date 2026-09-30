@@ -81,6 +81,7 @@ export default async function AdminDashboardPage() {
     ).length;
     return {
       id: prog.id,
+      initials: prog.initials,
       name: prog.name,
       count,
     };
@@ -236,16 +237,21 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {programCounts.map((prog) => (
             <div
               key={prog.id}
               className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/60 flex flex-col justify-between"
             >
               <div>
-                <span className="text-[11px] font-semibold text-primary-600 uppercase tracking-wider block mb-1">
-                  Program Belajar
-                </span>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
+                    {prog.initials}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                    Program
+                  </span>
+                </div>
                 <p className="text-sm font-bold text-slate-800 leading-snug">
                   {prog.name}
                 </p>

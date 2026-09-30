@@ -26,8 +26,12 @@ async function requireAdmin() {
 
   return { user, supabase };
 }
+export interface StudentActionResponse {
+  error?: string;
+  fieldErrors?: Record<string, string>;
+}
 
-export async function createStudent(formData: FormData) {
+export async function createStudent(formData: FormData): Promise<StudentActionResponse | void> {
   const { supabase } = await requireAdmin();
 
   const fullName = formData.get("full_name")?.toString().trim();
@@ -40,30 +44,35 @@ export async function createStudent(formData: FormData) {
   const programs = formData.getAll("programs").map((p) => p.toString());
   const notes = formData.get("notes")?.toString().trim() || "";
 
+  const fieldErrors: Record<string, string> = {};
+
   if (!fullName || fullName.length < 2) {
-    return { error: "Nama lengkap murid minimal 2 karakter." };
+    fieldErrors.full_name = "Nama lengkap murid minimal 2 karakter.";
   }
   if (!parentName || parentName.length < 2) {
-    return { error: "Nama orang tua / wali minimal 2 karakter." };
+    fieldErrors.parent_name = "Nama orang tua / wali minimal 2 karakter.";
   }
   if (!parentPhone || parentPhone.length < 8) {
-    return { error: "Nomor HP orang tua minimal 8 digit." };
+    fieldErrors.parent_phone = "Nomor WhatsApp orang tua minimal 8 digit.";
   }
   if (branchId !== "balongbendo" && branchId !== "krian") {
-    return { error: "Cabang wajib dipilih (Balongbendo atau Krian)." };
+    fieldErrors.branch_id = "Cabang wajib dipilih (Balongbendo atau Krian).";
   }
   if (programs.length === 0) {
-    return { error: "Pilih minimal 1 program bimbingan." };
+    fieldErrors.programs = "Pilih minimal 1 program bimbingan.";
   }
 
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
   const { error } = await supabase.from("students").insert({
-    full_name: fullName,
+    full_name: fullName!,
     birth_date: birthDate,
     address,
-    parent_name: parentName,
-    parent_phone: parentPhone,
+    parent_name: parentName!,
+    parent_phone: parentPhone!,
     parent_email: parentEmail,
-    branch_id: branchId,
+    branch_id: branchId as "balongbendo" | "krian",
     programs,
     notes,
     is_active: true,
@@ -78,7 +87,7 @@ export async function createStudent(formData: FormData) {
   redirect("/admin/murid?success=" + encodeURIComponent("Data murid berhasil ditambahkan"));
 }
 
-export async function updateStudent(id: string, formData: FormData) {
+export async function updateStudent(id: string, formData: FormData): Promise<StudentActionResponse | void> {
   const { supabase } = await requireAdmin();
 
   const fullName = formData.get("full_name")?.toString().trim();
@@ -92,32 +101,37 @@ export async function updateStudent(id: string, formData: FormData) {
   const notes = formData.get("notes")?.toString().trim() || "";
   const isActive = formData.get("is_active") === "true";
 
+  const fieldErrors: Record<string, string> = {};
+
   if (!fullName || fullName.length < 2) {
-    return { error: "Nama lengkap murid minimal 2 karakter." };
+    fieldErrors.full_name = "Nama lengkap murid minimal 2 karakter.";
   }
   if (!parentName || parentName.length < 2) {
-    return { error: "Nama orang tua / wali minimal 2 karakter." };
+    fieldErrors.parent_name = "Nama orang tua / wali minimal 2 karakter.";
   }
   if (!parentPhone || parentPhone.length < 8) {
-    return { error: "Nomor HP orang tua minimal 8 digit." };
+    fieldErrors.parent_phone = "Nomor WhatsApp orang tua minimal 8 digit.";
   }
   if (branchId !== "balongbendo" && branchId !== "krian") {
-    return { error: "Cabang wajib dipilih (Balongbendo atau Krian)." };
+    fieldErrors.branch_id = "Cabang wajib dipilih (Balongbendo atau Krian).";
   }
   if (programs.length === 0) {
-    return { error: "Pilih minimal 1 program bimbingan." };
+    fieldErrors.programs = "Pilih minimal 1 program bimbingan.";
   }
 
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors };
+  }
   const { error } = await supabase
     .from("students")
     .update({
-      full_name: fullName,
+      full_name: fullName!,
       birth_date: birthDate,
       address,
-      parent_name: parentName,
-      parent_phone: parentPhone,
+      parent_name: parentName!,
+      parent_phone: parentPhone!,
       parent_email: parentEmail,
-      branch_id: branchId,
+      branch_id: branchId as "balongbendo" | "krian",
       programs,
       notes,
       is_active: isActive,

@@ -18,6 +18,7 @@ export const FOUNDER = {
 export const PROGRAMS = [
   {
     id: "ahe",
+    initials: "AHE",
     name: "Les Baca Tulis (AHE)",
     tagline: "Belajar Baca & Tulis Cepat dan Menyenangkan",
     description: "Metode AHE yang teruji klinis dan ramah anak. Membantu anak lancar membaca dan menulis tanpa mengeja dan tanpa beban.",
@@ -29,19 +30,21 @@ export const PROGRAMS = [
     features: ["Buku Modul Eksklusif", "Buku Penghubung", "Piagam & Piala Kelulusan"],
   },
   {
-    id: "hitung",
-    name: "Les Hitung Dasar",
-    tagline: "Fondasi Matematika Dasar Ceria & Mudah",
-    description: "Program belajar konsep angka, penjumlahan, dan pengurangan dengan metode bertahap yang mudah dipahami anak usia dini.",
-    ageRange: "Mulai 4 tahun",
-    icon: "Calculator",
-    system: "1 guru max 4 murid",
+    id: "ase",
+    initials: "ASE",
+    name: "Anak Smart Edukasi (ASE)",
+    tagline: "Stimulasi Tumbuh Kembang Sensori & Kognitif",
+    description: "Program stimulasi sensori, motorik, dan kesiapan belajar bagi anak usia dini dengan metode interaktif yang menyenangkan.",
+    ageRange: "Mulai 3 tahun",
+    icon: "Sparkles",
+    system: "1 guru max 2 murid",
     duration: "30 menit / sesi",
     frequency: "3x / minggu (12x / bulan)",
-    features: ["Buku Modul", "Buku Penghubung", "Permainan Angka Edukatif"],
+    features: ["Buku Modul", "Buku Penghubung", "Permainan Sensori Motorik"],
   },
   {
     id: "bee",
+    initials: "BEE",
     name: "Brainy English Education (BEE)",
     tagline: "English Made Fun for Kids",
     description: "Program bahasa Inggris interaktif untuk membangun kosakata, pelafalan, dan keberanian berbicara bahasa Inggris sejak kecil.",
@@ -54,6 +57,7 @@ export const PROGRAMS = [
   },
   {
     id: "mapel",
+    initials: "MAPEL",
     name: "Les Mata Pelajaran SD",
     tagline: "Pendampingan Belajar Kurikulum Sekolah",
     description: "Bimbingan belajar private intensif untuk memahami materi sekolah reguler, persiapan ulangan harian, PTS, PAS, dan PR.",
@@ -64,7 +68,40 @@ export const PROGRAMS = [
     frequency: "3x / minggu (12x / bulan)",
     features: ["Private 1 Guru 1 Murid", "Buku Penghubung", "Bimbingan PR & Ujian"],
   },
+  {
+    id: "hitung",
+    initials: "HITUNG",
+    name: "Les Hitung Dasar",
+    tagline: "Fondasi Matematika Dasar Ceria & Mudah",
+    description: "Program belajar konsep angka, penjumlahan, dan pengurangan dengan metode bertahap yang mudah dipahami anak usia dini.",
+    ageRange: "Mulai 4 tahun",
+    icon: "Calculator",
+    system: "1 guru max 4 murid",
+    duration: "30 menit / sesi",
+    frequency: "3x / minggu (12x / bulan)",
+    features: ["Buku Modul", "Buku Penghubung", "Permainan Angka Edukatif"],
+  },
 ] as const;
+
+export function getProgramInitials(progId: string): string {
+  if (!progId) return "";
+  const normalized = progId.toLowerCase().trim();
+  const found = PROGRAMS.find(
+    (p) => p.id === normalized || p.initials.toLowerCase() === normalized
+  );
+  if (found) return found.initials;
+  return progId.toUpperCase();
+}
+
+export function getProgramName(progId: string): string {
+  if (!progId) return "";
+  const normalized = progId.toLowerCase().trim();
+  const found = PROGRAMS.find(
+    (p) => p.id === normalized || p.initials.toLowerCase() === normalized
+  );
+  if (found) return found.name;
+  return progId;
+}
 
 export const FACILITIES = [
   {
