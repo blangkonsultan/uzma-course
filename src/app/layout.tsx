@@ -21,7 +21,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={poppins.variable}>
-      <body>{children}</body>
+      <body className="antialiased">
+        <a
+          href="#programs"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[60] focus:bg-white focus:text-primary-700 focus:font-semibold focus:px-4 focus:py-2 focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+        >
+          Langsung ke konten
+        </a>
+        {children}
+      </body>
     </html>
   );
 }
