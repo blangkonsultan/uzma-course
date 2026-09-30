@@ -150,7 +150,7 @@ export function AdminShell({ profile, children }: AdminShellProps) {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    className={`flex items-center gap-3 px-3.5 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all ${
                       isActive
                         ? "bg-primary-50 text-primary-700 shadow-xs font-semibold"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -195,7 +195,7 @@ export function AdminShell({ profile, children }: AdminShellProps) {
         </div>
 
         {/* User Card & Logout in Sidebar Footer */}
-        <div className="p-3 border-t border-slate-100 bg-slate-50/50">
+        <div className="p-3.5 pb-8 md:pb-3 border-t border-slate-100 bg-slate-50/50">
           <div className="p-3 bg-white rounded-xl border border-slate-200/70 shadow-2xs mb-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-800 truncate">
@@ -248,16 +248,24 @@ export function AdminShell({ profile, children }: AdminShellProps) {
       <div className="flex-1 md:pl-64 flex flex-col min-h-screen">
         {/* Top Navbar */}
         <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors"
+              className="md:hidden p-2 -ml-1 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors"
               aria-label="Buka navigasi"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="hidden sm:block">
+            <div className="md:hidden flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-primary-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+                U
+              </div>
+              <span className="font-heading font-bold text-sm text-slate-900 leading-none">
+                Uzma Course
+              </span>
+            </div>
+            <div className="hidden md:block">
               <p className="text-xs font-medium text-slate-500">
                 Portal Mini ERP Uzma Course
               </p>
@@ -278,12 +286,13 @@ export function AdminShell({ profile, children }: AdminShellProps) {
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200/80 rounded-xl transition-colors inline-flex items-center gap-1.5"
+              className="px-3 py-2 sm:py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200/80 rounded-xl transition-colors inline-flex items-center gap-1.5 min-h-[38px] sm:min-h-0"
+              aria-label="Keluar dari akun"
             >
               {isLoggingOut ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
               ) : (
-                <LogOut className="w-3.5 h-3.5" />
+                <LogOut className="w-3.5 h-3.5 shrink-0" />
               )}
               <span className="hidden sm:inline">Keluar</span>
             </button>

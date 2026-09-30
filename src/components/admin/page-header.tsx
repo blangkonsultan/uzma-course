@@ -50,14 +50,14 @@ export function PageHeader({
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 font-heading">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 font-heading">
             {title}
           </h1>
           {description && (
-            <p className="text-sm text-slate-600 mt-1">{description}</p>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">{description}</p>
           )}
         </div>
-        {action && <div className="flex items-center gap-2 shrink-0">{action}</div>}
+        {action && <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">{action}</div>}
       </div>
     </div>
   );

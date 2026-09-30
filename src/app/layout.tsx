@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 
@@ -80,6 +80,12 @@ export const metadata: Metadata = {
       "Pusat les baca AHE Sumokembangsri & les baca AHE Junwangi Sidoarjo. Bimbingan belajar calistung AHE, BEE, dan bimbel SD-SMP ramah anak.",
     images: ["/images/logo-ahe-sumowangi.png"],
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({

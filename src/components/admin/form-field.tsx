@@ -45,7 +45,7 @@ export function InputField({
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
         className={cn(
-          "w-full px-3.5 py-2 rounded-xl border bg-white text-slate-900 text-sm shadow-xs transition-colors",
+          "w-full px-3.5 py-2.5 sm:py-2 rounded-xl border bg-white text-slate-900 text-base sm:text-sm shadow-xs transition-colors",
           "placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500",
           error
             ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20"
@@ -99,7 +99,7 @@ export function TextareaField({
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
         className={cn(
-          "w-full px-3.5 py-2 rounded-xl border bg-white text-slate-900 text-sm shadow-xs transition-colors",
+          "w-full px-3.5 py-2.5 sm:py-2 rounded-xl border bg-white text-slate-900 text-base sm:text-sm shadow-xs transition-colors",
           "placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500",
           error
             ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20"
@@ -161,7 +161,7 @@ export function SelectField({
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
         className={cn(
-          "w-full px-3.5 py-2 rounded-xl border bg-white text-slate-900 text-sm shadow-xs transition-colors",
+          "w-full px-3.5 py-2.5 sm:py-2 rounded-xl border bg-white text-slate-900 text-base sm:text-sm shadow-xs transition-colors",
           "focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500",
           error
             ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20"

@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import {
   InputField,
   TextareaField,
   SelectField,
 } from "@/components/admin/form-field";
 import { SortableItemList } from "@/components/admin/landing/sortable-item-list";
-import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, Save, Plus, X } from "lucide-react";
+import { FormActions } from "@/components/admin/landing/form-actions";
+import { Plus, X } from "lucide-react";
 import { updateLandingSection } from "@/app/admin/landing/actions";
 import type { ProgramsContent, ProgramItem } from "@/types/landing";
 
@@ -54,7 +53,7 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
       )}
 
       {/* Section Header Details */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-base font-bold text-slate-800 font-heading border-b border-slate-100 pb-3">
           Judul Section Program
         </h2>
@@ -78,7 +77,7 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
       </div>
 
       {/* Program Items List */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs">
         <SortableItemList<ProgramItem>
           title="Daftar Program Kursus"
           description="Atur urutan, tambah, atau perbarui rincian program belajar"
@@ -237,12 +236,12 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
                   ))}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 min-w-0">
                   <input
                     type="text"
                     id={`prog-feat-input-${index}`}
-                    placeholder="Tambah fasilitas (misal: Buku Modul, Piala)..."
-                    className="px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 flex-1 focus:outline-none focus:border-primary-500"
+                    placeholder="Tambah fasilitas program..."
+                    className="px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:border-primary-500 min-w-0 flex-1"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
@@ -274,7 +273,7 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
                         }
                       }
                     }}
-                    className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold inline-flex items-center gap-1 transition-colors"
+                    className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold inline-flex items-center gap-1 transition-colors shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Tambah</span>
@@ -286,33 +285,7 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
         />
       </div>
 
-      <div className="flex items-center justify-between pt-4">
-        <Link
-          href="/admin/landing"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Daftar</span>
-        </Link>
-
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="inline-flex items-center gap-2"
-        >
-          {isPending ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Menyimpan...</span>
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              <span>Simpan Perubahan</span>
-            </>
-          )}
-        </Button>
-      </div>
+      <FormActions isPending={isPending} />
     </form>
   );
 }

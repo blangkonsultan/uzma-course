@@ -45,13 +45,13 @@ export function ImageUrlField({
   const hasValidUrl = value.trim().length > 0;
 
   return (
-    <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
+    <div className="space-y-3 p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200">
       <div className="flex items-center gap-2">
-        <ImageIcon className="w-4 h-4 text-primary-600" aria-hidden="true" />
+        <ImageIcon className="w-4 h-4 text-primary-600 shrink-0" aria-hidden="true" />
         <span className="font-semibold text-sm text-slate-800">{label}</span>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="grid sm:grid-cols-2 gap-3.5 sm:gap-4">
         <InputField
           id={`${idPrefix}-url`}
           label="URL Gambar"
@@ -89,7 +89,7 @@ export function ImageUrlField({
           ) : (
             <div
               className={cn(
-                "relative max-w-xs h-32 rounded-lg overflow-hidden border border-slate-300 bg-slate-100 shadow-xs",
+                "relative w-full max-w-[280px] sm:max-w-xs h-32 rounded-lg overflow-hidden border border-slate-300 bg-slate-100 shadow-xs",
                 previewAspect
               )}
             >

@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { InputField, TextareaField } from "@/components/admin/form-field";
 import { SortableItemList } from "@/components/admin/landing/sortable-item-list";
-import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, Save } from "lucide-react";
+import { FormActions } from "@/components/admin/landing/form-actions";
 import { updateLandingSection } from "@/app/admin/landing/actions";
 import type { FAQContent, FAQItem } from "@/types/landing";
 
@@ -41,7 +39,7 @@ export function FAQForm({ initialData }: FAQFormProps) {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-base font-bold text-slate-800 font-heading border-b border-slate-100 pb-3">
           Judul Section FAQ
         </h2>
@@ -64,7 +62,7 @@ export function FAQForm({ initialData }: FAQFormProps) {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs">
         <SortableItemList<FAQItem>
           title="Daftar Pertanyaan & Jawaban"
           description="Atur urutan FAQ, tambah pertanyaan baru, atau perbarui jawaban"
@@ -120,33 +118,7 @@ export function FAQForm({ initialData }: FAQFormProps) {
         />
       </div>
 
-      <div className="flex items-center justify-between pt-4">
-        <Link
-          href="/admin/landing"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Daftar</span>
-        </Link>
-
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="inline-flex items-center gap-2"
-        >
-          {isPending ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Menyimpan...</span>
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              <span>Simpan Perubahan</span>
-            </>
-          )}
-        </Button>
-      </div>
+      <FormActions isPending={isPending} />
     </form>
   );
 }

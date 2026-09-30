@@ -59,5 +59,45 @@
 - **Browser E2E Verification**: Headless Chromium logged into `/login` with `admin@uzmacourse.com`, verified "Landing Page" sidebar item, navigated to `/admin/landing` (13 section cards rendered), opened `/admin/landing/hero` and verified populated form fields, and inspected `/admin/landing/team` verifying image preview thumbnail and values manager.
 - **Build Verification**: `npm run build` completed with zero errors and generated all routes. `npm run lint` passed with 0 errors.
 
+### Next Steps (Phase 2 — Mini ERP)
+- Proceed with Phase 2b ERP modules (Presensi Guru with geolocation, Kartu Mengajar, Penggajian & SPP, Laporan) as planned.
+
+## Session: 2026-09-30 (Mobile UI Polish & Fixes — Landing Page Management & Admin Shell)
+
+### Summary of Completed Work
+- **SortableItemList Mobile Overhaul (`src/components/admin/landing/sortable-item-list.tsx`)**:
+  - Fixed truncation and clipping defect where item action buttons (Move Up, Move Down, Delete) were pushed off-screen (rendered at 514px on 375px screens).
+  - Rebuilt item header bar using `min-w-0 flex-1` for label button, `truncate min-w-0` on label text, and `shrink-0` on action buttons with 36px+ comfortable touch target hit areas.
+  - Fixed header counter badge (`{items.length} item`) from awkward two-line text wrapping by adding `shrink-0 whitespace-nowrap`.
+  - Adjusted nested card padding to responsive `p-3.5 sm:p-4`.
+- **Form Actions Component (`src/components/admin/landing/form-actions.tsx`)**:
+  - Created reusable mobile-first action footer replacing squashed side-by-side buttons.
+  - On mobile: full-width primary submit button (`w-full`, min 44px thumb target) with loading spinner state, cleanly stacked above full-width secondary back button.
+  - On desktop (`sm:`): clean side-by-side layout (Back on left, Save on right).
+- **All 13 Landing Section Forms Refactored**:
+  - Updated `hero-form`, `programs-form`, `why-us-form`, `facilities-form`, `team-form`, `testimonials-form`, `videos-form`, `locations-form`, `faq-form`, `cta-form`, `footer-form`, `navbar-form`, `floating-wa-form`.
+  - Converted outer cards from rigid `p-6` to responsive `p-4 sm:p-6`, reclaiming 16px of horizontal space on mobile devices.
+  - Added `min-w-0 flex-1` on feature input fields (`programs-form`, `hero-form`, etc.) to prevent inputs with long placeholders from pushing the "+ Tambah" button out of the viewport.
+- **ImageUrlField (`src/components/admin/landing/image-url-field.tsx`)**:
+  - Added responsive padding (`p-3.5 sm:p-4`) and responsive preview thumbnail width constraint (`max-w-[280px] sm:max-w-xs`).
+- **Admin Shell & Top Navbar (`src/components/admin/admin-shell.tsx`)**:
+  - Added prominent brand icon + "Uzma Course" text anchor to the top navbar on mobile, eliminating the empty blank bar between hamburger and logout icons.
+  - Increased mobile drawer nav link touch targets (`py-3`) and added bottom safe area padding (`pb-8 md:pb-3`) for gesture bars / home indicators.
+  - Enhanced logout button tap target (`min-h-[38px]`).
+- **Form Inputs & Typography (`src/components/admin/form-field.tsx`)**:
+  - Set input/textarea/select font size to `text-base sm:text-sm` (16px on mobile, 14px on desktop) to prevent iOS Safari auto-viewport zoom jump.
+  - Polished touch padding to `py-2.5 sm:py-2`.
+- **PageHeader (`src/components/admin/page-header.tsx`)**:
+  - Applied responsive heading scale `text-xl sm:text-2xl` and `self-start sm:self-auto` for action buttons.
+- **Root Layout Viewport (`src/app/layout.tsx`)**:
+  - Exported standard Next.js `Viewport` metadata with `width: "device-width", initialScale: 1`.
+
+### Verification Evidence
+- **Automated 360px Viewport Scan**: Batch script verified all 13 edit routes (`/admin/landing/*`) at 360×640px. 0 horizontal overflows detected across all 13 sections (`hasOverflow: false`, `overflowingCount: 0`).
+- **Visual Inspection**: Captured mobile screenshots at 360px and 375px across index (`/admin/landing`), drawer menu, `programs-form`, and bottom action bar.
+- **Form Submission Test**: Exercised live save via server action on mobile viewport, verified redirect and success alert banner.
+- **Impeccable Mechanical Detector**: Ran `/impeccable detect` on all modified files, returning 0 violations (`[]`).
+- **Production Build & Lint**: `npm run build` succeeded with 0 errors across all routes. `npm run lint` clean.
+
 ### Next Steps
 - Proceed with Phase 2b ERP modules (Presensi Guru with geolocation, Kartu Mengajar, Penggajian & SPP, Laporan) as planned.

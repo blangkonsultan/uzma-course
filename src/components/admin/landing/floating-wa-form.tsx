@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { CheckboxField } from "@/components/admin/form-field";
-import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, Save, MessageCircle } from "lucide-react";
+import { FormActions } from "@/components/admin/landing/form-actions";
+import { MessageCircle } from "lucide-react";
 import { updateLandingSection } from "@/app/admin/landing/actions";
 import type { FloatingWaContent } from "@/types/landing";
 
@@ -40,7 +39,7 @@ export function FloatingWaForm({ initialData }: FloatingWaFormProps) {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-5">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-5">
         <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
           <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
             <MessageCircle className="w-5 h-5" />
@@ -55,7 +54,7 @@ export function FloatingWaForm({ initialData }: FloatingWaFormProps) {
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+        <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200">
           <CheckboxField
             id="isEnabled"
             label="Aktifkan Tombol Floating WhatsApp"
@@ -66,33 +65,7 @@ export function FloatingWaForm({ initialData }: FloatingWaFormProps) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-4">
-        <Link
-          href="/admin/landing"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Daftar</span>
-        </Link>
-
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="inline-flex items-center gap-2"
-        >
-          {isPending ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Menyimpan...</span>
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              <span>Simpan Perubahan</span>
-            </>
-          )}
-        </Button>
-      </div>
+      <FormActions isPending={isPending} />
     </form>
   );
 }

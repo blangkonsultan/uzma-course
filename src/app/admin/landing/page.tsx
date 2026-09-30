@@ -206,7 +206,7 @@ export default async function AdminLandingPage({ searchParams }: LandingPageProp
         </div>
       )}
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
         {SECTIONS.map((section) => {
           const Icon = section.icon;
           const updatedAt = updatedMap[section.slug];
@@ -216,7 +216,7 @@ export default async function AdminLandingPage({ searchParams }: LandingPageProp
               key={section.slug}
               className="hover:shadow-md hover:border-primary-200 transition-all duration-200 flex flex-col justify-between"
             >
-              <CardBody className="p-5 flex flex-col h-full justify-between gap-4">
+              <CardBody className="p-4 sm:p-5 flex flex-col h-full justify-between gap-3 sm:gap-4">
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
@@ -247,9 +247,9 @@ export default async function AdminLandingPage({ searchParams }: LandingPageProp
 
                   <Link
                     href={`/admin/landing/${section.slug}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary-50 text-primary-700 hover:bg-primary-600 hover:text-white transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-lg text-xs font-semibold bg-primary-50 text-primary-700 hover:bg-primary-600 hover:text-white transition-colors min-h-[36px] sm:min-h-0"
                   >
-                    <Edit3 className="w-3.5 h-3.5" aria-hidden="true" />
+                    <Edit3 className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                     <span>Edit Konten</span>
                   </Link>
                 </div>
