@@ -1,7 +1,7 @@
 export const SITE_NAME = "Uzma Course";
 export const TAGLINE = "Reader now, Leader tomorrow!";
-export const WA_NUMBER = "6285708110736";
-export const SECONDARY_WA_NUMBER = "6285730332379";
+export const WA_NUMBER = "6285730332379";
+export const WA_DISPLAY_NUMBER = "085730332379";
 export const WA_BASE_URL = `https://wa.me/${WA_NUMBER}`;
 
 export const SOCIAL_LINKS = {

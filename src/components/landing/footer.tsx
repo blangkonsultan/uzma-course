@@ -6,9 +6,9 @@ import {
 import { Container } from "@/components/ui/container";
 import {
   BRANCHES,
-  SECONDARY_WA_NUMBER,
   SOCIAL_LINKS,
   TAGLINE,
+  WA_DISPLAY_NUMBER,
   WA_NUMBER,
 } from "@/lib/constants";
 import { buildWaLink } from "@/lib/whatsapp";
@@ -117,7 +117,7 @@ export function Footer() {
                 className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
               >
                 <Phone className="w-4 h-4 text-primary-400" aria-hidden="true" />
-                <span>085708110736</span>
+                <span>{WA_DISPLAY_NUMBER}</span>
               </a>
               <div>
                 <a
@@ -127,18 +127,7 @@ export function Footer() {
                   className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
                 >
                   <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                  <span>WhatsApp 1</span>
-                </a>
-              </div>
-              <div>
-                <a
-                  href={`https://wa.me/${SECONDARY_WA_NUMBER}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-                >
-                  <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                  <span>WhatsApp 2 (085730332379)</span>
+                  <span>WhatsApp ({WA_DISPLAY_NUMBER})</span>
                 </a>
               </div>
               <div>
@@ -172,7 +161,7 @@ export function Footer() {
                 className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
               >
                 <Phone className="w-4 h-4 text-primary-400" aria-hidden="true" />
-                <span>085708110736</span>
+                <span>{WA_DISPLAY_NUMBER}</span>
               </a>
               <div>
                 <a
@@ -182,18 +171,7 @@ export function Footer() {
                   className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
                 >
                   <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                  <span>WhatsApp 1</span>
-                </a>
-              </div>
-              <div>
-                <a
-                  href={`https://wa.me/${SECONDARY_WA_NUMBER}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-                >
-                  <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                  <span>WhatsApp 2 (085730332379)</span>
+                  <span>WhatsApp ({WA_DISPLAY_NUMBER})</span>
                 </a>
               </div>
               <div>
