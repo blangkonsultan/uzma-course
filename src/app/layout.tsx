@@ -48,7 +48,11 @@ export const metadata: Metadata = {
   creator: "Uzma Course",
   publisher: "Uzma Course",
   icons: {
-    icon: "/images/logo-uzma-course.jpg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/images/logo-uzma-course.jpg", type: "image/jpeg" },
+    ],
+    shortcut: "/favicon.ico",
     apple: "/images/logo-uzma-course.jpg",
   },
   verification: {
