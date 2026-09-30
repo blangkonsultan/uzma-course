@@ -4,47 +4,28 @@ import { Quote } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Card, CardBody } from "@/components/ui/card";
+import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
+import type { TestimonialsContent } from "@/types/landing";
 
-const TESTIMONIALS = [
-  {
-    quote:
-      "Alhamdulillah anak saya sekarang sudah lancar membaca dan berhitung sebelum masuk SD. Gurunya sangat sabar dan metodenya menyenangkan.",
-    parentName: "Ibu Rahma",
-    programLabel: "Orang Tua Murid AHE",
-  },
-  {
-    quote:
-      "Kemampuan bahasa Inggris anak saya meningkat pesat. Sekarang lebih percaya diri berbicara dan kosakatanya makin kaya.",
-    parentName: "Bapak Dimas",
-    programLabel: "Orang Tua Murid BEE",
-  },
-  {
-    quote:
-      "Nilai matematika dan IPA anak saya di SMP meningkat drastis setelah rutin les di Uzma Course. Pendampingannya sangat fokus.",
-    parentName: "Ibu Siti",
-    programLabel: "Orang Tua Murid Bimbel SMP",
-  },
-  {
-    quote:
-      "Anak saya selalu bersemangat tiap jadwal les. Pengajarnya ramah dan pendekatannya sangat personal untuk tiap anak.",
-    parentName: "Ibu Fitri",
-    programLabel: "Orang Tua Murid AHE & BEE",
-  },
-] as const;
+export interface TestimonialsSectionProps {
+  data?: TestimonialsContent;
+}
 
-export function TestimonialsSection() {
+export function TestimonialsSection({ data }: TestimonialsSectionProps) {
+  const content = data || DEFAULT_LANDING_CONTENT.testimonials;
+
   return (
     <section id="testimoni" className="py-20 bg-white scroll-mt-16">
       <Container>
         <SectionHeading
-          title="Kata Orang Tua Murid"
-          subtitle="Pengalaman dan kepuasan para orang tua yang mempercayakan pendidikan putra-putrinya di Uzma Course"
+          title={content.title}
+          subtitle={content.subtitle}
         />
 
         <div className="overflow-x-auto snap-x snap-mandatory flex gap-6 pb-6 pt-2 mt-12 scrollbar-thin">
-          {TESTIMONIALS.map((item) => (
+          {content.items.map((item, idx) => (
             <Card
-              key={item.parentName}
+              key={`${item.parentName}-${idx}`}
               className="min-w-[300px] md:min-w-[350px] max-w-[380px] flex-shrink-0 snap-center flex flex-col justify-between"
             >
               <CardBody className="p-6 flex flex-col justify-between h-full">

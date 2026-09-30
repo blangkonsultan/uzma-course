@@ -10,12 +10,13 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { PROGRAMS } from "@/lib/constants";
 import { buildWaLink } from "@/lib/whatsapp";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
+import type { ProgramsContent } from "@/types/landing";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   BookOpen,
@@ -25,17 +26,23 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Sparkles,
 };
 
-export function ProgramsSection() {
+export interface ProgramsSectionProps {
+  data?: ProgramsContent;
+}
+
+export function ProgramsSection({ data }: ProgramsSectionProps) {
+  const content = data || DEFAULT_LANDING_CONTENT.programs;
+
   return (
     <section id="programs" className="py-20 bg-white scroll-mt-16">
       <Container>
         <SectionHeading
-          title="Program Belajar Unggulan"
-          subtitle="Sistem belajar intensif dengan rasio murid kecil untuk hasil optimal dan anak senang belajar"
+          title={content.title}
+          subtitle={content.subtitle}
         />
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-          {PROGRAMS.map((program) => {
+          {content.items.map((program) => {
             const Icon = ICON_MAP[program.icon] || BookOpen;
 
             return (
@@ -70,22 +77,29 @@ export function ProgramsSection() {
                       </div>
                       <div className="flex items-center gap-2 text-slate-600">
                         <Clock className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-                        <span>{program.duration} · {program.frequency}</span>
+                        <span>
+                          {program.duration} · {program.frequency}
+                        </span>
                       </div>
                     </div>
 
                     {/* Features checklist */}
-                    <div className="mt-4 space-y-1.5">
-                      {program.features.map((feature) => (
-                        <div
-                          key={feature}
-                          className="flex items-center gap-1.5 text-xs text-slate-600"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" aria-hidden="true" />
-                          <span>{feature}</span>
-                        </div>
-                      ))}
-                    </div>
+                    {program.features && program.features.length > 0 && (
+                      <div className="mt-4 space-y-1.5">
+                        {program.features.map((feature) => (
+                          <div
+                            key={feature}
+                            className="flex items-center gap-1.5 text-xs text-slate-600"
+                          >
+                            <CheckCircle2
+                              className="w-3.5 h-3.5 text-green-500 shrink-0"
+                              aria-hidden="true"
+                            />
+                            <span>{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-6 pt-4 border-t border-slate-100">

@@ -5,18 +5,15 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { buildWaLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
+import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
+import type { NavbarContent } from "@/types/landing";
 
-const NAV_LINKS = [
-  { label: "Program", href: "#programs" },
-  { label: "Keunggulan", href: "#keunggulan" },
-  { label: "Fasilitas", href: "#fasilitas" },
-  { label: "Pengelola", href: "#pengelola" },
-  { label: "Testimoni", href: "#testimoni" },
-  { label: "Lokasi", href: "#lokasi" },
-  { label: "FAQ", href: "#faq" },
-] as const;
+export interface NavbarProps {
+  data?: NavbarContent;
+}
 
-export function Navbar() {
+export function Navbar({ data }: NavbarProps) {
+  const content = data || DEFAULT_LANDING_CONTENT.navbar;
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -47,12 +44,12 @@ export function Navbar() {
             scrolled ? "text-primary-700" : "text-white"
           )}
         >
-          Uzma Course
+          {content.brandName}
         </a>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map((link) => (
+          {content.navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -79,7 +76,7 @@ export function Navbar() {
                 : "bg-white text-primary-700 hover:bg-primary-50 shadow-md"
             )}
           >
-            Hubungi Kami
+            {content.ctaText}
           </Button>
         </div>
 
@@ -108,12 +105,12 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-4 pb-6 space-y-3 shadow-xl">
           <nav className="flex flex-col space-y-2">
-            {NAV_LINKS.map((link) => (
+            {content.navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-base font-medium text-slate-700 hover:text-primary-700 hover:bg-primary-50 rounded-lg px-3 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                className="text-slate-700 hover:text-primary-700 font-medium py-2 px-3 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 {link.label}
               </a>
@@ -123,10 +120,10 @@ export function Navbar() {
             <Button
               href={buildWaLink()}
               size="md"
-              className="w-full"
+              className="w-full text-center"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Hubungi Kami
+              {content.ctaText}
             </Button>
           </div>
         </div>

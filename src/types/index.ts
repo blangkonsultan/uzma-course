@@ -8,6 +8,8 @@ export type Student = Database["public"]["Tables"]["students"]["Row"];
 export type StudentInsert = Database["public"]["Tables"]["students"]["Insert"];
 export type StudentUpdate = Database["public"]["Tables"]["students"]["Update"];
 
+export type LandingContent = Database["public"]["Tables"]["landing_content"]["Row"];
+
 export type UserRole = "admin" | "guru";
 export type BranchId = "balongbendo" | "krian";
 

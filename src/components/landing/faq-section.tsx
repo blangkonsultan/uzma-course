@@ -5,53 +5,15 @@ import { ChevronDown } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { cn } from "@/lib/utils";
+import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
+import type { FAQContent } from "@/types/landing";
 
-const FAQS = [
-  {
-    id: "faq-daftar",
-    question: "Bagaimana cara mendaftar?",
-    answer:
-      "Hubungi kami via WhatsApp untuk konsultasi awal dan penjadwalan. Tim kami akan membantu memilih program yang paling sesuai dengan kebutuhan anak Anda.",
-  },
-  {
-    id: "faq-biaya",
-    question: "Berapa biaya per bulan?",
-    answer:
-      "Biaya bervariasi per program dan cabang. Hubungi kami via WhatsApp untuk informasi rincian biaya dan promo yang sedang berlangsung.",
-  },
-  {
-    id: "faq-trial",
-    question: "Apakah ada kelas percobaan?",
-    answer:
-      "Ya, kami menyediakan satu sesi percobaan gratis untuk setiap program agar anak dapat merasakan langsung suasana belajar di Uzma Course.",
-  },
-  {
-    id: "faq-jumlah",
-    question: "Berapa jumlah murid per kelas?",
-    answer:
-      "Maksimal 5 anak per kelas untuk pembelajaran yang lebih personal, fokus, dan efektif bagi setiap murid.",
-  },
-  {
-    id: "faq-lokasi",
-    question: "Di mana lokasi les baca AHE Sumokembangsri dan AHE Junwangi?",
-    answer:
-      "Uzma Course memiliki dua unit resmi di Sidoarjo: Unit les baca AHE Sumokembangsri (Sumotuwo, Balongbendo) dan unit les baca AHE Junwangi (Junwatu, Krian). Keduanya dilengkapi fasilitas belajar ramah anak dan guru berlisensi.",
-  },
-  {
-    id: "faq-usia",
-    question: "Kapan anak bisa mulai les baca AHE di Sumokembangsri atau Junwangi?",
-    answer:
-      "Anak dapat mulai belajar les baca tulis AHE sejak usia 3,5 tahun. Metode AHE dirancang bertahap tanpa mengeja dan tanpa beban hafalan sehingga anak belajar dengan ceria tanpa rasa takut.",
-  },
-  {
-    id: "faq-jumlah",
-    question: "Berapa jumlah murid per sesi belajar?",
-    answer:
-      "Sistem pembelajaran sangat privat dan personal: Les Baca AHE maksimal 2 anak per guru, Hitung Dasar maksimal 4 anak, BEE maksimal 2 anak, dan Bimbel Mapel 1 anak 1 guru (private).",
-  },
-] as const;
+export interface FAQSectionProps {
+  data?: FAQContent;
+}
 
-export function FAQSection() {
+export function FAQSection({ data }: FAQSectionProps) {
+  const content = data || DEFAULT_LANDING_CONTENT.faq;
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggleFAQ = (index: number) => {
@@ -62,19 +24,19 @@ export function FAQSection() {
     <section id="faq" className="py-20 bg-slate-50 scroll-mt-16">
       <Container className="max-w-3xl">
         <SectionHeading
-          title="Pertanyaan Umum"
-          subtitle="Jawaban atas pertanyaan yang sering diajukan mengenai program dan kegiatan belajar di Uzma Course"
+          title={content.title}
+          subtitle={content.subtitle}
         />
 
         <div className="mt-12 space-y-4">
-          {FAQS.map((faq, index) => {
+          {content.items.map((faq, index) => {
             const isOpen = openIndex === index;
-            const buttonId = `faq-btn-${faq.id}`;
-            const panelId = `faq-panel-${faq.id}`;
+            const buttonId = `faq-btn-${faq.id}-${index}`;
+            const panelId = `faq-panel-${faq.id}-${index}`;
 
             return (
               <div
-                key={faq.id}
+                key={`${faq.id}-${index}`}
                 className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-xs"
               >
                 <button
@@ -88,7 +50,7 @@ export function FAQSection() {
                   <span className="pr-4">{faq.question}</span>
                   <ChevronDown
                     className={cn(
-                      "w-5 h-5 text-slate-500 flex-shrink-0 transition-transform duration-200",
+                      "w-5 h-5 text-slate-500 shrink-0 transition-transform duration-200",
                       isOpen && "rotate-180 text-primary-600"
                     )}
                     aria-hidden="true"

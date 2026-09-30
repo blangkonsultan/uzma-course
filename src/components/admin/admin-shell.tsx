@@ -20,6 +20,7 @@ import {
   Loader2,
   MapPin,
   ExternalLink,
+  Globe,
 } from "lucide-react";
 
 interface AdminShellProps {
@@ -52,6 +53,12 @@ export function AdminShell({ profile, children }: AdminShellProps) {
       href: "/admin/murid",
       icon: GraduationCap,
       roles: ["admin", "guru"],
+    },
+    {
+      label: "Landing Page",
+      href: "/admin/landing",
+      icon: Globe,
+      roles: ["admin"],
     },
   ];
 

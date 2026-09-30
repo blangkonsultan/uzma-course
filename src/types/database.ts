@@ -101,6 +101,35 @@ export type Database = {
         };
         Relationships: [];
       };
+      landing_content: {
+        Row: {
+          section: string;
+          content: Json;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          section: string;
+          content?: Json;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          section?: string;
+          content?: Json;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "landing_content_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

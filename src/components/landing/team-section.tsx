@@ -1,42 +1,68 @@
-import Image from "next/image";
-import { Award, Heart, Sparkles, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  Award,
+  Heart,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Users,
+} from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Card, CardBody } from "@/components/ui/card";
-import { FOUNDER, TAGLINE } from "@/lib/constants";
+import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
+import type { TeamContent } from "@/types/landing";
+import { normalizeImageUrl } from "@/lib/utils";
 
-export function TeamSection() {
+const VALUE_ICONS: Record<string, LucideIcon> = {
+  Heart,
+  Award,
+  Sparkles,
+  Users,
+  ShieldCheck,
+  Star,
+};
+
+export interface TeamSectionProps {
+  data?: TeamContent;
+}
+
+export function TeamSection({ data }: TeamSectionProps) {
+  const content = data || DEFAULT_LANDING_CONTENT.team;
+
   return (
     <section id="pengelola" className="py-20 bg-white scroll-mt-16">
       <Container>
         <SectionHeading
-          title="Pengelola & Tenaga Pendidik"
-          subtitle="Didukung pengajar berdedikasi, tersertifikasi, dan penuh kasih mendampingi buah hati Anda"
+          title={content.title}
+          subtitle={content.subtitle}
         />
 
         <div className="grid lg:grid-cols-12 gap-8 items-center mt-12">
           {/* Team Photo Card */}
           <div className="lg:col-span-7">
             <Card className="overflow-hidden border-0 shadow-lg">
-              <div className="relative aspect-[4/3] w-full">
-                <Image
-                  src="/images/team.jpg"
-                  alt="Tim Pengajar Ahe SumoWangi"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 60vw"
+              <div className="relative aspect-[4/3] w-full bg-slate-100">
+                {/* Native img avoids Next.js remotePatterns restriction for arbitrary CMS URLs */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={normalizeImageUrl(content.teamPhotoUrl)}
+                  alt={content.teamPhotoAlt || "Tim Pengajar Ahe SumoWangi"}
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
               </div>
               <CardBody className="p-6 bg-slate-900 text-white">
                 <div className="flex items-center gap-2 text-primary-300 text-xs font-semibold uppercase tracking-wider">
                   <Users className="w-4 h-4" aria-hidden="true" />
-                  <span>Tenaga Pengajar Berlisensi</span>
+                  <span>{content.teamBadge}</span>
                 </div>
                 <h3 className="text-xl font-bold mt-1 text-white">
-                  Tim Pendidik Ramah & Berpengalaman
+                  {content.teamHeading}
                 </h3>
                 <p className="text-slate-300 text-xs mt-2 leading-relaxed">
-                  Pengajar melalui seleksi ketat dan pelatihan berkesinambungan untuk memastikan pendekatan belajar selalu sabar, suportif, dan menyenangkan bagi anak.
+                  {content.teamDescription}
                 </p>
               </CardBody>
             </Card>
@@ -47,62 +73,77 @@ export function TeamSection() {
             <div className="bg-primary-50 rounded-2xl p-6 border border-primary-100">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 text-primary-800 text-xs font-semibold mb-3">
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>{TAGLINE}</span>
+                <span>Pengelola & Penanggung Jawab</span>
               </div>
               <h3 className="text-2xl font-bold text-slate-800">
-                {FOUNDER.name}
+                {content.founderName}
               </h3>
               <p className="text-sm font-medium text-primary-700 mt-1">
-                {FOUNDER.role}
+                {content.founderRole}
               </p>
               <p className="text-slate-600 text-sm mt-4 leading-relaxed">
-                &ldquo;{FOUNDER.bio}&rdquo;
+                &ldquo;{content.founderQuote}&rdquo;
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
-                <div className="w-10 h-10 rounded-lg bg-pink-100 text-accent flex items-center justify-center flex-shrink-0">
-                  <Heart className="w-5 h-5" aria-hidden="true" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-800">Tanpa Trauma</h4>
-                  <p className="text-xs text-slate-600 mt-1">
-                    Pendekatan belajar bebas tekanan dan menyenangkan.
-                  </p>
-                </div>
-              </div>
+            {/* Dynamic Values Cards */}
+            {content.values && content.values.length > 0 && (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {content.values.map((val, idx) => {
+                  const Icon = VALUE_ICONS[val.icon] || Heart;
+                  const isPink = idx % 2 === 0;
 
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
-                <div className="w-10 h-10 rounded-lg bg-purple-100 text-primary-700 flex items-center justify-center flex-shrink-0">
-                  <Award className="w-5 h-5" aria-hidden="true" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-800">Sejak 2022</h4>
-                  <p className="text-xs text-slate-600 mt-1">
-                    Telah meluluskan ratusan murid cerdas dan mandiri.
-                  </p>
-                </div>
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100"
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                          isPink
+                            ? "bg-pink-100 text-accent"
+                            : "bg-purple-100 text-primary-700"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">
+                          {val.title}
+                        </h4>
+                        <p className="text-xs text-slate-600 mt-1">
+                          {val.description}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+            )}
           </div>
         </div>
 
         {/* Gallery Collage */}
-        <div className="mt-16">
-          <div className="relative aspect-[16/9] md:aspect-[21/9] w-full rounded-2xl overflow-hidden shadow-md border border-slate-200">
-            <Image
-              src="/images/gallery-grid.jpg"
-              alt="Galeri Kegiatan Belajar dan Wisuda Ahe SumoWangi"
-              fill
-              className="object-cover"
-              sizes="(max-width: 1280px) 100vw, 1200px"
-            />
+        {content.galleryImageUrl && (
+          <div className="mt-16">
+            <div className="relative aspect-[16/9] md:aspect-[21/9] w-full rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-100">
+              {/* Native img avoids Next.js remotePatterns restriction for arbitrary CMS URLs */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={normalizeImageUrl(content.galleryImageUrl)}
+                alt={content.galleryImageAlt || "Galeri Kegiatan Belajar dan Wisuda Ahe SumoWangi"}
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </div>
+            {content.galleryCaption && (
+              <p className="text-center text-xs text-slate-500 mt-3 italic">
+                {content.galleryCaption}
+              </p>
+            )}
           </div>
-          <p className="text-center text-xs text-slate-500 mt-3 italic">
-            Dokumentasi keceriaan belajar, pendampingan personal, dan momen wisuda kelulusan di Ahe SumoWangi.
-          </p>
-        </div>
+        )}
       </Container>
     </section>
   );

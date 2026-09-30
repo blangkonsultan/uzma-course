@@ -1,9 +1,16 @@
-import { PROMO_VIDEOS } from "@/lib/constants";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
+import type { VideosContent } from "@/types/landing";
 
-export function VideoSection() {
-  if (PROMO_VIDEOS.length === 0) {
+export interface VideoSectionProps {
+  data?: VideosContent;
+}
+
+export function VideoSection({ data }: VideoSectionProps) {
+  const content = data || DEFAULT_LANDING_CONTENT.videos;
+
+  if (!content.items || content.items.length === 0) {
     return null;
   }
 
@@ -11,12 +18,12 @@ export function VideoSection() {
     <section className="py-20 bg-slate-50">
       <Container className="max-w-4xl">
         <SectionHeading
-          title="Video Kegiatan Kami"
-          subtitle="Suasana belajar yang ceria, interaktif, dan penuh semangat di Uzma Course"
+          title={content.title}
+          subtitle={content.subtitle}
         />
 
         <div className="grid md:grid-cols-2 gap-8 mt-12">
-          {PROMO_VIDEOS.map((video) => (
+          {content.items.map((video) => (
             <div key={video.id} className="flex flex-col">
               <iframe
                 src={video.embedUrl}

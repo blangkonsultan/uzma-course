@@ -1,21 +1,28 @@
 import { ExternalLink, MapPin, MessageCircle } from "lucide-react";
-import { BRANCHES } from "@/lib/constants";
 import { buildWaLink } from "@/lib/whatsapp";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Card, CardBody } from "@/components/ui/card";
+import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
+import type { LocationsContent } from "@/types/landing";
 
-export function LocationsSection() {
+export interface LocationsSectionProps {
+  data?: LocationsContent;
+}
+
+export function LocationsSection({ data }: LocationsSectionProps) {
+  const content = data || DEFAULT_LANDING_CONTENT.locations;
+
   return (
     <section id="lokasi" className="py-20 bg-slate-50 scroll-mt-16">
       <Container className="max-w-5xl">
         <SectionHeading
-          title="Lokasi Kami"
-          subtitle="Kunjungi cabang Uzma Course terdekat di area Sidoarjo untuk konsultasi langsung"
+          title={content.title}
+          subtitle={content.subtitle}
         />
 
         <div className="grid md:grid-cols-2 gap-8 mt-12">
-          {BRANCHES.map((branch) => (
+          {content.items.map((branch) => (
             <Card key={branch.id} className="hover:shadow-lg transition-shadow duration-300">
               <CardBody className="p-8 flex flex-col justify-between h-full">
                 <div>

@@ -291,3 +291,58 @@ export function CheckboxGroupField({
     </div>
   );
 }
+
+export interface CheckboxFieldProps
+  extends Omit<ComponentProps<"input">, "id" | "type"> {
+  id: string;
+  label: string;
+  description?: string;
+  error?: string;
+  className?: string;
+}
+
+export function CheckboxField({
+  id,
+  name,
+  label,
+  description,
+  error,
+  checked,
+  defaultChecked,
+  onChange,
+  className,
+  ...props
+}: CheckboxFieldProps) {
+  return (
+    <div className={cn("space-y-1", className)}>
+      <label
+        htmlFor={id}
+        className="flex items-start gap-3 cursor-pointer select-none"
+      >
+        <input
+          id={id}
+          name={name ?? id}
+          type="checkbox"
+          checked={checked}
+          defaultChecked={defaultChecked}
+          onChange={onChange}
+          className="mt-1 h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 transition-colors"
+          {...props}
+        />
+        <div className="space-y-0.5">
+          <span className="block text-sm font-medium text-slate-800">
+            {label}
+          </span>
+          {description && (
+            <p className="text-xs text-slate-500 leading-relaxed">
+              {description}
+            </p>
+          )}
+        </div>
+      </label>
+      {error && (
+        <p className="text-xs text-rose-600 font-medium">{error}</p>
+      )}
+    </div>
+  );
+}

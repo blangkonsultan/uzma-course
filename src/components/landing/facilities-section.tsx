@@ -3,16 +3,19 @@ import {
   Armchair,
   Award,
   BadgePercent,
+  BookOpen,
+  CheckCircle2,
   Gamepad2,
   Home,
   Sparkles,
   Trophy,
   Wifi,
 } from "lucide-react";
-import { FACILITIES } from "@/lib/constants";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Card, CardBody } from "@/components/ui/card";
+import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
+import type { FacilitiesContent } from "@/types/landing";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Award,
@@ -23,19 +26,27 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Gamepad2,
   BadgePercent,
   Sparkles,
+  BookOpen,
+  CheckCircle2,
 };
 
-export function FacilitiesSection() {
+export interface FacilitiesSectionProps {
+  data?: FacilitiesContent;
+}
+
+export function FacilitiesSection({ data }: FacilitiesSectionProps) {
+  const content = data || DEFAULT_LANDING_CONTENT.facilities;
+
   return (
     <section id="fasilitas" className="py-20 bg-slate-50 scroll-mt-16">
       <Container>
         <SectionHeading
-          title="Fasilitas Ahe SumoWangi"
-          subtitle="Kenyamanan dan sarana lengkap untuk mendukung proses belajar yang ceria, aman, dan kondusif"
+          title={content.title}
+          subtitle={content.subtitle}
         />
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-          {FACILITIES.map((facility) => {
+          {content.items.map((facility) => {
             const Icon = ICON_MAP[facility.icon] || Sparkles;
 
             return (

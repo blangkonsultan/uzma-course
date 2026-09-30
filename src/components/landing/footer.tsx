@@ -4,14 +4,9 @@ import {
   Phone,
 } from "lucide-react";
 import { Container } from "@/components/ui/container";
-import {
-  BRANCHES,
-  SOCIAL_LINKS,
-  TAGLINE,
-  WA_DISPLAY_NUMBER,
-  WA_NUMBER,
-} from "@/lib/constants";
 import { buildWaLink } from "@/lib/whatsapp";
+import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
+import type { FooterContent, LocationsContent } from "@/types/landing";
 
 function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -29,18 +24,18 @@ function FacebookIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
-const FOOTER_LINKS = [
-  { label: "Program Belajar", href: "#programs" },
-  { label: "Keunggulan", href: "#keunggulan" },
-  { label: "Fasilitas", href: "#fasilitas" },
-  { label: "Pengelola & Guru", href: "#pengelola" },
-  { label: "Testimoni", href: "#testimoni" },
-  { label: "Lokasi Cabang", href: "#lokasi" },
-  { label: "FAQ", href: "#faq" },
-] as const;
+export interface FooterProps {
+  data?: FooterContent;
+  locationsData?: LocationsContent;
+}
 
-export function Footer() {
+export function Footer({ data, locationsData }: FooterProps) {
+  const content = data || DEFAULT_LANDING_CONTENT.footer;
+  const locations = locationsData || DEFAULT_LANDING_CONTENT.locations;
   const currentYear = new Date().getFullYear();
+
+  const balongbendo = locations.items.find((b) => b.id === "balongbendo");
+  const krian = locations.items.find((b) => b.id === "krian");
 
   return (
     <footer className="bg-slate-900 text-slate-300 py-16 border-t border-slate-800">
@@ -55,29 +50,33 @@ export function Footer() {
               Ahe SumoWangi
             </p>
             <p className="text-sm mt-3 text-slate-400 leading-relaxed">
-              &ldquo;{TAGLINE}&rdquo; — Bimbingan belajar di bawah naungan Ahe Indonesia sejak 2022. Ramah anak, ceria, dan berprestasi.
+              &ldquo;{content.tagline}&rdquo; — Bimbingan belajar di bawah naungan Ahe Indonesia sejak 2022. Ramah anak, ceria, dan berprestasi.
             </p>
 
             {/* Social Media Links */}
             <div className="mt-6 flex items-center gap-3">
-              <a
-                href={SOCIAL_LINKS.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram Ahe SumoWangi"
-                className="w-9 h-9 rounded-full bg-slate-800 hover:bg-pink-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-              >
-                <InstagramIcon className="w-4 h-4" />
-              </a>
-              <a
-                href={SOCIAL_LINKS.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook Ahe SumoWangi"
-                className="w-9 h-9 rounded-full bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-              >
-                <FacebookIcon className="w-4 h-4" />
-              </a>
+              {content.socialLinks.instagram && (
+                <a
+                  href={content.socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram Ahe SumoWangi"
+                  className="w-9 h-9 rounded-full bg-slate-800 hover:bg-pink-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                >
+                  <InstagramIcon className="w-4 h-4" />
+                </a>
+              )}
+              {content.socialLinks.facebook && (
+                <a
+                  href={content.socialLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook Ahe SumoWangi"
+                  className="w-9 h-9 rounded-full bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                >
+                  <FacebookIcon className="w-4 h-4" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -87,7 +86,7 @@ export function Footer() {
               Menu Navigasi
             </h3>
             <ul className="space-y-2">
-              {FOOTER_LINKS.map((link) => (
+              {content.navLinks.map((link) => (
                 <li key={link.href}>
                   <a
                     href={link.href}
@@ -103,21 +102,21 @@ export function Footer() {
           {/* Col 3: Cabang Balongbendo */}
           <div>
             <h3 className="text-white font-semibold text-base mb-1">
-              Cabang Balongbendo
+              {balongbendo ? balongbendo.name : "Cabang Balongbendo"}
             </h3>
             <p className="text-xs text-primary-400 font-medium mb-3">
-              Ahe Sumokembangsri
+              {balongbendo ? balongbendo.subName : "Ahe Sumokembangsri"}
             </p>
             <p className="text-sm text-slate-400 leading-relaxed mb-4">
-              {BRANCHES.find((b) => b.id === "balongbendo")?.address}
+              {balongbendo?.address}
             </p>
             <div className="space-y-2">
               <a
-                href={`tel:${WA_NUMBER}`}
+                href={`tel:${content.contactPhone}`}
                 className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
               >
                 <Phone className="w-4 h-4 text-primary-400" aria-hidden="true" />
-                <span>{WA_DISPLAY_NUMBER}</span>
+                <span>{content.contactWaDisplay}</span>
               </a>
               <div>
                 <a
@@ -127,41 +126,43 @@ export function Footer() {
                   className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
                 >
                   <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                  <span>WhatsApp ({WA_DISPLAY_NUMBER})</span>
+                  <span>WhatsApp ({content.contactWaDisplay})</span>
                 </a>
               </div>
-              <div>
-                <a
-                  href={BRANCHES.find((b) => b.id === "balongbendo")?.gmapsUrl || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-                >
-                  <MapPin className="w-4 h-4 text-primary-400" aria-hidden="true" />
-                  <span>Petunjuk Google Maps</span>
-                </a>
-              </div>
+              {balongbendo?.gmapsUrl && (
+                <div>
+                  <a
+                    href={balongbendo.gmapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                  >
+                    <MapPin className="w-4 h-4 text-primary-400" aria-hidden="true" />
+                    <span>Petunjuk Google Maps</span>
+                  </a>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Col 4: Cabang Krian */}
           <div>
             <h3 className="text-white font-semibold text-base mb-1">
-              Cabang Krian
+              {krian ? krian.name : "Cabang Krian"}
             </h3>
             <p className="text-xs text-primary-400 font-medium mb-3">
-              Ahe Junwangi
+              {krian ? krian.subName : "Ahe Junwangi"}
             </p>
             <p className="text-sm text-slate-400 leading-relaxed mb-4">
-              {BRANCHES.find((b) => b.id === "krian")?.address}
+              {krian?.address}
             </p>
             <div className="space-y-2">
               <a
-                href={`tel:${WA_NUMBER}`}
+                href={`tel:${content.contactPhone}`}
                 className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
               >
                 <Phone className="w-4 h-4 text-primary-400" aria-hidden="true" />
-                <span>{WA_DISPLAY_NUMBER}</span>
+                <span>{content.contactWaDisplay}</span>
               </a>
               <div>
                 <a
@@ -171,20 +172,22 @@ export function Footer() {
                   className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
                 >
                   <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                  <span>WhatsApp ({WA_DISPLAY_NUMBER})</span>
+                  <span>WhatsApp ({content.contactWaDisplay})</span>
                 </a>
               </div>
-              <div>
-                <a
-                  href={BRANCHES.find((b) => b.id === "krian")?.gmapsUrl || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-                >
-                  <MapPin className="w-4 h-4 text-primary-400" aria-hidden="true" />
-                  <span>Petunjuk Google Maps</span>
-                </a>
-              </div>
+              {krian?.gmapsUrl && (
+                <div>
+                  <a
+                    href={krian.gmapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                  >
+                    <MapPin className="w-4 h-4 text-primary-400" aria-hidden="true" />
+                    <span>Petunjuk Google Maps</span>
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>

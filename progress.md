@@ -35,3 +35,29 @@
 - Create database migrations for users, roles, schedules, attendance, billing, and payouts.
 - Build authentication flow for `/admin/login`.
 - Implement admin dashboard and teacher portal.
+
+## Session: 2026-09-30 (Phase 2c — Landing Page CMS & Dynamic Content Management)
+
+### Summary of Completed Work
+- **Database Schema & Migration**: Created `landing_content` table with `section TEXT PRIMARY KEY`, `content JSONB NOT NULL DEFAULT '{}'`, `updated_at TIMESTAMPTZ`, and `updated_by UUID REFERENCES auth.users(id)`. Enabled RLS with public read (`USING (true)`) and admin-only management (`USING (public.is_admin())`). Seeded all 13 sections with authentic existing content via migration `20260930105713_landing_content.sql`.
+- **Type Layer**: Added `landing_content` table type in `src/types/database.ts` and `LandingContent` in `src/types/index.ts`. Created comprehensive interfaces for all 13 sections in `src/types/landing.ts`.
+- **Data Access Layer**: Created `src/lib/landing-content.ts` with typed `DEFAULT_LANDING_CONTENT`, `getLandingContent()` fetching all sections, and `getLandingSectionContent(section)` for single-section retrieval with graceful fallback to defaults.
+- **Admin Sidebar Menu**: Added "Landing Page" navigation item with `Globe` icon in `src/components/admin/admin-shell.tsx` after "Data Murid", restricted to `admin` role.
+- **Admin Section List**: Built `src/app/admin/landing/page.tsx` displaying 13 editable section cards with timestamps, icons, descriptions, and action links.
+- **Admin Section Edit Routing**: Built `src/app/admin/landing/[section]/page.tsx` with dynamic routing, Indonesian breadcrumbs, and role-guarded server component dispatch.
+- **Server Action**: Implemented `updateLandingSection(section, formData)` in `src/app/admin/landing/actions.ts` with `requireAdmin()`, JSON payload parsing, database upsert, cache revalidation (`/`, `/admin/landing`, `/admin/landing/[section]`), and redirect.
+- **Reusable CMS Primitives**:
+  - `ImageUrlField`: URL input, alt text input, aspect-ratio preview thumbnail, and broken-URL fallback.
+  - `SortableItemList`: Generic numbered list manager with reorder (up/down), add, remove, and collapsible card headers.
+  - `CheckboxField`: Added accessible single checkbox primitive to `src/components/admin/form-field.tsx`.
+- **Section Form Components**: Built 13 dedicated client form components in `src/components/admin/landing/`: `hero-form`, `programs-form`, `why-us-form`, `facilities-form`, `team-form`, `testimonials-form`, `videos-form`, `locations-form`, `faq-form`, `cta-form`, `footer-form`, `navbar-form`, and `floating-wa-form`.
+- **Landing Page Dynamic Integration**: Updated `src/app/page.tsx` and all 13 section components in `src/components/landing/` to accept `data?: SectionData` with backward-compatible defaults. Dynamicized Schema.org JSON-LD for `EducationalOrganization`, `LocalBusiness`, and `FAQPage`.
+
+### Verification Evidence
+- **Database Migration**: `supabase db push` applied `20260930105713_landing_content.sql` to remote Supabase instance (`tnqudnltxblfbbgzkcwb`). Verified 13 rows present.
+- **Round-Trip Smoke Test**: Automated script tested `getLandingContent()`, single section fetch, live DB update, live DB revert, and missing section fallback. All passed.
+- **Browser E2E Verification**: Headless Chromium logged into `/login` with `admin@uzmacourse.com`, verified "Landing Page" sidebar item, navigated to `/admin/landing` (13 section cards rendered), opened `/admin/landing/hero` and verified populated form fields, and inspected `/admin/landing/team` verifying image preview thumbnail and values manager.
+- **Build Verification**: `npm run build` completed with zero errors and generated all routes. `npm run lint` passed with 0 errors.
+
+### Next Steps
+- Proceed with Phase 2b ERP modules (Presensi Guru with geolocation, Kartu Mengajar, Penggajian & SPP, Laporan) as planned.

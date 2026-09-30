@@ -4,8 +4,15 @@ import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { buildWaLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
+import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
+import type { FloatingWaContent } from "@/types/landing";
 
-export function FloatingWhatsApp() {
+export interface FloatingWhatsAppProps {
+  data?: FloatingWaContent;
+}
+
+export function FloatingWhatsApp({ data }: FloatingWhatsAppProps) {
+  const content = data ?? DEFAULT_LANDING_CONTENT.floating_wa;
   const [animate, setAnimate] = useState(true);
 
   useEffect(() => {
@@ -15,6 +22,10 @@ export function FloatingWhatsApp() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  if (!content.isEnabled) {
+    return null;
+  }
 
   return (
     <aside
