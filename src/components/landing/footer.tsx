@@ -1,4 +1,4 @@
-import { MessageCircle, Phone } from "lucide-react";
+import { MapPin, MessageCircle, Phone } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { BRANCHES, WA_NUMBER } from "@/lib/constants";
 import { buildWaLink } from "@/lib/whatsapp";
@@ -74,6 +74,17 @@ export function Footer() {
                   <span>WhatsApp</span>
                 </a>
               </div>
+              <div>
+                <a
+                  href={BRANCHES.find((b) => b.id === "balongbendo")?.gmapsUrl || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                >
+                  <MapPin className="w-4 h-4 text-primary-400" aria-hidden="true" />
+                  <span>Google Maps</span>
+                </a>
+              </div>
             </div>
           </div>
 
@@ -98,10 +109,21 @@ export function Footer() {
                   href={buildWaLink("Cabang Krian")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-primary-400 hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                  className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
                 >
                   <MessageCircle className="w-4 h-4" aria-hidden="true" />
                   <span>WhatsApp</span>
+                </a>
+              </div>
+              <div>
+                <a
+                  href={BRANCHES.find((b) => b.id === "krian")?.gmapsUrl || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                >
+                  <MapPin className="w-4 h-4 text-primary-400" aria-hidden="true" />
+                  <span>Google Maps</span>
                 </a>
               </div>
             </div>

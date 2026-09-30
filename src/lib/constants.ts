@@ -34,13 +34,15 @@ export const BRANCHES = [
     id: "balongbendo",
     name: "Cabang Balongbendo",
     address: "Sumokembangsri, Balongbendo, Sidoarjo",
-    mapUrl: "", // add Google Maps embed URL when available
+    mapUrl: "https://www.google.com/maps?q=-7.4320527,112.5054893&output=embed",
+    gmapsUrl: "https://maps.app.goo.gl/qaJuRjZcDDTv4qQx9",
   },
   {
     id: "krian",
     name: "Cabang Krian",
     address: "Junwangi, Krian, Sidoarjo",
-    mapUrl: "", // add Google Maps embed URL when available
+    mapUrl: "https://www.google.com/maps?q=-7.4062116,112.6081986&output=embed",
+    gmapsUrl: "https://maps.app.goo.gl/KWoXUAYNvVJTYs5r5",
   },
 ] as const;
 

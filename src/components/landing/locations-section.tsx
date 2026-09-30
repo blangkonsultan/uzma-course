@@ -1,4 +1,4 @@
-import { MapPin, MessageCircle } from "lucide-react";
+import { ExternalLink, MapPin, MessageCircle } from "lucide-react";
 import { BRANCHES } from "@/lib/constants";
 import { buildWaLink } from "@/lib/whatsapp";
 import { Container } from "@/components/ui/container";
@@ -46,7 +46,7 @@ export function LocationsSection() {
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100">
+                <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
                   <a
                     href={buildWaLink("lokasi " + branch.name)}
                     target="_blank"
@@ -54,8 +54,20 @@ export function LocationsSection() {
                     className="inline-flex items-center gap-2 text-primary-700 hover:text-primary-800 font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
                   >
                     <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                    <span>Tanya Lokasi via WhatsApp</span>
+                    <span>Tanya via WhatsApp</span>
                   </a>
+
+                  {branch.gmapsUrl && (
+                    <a
+                      href={branch.gmapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-slate-600 hover:text-primary-700 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2.5 py-1.5 bg-slate-50 hover:bg-primary-50"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                      <span>Buka Google Maps</span>
+                    </a>
+                  )}
                 </div>
               </CardBody>
             </Card>
