@@ -40,11 +40,21 @@ export function Navbar({ data }: NavbarProps) {
         <a
           href="#"
           className={cn(
-            "text-2xl font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-md",
+            "flex items-center gap-2.5 font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-md",
             scrolled ? "text-primary-700" : "text-white"
           )}
         >
-          {content.brandName}
+          <div className="w-9 h-9 rounded-xl overflow-hidden border border-white/20 bg-white shrink-0 shadow-xs p-0.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo-uzma-course.jpg"
+              alt="Logo Uzma Course"
+              className="w-full h-full object-contain rounded-lg"
+            />
+          </div>
+          <span className="text-xl sm:text-2xl font-bold font-heading">
+            {content.brandName}
+          </span>
         </a>
 
         {/* Desktop Navigation */}

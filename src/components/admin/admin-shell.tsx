@@ -20,7 +20,7 @@ import {
   Loader2,
   MapPin,
   ExternalLink,
-  Globe,
+  LayoutTemplate,
 } from "lucide-react";
 
 interface AdminShellProps {
@@ -57,7 +57,7 @@ export function AdminShell({ profile, children }: AdminShellProps) {
     {
       label: "Landing Page",
       href: "/admin/landing",
-      icon: Globe,
+      icon: LayoutTemplate,
       roles: ["admin"],
     },
   ];
@@ -109,8 +109,13 @@ export function AdminShell({ profile, children }: AdminShellProps) {
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center gap-2.5"
           >
-            <div className="w-8 h-8 rounded-xl bg-primary-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-              U
+            <div className="w-8 h-8 rounded-xl overflow-hidden border border-slate-200/80 shrink-0 shadow-2xs">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/logo-uzma-course.jpg"
+                alt="Logo Uzma Course"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <span className="font-heading font-bold text-base text-slate-900 leading-none block">
@@ -258,8 +263,13 @@ export function AdminShell({ profile, children }: AdminShellProps) {
               <Menu className="w-5 h-5" />
             </button>
             <div className="md:hidden flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-primary-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
-                U
+              <div className="w-7 h-7 rounded-lg overflow-hidden border border-slate-200/80 shrink-0 shadow-2xs">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/logo-uzma-course.jpg"
+                  alt="Logo Uzma Course"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <span className="font-heading font-bold text-sm text-slate-900 leading-none">
                 Uzma Course

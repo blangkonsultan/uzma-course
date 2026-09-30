@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { InputField } from "@/components/admin/form-field";
-import { AlertCircle, GraduationCap, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export function LoginForm() {
@@ -60,8 +60,13 @@ export function LoginForm() {
   return (
     <Card className="border border-slate-200/80 shadow-lg shadow-purple-500/5 overflow-hidden">
       <CardHeader className="text-center pt-8 pb-4">
-        <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs">
-          <GraduationCap className="w-7 h-7" />
+        <div className="w-14 h-14 rounded-2xl overflow-hidden border border-slate-200/80 mx-auto mb-3 shadow-xs bg-white p-1">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo-uzma-course.jpg"
+            alt="Logo Uzma Course"
+            className="w-full h-full object-contain rounded-xl"
+          />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 font-heading">
           Uzma Course

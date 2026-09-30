@@ -48,8 +48,8 @@ export const metadata: Metadata = {
   creator: "Uzma Course",
   publisher: "Uzma Course",
   icons: {
-    icon: "/images/logo-ahe-sumowangi.png",
-    apple: "/images/logo-ahe-sumowangi.png",
+    icon: "/images/logo-uzma-course.jpg",
+    apple: "/images/logo-uzma-course.jpg",
   },
   verification: {
     google: "g62tT0JAY8jPvf81GGVLQaMs2tNmkE92HVBpAgr9jcc",
@@ -65,10 +65,10 @@ export const metadata: Metadata = {
       "Pusat les baca AHE Sumokembangsri & les baca AHE Junwangi Sidoarjo. Bimbingan belajar calistung AHE, bahasa Inggris BEE, dan bimbel SD–SMP dengan metode ramah anak dan guru berlisensi.",
     images: [
       {
-        url: "/images/logo-ahe-sumowangi.png",
-        width: 800,
-        height: 800,
-        alt: "Logo Uzma Course - Les Baca AHE Sumokembangsri dan Junwangi",
+        url: "/images/logo-uzma-course.jpg",
+        width: 1280,
+        height: 1280,
+        alt: "Logo Resmi Uzma Course",
       },
     ],
   },
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
       "Uzma Course — Les Baca AHE Sumokembangsri & AHE Junwangi Sidoarjo",
     description:
       "Pusat les baca AHE Sumokembangsri & les baca AHE Junwangi Sidoarjo. Bimbingan belajar calistung AHE, BEE, dan bimbel SD-SMP ramah anak.",
-    images: ["/images/logo-ahe-sumowangi.png"],
+    images: ["/images/logo-uzma-course.jpg"],
   },
 };
 
