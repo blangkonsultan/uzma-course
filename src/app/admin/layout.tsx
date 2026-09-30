@@ -7,6 +7,10 @@ import type { Profile } from "@/types";
 export const metadata: Metadata = {
   title: "Admin Dashboard | Uzma Course",
   description: "Dashboard manajemen operasional Uzma Course.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function AdminLayout({

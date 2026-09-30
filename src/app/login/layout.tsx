@@ -4,6 +4,10 @@ import { Toast } from "@/components/admin/toast";
 export const metadata: Metadata = {
   title: "Login — Portal Admin & Guru",
   description: "Masuk ke portal administrasi dan manajemen guru Uzma Course.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function LoginLayout({

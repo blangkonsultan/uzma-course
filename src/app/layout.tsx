@@ -10,28 +10,62 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://uzmacourse.com"),
+  alternates: {
+    canonical: "/",
+  },
   title: {
-    default: "Uzma Course — Bimbingan Belajar Anak",
+    default: "Uzma Course — Bimbingan Belajar Anak di Sidoarjo",
     template: "%s | Uzma Course",
   },
   description:
-    "Bimbingan belajar calistung, bahasa Inggris, dan mata pelajaran SD–SMP untuk anak usia dini hingga remaja. Cabang Balongbendo & Krian, Sidoarjo.",
+    "Bimbingan belajar calistung (AHE), bahasa Inggris (BEE), dan bimbel SD–SMP di Sidoarjo. Metode ramah anak tanpa trauma, guru berlisensi resmi, cabang Balongbendo & Krian.",
   keywords: [
-    "bimbel",
-    "calistung",
-    "les anak",
-    "bimbingan belajar",
-    "AHE",
+    "bimbel sidoarjo",
+    "les baca sidoarjo",
+    "calistung sidoarjo",
+    "les anak balongbendo",
+    "les anak krian",
+    "AHE sidoarjo",
+    "AHE sumowangi",
+    "AHE junwangi",
+    "AHE sumokembangsri",
     "Anak Hebat",
-    "les bahasa Inggris anak",
-    "bimbel Sidoarjo",
-    "les Krian",
-    "les Balongbendo",
+    "les bahasa inggris anak sidoarjo",
+    "bimbingan belajar ramah anak",
+    "les privat krian",
+    "les privat balongbendo",
   ],
+  authors: [{ name: "Uzma Course", url: "https://uzmacourse.com" }],
+  creator: "Uzma Course",
+  publisher: "Uzma Course",
+  icons: {
+    icon: "/images/logo-ahe-sumowangi.png",
+    apple: "/images/logo-ahe-sumowangi.png",
+  },
   openGraph: {
     type: "website",
     locale: "id_ID",
+    url: "https://uzmacourse.com",
     siteName: "Uzma Course",
+    title: "Uzma Course — Bimbingan Belajar Anak di Sidoarjo",
+    description:
+      "Bimbingan belajar calistung (AHE), bahasa Inggris (BEE), dan bimbel SD–SMP di Sidoarjo. Metode ramah anak, guru berlisensi, cabang Balongbendo & Krian.",
+    images: [
+      {
+        url: "/images/logo-ahe-sumowangi.png",
+        width: 800,
+        height: 800,
+        alt: "Logo Uzma Course Ahe Sumowangi",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Uzma Course — Bimbingan Belajar Anak di Sidoarjo",
+    description:
+      "Bimbingan belajar calistung (AHE), bahasa Inggris (BEE), dan bimbel SD–SMP di Sidoarjo. Cabang Balongbendo & Krian.",
+    images: ["/images/logo-ahe-sumowangi.png"],
   },
 };
 
