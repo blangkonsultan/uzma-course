@@ -69,9 +69,9 @@ export function DataTable<T>({
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">
                       {col.header}
                     </span>
-                    <span className="text-right font-medium text-slate-800 break-words">
+                    <div className="text-right font-medium text-slate-800 break-words min-w-0 flex-1 flex justify-end">
                       {value}
-                    </span>
+                    </div>
                   </div>
                 );
               })}

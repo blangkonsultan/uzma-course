@@ -107,16 +107,23 @@ All schema changes via Supabase CLI migrations only (`supabase/migrations/`). Ne
 - Use `$impeccable` skill commands for design workflows when available (`.agents/skills/impeccable/`)
 - Landing page mode: **Persuade** (visitor decides and acts)
 - ERP mode: **Operate** (user completes a task)
+- **Zero-Broken Mobile Invariant (Aturan Wajib Responsif Tanpa Broken)**:
+  1. **Strict 0 Overflow**: Dilarang keras adanya horizontal scrollbar atau elemen yang meluber (`rect.right > window.innerWidth`) pada viewport terkecil (mulai 360px & 375px) hingga desktop (1280px+).
+  2. **No Clipped / Squashed Actions**: Tombol aksi, panah urutan, dan tombol hapus tidak boleh terpotong atau terlempar ke luar layar oleh flex/truncation yang salah. Gunakan `min-w-0 flex-1` pada tombol berlabel dan `shrink-0` pada grup aksi.
+  3. **Touch Targets Standard**: Seluruh tombol interaktif, link navigasi, dan input wajib memiliki area sentuh minimal 36–44px agar nyaman dijangkau jari/ibu jari di layar ponsel.
+  4. **Pencegahan iOS Safari Auto-Zoom**: Seluruh field form (`input`, `textarea`, `select`) wajib menggunakan ukuran font `text-base sm:text-sm` (16px di mobile, 14px di desktop) untuk mencegah browser mobile melakukan auto-zoom paksa saat fokus.
+  5. **Responsive Padding & Anti-Nested Cards**: Dilarang menggunakan padding kaku `p-6` pada kartu mobile di dalam container utama yang sudah ber-padding. Gunakan `p-4 sm:p-6` pada kartu dan `p-3.5 sm:p-4` pada kartu item. Hindari pembungkusan kartu di dalam kartu yang membuat ruang input menyempit.
+  6. **Flex Inputs**: Input di dalam flex container wajib menyertakan `min-w-0` agar placeholder panjang tidak menabrak atau mendorong tombol di sebelahnya ke luar layar.
+  7. **Mobile-First Action Bars**: Pada form panjang, tombol aksi utama (*Simpan*) wajib dibuat dominan/full-width di mobile di atas tombol sekunder (*Kembali*), dan kembali bersisian (*side-by-side*) di layar desktop (`sm:`).
 
 ## Definition of Done
 
 - [ ] Target behavior implemented
 - [ ] `npm run build` succeeds with zero errors
 - [ ] `npm run lint` passes
-- [ ] Responsive verified at 375px and 1280px+
+- [ ] Responsive verified at 360px, 375px, and 1280px+ with 0 horizontal overflow, comfortable touch targets (min 36–44px), and zero broken/clipped elements
 - [ ] All new components follow ui/ primitives pattern
 - [ ] Evidence recorded in `progress.md`
-
 ## End of Session
 
 Before ending, append a handoff block to `progress.md`:

@@ -135,7 +135,7 @@ export function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
 
   return (
     <Card className="max-w-3xl border border-slate-200/80 shadow-xs">
-      <CardBody className="p-6 sm:p-8">
+      <CardBody className="p-4 sm:p-8">
         <form onSubmit={handleSubmit} noValidate className="space-y-8">
           {/* Section 1: Data Diri Murid */}
           <div className="space-y-4">
@@ -294,14 +294,14 @@ export function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
             </div>
           )}
 
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+          <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
             <Link
               href={
                 isEdit && initialData
                   ? `/admin/murid/${initialData.id}`
                   : "/admin/murid"
               }
-              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors"
+              className="inline-flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl border border-slate-200 sm:border-transparent hover:bg-slate-100 transition-colors w-full sm:w-auto min-h-[44px]"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Kembali</span>
@@ -311,7 +311,7 @@ export function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
               type="submit"
               size="md"
               disabled={isPending}
-              className="font-medium cursor-pointer"
+              className="font-medium cursor-pointer w-full sm:w-auto justify-center min-h-[44px]"
             >
               {isPending ? (
                 <>

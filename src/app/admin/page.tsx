@@ -101,8 +101,8 @@ export default async function AdminDashboardPage() {
                 {isAdmin ? "Administrator Portal" : "Portal Pengajar Guru"}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-heading">
-              Halo, {greetingName}! 👋
+            <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight font-heading">
+              Halo, {greetingName}!
             </h1>
             <p className="text-primary-100 text-sm max-w-xl">
               Selamat datang di sistem manajemen operasional Uzma Course. Pantau
@@ -110,13 +110,13 @@ export default async function AdminDashboardPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
             {isAdmin && (
               <Button
                 variant="outline"
                 size="sm"
                 href="/admin/guru/tambah"
-                className="bg-white/10 hover:bg-white/20 border-white/30 text-white text-xs font-semibold"
+                className="bg-white/10 hover:bg-white/20 border-white/30 text-white text-xs font-semibold flex-1 sm:flex-none justify-center h-10 sm:h-9"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Tambah Guru
@@ -126,7 +126,7 @@ export default async function AdminDashboardPage() {
               <Button
                 size="sm"
                 href="/admin/murid/tambah"
-                className="bg-white text-primary-800 hover:bg-slate-100 text-xs font-semibold shadow-sm"
+                className="bg-white text-primary-800 hover:bg-slate-100 text-xs font-semibold shadow-sm flex-1 sm:flex-none justify-center h-10 sm:h-9"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Tambah Murid

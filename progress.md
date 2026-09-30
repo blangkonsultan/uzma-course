@@ -101,3 +101,34 @@
 
 ### Next Steps
 - Proceed with Phase 2b ERP modules (Presensi Guru with geolocation, Kartu Mengajar, Penggajian & SPP, Laporan) as planned.
+
+## Session: 2026-09-30 (Full App Mobile Audit & Zero-Broken Responsiveness Invariant)
+
+### Summary of Completed Work
+- **Mandatory Responsiveness Rules Added to `CLAUDE.md` and `~/.agents/AGENTS.md`**:
+  - Formulated and enforced the **Zero-Broken Mobile Invariant** across all project documentation and global agent baseline:
+    1. Strict 0 overflow rule on mobile viewports down to 360px.
+    2. No clipped or squashed action buttons.
+    3. Minimum touch target standard (36–44px).
+    4. Anti-zoom input typography (`text-base sm:text-sm`).
+    5. Responsive card padding (`p-4 sm:p-6` / `p-4 sm:p-8`) without deep nested card traps.
+    6. Flex input `min-w-0 flex-1` requirement.
+    7. Thumb-friendly full-width mobile action bars.
+- **Full Multi-Surface Mobile Audit Executed**:
+  - **Public Landing Page (`/`)**: Audited all 13 sections (Navbar, Hero, Programs, WhyUs, Facilities, Team, Testimonials, Videos, Locations, FAQ, CTA, Footer). Mobile dropdown navigation tested and verified clean with 0 horizontal overflow.
+  - **Login Portal (`/login`)**: Audited at 360px; verified clean card layout, centered inputs, and full-width login button.
+  - **Admin Dashboard (`/admin`)**: Eliminated broken glyph square (missing `👋` emoji font on Linux/Windows) in the greeting banner, made "Tambah Guru" and "Tambah Murid" action buttons responsive and equal-width on mobile.
+  - **Data Murid Module (`/admin/murid`, `/tambah`, `/[id]`, `/[id]/edit`)**:
+    - Replaced `span` container in `DataTable` mobile card with `div min-w-0 flex-1 flex justify-end` to prevent HTML nesting anomalies.
+    - Enhanced `StudentForm` padding and buttons (`flex-col-reverse sm:flex-row`, full-width min 44px thumb targets).
+    - Verified student detail cards, action buttons, and edit form at 360px with 0 overflow.
+  - **Data Guru Module (`/admin/guru`, `/tambah`, `/[id]/edit`)**:
+    - Enhanced `GuruForm` with responsive padding and full-width mobile buttons.
+    - Audited teacher cards, search filter bar, and edit form at 360px with 0 overflow.
+
+### Verification Evidence
+- **Headless Browser Automated Audits**: Verified `/`, `/login`, `/admin`, `/admin/murid`, `/admin/murid/tambah`, `/admin/murid/[id]`, `/admin/murid/[id]/edit`, `/admin/guru`, `/admin/guru/tambah`, and `/admin/guru/[id]/edit` at 360px viewport. All routes reported `hasHorizontalScroll: false` and `overflowingCount: 0`.
+- **Build & Typecheck**: `npm run build` completed with zero TypeScript errors across all dynamic and static routes. `npm run lint` clean.
+
+### Next Steps
+- Proceed with Phase 2b ERP modules (Presensi Guru with geolocation, Kartu Mengajar, Penggajian & SPP, Laporan) as planned.
