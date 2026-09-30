@@ -14,7 +14,7 @@ import { FloatingWhatsApp } from "@/components/landing/floating-whatsapp";
 
 export default function Home() {
   return (
-    <main>
+    <main id="main-content">
       <Navbar />
       <HeroSection />
       <ProgramsSection />
