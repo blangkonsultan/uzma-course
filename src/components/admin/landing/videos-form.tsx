@@ -1,19 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import {
-  InputField,
-  SelectField,
-} from "@/components/admin/form-field";
+import { InputField } from "@/components/admin/form-field";
 import { SortableItemList } from "@/components/admin/landing/sortable-item-list";
 import { FormActions } from "@/components/admin/landing/form-actions";
 import { updateLandingSection } from "@/app/admin/landing/actions";
+import { VideoGuideCard } from "@/components/admin/landing/video-guide-card";
+import { VideoItemEditor } from "@/components/admin/landing/video-item-editor";
 import type { VideosContent, VideoItem } from "@/types/landing";
-
-const SOURCE_OPTIONS = [
-  { value: "youtube", label: "YouTube (Embed)" },
-  { value: "tiktok", label: "TikTok (Embed)" },
-];
 
 interface VideosFormProps {
   initialData: VideosContent;
@@ -70,6 +64,9 @@ export function VideosForm({ initialData }: VideosFormProps) {
         </div>
       </div>
 
+      {/* Step by step guide card */}
+      <VideoGuideCard />
+
       <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs">
         <SortableItemList<VideoItem>
           title="Daftar Video Promo & Kegiatan"
@@ -78,54 +75,18 @@ export function VideosForm({ initialData }: VideosFormProps) {
           onItemsChange={(items) => setData({ ...data, items })}
           createEmptyItem={() => ({
             id: `video-${Date.now()}`,
-            title: "Video Kegiatan Baru",
-            source: "youtube",
-            embedUrl: "https://www.youtube.com/embed/...",
+            title: "Video Baru",
+            source: "tiktok",
+            embedUrl: "",
           })}
           itemLabel={(item) => `${item.title} (${item.source})`}
           addButtonText="Tambah Video Baru"
           renderItem={(item, index, updateItem) => (
-            <div className="space-y-4 pt-2">
-              <div className="grid sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-2">
-                  <InputField
-                    id={`vid-title-${index}`}
-                    label="Judul Video"
-                    value={item.title}
-                    onChange={(e) =>
-                      updateItem({ ...item, title: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <SelectField
-                    id={`vid-source-${index}`}
-                    label="Platform Video"
-                    options={SOURCE_OPTIONS}
-                    value={item.source}
-                    onChange={(e) =>
-                      updateItem({
-                        ...item,
-                        source: e.target.value as "youtube" | "tiktok",
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <InputField
-                id={`vid-url-${index}`}
-                label="Embed URL Iframe"
-                value={item.embedUrl}
-                onChange={(e) =>
-                  updateItem({ ...item, embedUrl: e.target.value })
-                }
-                hint="Contoh: https://www.youtube.com/embed/XXXXX"
-                required
-              />
-            </div>
+            <VideoItemEditor
+              item={item}
+              index={index}
+              updateItem={updateItem}
+            />
           )}
         />
       </div>

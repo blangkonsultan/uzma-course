@@ -102,3 +102,40 @@ export async function updateLandingSection(
   revalidatePath(`/admin/landing/${section}`);
   redirect("/admin/landing?success=updated");
 }
+
+export async function resolveTikTokShortlink(
+  shortUrl: string
+): Promise<{ videoId?: string; error?: string }> {
+  await requireAdmin();
+
+  if (!shortUrl || !shortUrl.includes("tiktok.com")) {
+    return { error: "Link TikTok tidak valid." };
+  }
+
+  try {
+    const res = await fetch(shortUrl.trim(), {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+      redirect: "follow",
+    });
+
+    const finalUrl = res.url;
+    const match = finalUrl.match(/\/video\/(\d{15,22})/);
+    if (match && match[1]) {
+      return { videoId: match[1] };
+    }
+
+    return {
+      error:
+        "Tidak dapat mengekstrak ID video dari tautan tersebut. Pastikan video bersifat publik.",
+    };
+  } catch (err: unknown) {
+    const msg =
+      err instanceof Error
+        ? err.message
+        : "Gagal menghubungkan ke server TikTok.";
+    return { error: msg };
+  }
+}
