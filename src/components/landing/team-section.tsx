@@ -13,6 +13,7 @@ import { Card, CardBody } from "@/components/ui/card";
 import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
 import type { TeamContent } from "@/types/landing";
 import { normalizeImageUrl } from "@/lib/utils";
+import { FounderPhoto } from "./founder-photo";
 
 const VALUE_ICONS: Record<string, LucideIcon> = {
   Heart,
@@ -70,20 +71,33 @@ export function TeamSection({ data }: TeamSectionProps) {
 
           {/* Founder Profile & Values */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-primary-50 rounded-2xl p-6 border border-primary-100">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 text-primary-800 text-xs font-semibold mb-3">
-                <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Pengelola & Penanggung Jawab</span>
+            <div className="bg-primary-50/80 rounded-2xl p-5 sm:p-6 border border-primary-100 shadow-xs relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5">
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border-2 border-primary-200/80 shadow-md bg-white ring-2 ring-primary-100/60 ring-offset-2 ring-offset-primary-50">
+                  <FounderPhoto
+                    src={content.founderPhotoUrl}
+                    alt={content.founderPhotoAlt || `Foto ${content.founderName}`}
+                    fallbackSrc="/images/founder-fallback.webp"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 text-center sm:text-left min-w-0">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-100 text-primary-800 text-xs font-semibold mb-2">
+                    <Sparkles className="w-3.5 h-3.5 text-primary-600 shrink-0" aria-hidden="true" />
+                    <span>Pengelola & Penanggung Jawab</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-800 font-heading leading-snug">
+                    {content.founderName}
+                  </h3>
+                  <p className="text-xs sm:text-sm font-medium text-primary-700 mt-1">
+                    {content.founderRole}
+                  </p>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-slate-800">
-                {content.founderName}
-              </h3>
-              <p className="text-sm font-medium text-primary-700 mt-1">
-                {content.founderRole}
-              </p>
-              <p className="text-slate-600 text-sm mt-4 leading-relaxed">
+
+              <blockquote className="mt-4 pt-3.5 border-t border-primary-100 text-slate-600 text-xs sm:text-sm leading-relaxed italic">
                 &ldquo;{content.founderQuote}&rdquo;
-              </p>
+              </blockquote>
             </div>
 
             {/* Dynamic Values Cards */}

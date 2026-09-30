@@ -40,6 +40,13 @@ export default async function Home() {
       "@type": "Person",
       name: content.team.founderName,
       jobTitle: content.team.founderRole,
+      ...(content.team.founderPhotoUrl
+        ? {
+            image: content.team.founderPhotoUrl.startsWith("http")
+              ? content.team.founderPhotoUrl
+              : `https://uzmacourse.com${content.team.founderPhotoUrl}`,
+          }
+        : {}),
     },
     sameAs: [
       content.footer.socialLinks.instagram,

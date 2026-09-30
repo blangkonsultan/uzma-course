@@ -219,6 +219,8 @@ export const DEFAULT_LANDING_CONTENT: AllLandingContent = {
     founderRole: "Pengelola Ahe SumoWangi / Uzma Course",
     founderQuote:
       "Lembaga bimbingan belajar di bawah naungan Ahe Indonesia yang melayani program belajar sejak 2022. Berkomitmen menghadirkan metode pengajaran ramah anak tanpa rasa takut atau trauma belajar.",
+    founderPhotoUrl: "/images/founder-fallback.webp",
+    founderPhotoAlt: "Foto Profil Nurul Ilmi Mega Puspita, S.Pd. - Pengelola Uzma Course",
     values: [
       {
         title: "Tanpa Trauma",

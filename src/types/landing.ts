@@ -70,6 +70,8 @@ export interface TeamContent {
   founderName: string;
   founderRole: string;
   founderQuote: string;
+  founderPhotoUrl?: string;
+  founderPhotoAlt?: string;
   values: TeamValueItem[];
   galleryImageUrl: string;
   galleryImageAlt: string;

@@ -135,6 +135,16 @@ export function TeamForm({ initialData }: TeamFormProps) {
           Profil Pendiri / Pengelola
         </h2>
 
+        <ImageUrlField
+          idPrefix="founder-photo"
+          label="Foto Pengelola"
+          value={data.founderPhotoUrl || ""}
+          onChange={(url) => setData({ ...data, founderPhotoUrl: url })}
+          altValue={data.founderPhotoAlt || ""}
+          onAltChange={(alt) => setData({ ...data, founderPhotoAlt: alt })}
+          hint="Rasio 1:1 persegi atau portrait, min 400×400px. Format JPG/PNG/WebP. Kosongkan untuk menggunakan fallback foto kartun AI wanita berhijab."
+          previewAspect="aspect-square"
+        />
         <div className="grid sm:grid-cols-2 gap-4">
           <InputField
             id="founderName"
