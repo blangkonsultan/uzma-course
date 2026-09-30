@@ -137,7 +137,11 @@
 
 ### Summary of Completed Work
 - **Logo Asset Ingestion**: Located and copied authentic 1280x1280 logo from Windows Downloads directory (`/mnt/c/Users/bagas/Downloads/logo uzma course.jpeg`) to `public/images/logo-uzma-course.jpg`.
-- **Favicon & App Icon Generation**: Added `src/app/icon.jpeg` and `src/app/apple-icon.jpeg`, and updated `src/app/layout.tsx` metadata icons to point to `/images/logo-uzma-course.jpg` for both `icon` and `apple`, as well as OpenGraph and Twitter cards. Browsers now display the authentic Uzma Course logo instead of fallback generic globe icons.
+- **Favicon & Root Favicon.ico Generation**:
+  - Created standard `public/favicon.ico` (256x256, 32-bit Windows icon resource) serving `image/x-icon` with HTTP 200 OK directly from root domain, fixing 404 response on crawler root requests.
+  - Added `src/app/icon.jpeg` and `src/app/apple-icon.jpeg` for automatic Next.js App Router metadata generation.
+  - Updated `src/app/layout.tsx` metadata icons to declare multi-format icons: `/favicon.ico` (sizes: any), `/images/logo-uzma-course.jpg` (type: image/jpeg), and Apple touch icon, plus OpenGraph and Twitter cards.
+  - Diagnosed Google Search favicon indexing behavior: verified Google CDN cache currently returns 404 fallback globe, identified asynchronous `Google Favicon` crawler latency (days to weeks), and outlined Google Search Console live test & indexing request procedure.
 - **Admin Sidebar & Navbar Branding**:
   - Replaced generic letter "U" box in `admin-shell.tsx` (sidebar header and mobile header) with the official logo image.
   - Replaced `Globe` icon on the "Landing Page" navigation item with `LayoutTemplate` from Lucide.
@@ -146,7 +150,7 @@
 
 ### Verification Evidence
 - **Visual Verification**: Captured screenshots of desktop admin sidebar, mobile header, mobile drawer menu, and public navbar showing the official logo rendered sharply.
+- **Endpoint Verification**: Tested `curl -IL http://localhost:3000/favicon.ico` (HTTP 200 OK image/x-icon) and `http://localhost:3000/icon.jpeg` (HTTP 200 OK image/jpeg).
 - **Build & Typecheck**: `npm run build` succeeded with zero errors, generating static `/icon.jpeg` and `/apple-icon.jpeg` routes automatically. `npm run lint` clean.
-
 ### Next Steps
 - Proceed with Phase 2b ERP modules (Presensi Guru with geolocation, Kartu Mengajar, Penggajian & SPP, Laporan) as planned.
