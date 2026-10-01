@@ -28,22 +28,32 @@ export function ImageUrlField({
   error,
   idPrefix = "img",
 }: ImageUrlFieldProps) {
+  const previewUrl = normalizeImageUrl(value);
+  const [prevUrl, setPrevUrl] = useState(previewUrl);
   const [imgError, setImgError] = useState(false);
 
-  const handleUrlChange = (newUrl: string) => {
+  // Reset error state whenever preview URL changes
+  if (previewUrl !== prevUrl) {
+    setPrevUrl(previewUrl);
     setImgError(false);
-    onChange(newUrl);
+  }
+
+  const handleUrlChange = (newUrl: string) => {
+    // Normalize Google Drive links immediately upon paste or change
+    const normalized = normalizeImageUrl(newUrl);
+    setImgError(false);
+    onChange(normalized);
   };
 
   const handleNormalizeOnBlur = () => {
     const normalized = normalizeImageUrl(value);
     if (normalized !== value) {
+      setImgError(false);
       onChange(normalized);
     }
   };
 
-  const hasValidUrl = value.trim().length > 0;
-
+  const hasValidUrl = previewUrl.trim().length > 0;
   return (
     <div className="space-y-3 p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200">
       <div className="flex items-center gap-2">
@@ -70,7 +80,7 @@ export function ImageUrlField({
           placeholder="Deskripsi gambar untuk aksesibilitas & SEO"
         />
       </div>
-      {value.includes("googleusercontent.com/d/") && (
+      {(value.includes("googleusercontent.com/d/") || previewUrl.includes("googleusercontent.com/d/")) && (
         <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5">
           ✓ Tautan Google Drive berhasil dikonversi ke direct link. Pastikan izin berbagi file di Google Drive diatur ke <strong>&ldquo;Siapa saja yang memiliki link&rdquo; (Anyone with the link)</strong> agar gambar dapat dimuat pengunjung.
         </p>
@@ -96,10 +106,11 @@ export function ImageUrlField({
               {/* Native img avoids Next.js remotePatterns restriction for arbitrary CMS URLs */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={value}
+                src={previewUrl}
                 alt={altValue || label}
                 loading="lazy"
                 decoding="async"
+                referrerPolicy="no-referrer"
                 onError={() => setImgError(true)}
                 className="w-full h-full object-cover"
               />

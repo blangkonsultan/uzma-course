@@ -51,6 +51,7 @@ export function TeamSection({ data }: TeamSectionProps) {
                   alt={content.teamPhotoAlt || "Tim Pengajar Ahe SumoWangi"}
                   loading="lazy"
                   decoding="async"
+                  referrerPolicy="no-referrer"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               </div>
@@ -148,6 +149,7 @@ export function TeamSection({ data }: TeamSectionProps) {
                 alt={content.galleryImageAlt || "Galeri Kegiatan Belajar dan Wisuda Ahe SumoWangi"}
                 loading="lazy"
                 decoding="async"
+                referrerPolicy="no-referrer"
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>

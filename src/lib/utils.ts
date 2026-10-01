@@ -19,7 +19,7 @@ export function normalizeImageUrl(url: string): string {
 
   // Convert Google Drive sharing links to direct CDN embed URLs
   const fileDMatch = trimmed.match(
-    /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/
+    /drive\.google\.com\/file\/(?:u\/[0-9]+\/)?d\/([a-zA-Z0-9_-]+)/
   );
   if (fileDMatch) {
     return `https://lh3.googleusercontent.com/d/${fileDMatch[1]}`;

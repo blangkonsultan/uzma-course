@@ -33,6 +33,7 @@ export function FounderPhoto({
       alt={alt}
       loading="lazy"
       decoding="async"
+      referrerPolicy="no-referrer"
       onError={() => {
         if (!hasError) {
           setHasError(true);
