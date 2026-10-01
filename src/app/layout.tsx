@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -100,6 +101,18 @@ export default function RootLayout({
   return (
     <html lang="id" className={poppins.variable}>
       <body className="antialiased">
+        <NextTopLoader
+          color="linear-gradient(to right, rgb(147, 51, 234), rgb(219, 39, 119))"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #9333ea,0 0 5px #ec4899"
+          zIndex={99999}
+        />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[60] focus:bg-white focus:text-primary-700 focus:font-semibold focus:px-4 focus:py-2 focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
