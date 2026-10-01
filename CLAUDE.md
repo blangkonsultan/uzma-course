@@ -117,6 +117,21 @@ All schema changes via Supabase CLI migrations only (`supabase/migrations/`). Ne
   6. **Flex Inputs**: Input di dalam flex container wajib menyertakan `min-w-0` agar placeholder panjang tidak menabrak atau mendorong tombol di sebelahnya ke luar layar.
   7. **Mobile-First Action Bars**: Pada form panjang, tombol aksi utama (*Simpan*) wajib dibuat dominan/full-width di mobile di atas tombol sekunder (*Kembali*), dan kembali bersisian (*side-by-side*) di layar desktop (`sm:`).
 
+
+### Master Entity Mobile Card Standard (Standar Kartu Mobile Master Data)
+Setiap halaman master baru (misal: Master Cabang, Master Ruangan, Master Jadwal, Master Biaya, dll) yang menggunakan `<DataTable>` **WAJIB** menyertakan prop `mobileCard` menggunakan komponen baku `<MasterMobileCard>` dari `@/components/admin/master-mobile-card`. Dilarang membiarkan tampilan tabel mentah di layar ponsel.
+
+**Anatomi Baku 5-Bagian MasterMobileCard:**
+1. **Avatar Inisial**: Kotak 40×40px (`w-10 h-10 rounded-xl font-bold text-xs shrink-0`) dengan skema warna tematik:
+   - Program Belajar: `color="purple"` (`bg-purple-100 text-purple-700`)
+   - Guru / Pengajar: `color="emerald"` (`bg-emerald-100 text-emerald-800`)
+   - Murid / Siswa: `color="blue"` (`bg-blue-100 text-blue-700`)
+   - Cabang / Fasilitas / Operasional: `color="amber"` atau `color="slate"`
+2. **Identitas**: Judul entitas (link semantik) + Subtitle 12px teks sekunder (`line-clamp-1`).
+3. **Status**: `<StatusBadge isActive={...} />` di pojok kanan atas kartu.
+4. **Pills Row**: Tag cabang / kategori (`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 border border-slate-200/80`) berdampingan dengan atribut meta.
+5. **Summary Specs Box**: Kotak ringkasan 2 kolom (`p-3 rounded-xl bg-slate-50 border border-slate-100 grid grid-cols-2 gap-2 text-xs`) berisi label kapital 10px abu-abu dan nilai tebal di bawahnya.
+6. **Action Bar**: Bilah aksi bawah (`flex items-center gap-2 pt-2 border-t border-slate-100`) berisi tombol pil sentuh ergonomis (`h-10 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-2xs`) untuk Detail/Edit, serta tombol toggle status berbentuk kotak 40×40px (`w-10 h-10 rounded-xl`).
 ## Definition of Done
 
 - [ ] Target behavior implemented
