@@ -273,7 +273,14 @@ export const DEFAULT_LANDING_CONTENT: AllLandingContent = {
     title: "Video Kegiatan Kami",
     subtitle:
       "Suasana belajar yang ceria, interaktif, dan penuh semangat di Uzma Course",
-    items: [],
+    items: [
+      {
+        id: "video-uzma-tiktok-1",
+        title: "Suasana Belajar Membaca di Ahe SumoWangi",
+        source: "tiktok",
+        embedUrl: "https://www.tiktok.com/player/v1/7683120078589611285",
+      },
+    ],
   },
   locations: {
     title: "Lokasi Kami",

@@ -15,14 +15,14 @@ export function VideoSection({ data }: VideoSectionProps) {
   }
 
   return (
-    <section className="py-20 bg-slate-50">
+    <section id="videos" className="py-20 bg-slate-50 scroll-mt-16">
       <Container className="max-w-4xl">
         <SectionHeading
           title={content.title}
           subtitle={content.subtitle}
         />
 
-        <div className="grid md:grid-cols-2 gap-8 mt-12 items-start justify-center">
+        <div className="flex flex-wrap justify-center gap-8 mt-12 items-start">
           {content.items.map((video) => {
             const isTikTok =
               video.source === "tiktok" || video.embedUrl.includes("tiktok.com");
@@ -31,7 +31,11 @@ export function VideoSection({ data }: VideoSectionProps) {
               <div
                 key={video.id}
                 className={`flex flex-col items-center w-full ${
-                  isTikTok ? "max-w-[340px] mx-auto" : "max-w-xl mx-auto"
+                  isTikTok
+                    ? "max-w-[340px]"
+                    : content.items.length === 1
+                    ? "max-w-2xl"
+                    : "max-w-md lg:max-w-lg"
                 }`}
               >
                 <div
