@@ -105,7 +105,11 @@ export function FooterForm({ initialData }: FooterFormProps) {
           })}
           itemLabel={(item) => {
             const cfg = getSocialPlatformConfig(item.platform);
-            return `${item.label || cfg.label} (${item.url || "Belum ada tautan"})`;
+            const hasCustomLabel = item.label && item.label !== cfg.label;
+            const cleanUrl = item.url
+              ? item.url.replace(/^https?:\/\/(www\.)?/, "").split("?")[0]
+              : "Belum ada tautan";
+            return `${cfg.label}${hasCustomLabel ? ` (${item.label})` : ""} — ${cleanUrl}`;
           }}
           addButtonText="Tambah Akun Media Sosial"
           renderItem={(item, index, updateItem) => {
@@ -113,39 +117,30 @@ export function FooterForm({ initialData }: FooterFormProps) {
 
             return (
               <div className="space-y-4">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <div className="w-5 h-5 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0">
-                        <SocialIcon platform={item.platform} className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="text-xs font-semibold text-slate-600">
-                        Pratinjau: {config.label}
-                      </span>
-                    </div>
-                    <SelectField
-                      id={`social-platform-${index}`}
-                      label="Platform Media Sosial"
-                      value={item.platform}
-                      onChange={(e) => {
-                        const newPlatform = e.target.value as SocialPlatform;
-                        const newCfg = getSocialPlatformConfig(newPlatform);
-                        updateItem({
-                          ...item,
-                          platform: newPlatform,
-                          label:
-                            !item.label || item.label === config.label
-                              ? newCfg.label
-                              : item.label,
-                        });
-                      }}
-                      options={SOCIAL_PLATFORMS.map((p) => ({
-                        value: p.id,
-                        label: p.label,
-                      }))}
-                      required
-                    />
-                  </div>
+                <div className="grid sm:grid-cols-2 gap-4 items-start">
+                  <SelectField
+                    id={`social-platform-${index}`}
+                    label="Platform Media Sosial"
+                    value={item.platform}
+                    onChange={(e) => {
+                      const newPlatform = e.target.value as SocialPlatform;
+                      const newCfg = getSocialPlatformConfig(newPlatform);
+                      updateItem({
+                        ...item,
+                        platform: newPlatform,
+                        label:
+                          !item.label || item.label === config.label
+                            ? newCfg.label
+                            : item.label,
+                      });
+                    }}
+                    options={SOCIAL_PLATFORMS.map((p) => ({
+                      value: p.id,
+                      label: p.label,
+                    }))}
+                    hint="Pilih jenis platform media sosial"
+                    required
+                  />
 
                   <InputField
                     id={`social-label-${index}`}
@@ -155,21 +150,37 @@ export function FooterForm({ initialData }: FooterFormProps) {
                       updateItem({ ...item, label: e.target.value })
                     }
                     placeholder={config.label}
-                    hint="Nama akun atau teks tooltip yang muncul saat hover"
+                    hint="Teks tooltip yang muncul saat ikon disentuh/hover"
                   />
                 </div>
 
-                <InputField
-                  id={`social-url-${index}`}
-                  label="Tautan Profil / URL"
-                  value={item.url}
-                  onChange={(e) =>
-                    updateItem({ ...item, url: e.target.value })
-                  }
-                  placeholder={config.placeholder}
-                  hint={config.hint}
-                  required
-                />
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor={`social-url-${index}`}
+                    className="block text-sm font-medium text-slate-700"
+                  >
+                    Tautan Profil / URL
+                    <span className="text-rose-500 ml-1">*</span>
+                  </label>
+                  <div className="flex rounded-xl shadow-xs overflow-hidden">
+                    <span className="inline-flex items-center gap-2 px-3.5 border border-r-0 border-slate-200 bg-slate-50 text-slate-700 text-xs font-semibold shrink-0">
+                      <SocialIcon platform={item.platform} className="w-4 h-4 text-slate-800" />
+                      <span>{config.label}</span>
+                    </span>
+                    <input
+                      id={`social-url-${index}`}
+                      type="url"
+                      value={item.url}
+                      onChange={(e) =>
+                        updateItem({ ...item, url: e.target.value })
+                      }
+                      placeholder={config.placeholder}
+                      required
+                      className="block w-full min-w-0 flex-1 border border-slate-200 px-3.5 py-2.5 sm:py-2 text-base sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-colors"
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500">{config.hint}</p>
+                </div>
               </div>
             );
           }}
