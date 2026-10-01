@@ -157,6 +157,85 @@ export default async function ProgramListPage() {
         data={programs}
         keyExtractor={(item) => item.id}
         emptyStateMessage="Belum ada program belajar yang terdaftar."
+        mobileCard={(prog) => (
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-xs shrink-0">
+                  {prog.initials}
+                </div>
+                <div className="min-w-0">
+                  <Link
+                    href={`/admin/program/${prog.id}`}
+                    className="font-semibold text-slate-900 hover:text-primary-600 transition-colors text-sm leading-tight block truncate"
+                  >
+                    {prog.name}
+                  </Link>
+                  {prog.tagline && (
+                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+                      {prog.tagline}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <StatusBadge isActive={prog.is_active} />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              {prog.type === "franchise" ? (
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/80">
+                  <Award className="w-3 h-3 text-amber-600 shrink-0" />
+                  <span>Franchise ({prog.license_provider || "Berlisensi"})</span>
+                </div>
+              ) : (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/80">
+                  Original Uzma
+                </span>
+              )}
+              <span className="text-slate-500 text-[11px]">
+                Target: <strong className="text-slate-700 font-medium">{prog.age_range || "-"}</strong>
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Rasio Kelas</span>
+                <span className="font-semibold text-slate-800">{formatClassRatio(prog.system)}</span>
+              </div>
+              <div className="text-right">
+                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Jadwal Sesi</span>
+                <span className="font-semibold text-slate-800">{formatDuration(prog.duration)} • {formatFrequencyShort(prog.frequency)}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+              <Link
+                href={`/admin/program/${prog.id}`}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 h-10 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-2xs"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Detail</span>
+              </Link>
+              <Link
+                href={`/admin/program/${prog.id}/edit`}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 h-10 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-2xs"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+                <span>Edit</span>
+              </Link>
+              <ProgramStatusButton
+                programId={prog.id}
+                programName={prog.name}
+                isActive={prog.is_active}
+                className={`inline-flex items-center justify-center w-10 h-10 rounded-xl border transition-colors shadow-2xs shrink-0 ${
+                  prog.is_active
+                    ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
+                    : "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                }`}
+              />
+            </div>
+          </div>
+        )}
       />
     </div>
   );

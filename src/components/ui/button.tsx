@@ -2,8 +2,10 @@ import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
 
 const variants = {
-  primary: "bg-primary-600 hover:bg-primary-700 text-white",
-  outline: "border-2 border-white text-white hover:bg-white/10",
+  primary: "bg-primary-600 hover:bg-primary-700 text-white shadow-2xs",
+  outline: "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-2xs",
+  "outline-white": "border-2 border-white text-white hover:bg-white/10",
+  secondary: "bg-slate-100 hover:bg-slate-200 text-slate-800",
   ghost: "text-primary-600 hover:text-primary-700 hover:bg-primary-50",
   whatsapp: "bg-green-500 hover:bg-green-600 text-white",
 } as const;

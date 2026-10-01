@@ -9,12 +9,16 @@ interface ProgramStatusButtonProps {
   programId: string;
   programName: string;
   isActive: boolean;
+  showLabel?: boolean;
+  className?: string;
 }
 
 export function ProgramStatusButton({
   programId,
   programName,
   isActive,
+  showLabel = false,
+  className,
 }: ProgramStatusButtonProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -39,18 +43,24 @@ export function ProgramStatusButton({
       <button
         type="button"
         onClick={() => setDialogOpen(true)}
-        className={`p-1.5 rounded-lg transition-colors ${
-          isActive
-            ? "text-rose-600 hover:bg-rose-50"
-            : "text-emerald-600 hover:bg-emerald-50"
-        }`}
+        className={
+          className ??
+          `p-1.5 rounded-lg transition-colors ${
+            isActive
+              ? "text-rose-600 hover:bg-rose-50"
+              : "text-emerald-600 hover:bg-emerald-50"
+          }`
+        }
         title={isActive ? "Nonaktifkan Program" : "Aktifkan Program"}
         aria-label={isActive ? `Nonaktifkan ${programName}` : `Aktifkan ${programName}`}
       >
         {isActive ? (
-          <EyeOff className="w-4 h-4" />
+          <EyeOff className="w-4 h-4 shrink-0" />
         ) : (
-          <Eye className="w-4 h-4" />
+          <Eye className="w-4 h-4 shrink-0" />
+        )}
+        {showLabel && (
+          <span>{isActive ? "Nonaktifkan" : "Aktifkan"}</span>
         )}
       </button>
 

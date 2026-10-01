@@ -88,20 +88,27 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
         title={program.name}
         description={program.tagline || "Program bimbingan belajar Uzma Course."}
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <StatusBadge isActive={program.is_active} />
             <Button
               variant="outline"
               size="sm"
               href={`/admin/program/${program.id}/edit`}
+              className="gap-1.5 h-9"
             >
               <Edit2 className="w-4 h-4" />
-              Edit Program
+              <span>Edit Program</span>
             </Button>
             <ProgramStatusButton
               programId={program.id}
               programName={program.name}
               isActive={program.is_active}
+              showLabel
+              className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-full text-xs font-semibold border transition-colors shadow-2xs ${
+                program.is_active
+                  ? "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                  : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+              }`}
             />
           </div>
         }
@@ -182,21 +189,21 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
         {/* Left Column (2 cols): Informasi & Kurikulum */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="border border-slate-200/80 shadow-xs overflow-hidden">
-            <CardHeader className="bg-slate-50/70 border-b border-slate-100 p-5 flex items-center justify-between">
+            <CardHeader className="bg-slate-50/70 border-b border-slate-100 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
+                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm shrink-0">
                   <BookOpen className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900">
                   Deskripsi & Metode Belajar
                 </h2>
               </div>
-              <span className="text-xs text-slate-400 font-mono">
+              <span className="text-xs text-slate-400 font-mono truncate max-w-full">
                 ID: {program.id}
               </span>
             </CardHeader>
 
-            <CardBody className="p-6 space-y-4">
+            <CardBody className="p-4 sm:p-6 space-y-4">
               <div>
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
                   Tagline
@@ -243,8 +250,8 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
           {/* Franchise Details (if applicable) */}
           {program.type === "franchise" && (
             <Card className="border border-primary-200 shadow-xs overflow-hidden bg-primary-50/20">
-              <CardHeader className="bg-primary-100/50 border-b border-primary-200/60 p-5 flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-primary-200 text-primary-800 flex items-center justify-center font-bold text-sm">
+              <CardHeader className="bg-primary-100/50 border-b border-primary-200/60 p-4 sm:p-5 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-primary-200 text-primary-800 flex items-center justify-center font-bold text-sm shrink-0">
                   <Award className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-primary-950">
@@ -252,7 +259,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
                 </h2>
               </CardHeader>
 
-              <CardBody className="p-6 space-y-4">
+              <CardBody className="p-4 sm:p-6 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
@@ -272,10 +279,10 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
                         href={program.license_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs font-semibold text-primary-600 hover:text-primary-700 inline-flex items-center gap-1"
+                        className="text-xs font-semibold text-primary-600 hover:text-primary-700 inline-flex items-center gap-1 break-all max-w-full"
                       >
-                        <span>{program.license_url}</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span className="break-all">{program.license_url}</span>
+                        <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                       </a>
                     </div>
                   )}
@@ -293,7 +300,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
                 )}
 
                 {program.logo_url && (
-                  <div className="pt-2 border-t border-purple-100">
+                  <div className="pt-2 border-t border-primary-100">
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">
                       Logo Resmi
                     </span>
@@ -315,8 +322,8 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
         {/* Right Column: Operasional & Teknis */}
         <div className="space-y-6">
           <Card className="border border-slate-200/80 shadow-xs overflow-hidden">
-            <CardHeader className="bg-slate-50/70 border-b border-slate-100 p-5 flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
+            <CardHeader className="bg-slate-50/70 border-b border-slate-100 p-4 sm:p-5 flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm shrink-0">
                 <Clock className="w-4 h-4" />
               </div>
               <h2 className="text-base font-bold text-slate-900">
@@ -324,7 +331,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
               </h2>
             </CardHeader>
 
-            <CardBody className="p-6 space-y-4">
+            <CardBody className="p-4 sm:p-6 space-y-4">
               <div>
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
                   Rasio Kelas

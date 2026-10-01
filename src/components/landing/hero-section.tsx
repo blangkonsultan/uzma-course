@@ -59,7 +59,7 @@ export function HeroSection({ data }: HeroSectionProps) {
             {content.primaryCtaText}
           </Button>
           <Button
-            variant="outline"
+            variant="outline-white"
             href={content.secondaryCtaHref || "#programs"}
             size="lg"
           >

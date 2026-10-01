@@ -379,7 +379,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
 
           {/* Section 5: Fitur & Fasilitas Program */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                 Fasilitas & Fitur Unggulan
               </h3>
@@ -389,10 +389,10 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                 size="sm"
                 onClick={addFeature}
                 disabled={isPending}
-                className="h-8 text-xs"
+                className="h-9 px-3 text-xs"
               >
                 <Plus className="w-3.5 h-3.5" />
-                Tambah Fasilitas
+                <span>Tambah Fasilitas</span>
               </Button>
             </div>
 
@@ -406,15 +406,16 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                       onChange={(e) => handleFeatureChange(idx, e.target.value)}
                       placeholder={`Fasilitas ${idx + 1}, contoh: Buku Modul Eksklusif`}
                       disabled={isPending}
-                      className="w-full h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                      className="w-full h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-base sm:text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => removeFeature(idx)}
                     disabled={isPending}
-                    className="p-2.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 transition-colors shrink-0"
+                    className="w-10 h-10 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 transition-colors shrink-0 flex items-center justify-center"
                     title="Hapus fasilitas ini"
+                    aria-label={`Hapus fasilitas ${idx + 1}`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -447,18 +448,23 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
           )}
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-6 border-t border-slate-100">
             <Button
               type="button"
               variant="outline"
               href={isEdit && initialData ? `/admin/program/${initialData.id}` : "/admin/program"}
               disabled={isPending}
+              className="w-full sm:w-auto justify-center h-11 sm:h-10"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Batal</span>
             </Button>
 
-            <Button type="submit" disabled={isPending}>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="w-full sm:w-auto justify-center h-11 sm:h-10"
+            >
               {isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
