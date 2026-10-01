@@ -22,6 +22,7 @@ import {
   ExternalLink,
   LayoutTemplate,
   Layers,
+  Building2,
 } from "lucide-react";
 
 interface AdminShellProps {
@@ -61,6 +62,12 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
       href: "/admin/murid",
       icon: GraduationCap,
       roles: ["admin", "guru"],
+    },
+    {
+      label: "Data Cabang",
+      href: "/admin/cabang",
+      icon: Building2,
+      roles: ["admin"],
     },
     {
       label: "Landing Page",

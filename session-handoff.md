@@ -1,57 +1,64 @@
 # Session Handoff
 
-**Last Updated:** 2026-10-01 19:40
+**Last Updated:** 2026-10-01 20:30
 
 ## Current Objective
 
-- Goal: Complete harness implementation, automated testing infrastructure, and project agent instructions.
-- Current status: In progress - finishing harness integration.
-- Branch / commit: `main` / `018e5a9`.
+- Goal: Implement Master Cabang (`feat-011`) full admin module (CRUD, status toggles, map links, dashboard integration).
+- Current status: Completed & fully verified.
+- Branch / commit: `main`.
 
 ## Completed This Session
 
-- [x] Standardized mobile card layout with reusable `MasterMobileCard` across Master Program, Guru, and Murid.
-- [x] Established Vitest automated testing suite with 20 passing unit tests.
-- [x] Created `init.sh` standard verification entrypoint (`npm run lint && npm test && npm run build`).
-- [x] Created `feature_list.json` tracking 10 core features with dependency graph and explicit status.
-- [x] Updated project documentation in `CLAUDE.md` and `AGENTS.md`.
+- [x] Added `getBranchById(id)` to `src/lib/branches.ts`.
+- [x] Implemented server actions (`createBranch`, `updateBranch`, `toggleBranchActive`) with admin guard in `src/app/admin/cabang/actions.ts`.
+- [x] Created `BranchStatusButton` client component with ConfirmDialog in `src/components/admin/cabang/branch-status-button.tsx`.
+- [x] Created `BranchForm` client component with validation, Google Maps URL hints, and active toggle in `src/components/admin/cabang/branch-form.tsx`.
+- [x] Built list page `/admin/cabang` with search by name, status filter, DataTable with guru/murid KPI counts, and responsive `MasterMobileCard` in `src/app/admin/cabang/page.tsx`.
+- [x] Built tambah page `/admin/cabang/tambah` in `src/app/admin/cabang/tambah/page.tsx`.
+- [x] Built detail page `/admin/cabang/[id]` with KPI cards (Guru Aktif, Murid Aktif, Status), information card, and Google Maps iframe embed in `src/app/admin/cabang/[id]/page.tsx`.
+- [x] Built edit page `/admin/cabang/[id]/edit` in `src/app/admin/cabang/[id]/edit/page.tsx`.
+- [x] Added "Data Cabang" with `Building2` icon in `src/components/admin/admin-shell.tsx` after "Data Murid".
+- [x] Linked branch KPI cards on Admin Dashboard `/admin` to `/admin/cabang/[id]`.
+- [x] Created unit tests `tests/branches.test.ts` covering data access and slug validation (26 tests total now pass).
+- [x] Verified zero horizontal overflow across 360px, 375px, and 1280px viewports across all 4 Cabang routes.
 
 ## Verification Evidence
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
-| Unit Tests | `npm test` | PASS (20 tests passed) | Vitest v5.0.3 execution time ~300ms |
+| Unit Tests | `npm test` | PASS (26 tests passed) | Vitest v5.0.3 execution time ~335ms |
 | Code Quality | `npm run lint` | PASS (0 errors, 0 warnings) | ESLint check clean |
-| Production Build | `npm run build` | PASS (Compiled in 1.3s) | Next.js Turbopack 16.3.7, 16 static pages |
+| Production Build | `npm run build` | PASS (Compiled in ~1s) | Next.js Turbopack 16.3.7, 18 static & dynamic routes |
+| Responsive Audit | Headless Chromium | PASS (0 overflow) | Verified at 360px, 375px, and 1280px viewports |
 | Harness Validation | `./init.sh` | PASS (set -e clean run) | Full test + lint + build verification |
 
 ## Files Changed
 
-- `src/components/admin/master-mobile-card.tsx`
-- `src/app/admin/guru/page.tsx`
-- `src/app/admin/murid/page.tsx`
-- `src/app/admin/program/page.tsx`
-- `src/lib/utils.ts`
-- `tests/utils.test.ts`
-- `tests/whatsapp.test.ts`
-- `tests/landing-content.test.ts`
-- `vitest.config.mts`
-- `init.sh`
+- `src/lib/branches.ts`
+- `src/app/admin/cabang/actions.ts`
+- `src/components/admin/cabang/branch-status-button.tsx`
+- `src/components/admin/cabang/branch-form.tsx`
+- `src/app/admin/cabang/page.tsx`
+- `src/app/admin/cabang/tambah/page.tsx`
+- `src/app/admin/cabang/[id]/page.tsx`
+- `src/app/admin/cabang/[id]/edit/page.tsx`
+- `src/components/admin/admin-shell.tsx`
+- `src/app/admin/page.tsx`
+- `tests/branches.test.ts`
 - `feature_list.json`
 - `session-handoff.md`
 - `progress.md`
-- `AGENTS.md`
-- `CLAUDE.md`
 
 ## Decisions Made
 
-- Standardized mobile card architecture to 5-row anatomy with `MasterMobileCard` to ensure 100% UI consistency.
-- Adopted Vitest for blazing fast ESM-native unit testing under Next.js 16 and Node 22.
-- Implemented executable `init.sh` with `set -e` as single verification entrypoint for agents.
+- Maintained text slug PK convention (`balongbendo`, `krian`) for branches, enforcing `/^[a-z0-9-]+$/` validation on creation and making ID read-only in edit mode.
+- Used standardized `MasterMobileCard` component for mobile cards on `/admin/cabang` list to guarantee strict UI conformity with Guru, Murid, and Program masters.
+- Direct Google Maps navigation link opens in a new tab; interactive embed renders as a 16:9 iframe on the detail page.
 
 ## Blockers / Risks
 
-- None currently blocking. All builds and test suites are green.
+- None currently blocking. All builds, tests, and live server actions are green.
 
 ## Next Session Startup
 

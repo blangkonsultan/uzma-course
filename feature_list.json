@@ -79,6 +79,14 @@
       "dependencies": ["feat-008", "feat-009"],
       "status": "not-started",
       "evidence": ""
+    },
+    {
+      "id": "feat-011",
+      "name": "Master Data Cabang",
+      "description": "Admin CRUD management for tutoring branches, locations, sentra sub-units, map embeds, Google Maps navigation links, and operational status toggles",
+      "dependencies": ["feat-001", "feat-006"],
+      "status": "completed",
+      "evidence": "Server actions at /admin/cabang/actions.ts, BranchStatusButton, BranchForm, verified list/create/detail/edit on /admin/cabang with 0 horizontal overflow at 360px-1280px"
     }
   ]
 }

@@ -206,7 +206,16 @@ export default async function AdminDashboardPage() {
             >
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  {branch.name}
+                  {isAdmin ? (
+                    <Link
+                      href={`/admin/cabang/${branch.id}`}
+                      className="hover:text-primary-600 transition-colors"
+                    >
+                      {branch.name}
+                    </Link>
+                  ) : (
+                    branch.name
+                  )}
                 </p>
                 <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
                   {branch.count}
