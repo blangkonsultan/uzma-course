@@ -1,15 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
-import { GuruForm } from "@/components/admin/guru/guru-form";
-import { getPrograms } from "@/lib/programs";
-import { getBranches } from "@/lib/branches";
+import { ProgramForm } from "@/components/admin/program/program-form";
 
 export const metadata = {
-  title: "Tambah Guru Baru | Uzma Course",
+  title: "Tambah Program Belajar | Uzma Course",
 };
 
-export default async function TambahGuruPage() {
+export default async function TambahProgramPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -26,27 +24,22 @@ export default async function TambahGuruPage() {
     .single();
 
   if (profile?.role !== "admin") {
-    redirect("/admin");
+    redirect("/admin/program");
   }
-
-  const [programs, branches] = await Promise.all([
-    getPrograms(),
-    getBranches(),
-  ]);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Tambah Guru Baru"
-        description="Daftarkan akun pengajar baru, tetapkan cabang dan program bimbingan."
+        title="Tambah Program Baru"
+        description="Daftarkan program bimbingan belajar baru ke dalam sistem master data."
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
-          { label: "Data Guru", href: "/admin/guru" },
-          { label: "Tambah Guru" },
+          { label: "Master Program", href: "/admin/program" },
+          { label: "Tambah Program" },
         ]}
       />
 
-      <GuruForm programs={programs} branches={branches} />
+      <ProgramForm />
     </div>
   );
 }

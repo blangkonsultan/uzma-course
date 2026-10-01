@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { StudentForm } from "@/components/admin/murid/student-form";
+import { getPrograms } from "@/lib/programs";
+import { getBranches } from "@/lib/branches";
 
 export const metadata = {
   title: "Edit Data Murid | Uzma Course",
@@ -36,15 +38,22 @@ export default async function EditStudentPage({
     redirect("/admin/murid");
   }
 
-  const { data: student } = await supabase
-    .from("students")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const [{ data: student }, programs, branches] = await Promise.all([
+    supabase
+      .from("students")
+      .select("*, student_programs(program_id)")
+      .eq("id", id)
+      .single(),
+    getPrograms(true),
+    getBranches(true),
+  ]);
 
   if (!student) {
     notFound();
   }
+
+  const initialProgramIds =
+    student.student_programs?.map((sp) => sp.program_id) ?? [];
 
   return (
     <div className="space-y-6">
@@ -59,7 +68,13 @@ export default async function EditStudentPage({
         ]}
       />
 
-      <StudentForm initialData={student} isEdit />
+      <StudentForm
+        initialData={student}
+        initialProgramIds={initialProgramIds}
+        programs={programs}
+        branches={branches}
+        isEdit
+      />
     </div>
   );
 }

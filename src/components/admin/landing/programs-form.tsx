@@ -1,18 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import {
-  InputField,
-  TextareaField,
-  SelectField,
-} from "@/components/admin/form-field";
-import { IconSelectField } from "@/components/admin/landing/icon-select-field";
-import { LogoUploadField } from "@/components/admin/landing/logo-upload-field";
-import { SortableItemList } from "@/components/admin/landing/sortable-item-list";
+import Link from "next/link";
+import { InputField } from "@/components/admin/form-field";
 import { FormActions } from "@/components/admin/landing/form-actions";
-import { Plus, X } from "lucide-react";
 import { updateLandingSection } from "@/app/admin/landing/actions";
-import type { ProgramsContent, ProgramItem } from "@/types/landing";
+import { Layers, ArrowRight } from "lucide-react";
+import type { ProgramsContent } from "@/types/landing";
 
 interface ProgramsFormProps {
   initialData: ProgramsContent;
@@ -28,7 +22,13 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
     setError(null);
 
     const formData = new FormData();
-    formData.append("payload", JSON.stringify(data));
+    formData.append(
+      "payload",
+      JSON.stringify({
+        title: data.title,
+        subtitle: data.subtitle,
+      })
+    );
 
     startTransition(async () => {
       const res = await updateLandingSection("programs", formData);
@@ -46,10 +46,34 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
         </div>
       )}
 
+      {/* Info Notice about Centralized Master Program */}
+      <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-purple-900">
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-xl bg-purple-100 text-purple-700 shrink-0 mt-0.5">
+            <Layers className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-purple-950">
+              Pengelolaan Daftar Program Terpusat
+            </h3>
+            <p className="text-xs text-purple-800/90 mt-0.5 leading-relaxed">
+              Daftar program belajar, kurikulum, atribusi lisensi franchise, dan logo sekarang dikelola langsung melalui database Master Program.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/admin/program"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs transition-colors shrink-0 shadow-xs"
+        >
+          <span>Master Program</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
       {/* Section Header Details */}
       <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-base font-bold text-slate-800 font-heading border-b border-slate-100 pb-3">
-          Judul Section Program
+          Judul Section Program Landing Page
         </h2>
 
         <div className="grid sm:grid-cols-2 gap-4">
@@ -68,302 +92,6 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
             required
           />
         </div>
-      </div>
-
-      {/* Program Items List */}
-      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs">
-        <SortableItemList<ProgramItem>
-          title="Daftar Program Kursus"
-          description="Atur urutan, tambah, atau perbarui rincian program belajar"
-          items={data.items}
-          onItemsChange={(items) => setData({ ...data, items })}
-          createEmptyItem={() => ({
-            id: `program-${Date.now()}`,
-            initials: "PROG",
-            name: "Nama Program Baru",
-            tagline: "Tagline Program",
-            description: "Deskripsi singkat program bimbingan belajar.",
-            ageRange: "Mulai 4 tahun",
-            type: "original",
-            icon: "BookOpen",
-            system: "1 guru max 2 murid",
-            duration: "30 menit / sesi",
-            frequency: "3x / minggu (12x / bulan)",
-            features: ["Buku Modul", "Buku Penghubung"],
-          })}
-          itemLabel={(item) =>
-            `${item.initials} - ${item.name} (${item.system})`
-          }
-          addButtonText="Tambah Program Baru"
-          renderItem={(item, index, updateItem) => (
-            <div className="space-y-4 pt-2">
-              <div className="grid sm:grid-cols-2 gap-3">
-                <InputField
-                  id={`prog-name-${index}`}
-                  label="Nama Lengkap Program"
-                  value={item.name}
-                  onChange={(e) =>
-                    updateItem({ ...item, name: e.target.value })
-                  }
-                  placeholder="Contoh: Ala Sekolah (ASE)"
-                  required
-                />
-                <InputField
-                  id={`prog-tagline-${index}`}
-                  label="Tagline Program"
-                  value={item.tagline}
-                  onChange={(e) =>
-                    updateItem({ ...item, tagline: e.target.value })
-                  }
-                  placeholder="Contoh: Stimulasi Tumbuh Kembang Sensori & Kognitif"
-                  required
-                />
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-3">
-                <InputField
-                  id={`prog-initials-${index}`}
-                  label="Inisial Singkat"
-                  value={item.initials}
-                  onChange={(e) =>
-                    updateItem({ ...item, initials: e.target.value.toUpperCase() })
-                  }
-                  hint="Contoh: AHE, ASE, BEE, MAPEL"
-                  required
-                />
-                <InputField
-                  id={`prog-id-${index}`}
-                  label="Kode ID Program"
-                  value={item.id}
-                  onChange={(e) =>
-                    updateItem({ ...item, id: e.target.value.toLowerCase().trim() })
-                  }
-                  hint="Huruf kecil unik (misal: ahe, ase, bee)"
-                  required
-                />
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-3">
-                <SelectField
-                  id={`prog-type-${index}`}
-                  label="Kategori Program"
-                  options={[
-                    { value: "franchise", label: "Program Franchise (Berlisensi)" },
-                    { value: "original", label: "Program Original Uzma Course" },
-                  ]}
-                  value={item.type || "original"}
-                  onChange={(e) =>
-                    updateItem({
-                      ...item,
-                      type: e.target.value as "franchise" | "original",
-                    })
-                  }
-                  required
-                />
-
-                <IconSelectField
-                  id={`prog-icon-${index}`}
-                  label="Ikon Tampilan (Fallback)"
-                  value={item.icon}
-                  onChange={(icon) => updateItem({ ...item, icon })}
-                  required
-                />
-              </div>
-
-              {item.type === "franchise" && (
-                <LogoUploadField
-                  value={item.logoUrl}
-                  onChange={(url) => updateItem({ ...item, logoUrl: url })}
-                  programId={item.id}
-                />
-              )}
-              {item.type === "franchise" && (
-                <div className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50/50">
-                  <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
-                    Detail Lisensi
-                  </h4>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    <InputField
-                      id={`prog-lic-provider-${index}`}
-                      label="Nama Franchisor"
-                      value={item.licenseInfo?.provider || ""}
-                      onChange={(e) =>
-                        updateItem({
-                          ...item,
-                          licenseInfo: {
-                            ...item.licenseInfo,
-                            provider: e.target.value,
-                          },
-                        })
-                      }
-                      placeholder="Ahe Indonesia"
-                      required
-                    />
-                    <InputField
-                      id={`prog-lic-url-${index}`}
-                      label="Website Franchisor"
-                      value={item.licenseInfo?.url || ""}
-                      onChange={(e) =>
-                        updateItem({
-                          ...item,
-                          licenseInfo: {
-                            provider: item.licenseInfo?.provider || "",
-                            ...item.licenseInfo,
-                            url: e.target.value,
-                          },
-                        })
-                      }
-                      placeholder="https://..."
-                    />
-                  </div>
-                  <TextareaField
-                    id={`prog-lic-desc-${index}`}
-                    label="Keterangan Lisensi"
-                    value={item.licenseInfo?.description || ""}
-                    onChange={(e) =>
-                      updateItem({
-                        ...item,
-                        licenseInfo: {
-                          provider: item.licenseInfo?.provider || "",
-                          ...item.licenseInfo,
-                          description: e.target.value,
-                        },
-                      })
-                    }
-                    rows={2}
-                    placeholder="Informasi tambahan tentang lisensi program..."
-                  />
-                </div>
-              )}
-
-
-              <TextareaField
-                id={`prog-desc-${index}`}
-                label="Deskripsi Program"
-                value={item.description}
-                onChange={(e) =>
-                  updateItem({ ...item, description: e.target.value })
-                }
-                rows={2}
-                required
-              />
-
-              <div className="grid sm:grid-cols-4 gap-3">
-                <InputField
-                  id={`prog-age-${index}`}
-                  label="Rentang Usia"
-                  value={item.ageRange}
-                  onChange={(e) =>
-                    updateItem({ ...item, ageRange: e.target.value })
-                  }
-                  placeholder="Mulai 3,5 tahun"
-                  required
-                />
-                <InputField
-                  id={`prog-sys-${index}`}
-                  label="Sistem / Rasio"
-                  value={item.system}
-                  onChange={(e) =>
-                    updateItem({ ...item, system: e.target.value })
-                  }
-                  placeholder="1 guru max 2 murid"
-                  required
-                />
-                <InputField
-                  id={`prog-dur-${index}`}
-                  label="Durasi"
-                  value={item.duration}
-                  onChange={(e) =>
-                    updateItem({ ...item, duration: e.target.value })
-                  }
-                  placeholder="30 menit / sesi"
-                  required
-                />
-                <InputField
-                  id={`prog-freq-${index}`}
-                  label="Frekuensi"
-                  value={item.frequency}
-                  onChange={(e) =>
-                    updateItem({ ...item, frequency: e.target.value })
-                  }
-                  placeholder="3x / minggu"
-                  required
-                />
-              </div>
-
-              {/* Sub-list features */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Fasilitas / Fitur Unggulan Program:
-                </label>
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {item.features.map((feat, fIdx) => (
-                    <span
-                      key={fIdx}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-white border border-slate-200 text-slate-700 shadow-2xs"
-                    >
-                      <span>✓ {feat}</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const nextFeat = item.features.filter((_, i) => i !== fIdx);
-                          updateItem({ ...item, features: nextFeat });
-                        }}
-                        className="text-slate-400 hover:text-rose-600 transition-colors ml-1"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-
-                <div className="flex gap-2 min-w-0">
-                  <input
-                    type="text"
-                    id={`prog-feat-input-${index}`}
-                    placeholder="Tambah fasilitas program..."
-                    className="px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:border-primary-500 min-w-0 flex-1"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        const val = e.currentTarget.value.trim();
-                        if (val && !item.features.includes(val)) {
-                          updateItem({
-                            ...item,
-                            features: [...item.features, val],
-                          });
-                          e.currentTarget.value = "";
-                        }
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const input = document.getElementById(
-                        `prog-feat-input-${index}`
-                      ) as HTMLInputElement | null;
-                      if (input) {
-                        const val = input.value.trim();
-                        if (val && !item.features.includes(val)) {
-                          updateItem({
-                            ...item,
-                            features: [...item.features, val],
-                          });
-                          input.value = "";
-                        }
-                      }
-                    }}
-                    className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold inline-flex items-center gap-1 transition-colors shrink-0"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Tambah</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        />
       </div>
 
       <FormActions isPending={isPending} />

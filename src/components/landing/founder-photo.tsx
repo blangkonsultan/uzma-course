@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { normalizeImageUrl } from "@/lib/utils";
 
 export interface FounderPhotoProps {
@@ -16,28 +16,26 @@ export function FounderPhoto({
   fallbackSrc = "/images/founder-fallback.webp",
   className = "w-full h-full object-cover",
 }: FounderPhotoProps) {
-  const initialSrc = src?.trim() ? normalizeImageUrl(src) : fallbackSrc;
-  const [currentSrc, setCurrentSrc] = useState(initialSrc);
+  const targetSrc = src?.trim() ? normalizeImageUrl(src) : fallbackSrc;
+  const [prevTargetSrc, setPrevTargetSrc] = useState(targetSrc);
   const [hasError, setHasError] = useState(false);
 
-  useEffect(() => {
-    const nextSrc = src?.trim() ? normalizeImageUrl(src) : fallbackSrc;
-    setCurrentSrc(nextSrc);
+  if (targetSrc !== prevTargetSrc) {
+    setPrevTargetSrc(targetSrc);
     setHasError(false);
-  }, [src, fallbackSrc]);
+  }
 
   return (
     // Native img avoids Next.js remotePatterns restriction for arbitrary CMS / upload URLs
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={hasError ? fallbackSrc : currentSrc}
+      src={hasError ? fallbackSrc : targetSrc}
       alt={alt}
       loading="lazy"
       decoding="async"
       onError={() => {
-        if (!hasError && currentSrc !== fallbackSrc) {
+        if (!hasError) {
           setHasError(true);
-          setCurrentSrc(fallbackSrc);
         }
       }}
       className={className}

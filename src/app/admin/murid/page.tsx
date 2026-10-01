@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { StudentStatusButton } from "@/components/admin/murid/student-status-button";
 import type { Student } from "@/types";
 import { Plus, Eye, Edit2, Phone, MapPin, User } from "lucide-react";
-import { PROGRAMS, BRANCHES, getProgramInitials, getProgramName } from "@/lib/constants";
+import { getPrograms } from "@/lib/programs";
+import { getBranches } from "@/lib/branches";
 
 export const metadata = {
   title: "Data Murid | Uzma Course",
@@ -25,6 +26,10 @@ interface MuridPageProps {
     page?: string;
   }>;
 }
+
+type StudentRow = Student & {
+  student_programs?: { program_id: string }[];
+};
 
 export default async function MuridPage({ searchParams }: MuridPageProps) {
   const supabase = await createClient();
@@ -58,33 +63,47 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
   // Otherwise, allow URL filter.
   const activeBranch = !isAdmin && guruBranch ? guruBranch : resolvedParams.branch || "all";
 
-  // Build query
-  let query = supabase
-    .from("students")
-    .select("*", { count: "exact" });
+  const [programs, branches] = await Promise.all([
+    getPrograms(true),
+    getBranches(true),
+  ]);
 
-  if (activeBranch === "balongbendo" || activeBranch === "krian") {
-    query = query.eq("branch_id", activeBranch);
+  const branchMap: Record<string, string> = Object.fromEntries(
+    branches.map((b) => [b.id, b.name])
+  );
+  const programMap: Record<string, { initials: string; name: string }> = Object.fromEntries(
+    programs.map((p) => [p.id, { initials: p.initials, name: p.name }])
+  );
+
+  // Build query with student_programs relation
+  const query = supabase.from("students");
+
+  let selectQuery = program !== "all"
+    ? query.select("*, student_programs!inner(program_id)", { count: "exact" })
+    : query.select("*, student_programs(program_id)", { count: "exact" });
+
+  if (activeBranch !== "all") {
+    selectQuery = selectQuery.eq("branch_id", activeBranch);
   }
 
   if (status === "active") {
-    query = query.eq("is_active", true);
+    selectQuery = selectQuery.eq("is_active", true);
   } else if (status === "inactive") {
-    query = query.eq("is_active", false);
+    selectQuery = selectQuery.eq("is_active", false);
   }
 
   if (program !== "all") {
-    query = query.contains("programs", [program]);
+    selectQuery = selectQuery.eq("student_programs.program_id", program);
   }
 
   if (search) {
-    query = query.or(`full_name.ilike.%${search}%,parent_name.ilike.%${search}%`);
+    selectQuery = selectQuery.or(`full_name.ilike.%${search}%,parent_name.ilike.%${search}%`);
   }
 
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  const { data: studentList, count } = await query
+  const { data: studentList, count } = await selectQuery
     .order("created_at", { ascending: false })
     .range(from, to);
 
@@ -98,7 +117,7 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
     filterConfigs.push({
       id: "branch",
       label: "Cabang",
-      options: BRANCHES.map((b) => ({ value: b.id, label: b.name })),
+      options: branches.map((b) => ({ value: b.id, label: b.name })),
     });
   }
 
@@ -106,7 +125,7 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
     {
       id: "program",
       label: "Program",
-      options: PROGRAMS.map((p) => ({
+      options: programs.map((p) => ({
         value: p.id,
         label: `[${p.initials}] ${p.name}`,
       })),
@@ -121,7 +140,7 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
     }
   );
 
-  const columns: Column<Student>[] = [
+  const columns: Column<StudentRow>[] = [
     {
       header: "Nama Murid",
       cell: (student) => (
@@ -168,11 +187,11 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
     {
       header: "Cabang",
       cell: (student) => {
-        const branchObj = BRANCHES.find((b) => b.id === student.branch_id);
+        const branchName = branchMap[student.branch_id] ?? student.branch_id;
         return (
           <div className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
             <MapPin className="w-3.5 h-3.5 text-slate-400" />
-            <span>{branchObj ? branchObj.name : student.branch_id}</span>
+            <span>{branchName}</span>
           </div>
         );
       },
@@ -181,16 +200,19 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
       header: "Program",
       cell: (student) => (
         <div className="flex flex-wrap gap-1 max-w-xs">
-          {student.programs && student.programs.length > 0 ? (
-            student.programs.map((progId) => (
-              <span
-                key={progId}
-                title={getProgramName(progId)}
-                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs"
-              >
-                {getProgramInitials(progId)}
-              </span>
-            ))
+          {student.student_programs && student.student_programs.length > 0 ? (
+            student.student_programs.map((sp) => {
+              const prog = programMap[sp.program_id];
+              return (
+                <span
+                  key={sp.program_id}
+                  title={prog?.name ?? sp.program_id}
+                  className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs"
+                >
+                  {prog?.initials ?? sp.program_id}
+                </span>
+              );
+            })
           ) : (
             <span className="text-xs text-slate-400 italic">-</span>
           )}
@@ -243,35 +265,30 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
         title="Data Murid"
         description={
           isAdmin
-            ? "Kelola data seluruh murid bimbingan belajar, kontak wali, cabang, dan status aktif."
-            : `Daftar murid aktif dan kontak bimbingan untuk Cabang ${guruBranch ? (BRANCHES.find(b => b.id === guruBranch)?.name || guruBranch) : "Semua"}.`
+            ? "Kelola semua data murid terdaftar di seluruh cabang bimbingan belajar."
+            : `Menampilkan daftar murid aktif dan terdaftar untuk cabang Anda.`
         }
-        breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
-          { label: "Data Murid" },
-        ]}
         action={
           isAdmin ? (
             <Button href="/admin/murid/tambah" size="sm">
               <Plus className="w-4 h-4" />
-              <span>Tambah Murid</span>
+              Tambah Murid
             </Button>
           ) : undefined
         }
       />
 
       <SearchFilterBar
-        searchPlaceholder="Cari nama murid atau nama orang tua..."
+        searchPlaceholder="Cari nama murid atau orang tua..."
         filters={filterConfigs}
       />
 
       <DataTable
         columns={columns}
-        data={studentList ?? []}
+        data={studentList || []}
         keyExtractor={(item) => item.id}
-        emptyStateMessage="Tidak ada data murid yang cocok"
+        emptyStateMessage="Tidak ada data murid yang sesuai dengan filter pencarian."
       />
-
       <Pagination
         currentPage={page}
         totalPages={totalPages}

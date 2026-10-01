@@ -26,6 +26,7 @@ async function requireAdmin() {
 
   return { user, supabase };
 }
+
 export interface StudentActionResponse {
   error?: string;
   fieldErrors?: Record<string, string>;
@@ -55,8 +56,8 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
   if (!parentPhone || parentPhone.length < 8) {
     fieldErrors.parent_phone = "Nomor WhatsApp orang tua minimal 8 digit.";
   }
-  if (branchId !== "balongbendo" && branchId !== "krian") {
-    fieldErrors.branch_id = "Cabang wajib dipilih (Balongbendo atau Krian).";
+  if (!branchId) {
+    fieldErrors.branch_id = "Cabang belajar wajib dipilih.";
   }
   if (programs.length === 0) {
     fieldErrors.programs = "Pilih minimal 1 program bimbingan.";
@@ -65,21 +66,40 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
-  const { error } = await supabase.from("students").insert({
-    full_name: fullName!,
-    birth_date: birthDate,
-    address,
-    parent_name: parentName!,
-    parent_phone: parentPhone!,
-    parent_email: parentEmail,
-    branch_id: branchId as "balongbendo" | "krian",
-    programs,
-    notes,
-    is_active: true,
-  });
 
-  if (error) {
-    return { error: error.message };
+  const { data: insertedStudent, error: insertError } = await supabase
+    .from("students")
+    .insert({
+      full_name: fullName!,
+      birth_date: birthDate,
+      address,
+      parent_name: parentName!,
+      parent_phone: parentPhone!,
+      parent_email: parentEmail,
+      branch_id: branchId!,
+      notes,
+      is_active: true,
+    })
+    .select("id")
+    .single();
+
+  if (insertError || !insertedStudent) {
+    return { error: insertError?.message || "Gagal menambahkan data murid." };
+  }
+
+  if (programs.length > 0) {
+    const { error: junctionError } = await supabase
+      .from("student_programs")
+      .insert(
+        programs.map((pid) => ({
+          student_id: insertedStudent.id,
+          program_id: pid,
+        }))
+      );
+
+    if (junctionError) {
+      return { error: junctionError.message };
+    }
   }
 
   revalidatePath("/admin/murid");
@@ -112,8 +132,8 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
   if (!parentPhone || parentPhone.length < 8) {
     fieldErrors.parent_phone = "Nomor WhatsApp orang tua minimal 8 digit.";
   }
-  if (branchId !== "balongbendo" && branchId !== "krian") {
-    fieldErrors.branch_id = "Cabang wajib dipilih (Balongbendo atau Krian).";
+  if (!branchId) {
+    fieldErrors.branch_id = "Cabang belajar wajib dipilih.";
   }
   if (programs.length === 0) {
     fieldErrors.programs = "Pilih minimal 1 program bimbingan.";
@@ -122,7 +142,8 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
-  const { error } = await supabase
+
+  const { error: updateError } = await supabase
     .from("students")
     .update({
       full_name: fullName!,
@@ -131,16 +152,40 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
       parent_name: parentName!,
       parent_phone: parentPhone!,
       parent_email: parentEmail,
-      branch_id: branchId as "balongbendo" | "krian",
-      programs,
+      branch_id: branchId!,
       notes,
       is_active: isActive,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);
 
-  if (error) {
-    return { error: error.message };
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  // Delete existing junction rows and insert new ones
+  const { error: deleteError } = await supabase
+    .from("student_programs")
+    .delete()
+    .eq("student_id", id);
+
+  if (deleteError) {
+    return { error: deleteError.message };
+  }
+
+  if (programs.length > 0) {
+    const { error: insertJunctionError } = await supabase
+      .from("student_programs")
+      .insert(
+        programs.map((pid) => ({
+          student_id: id,
+          program_id: pid,
+        }))
+      );
+
+    if (insertJunctionError) {
+      return { error: insertJunctionError.message };
+    }
   }
 
   revalidatePath("/admin/murid");
@@ -153,21 +198,20 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
 export async function toggleStudentActive(id: string, currentStatus: boolean) {
   const { supabase } = await requireAdmin();
 
-  const nextStatus = !currentStatus;
-
   const { error } = await supabase
     .from("students")
     .update({
-      is_active: nextStatus,
+      is_active: !currentStatus,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);
 
   if (error) {
-    throw new Error(error.message);
+    return { error: error.message };
   }
 
   revalidatePath("/admin/murid");
   revalidatePath(`/admin/murid/${id}`);
   revalidatePath("/admin");
+  return { success: true };
 }

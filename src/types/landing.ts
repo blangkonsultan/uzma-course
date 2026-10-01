@@ -27,7 +27,7 @@ export interface ProgramItem {
   logoUrl?: string;
   licenseInfo?: ProgramLicenseInfo;
   system: string;
-  duration: string;
+  duration: number;
   frequency: string;
   features: string[];
 }

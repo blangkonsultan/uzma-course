@@ -11,16 +11,25 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
-import { PROGRAMS, BRANCHES } from "@/lib/constants";
 import { showToast } from "@/components/admin/toast";
-import type { Profile } from "@/types";
+import type { Profile, Program, Branch } from "@/types";
+import { formatDuration } from "@/lib/utils";
 
 interface GuruFormProps {
   initialData?: Profile;
+  initialProgramIds?: string[];
+  programs: Program[];
+  branches: Branch[];
   isEdit?: boolean;
 }
 
-export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
+export function GuruForm({
+  initialData,
+  initialProgramIds,
+  programs,
+  branches,
+  isEdit = false,
+}: GuruFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const [formData, setFormData] = useState({
@@ -29,19 +38,19 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
     password: "",
     phone: initialData?.phone || "",
     branch_id: initialData?.branch_id || "",
-    programs: (initialData?.programs || []) as string[],
+    programs: (initialProgramIds || []) as string[],
     is_active: initialData?.is_active ?? true,
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const branchOptions = BRANCHES.map((b) => ({
+  const branchOptions = branches.map((b) => ({
     value: b.id,
-    label: `${b.name} (${b.subName})`,
+    label: b.sub_name ? `${b.name} (${b.sub_name})` : b.name,
   }));
 
-  const franchisePrograms = PROGRAMS.filter((p) => p.type === "franchise");
-  const originalPrograms = PROGRAMS.filter((p) => p.type === "original");
+  const franchisePrograms = programs.filter((p) => p.type === "franchise");
+  const originalPrograms = programs.filter((p) => p.type === "original");
   const franchiseIdMap: Record<string, true> = Object.fromEntries(
     franchisePrograms.map((p) => [p.id, true])
   );
@@ -215,51 +224,55 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
                 Program Bimbingan yang Diampu
               </legend>
 
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                  Program Franchise
-                </p>
-                <CheckboxGroupField
-                  id="programs-franchise"
-                  name="programs"
-                  label=""
-                  options={franchisePrograms.map((p) => ({
-                    value: p.id,
-                    label: `[${p.initials}] ${p.name}`,
-                    description: `${p.system} · ${p.duration}`,
-                  }))}
-                  values={formData.programs.filter((id) => franchiseIdMap[id])}
-                  onChange={(selected) =>
-                    updateField("programs", [
-                      ...formData.programs.filter((id) => !franchiseIdMap[id]),
-                      ...selected,
-                    ])
-                  }
-                />
-              </div>
+              {franchisePrograms.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    Program Franchise
+                  </p>
+                  <CheckboxGroupField
+                    id="programs-franchise"
+                    name="programs"
+                    label=""
+                    options={franchisePrograms.map((p) => ({
+                      value: p.id,
+                      label: `[${p.initials}] ${p.name}`,
+                      description: `${p.system} · ${formatDuration(p.duration)}`,
+                    }))}
+                    values={formData.programs.filter((id) => franchiseIdMap[id])}
+                    onChange={(selected) =>
+                      updateField("programs", [
+                        ...formData.programs.filter((id) => !franchiseIdMap[id]),
+                        ...selected,
+                      ])
+                    }
+                  />
+                </div>
+              )}
 
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                  Program Original Uzma Course
-                </p>
-                <CheckboxGroupField
-                  id="programs-original"
-                  name="programs"
-                  label=""
-                  options={originalPrograms.map((p) => ({
-                    value: p.id,
-                    label: `[${p.initials}] ${p.name}`,
-                    description: `${p.system} · ${p.duration}`,
-                  }))}
-                  values={formData.programs.filter((id) => originalIdMap[id])}
-                  onChange={(selected) =>
-                    updateField("programs", [
-                      ...formData.programs.filter((id) => !originalIdMap[id]),
-                      ...selected,
-                    ])
-                  }
-                />
-              </div>
+              {originalPrograms.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    Program Original Uzma Course
+                  </p>
+                  <CheckboxGroupField
+                    id="programs-original"
+                    name="programs"
+                    label=""
+                    options={originalPrograms.map((p) => ({
+                      value: p.id,
+                      label: `[${p.initials}] ${p.name}`,
+                      description: `${p.system} · ${formatDuration(p.duration)}`,
+                    }))}
+                    values={formData.programs.filter((id) => originalIdMap[id])}
+                    onChange={(selected) =>
+                      updateField("programs", [
+                        ...formData.programs.filter((id) => !originalIdMap[id]),
+                        ...selected,
+                      ])
+                    }
+                  />
+                </div>
+              )}
 
               {fieldErrors.programs && (
                 <p className="text-xs text-rose-600 font-medium mt-1">
@@ -299,15 +312,14 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
               href="/admin/guru"
               className="inline-flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl border border-slate-200 sm:border-transparent hover:bg-slate-100 transition-colors w-full sm:w-auto min-h-[44px]"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Kembali</span>
+              <ArrowLeft className="w-4 h-4" />
+              <span>Batal</span>
             </Link>
 
             <Button
               type="submit"
-              size="md"
               disabled={isPending}
-              className="font-medium cursor-pointer w-full sm:w-auto justify-center min-h-[44px]"
+              className="w-full sm:w-auto justify-center min-h-[44px]"
             >
               {isPending ? (
                 <>
@@ -317,7 +329,7 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>{isEdit ? "Simpan Perubahan" : "Daftarkan Guru"}</span>
+                  <span>{isEdit ? "Perbarui Guru" : "Simpan Guru"}</span>
                 </>
               )}
             </Button>

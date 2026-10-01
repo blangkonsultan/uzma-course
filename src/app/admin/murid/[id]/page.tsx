@@ -17,7 +17,8 @@ import {
   ArrowLeft,
   ExternalLink,
 } from "lucide-react";
-import { PROGRAMS, BRANCHES, getProgramInitials } from "@/lib/constants";
+import { getBranches } from "@/lib/branches";
+import { formatDuration } from "@/lib/utils";
 
 export const metadata = {
   title: "Detail Murid | Uzma Course",
@@ -51,11 +52,14 @@ export default async function StudentDetailPage({
   const isAdmin = profile?.role === "admin";
   const guruBranch = profile?.branch_id;
 
-  const { data: student } = await supabase
-    .from("students")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const [{ data: student }, branches] = await Promise.all([
+    supabase
+      .from("students")
+      .select("*, student_programs(program_id, spp_amount, enrolled_at, status, programs(*))")
+      .eq("id", id)
+      .single(),
+    getBranches(true),
+  ]);
 
   if (!student) {
     notFound();
@@ -66,87 +70,82 @@ export default async function StudentDetailPage({
     redirect("/admin/murid");
   }
 
-  const branchObj = BRANCHES.find((b) => b.id === student.branch_id);
+  const branchObj = branches.find((b) => b.id === student.branch_id);
 
   // Calculate age from birth_date
   let ageDisplay: string | null = null;
   if (student.birth_date) {
     const birth = new Date(student.birth_date);
     const now = new Date();
-    let years = now.getFullYear() - birth.getFullYear();
-    const m = now.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) {
-      years--;
+    let ageYears = now.getFullYear() - birth.getFullYear();
+    const monthDiff = now.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birth.getDate())) {
+      ageYears--;
     }
-    ageDisplay = `${years} tahun`;
+    ageDisplay = `${ageYears} tahun`;
   }
+
+  const enrolledPrograms = student.student_programs ?? [];
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <Button
+          variant="outline"
+          size="sm"
+          href="/admin/murid"
+          className="gap-1.5 text-slate-600"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Kembali ke Data Murid</span>
+        </Button>
+      </div>
+
       <PageHeader
         title={student.full_name}
-        description={`Terdaftar sejak ${new Date(
-          student.created_at
-        ).toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        })}`}
-        breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
-          { label: "Data Murid", href: "/admin/murid" },
-          { label: student.full_name },
-        ]}
+        description={`Terdaftar sejak ${new Date(student.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}`}
         action={
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              href="/admin/murid"
-              className="text-slate-600 hover:text-slate-900 border border-slate-200 bg-white"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Daftar Murid</span>
-            </Button>
-
+            <StatusBadge isActive={student.is_active} />
             {isAdmin && (
               <>
                 <Button
+                  variant="outline"
                   size="sm"
                   href={`/admin/murid/${student.id}/edit`}
-                  className="bg-primary-600 hover:bg-primary-700 text-white"
                 >
                   <Edit2 className="w-4 h-4" />
-                  <span>Edit Data</span>
+                  Edit Data
                 </Button>
-                <div className="bg-white border border-slate-200 rounded-full p-1 shadow-2xs">
-                  <StudentStatusButton
-                    studentId={student.id}
-                    studentName={student.full_name}
-                    isActive={student.is_active}
-                  />
-                </div>
+                <StudentStatusButton
+                  studentId={student.id}
+                  studentName={student.full_name}
+                  isActive={student.is_active}
+                />
               </>
             )}
           </div>
         }
       />
 
+      {/* Main Details Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Data Diri Murid (2 cols on desktop) */}
+        {/* Left Column (2 cols): Biodata & Programs */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Main Profile Card */}
+          {/* Biodata Murid Card */}
           <Card className="border border-slate-200/80 shadow-xs overflow-hidden">
             <CardHeader className="bg-slate-50/70 border-b border-slate-100 p-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
+                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
                   <User className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900">
-                  Data Pribadi Murid
+                  Biodata Murid
                 </h2>
               </div>
-              <StatusBadge isActive={student.is_active} />
+              <span className="text-xs text-slate-400 font-mono">
+                ID: {student.id.slice(0, 8)}...
+              </span>
             </CardHeader>
 
             <CardBody className="p-6 divide-y divide-slate-100">
@@ -162,16 +161,13 @@ export default async function StudentDetailPage({
 
                 <div>
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                    Tanggal Lahir / Usia
+                    Tanggal Lahir & Usia
                   </span>
-                  <p className="text-sm font-medium text-slate-800 flex items-center gap-2">
+                  <p className="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
                     <Calendar className="w-4 h-4 text-slate-400" />
                     <span>
                       {student.birth_date
-                        ? `${new Date(student.birth_date).toLocaleDateString(
-                            "id-ID",
-                            { day: "numeric", month: "long", year: "numeric" }
-                          )} ${ageDisplay ? `(${ageDisplay})` : ""}`
+                        ? `${new Date(student.birth_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })} (${ageDisplay})`
                         : "Tidak dicantumkan"}
                     </span>
                   </p>
@@ -182,20 +178,22 @@ export default async function StudentDetailPage({
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
                   Alamat Tempat Tinggal
                 </span>
-                <p className="text-sm text-slate-700 leading-relaxed flex items-start gap-2">
+                <p className="text-sm text-slate-700 leading-relaxed flex items-start gap-1.5">
                   <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                   <span>
-                    {student.address || "Alamat belum dilengkapi."}
+                    {student.address ||
+                      "Alamat belum dilengkapi pada pendaftaran."}
                   </span>
                 </p>
               </div>
 
+              {/* Catatan Khusus */}
               <div className="pt-4">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                  Catatan Khusus / Perkembangan
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5 flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Catatan Tambahan</span>
                 </span>
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/60 text-xs text-slate-700 leading-relaxed flex items-start gap-2.5">
-                  <FileText className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                   <p>
                     {student.notes ||
                       "Belum ada catatan khusus mengenai perkembangan murid ini."}
@@ -217,35 +215,53 @@ export default async function StudentDetailPage({
             </CardHeader>
 
             <CardBody className="p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {student.programs.map((progId) => {
-                  const progObj = PROGRAMS.find((p) => p.id === progId);
-                  return (
-                    <div
-                      key={progId}
-                      className="p-4 rounded-xl border border-slate-200/80 bg-white hover:border-primary-300 transition-colors shadow-2xs"
-                    >
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
-                          {getProgramInitials(progId)}
-                        </span>
-                        <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-                          Program Terdaftar
-                        </span>
-                      </div>
-                      <p className="text-sm font-bold text-slate-900">
-                        {progObj ? progObj.name : progId}
-                      </p>
-                      {progObj && (
-                        <div className="mt-2 pt-2 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                          <p>• {progObj.system}</p>
-                          <p>• {progObj.duration} ({progObj.frequency})</p>
+              {enrolledPrograms.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {enrolledPrograms.map((sp) => {
+                    const prog = sp.programs;
+                    return (
+                      <div
+                        key={sp.program_id}
+                        className="p-4 rounded-xl border border-slate-200/80 bg-white hover:border-primary-300 transition-colors shadow-2xs"
+                      >
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
+                            {prog?.initials ?? "PROG"}
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                            Program Terdaftar
+                          </span>
+                          {sp.status && sp.status !== "active" && (
+                            <span className="text-[10px] font-bold uppercase text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
+                              {sp.status}
+                            </span>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                        <p className="text-sm font-bold text-slate-900">
+                          {prog ? prog.name : sp.program_id}
+                        </p>
+                        {prog && (
+                          <div className="mt-2 pt-2 border-t border-slate-100 text-xs text-slate-500 space-y-1">
+                            {prog.system && <p>• {prog.system}</p>}
+                            {prog.duration > 0 && (
+                              <p>• {formatDuration(prog.duration)} {prog.frequency ? `(${prog.frequency})` : ""}</p>
+                            )}
+                            {sp.spp_amount > 0 && (
+                              <p className="text-primary-700 font-semibold">
+                                • SPP: Rp {Number(sp.spp_amount).toLocaleString("id-ID")}/bulan
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-400 italic">
+                  Belum terdaftar di program bimbingan belajar manapun.
+                </p>
+              )}
             </CardBody>
           </Card>
         </div>
@@ -324,25 +340,21 @@ export default async function StudentDetailPage({
                 <p className="text-sm font-bold text-slate-900">
                   {branchObj ? branchObj.name : student.branch_id}
                 </p>
-                {branchObj && (
-                  <p className="text-xs text-primary-600 font-medium mt-0.5">
-                    {branchObj.subName}
+                {branchObj?.sub_name && (
+                  <p className="text-xs font-medium text-primary-600 mt-0.5">
+                    {branchObj.sub_name}
                   </p>
                 )}
               </div>
 
-              {branchObj && (
-                <div className="pt-2 border-t border-slate-100 text-xs text-slate-600">
-                  <p>{branchObj.address}</p>
-                  <a
-                    href={branchObj.gmapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-semibold mt-2"
-                  >
-                    <span>Buka Petunjuk Arah Google Maps</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+              {branchObj?.address && (
+                <div className="pt-2 border-t border-slate-100">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                    Alamat Lengkap Cabang
+                  </span>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {branchObj.address}
+                  </p>
                 </div>
               )}
             </CardBody>

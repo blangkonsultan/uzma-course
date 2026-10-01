@@ -3,6 +3,8 @@ import type { Database } from "@/types/database";
 import type {
   AllLandingContent,
   LandingSectionKey,
+  ProgramItem,
+  ProgramsContent,
 } from "@/types/landing";
 
 export const DEFAULT_LANDING_CONTENT: AllLandingContent = {
@@ -26,93 +28,7 @@ export const DEFAULT_LANDING_CONTENT: AllLandingContent = {
     title: "Program Belajar Unggulan",
     subtitle:
       "Sistem belajar intensif dengan rasio murid kecil untuk hasil optimal dan anak senang belajar",
-    items: [
-      {
-        id: "ahe",
-        initials: "AHE",
-        name: "Les Baca Tulis (AHE)",
-        tagline: "Belajar Baca & Tulis Cepat dan Menyenangkan",
-        description:
-          "Metode AHE yang teruji klinis dan ramah anak. Membantu anak lancar membaca dan menulis tanpa mengeja dan tanpa beban.",
-        ageRange: "Mulai 3,5 tahun",
-        icon: "BookOpen",
-        type: "franchise",
-        licenseInfo: {
-          provider: "Ahe Indonesia",
-        },
-        system: "1 guru max 2 murid",
-        duration: "30 menit / sesi",
-        frequency: "3x / minggu (12x / bulan)",
-        features: [
-          "Buku Modul Eksklusif",
-          "Buku Penghubung",
-          "Piagam & Piala Kelulusan",
-        ],
-      },
-      {
-        id: "ase",
-        initials: "ASE",
-        name: "Ala Sekolah (ASE)",
-        tagline: "Stimulasi Tumbuh Kembang Sensori & Kognitif",
-        description:
-          "Program stimulasi sensori, motorik, dan kesiapan belajar bagi anak usia dini dengan metode interaktif yang menyenangkan.",
-        ageRange: "Mulai 3 tahun",
-        icon: "Sparkles",
-        type: "franchise",
-        licenseInfo: {
-          provider: "Ahe Indonesia",
-        },
-        system: "1 guru max 2 murid",
-        duration: "30 menit / sesi",
-        frequency: "3x / minggu (12x / bulan)",
-        features: [
-          "Buku Modul",
-          "Buku Penghubung",
-          "Permainan Sensori Motorik",
-        ],
-      },
-      {
-        id: "bee",
-        initials: "BEE",
-        name: "Brainy English Education (BEE)",
-        tagline: "English Made Fun for Kids",
-        description:
-          "Program bahasa Inggris interaktif untuk membangun kosakata, pelafalan, dan keberanian berbicara bahasa Inggris sejak kecil.",
-        ageRange: "Mulai 4 tahun",
-        icon: "Globe",
-        type: "franchise",
-        licenseInfo: {
-          provider: "Brainy English Education",
-        },
-        system: "1 guru max 2 murid",
-        duration: "30 menit / sesi",
-        frequency: "3x / minggu (12x / bulan)",
-        features: [
-          "Buku Modul Bergambar",
-          "Buku Penghubung",
-          "Interactive Games",
-        ],
-      },
-      {
-        id: "mapel",
-        initials: "MAPEL",
-        name: "Les Mata Pelajaran SD",
-        tagline: "Pendampingan Belajar Kurikulum Sekolah",
-        description:
-          "Bimbingan belajar private intensif untuk memahami materi sekolah reguler, persiapan ulangan harian, PTS, PAS, dan PR.",
-        ageRange: "Siswa SD",
-        icon: "GraduationCap",
-        type: "original",
-        system: "Private 1 guru 1 murid",
-        duration: "30 menit / sesi",
-        frequency: "3x / minggu (12x / bulan)",
-        features: [
-          "Private 1 Guru 1 Murid",
-          "Buku Penghubung",
-          "Bimbingan PR & Ujian",
-        ],
-      },
-    ],
+    items: [],
   },
   why_us: {
     title: "Mengapa Uzma Course?",
@@ -407,6 +323,30 @@ function getSupabaseAnonClient() {
     },
   });
 }
+function mapProgramRowToItem(p: Database["public"]["Tables"]["programs"]["Row"]): ProgramItem {
+  return {
+    id: p.initials.toLowerCase(),
+    initials: p.initials,
+    name: p.name,
+    tagline: p.tagline,
+    description: p.description,
+    ageRange: p.age_range,
+    icon: p.icon,
+    type: p.type,
+    logoUrl: p.logo_url || undefined,
+    licenseInfo: p.license_provider
+      ? {
+          provider: p.license_provider,
+          url: p.license_url || undefined,
+          description: p.license_description || undefined,
+        }
+      : undefined,
+    system: p.system,
+    duration: p.duration,
+    frequency: p.frequency,
+    features: p.features,
+  };
+}
 
 export async function getLandingContent(): Promise<AllLandingContent> {
   const result: AllLandingContent = { ...DEFAULT_LANDING_CONTENT };
@@ -415,10 +355,14 @@ export async function getLandingContent(): Promise<AllLandingContent> {
     const supabase = getSupabaseAnonClient();
     if (!supabase) return result;
 
-    const { data, error } = await supabase
-      .from("landing_content")
-      .select("section, content");
-
+    const [{ data, error }, { data: programRows }] = await Promise.all([
+      supabase.from("landing_content").select("section, content"),
+      supabase
+        .from("programs")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+    ]);
     if (error || !data) {
       return result;
     }
@@ -431,6 +375,12 @@ export async function getLandingContent(): Promise<AllLandingContent> {
           ...(row.content as object),
         } as never;
       }
+    }
+    if (programRows && programRows.length > 0) {
+      result.programs = {
+        ...result.programs,
+        items: programRows.map(mapProgramRowToItem),
+      };
     }
 
     return result;
@@ -458,11 +408,25 @@ export async function getLandingSectionContent<K extends LandingSectionKey>(
     if (error || !data?.content || typeof data.content !== "object") {
       return fallback;
     }
-
-    return {
+    const merged = {
       ...fallback,
       ...(data.content as object),
-    } as AllLandingContent[K];
+    };
+
+    if (section === "programs") {
+      const { data: programRows } = await supabase
+        .from("programs")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+
+      if (programRows && programRows.length > 0) {
+        (merged as unknown as ProgramsContent).items =
+          programRows.map(mapProgramRowToItem);
+      }
+    }
+
+    return merged as AllLandingContent[K];
   } catch (err) {
     console.error(`Error fetching landing section ${section}:`, err);
     return fallback;

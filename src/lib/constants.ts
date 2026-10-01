@@ -15,85 +15,6 @@ export const FOUNDER = {
   bio: "Lembaga bimbingan belajar di bawah naungan Ahe Indonesia yang melayani program belajar sejak 2022. Berkomitmen menghadirkan metode pengajaran ramah anak tanpa rasa takut atau trauma belajar.",
 } as const;
 
-export const PROGRAMS = [
-  {
-    id: "ahe",
-    initials: "AHE",
-    name: "Les Baca Tulis (AHE)",
-    tagline: "Belajar Baca & Tulis Cepat dan Menyenangkan",
-    description: "Metode AHE yang teruji klinis dan ramah anak. Membantu anak lancar membaca dan menulis tanpa mengeja dan tanpa beban.",
-    ageRange: "Mulai 3,5 tahun",
-    icon: "BookOpen",
-    type: "franchise",
-    system: "1 guru max 2 murid",
-    duration: "30 menit / sesi",
-    frequency: "3x / minggu (12x / bulan)",
-    features: ["Buku Modul Eksklusif", "Buku Penghubung", "Piagam & Piala Kelulusan"],
-  },
-  {
-    id: "ase",
-    initials: "ASE",
-    name: "Ala Sekolah (ASE)",
-    tagline: "Stimulasi Tumbuh Kembang Sensori & Kognitif",
-    description: "Program stimulasi sensori, motorik, dan kesiapan belajar bagi anak usia dini dengan metode interaktif yang menyenangkan.",
-    ageRange: "Mulai 3 tahun",
-    icon: "Sparkles",
-    type: "franchise",
-    system: "1 guru max 2 murid",
-    duration: "30 menit / sesi",
-    frequency: "3x / minggu (12x / bulan)",
-    features: ["Buku Modul", "Buku Penghubung", "Permainan Sensori Motorik"],
-  },
-  {
-    id: "bee",
-    initials: "BEE",
-    name: "Brainy English Education (BEE)",
-    tagline: "English Made Fun for Kids",
-    description: "Program bahasa Inggris interaktif untuk membangun kosakata, pelafalan, dan keberanian berbicara bahasa Inggris sejak kecil.",
-    ageRange: "Mulai 4 tahun",
-    icon: "Globe",
-    type: "franchise",
-    system: "1 guru max 2 murid",
-    duration: "30 menit / sesi",
-    frequency: "3x / minggu (12x / bulan)",
-    features: ["Buku Modul Bergambar", "Buku Penghubung", "Interactive Games"],
-  },
-  {
-    id: "mapel",
-    initials: "MAPEL",
-    name: "Les Mata Pelajaran SD",
-    tagline: "Pendampingan Belajar Kurikulum Sekolah",
-    description: "Bimbingan belajar private intensif untuk memahami materi sekolah reguler, persiapan ulangan harian, PTS, PAS, dan PR.",
-    ageRange: "Siswa SD",
-    icon: "GraduationCap",
-    type: "original",
-    system: "Private 1 guru 1 murid",
-    duration: "30 menit / sesi",
-    frequency: "3x / minggu (12x / bulan)",
-    features: ["Private 1 Guru 1 Murid", "Buku Penghubung", "Bimbingan PR & Ujian"],
-  },
-] as const;
-
-export function getProgramInitials(progId: string): string {
-  if (!progId) return "";
-  const normalized = progId.toLowerCase().trim();
-  const found = PROGRAMS.find(
-    (p) => p.id === normalized || p.initials.toLowerCase() === normalized
-  );
-  if (found) return found.initials;
-  return progId.toUpperCase();
-}
-
-export function getProgramName(progId: string): string {
-  if (!progId) return "";
-  const normalized = progId.toLowerCase().trim();
-  const found = PROGRAMS.find(
-    (p) => p.id === normalized || p.initials.toLowerCase() === normalized
-  );
-  if (found) return found.name;
-  return progId;
-}
-
 export const FACILITIES = [
   {
     title: "Guru Berlisensi & Kompeten",
@@ -134,25 +55,6 @@ export const FACILITIES = [
     title: "Trial Class Gratis",
     description: "1 sesi percobaan gratis untuk mencoba metode pengajaran secara langsung.",
     icon: "Sparkles",
-  },
-] as const;
-
-export const BRANCHES = [
-  {
-    id: "balongbendo",
-    name: "Cabang Balongbendo",
-    subName: "Ahe Sumokembangsri",
-    address: "Sumotuwo, RT 20 RW 3, Sumokembangsri, Balongbendo, Sidoarjo",
-    mapUrl: "https://www.google.com/maps?q=-7.4320527,112.5054893&output=embed",
-    gmapsUrl: "https://maps.app.goo.gl/qaJuRjZcDDTv4qQx9",
-  },
-  {
-    id: "krian",
-    name: "Cabang Krian",
-    subName: "Ahe Junwangi",
-    address: "Junwatu, RT 2 RW 1, Junwangi, Krian, Sidoarjo",
-    mapUrl: "https://www.google.com/maps?q=-7.4062116,112.6081986&output=embed",
-    gmapsUrl: "https://maps.app.goo.gl/KWoXUAYNvVJTYs5r5",
   },
 ] as const;
 

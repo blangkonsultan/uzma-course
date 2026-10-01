@@ -27,6 +27,7 @@ async function requireAdmin() {
 
   return { user, supabase };
 }
+
 export interface GuruActionResponse {
   error?: string;
   fieldErrors?: Record<string, string>;
@@ -57,6 +58,7 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
+
   try {
     const adminClient = createAdminClient();
 
@@ -79,6 +81,7 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
       }
       return { error: msg || "Gagal membuat akun autentikasi guru." };
     }
+
     const newUserId = userData.user.id;
 
     // 2. Update the profile row (created by trigger or upsert)
@@ -87,14 +90,29 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
       full_name: fullName!,
       phone,
       role: "guru",
-      branch_id: branchId as "balongbendo" | "krian" | null,
-      programs,
+      branch_id: branchId || null,
       is_active: true,
       updated_at: new Date().toISOString(),
     });
 
     if (profileError) {
       return { error: `Akun dibuat tetapi gagal mengisi data profil: ${profileError.message}` };
+    }
+
+    // 3. Assign profile_programs junction
+    if (programs.length > 0) {
+      const { error: junctionError } = await adminClient
+        .from("profile_programs")
+        .insert(
+          programs.map((pid) => ({
+            profile_id: newUserId,
+            program_id: pid,
+          }))
+        );
+
+      if (junctionError) {
+        return { error: `Akun dibuat tetapi gagal menugaskan program: ${junctionError.message}` };
+      }
     }
   } catch (err: unknown) {
     return {
@@ -128,13 +146,13 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
+
   const { error } = await supabase
     .from("profiles")
     .update({
       full_name: fullName,
       phone,
-      branch_id: branchId as "balongbendo" | "krian" | null,
-      programs,
+      branch_id: branchId || null,
       is_active: isActive,
       updated_at: new Date().toISOString(),
     })
@@ -143,6 +161,31 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
 
   if (error) {
     return { error: error.message };
+  }
+
+  // Delete existing profile_programs and re-insert
+  const { error: deleteError } = await supabase
+    .from("profile_programs")
+    .delete()
+    .eq("profile_id", id);
+
+  if (deleteError) {
+    return { error: deleteError.message };
+  }
+
+  if (programs.length > 0) {
+    const { error: junctionError } = await supabase
+      .from("profile_programs")
+      .insert(
+        programs.map((pid) => ({
+          profile_id: id,
+          program_id: pid,
+        }))
+      );
+
+    if (junctionError) {
+      return { error: junctionError.message };
+    }
   }
 
   revalidatePath("/admin/guru");
@@ -154,21 +197,20 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
 export async function toggleGuruActive(id: string, currentStatus: boolean) {
   const { supabase } = await requireAdmin();
 
-  const nextStatus = !currentStatus;
-
   const { error } = await supabase
     .from("profiles")
     .update({
-      is_active: nextStatus,
+      is_active: !currentStatus,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)
     .eq("role", "guru");
 
   if (error) {
-    throw new Error(error.message);
+    return { error: error.message };
   }
 
   revalidatePath("/admin/guru");
   revalidatePath("/admin");
+  return { success: true };
 }

@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { StudentForm } from "@/components/admin/murid/student-form";
+import { getPrograms } from "@/lib/programs";
+import { getBranches } from "@/lib/branches";
 
 export const metadata = {
   title: "Tambah Murid Baru | Uzma Course",
@@ -27,6 +29,11 @@ export default async function TambahMuridPage() {
     redirect("/admin/murid");
   }
 
+  const [programs, branches] = await Promise.all([
+    getPrograms(),
+    getBranches(),
+  ]);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -39,7 +46,7 @@ export default async function TambahMuridPage() {
         ]}
       />
 
-      <StudentForm />
+      <StudentForm programs={programs} branches={branches} />
     </div>
   );
 }

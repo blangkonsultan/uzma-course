@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { Profile } from "@/types";
+import type { Profile, Branch } from "@/types";
 import { signOut } from "@/app/admin/actions";
 import { Toast } from "@/components/admin/toast";
 import {
@@ -21,14 +21,16 @@ import {
   MapPin,
   ExternalLink,
   LayoutTemplate,
+  Layers,
 } from "lucide-react";
 
 interface AdminShellProps {
   profile: Profile;
+  branches?: Branch[];
   children: React.ReactNode;
 }
 
-export function AdminShell({ profile, children }: AdminShellProps) {
+export function AdminShell({ profile, branches = [], children }: AdminShellProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggingOut, startLogoutTransition] = useTransition();
@@ -41,6 +43,12 @@ export function AdminShell({ profile, children }: AdminShellProps) {
       icon: LayoutDashboard,
       roles: ["admin", "guru"],
       exact: true,
+    },
+    {
+      label: "Program",
+      href: "/admin/program",
+      icon: Layers,
+      roles: ["admin"],
     },
     {
       label: "Data Guru",
@@ -79,12 +87,12 @@ export function AdminShell({ profile, children }: AdminShellProps) {
     });
   }
 
-  const branchDisplay =
-    profile.branch_id === "balongbendo"
-      ? "Cabang Balongbendo"
-      : profile.branch_id === "krian"
-      ? "Cabang Krian"
-      : "Semua Cabang";
+  const branchMap: Record<string, string> = Object.fromEntries(
+    branches.map((b) => [b.id, b.name])
+  );
+  const branchDisplay = profile.branch_id
+    ? branchMap[profile.branch_id] ?? profile.branch_id
+    : "Semua Cabang";
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
-import Link from "next/link";
 import { createStudent, updateStudent } from "@/app/admin/murid/actions";
 import {
   InputField,
@@ -12,16 +11,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
-import { PROGRAMS, BRANCHES } from "@/lib/constants";
 import { showToast } from "@/components/admin/toast";
-import type { Student } from "@/types";
+import type { Student, Program, Branch } from "@/types";
 
 interface StudentFormProps {
   initialData?: Student;
+  initialProgramIds?: string[];
+  programs: Program[];
+  branches: Branch[];
   isEdit?: boolean;
 }
 
-export function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
+export function StudentForm({
+  initialData,
+  initialProgramIds,
+  programs,
+  branches,
+  isEdit = false,
+}: StudentFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const [formData, setFormData] = useState({
@@ -32,20 +39,20 @@ export function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
     parent_phone: initialData?.parent_phone || "",
     parent_email: initialData?.parent_email || "",
     branch_id: initialData?.branch_id || "",
-    programs: (initialData?.programs || []) as string[],
+    programs: (initialProgramIds || []) as string[],
     notes: initialData?.notes || "",
     is_active: initialData?.is_active ?? true,
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const branchOptions = BRANCHES.map((b) => ({
+  const branchOptions = branches.map((b) => ({
     value: b.id,
-    label: `${b.name} (${b.subName})`,
+    label: b.sub_name ? `${b.name} (${b.sub_name})` : b.name,
   }));
 
-  const franchisePrograms = PROGRAMS.filter((p) => p.type === "franchise");
-  const originalPrograms = PROGRAMS.filter((p) => p.type === "original");
+  const franchisePrograms = programs.filter((p) => p.type === "franchise");
+  const originalPrograms = programs.filter((p) => p.type === "original");
   const franchiseIdMap: Record<string, true> = Object.fromEntries(
     franchisePrograms.map((p) => [p.id, true])
   );
@@ -81,7 +88,7 @@ export function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
     if (!formData.parent_phone.trim() || formData.parent_phone.trim().length < 8) {
       errors.parent_phone = "Nomor WhatsApp orang tua minimal 8 digit.";
     }
-    if (formData.branch_id !== "balongbendo" && formData.branch_id !== "krian") {
+    if (!formData.branch_id) {
       errors.branch_id = "Cabang belajar wajib dipilih.";
     }
     if (formData.programs.length === 0) {
@@ -252,54 +259,58 @@ export function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
                 Program Bimbingan yang Diikuti <span className="text-rose-500">*</span>
               </legend>
 
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                  Program Franchise
-                </p>
-                <CheckboxGroupField
-                  id="programs-franchise"
-                  name="programs"
-                  label=""
-                  options={franchisePrograms.map((p) => ({
-                    value: p.id,
-                    label: `[${p.initials}] ${p.name}`,
-                    description: `${p.system} · ${p.ageRange}`,
-                  }))}
-                  values={formData.programs.filter((id) => franchiseIdMap[id])}
-                  onChange={(selected) =>
-                    updateField("programs", [
-                      ...formData.programs.filter((id) => !franchiseIdMap[id]),
-                      ...selected,
-                    ])
-                  }
-                />
-              </div>
+              {franchisePrograms.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    Program Franchise
+                  </p>
+                  <CheckboxGroupField
+                    id="programs-franchise"
+                    name="programs"
+                    label=""
+                    options={franchisePrograms.map((p) => ({
+                      value: p.id,
+                      label: `[${p.initials}] ${p.name}`,
+                      description: `${p.system} · ${p.age_range}`,
+                    }))}
+                    values={formData.programs.filter((id) => franchiseIdMap[id])}
+                    onChange={(selected) =>
+                      updateField("programs", [
+                        ...formData.programs.filter((id) => !franchiseIdMap[id]),
+                        ...selected,
+                      ])
+                    }
+                  />
+                </div>
+              )}
 
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                  Program Original Uzma Course
-                </p>
-                <CheckboxGroupField
-                  id="programs-original"
-                  name="programs"
-                  label=""
-                  options={originalPrograms.map((p) => ({
-                    value: p.id,
-                    label: `[${p.initials}] ${p.name}`,
-                    description: `${p.system} · ${p.ageRange}`,
-                  }))}
-                  values={formData.programs.filter((id) => originalIdMap[id])}
-                  onChange={(selected) =>
-                    updateField("programs", [
-                      ...formData.programs.filter((id) => !originalIdMap[id]),
-                      ...selected,
-                    ])
-                  }
-                />
-              </div>
+              {originalPrograms.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    Program Original Uzma Course
+                  </p>
+                  <CheckboxGroupField
+                    id="programs-original"
+                    name="programs"
+                    label=""
+                    options={originalPrograms.map((p) => ({
+                      value: p.id,
+                      label: `[${p.initials}] ${p.name}`,
+                      description: `${p.system} · ${p.age_range}`,
+                    }))}
+                    values={formData.programs.filter((id) => originalIdMap[id])}
+                    onChange={(selected) =>
+                      updateField("programs", [
+                        ...formData.programs.filter((id) => !originalIdMap[id]),
+                        ...selected,
+                      ])
+                    }
+                  />
+                </div>
+              )}
 
               {fieldErrors.programs && (
-                <p className="text-xs text-rose-600 font-medium mt-1">
+                <p className="text-xs text-rose-500 font-medium mt-1">
                   {fieldErrors.programs}
                 </p>
               )}
@@ -308,8 +319,8 @@ export function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
             <TextareaField
               id="notes"
               name="notes"
-              label="Catatan Perkembangan / Kebutuhan Khusus (Opsional)"
-              placeholder="Contoh: Belum mengenal huruf vokal, pemalu di awal sesi, alergi makanan tertentu."
+              label="Catatan Khusus (Opsional)"
+              placeholder="Contoh: Belum mengenal huruf sama sekali, pemalu di awal pertemuan, dll."
               value={formData.notes}
               onChange={(e) => updateField("notes", e.target.value)}
               rows={3}
@@ -317,51 +328,48 @@ export function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
             />
           </div>
 
-          {/* Section 4: Status (on edit) */}
+          {/* Section 4: Status Aktif (Edit Mode Only) */}
           {isEdit && (
-            <div className="space-y-4 pt-2">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">
+            <div className="space-y-4 pt-4 border-t border-slate-100">
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                 Status Murid
               </h3>
-
               <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="is_active"
-                    checked={formData.is_active}
-                    onChange={(e) =>
-                      updateField("is_active", e.target.checked)
-                    }
-                    className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <span className="text-sm font-medium text-slate-800">
-                    Murid Aktif (Mengikuti pembelajaran aktif)
-                  </span>
+                <input
+                  type="checkbox"
+                  id="is_active"
+                  name="is_active"
+                  checked={formData.is_active}
+                  onChange={(e) => updateField("is_active", e.target.checked)}
+                  disabled={isPending}
+                  className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 border-slate-300"
+                />
+                <label
+                  htmlFor="is_active"
+                  className="text-sm font-semibold text-slate-800 cursor-pointer"
+                >
+                  Murid Aktif Belajar
                 </label>
               </div>
+              <p className="text-xs text-slate-400">
+                Nonaktifkan jika murid telah lulus, cuti, atau berhenti les.
+              </p>
             </div>
           )}
 
-          <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
-            <Link
-              href={
-                isEdit && initialData
-                  ? `/admin/murid/${initialData.id}`
-                  : "/admin/murid"
-              }
-              className="inline-flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl border border-slate-200 sm:border-transparent hover:bg-slate-100 transition-colors w-full sm:w-auto min-h-[44px]"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Kembali</span>
-            </Link>
-
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
             <Button
-              type="submit"
-              size="md"
+              type="button"
+              variant="outline"
+              href={isEdit && initialData ? `/admin/murid/${initialData.id}` : "/admin/murid"}
               disabled={isPending}
-              className="font-medium cursor-pointer w-full sm:w-auto justify-center min-h-[44px]"
             >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Batal</span>
+            </Button>
+
+            <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -370,7 +378,7 @@ export function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>{isEdit ? "Simpan Perubahan" : "Daftarkan Murid"}</span>
+                  <span>{isEdit ? "Perbarui Data" : "Daftarkan Murid"}</span>
                 </>
               )}
             </Button>

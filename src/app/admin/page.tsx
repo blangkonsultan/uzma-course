@@ -11,7 +11,8 @@ import {
   Plus,
   Sparkles,
 } from "lucide-react";
-import { PROGRAMS } from "@/lib/constants";
+import { getPrograms } from "@/lib/programs";
+import { getBranches } from "@/lib/branches";
 
 export const metadata = {
   title: "Dashboard Overview | Uzma Course",
@@ -40,6 +41,8 @@ export default async function AdminDashboardPage() {
   const [
     guruCountRes,
     allStudentsRes,
+    programs,
+    branches,
   ] = await Promise.all([
     // Active teachers count
     supabase
@@ -48,11 +51,14 @@ export default async function AdminDashboardPage() {
       .eq("role", "guru")
       .eq("is_active", true),
 
-    // All active students with their branch & programs
+    // All active students with their branch & programs junction
     supabase
       .from("students")
-      .select("id, branch_id, programs")
+      .select("id, branch_id, student_programs(program_id)")
       .eq("is_active", true),
+
+    getPrograms(),
+    getBranches(),
   ]);
 
   const activeGuruCount = guruCountRes.count ?? 0;
@@ -66,18 +72,15 @@ export default async function AdminDashboardPage() {
 
   const totalMuridCount = relevantStudents.length;
 
-  const balongbendoMuridCount = activeStudents.filter(
-    (s) => s.branch_id === "balongbendo"
-  ).length;
+  const branchCounts = branches.map((b) => ({
+    ...b,
+    count: activeStudents.filter((s) => s.branch_id === b.id).length,
+  }));
 
-  const krianMuridCount = activeStudents.filter(
-    (s) => s.branch_id === "krian"
-  ).length;
-
-  // Program counts
-  const programCounts = PROGRAMS.map((prog) => {
+  // Program counts using junction table
+  const programCounts = programs.map((prog) => {
     const count = relevantStudents.filter((s) =>
-      s.programs?.includes(prog.id)
+      s.student_programs?.some((sp) => sp.program_id === prog.id)
     ).length;
     return {
       id: prog.id,
@@ -88,6 +91,13 @@ export default async function AdminDashboardPage() {
   });
 
   const greetingName = profile?.full_name || user.email?.split("@")[0] || "Rekan";
+
+  const branchColors = [
+    { bg: "bg-emerald-50", text: "text-emerald-600" },
+    { bg: "bg-amber-50", text: "text-amber-600" },
+    { bg: "bg-sky-50", text: "text-sky-600" },
+    { bg: "bg-indigo-50", text: "text-indigo-600" },
+  ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -186,37 +196,33 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Cabang Balongbendo */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Cabang Balongbendo
-            </p>
-            <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
-              {balongbendoMuridCount}
-            </p>
-            <p className="text-xs text-slate-400 mt-2">Murid aktif terdaftar</p>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-            <Building2 className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* Cabang Krian */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Cabang Krian
-            </p>
-            <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
-              {krianMuridCount}
-            </p>
-            <p className="text-xs text-slate-400 mt-2">Murid aktif terdaftar</p>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-            <Building2 className="w-6 h-6" />
-          </div>
-        </div>
+        {/* Dynamic Branch Cards */}
+        {branchCounts.map((branch, idx) => {
+          const color = branchColors[idx % branchColors.length];
+          return (
+            <div
+              key={branch.id}
+              className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between"
+            >
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  {branch.name}
+                </p>
+                <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
+                  {branch.count}
+                </p>
+                <p className="text-xs text-slate-400 mt-2">
+                  {branch.sub_name ? `${branch.sub_name} • ` : ""}Murid aktif
+                </p>
+              </div>
+              <div
+                className={`w-12 h-12 rounded-2xl ${color.bg} ${color.text} flex items-center justify-center shrink-0`}
+              >
+                <Building2 className="w-6 h-6" />
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Program Distribution Section */}
@@ -237,7 +243,7 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {programCounts.map((prog) => (
             <div
               key={prog.id}

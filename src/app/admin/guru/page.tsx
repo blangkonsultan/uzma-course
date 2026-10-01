@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { GuruStatusButton } from "@/components/admin/guru/guru-status-button";
 import type { Profile } from "@/types";
 import { Plus, Edit2, Phone, MapPin } from "lucide-react";
-import { PROGRAMS, BRANCHES, getProgramInitials, getProgramName } from "@/lib/constants";
+import { getPrograms } from "@/lib/programs";
+import { getBranches } from "@/lib/branches";
 
 export const metadata = {
   title: "Data Guru | Uzma Course",
@@ -24,6 +25,10 @@ interface GuruPageProps {
     page?: string;
   }>;
 }
+
+type ProfileWithPrograms = Profile & {
+  profile_programs?: { program_id: string }[];
+};
 
 export default async function GuruPage({ searchParams }: GuruPageProps) {
   const supabase = await createClient();
@@ -53,13 +58,25 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
   const page = Math.max(1, parseInt(resolvedParams.page || "1", 10));
   const pageSize = 10;
 
-  // Build Supabase query
+  const [programs, branches] = await Promise.all([
+    getPrograms(true),
+    getBranches(true),
+  ]);
+
+  const branchMap: Record<string, string> = Object.fromEntries(
+    branches.map((b) => [b.id, b.name])
+  );
+  const programMap: Record<string, { initials: string; name: string }> = Object.fromEntries(
+    programs.map((p) => [p.id, { initials: p.initials, name: p.name }])
+  );
+
+  // Build Supabase query with profile_programs relation
   let query = supabase
     .from("profiles")
-    .select("*", { count: "exact" })
+    .select("*, profile_programs(program_id)", { count: "exact" })
     .eq("role", "guru");
 
-  if (branch === "balongbendo" || branch === "krian") {
+  if (branch !== "all") {
     query = query.eq("branch_id", branch);
   }
 
@@ -87,7 +104,7 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
     {
       id: "branch",
       label: "Cabang",
-      options: BRANCHES.map((b) => ({ value: b.id, label: b.name })),
+      options: branches.map((b) => ({ value: b.id, label: b.name })),
     },
     {
       id: "status",
@@ -99,7 +116,7 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
     },
   ];
 
-  const columns: Column<Profile>[] = [
+  const columns: Column<ProfileWithPrograms>[] = [
     {
       header: "Nama Guru",
       cell: (guru) => (
@@ -138,11 +155,13 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
     {
       header: "Cabang",
       cell: (guru) => {
-        const branchObj = BRANCHES.find((b) => b.id === guru.branch_id);
+        const branchName = guru.branch_id
+          ? branchMap[guru.branch_id] ?? guru.branch_id
+          : "Belum ditentukan";
         return (
           <div className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
             <MapPin className="w-3.5 h-3.5 text-slate-400" />
-            <span>{branchObj ? branchObj.name : "Belum ditentukan"}</span>
+            <span>{branchName}</span>
           </div>
         );
       },
@@ -151,16 +170,19 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
       header: "Program Diampu",
       cell: (guru) => (
         <div className="flex flex-wrap gap-1 max-w-xs">
-          {guru.programs && guru.programs.length > 0 ? (
-            guru.programs.map((progId) => (
-              <span
-                key={progId}
-                title={getProgramName(progId)}
-                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs"
-              >
-                {getProgramInitials(progId)}
-              </span>
-            ))
+          {guru.profile_programs && guru.profile_programs.length > 0 ? (
+            guru.profile_programs.map((pp) => {
+              const prog = programMap[pp.program_id];
+              return (
+                <span
+                  key={pp.program_id}
+                  title={prog?.name ?? pp.program_id}
+                  className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs"
+                >
+                  {prog?.initials ?? pp.program_id}
+                </span>
+              );
+            })
           ) : (
             <span className="text-xs text-slate-400 italic">Semua program</span>
           )}
@@ -198,15 +220,11 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
     <div className="space-y-6">
       <PageHeader
         title="Data Guru"
-        description="Kelola akun pengajar, cabang penempatan, dan status aktif guru Uzma Course."
-        breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
-          { label: "Data Guru" },
-        ]}
+        description="Kelola informasi pengajar, akun login, penempatan cabang, dan program bimbingan."
         action={
           <Button href="/admin/guru/tambah" size="sm">
             <Plus className="w-4 h-4" />
-            <span>Tambah Guru</span>
+            Tambah Guru
           </Button>
         }
       />
@@ -218,9 +236,9 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
 
       <DataTable
         columns={columns}
-        data={guruList ?? []}
+        data={guruList || []}
         keyExtractor={(item) => item.id}
-        emptyStateMessage="Tidak ada data guru yang cocok"
+        emptyStateMessage="Tidak ada data guru yang sesuai dengan filter pencarian."
       />
 
       <Pagination

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getBranches } from "@/lib/branches";
 import { AdminShell } from "@/components/admin/admin-shell";
 import type { Profile } from "@/types";
 
@@ -27,11 +28,10 @@ export default async function AdminLayout({
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, branches] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    getBranches(),
+  ]);
 
   const safeProfile: Profile = profile ?? {
     id: user.id,
@@ -42,11 +42,14 @@ export default async function AdminLayout({
     phone: null,
     role: (user.user_metadata?.role as "admin" | "guru") || "guru",
     branch_id: null,
-    programs: [],
     is_active: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
 
-  return <AdminShell profile={safeProfile}>{children}</AdminShell>;
+  return (
+    <AdminShell profile={safeProfile} branches={branches}>
+      {children}
+    </AdminShell>
+  );
 }
