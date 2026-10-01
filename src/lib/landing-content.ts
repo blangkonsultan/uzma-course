@@ -5,6 +5,8 @@ import type {
   LandingSectionKey,
   ProgramItem,
   ProgramsContent,
+  FooterContent,
+  SocialMediaItem,
 } from "@/types/landing";
 
 export const DEFAULT_LANDING_CONTENT: AllLandingContent = {
@@ -290,10 +292,18 @@ export const DEFAULT_LANDING_CONTENT: AllLandingContent = {
   },
   footer: {
     tagline: "Reader now, Leader tomorrow!",
-    socialLinks: {
-      instagram: "https://www.instagram.com/ahesumokembangsri.ahejunwangi",
-      facebook: "https://www.facebook.com/share/1JKAhpJnPP/?mibextid=qi2Omg",
-    },
+    socialLinks: [
+      {
+        platform: "instagram",
+        label: "Instagram",
+        url: "https://www.instagram.com/ahesumokembangsri.ahejunwangi",
+      },
+      {
+        platform: "facebook",
+        label: "Facebook",
+        url: "https://www.facebook.com/share/1JKAhpJnPP/?mibextid=qi2Omg",
+      },
+    ],
     contactPhone: "6285730332379",
     contactWaDisplay: "085730332379",
     navLinks: [
@@ -361,6 +371,61 @@ function mapProgramRowToItem(p: Database["public"]["Tables"]["programs"]["Row"])
     features: p.features,
   };
 }
+export function normalizeSocialLinks(input: unknown): SocialMediaItem[] {
+  if (Array.isArray(input)) {
+    return input.filter(
+      (item): item is SocialMediaItem =>
+        Boolean(
+          item &&
+            typeof item === "object" &&
+            typeof item.url === "string" &&
+            item.url.trim().length > 0
+        )
+    );
+  }
+  if (input && typeof input === "object") {
+    const obj = input as Record<string, string>;
+    const list: SocialMediaItem[] = [];
+    if (obj.instagram) {
+      list.push({
+        platform: "instagram",
+        label: "Instagram",
+        url: obj.instagram,
+      });
+    }
+    if (obj.facebook) {
+      list.push({
+        platform: "facebook",
+        label: "Facebook",
+        url: obj.facebook,
+      });
+    }
+    if (obj.tiktok) {
+      list.push({
+        platform: "tiktok",
+        label: "TikTok",
+        url: obj.tiktok,
+      });
+    }
+    if (obj.youtube) {
+      list.push({
+        platform: "youtube",
+        label: "YouTube",
+        url: obj.youtube,
+      });
+    }
+    if (obj.whatsapp) {
+      list.push({
+        platform: "whatsapp",
+        label: "WhatsApp",
+        url: obj.whatsapp,
+      });
+    }
+    return list;
+  }
+  return [];
+}
+
 
 export async function getLandingContent(): Promise<AllLandingContent> {
   const result: AllLandingContent = { ...DEFAULT_LANDING_CONTENT };
@@ -395,6 +460,9 @@ export async function getLandingContent(): Promise<AllLandingContent> {
         ...result.programs,
         items: programRows.map(mapProgramRowToItem),
       };
+    }
+    if (result.footer && result.footer.socialLinks) {
+      result.footer.socialLinks = normalizeSocialLinks(result.footer.socialLinks);
     }
 
     return result;
@@ -438,6 +506,11 @@ export async function getLandingSectionContent<K extends LandingSectionKey>(
         (merged as unknown as ProgramsContent).items =
           programRows.map(mapProgramRowToItem);
       }
+    }
+    if (section === "footer" && (merged as FooterContent).socialLinks) {
+      (merged as FooterContent).socialLinks = normalizeSocialLinks(
+        (merged as FooterContent).socialLinks
+      );
     }
 
     return merged as AllLandingContent[K];

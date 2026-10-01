@@ -49,10 +49,10 @@ export default async function Home() {
           }
         : {}),
     },
-    sameAs: [
-      content.footer.socialLinks.instagram,
-      content.footer.socialLinks.facebook,
-    ].filter(Boolean),
+    sameAs: (Array.isArray(content.footer.socialLinks)
+      ? content.footer.socialLinks.map((s) => s.url)
+      : Object.values(content.footer.socialLinks || {})
+    ).filter(Boolean),
     address: {
       "@type": "PostalAddress",
       addressLocality: "Sidoarjo",

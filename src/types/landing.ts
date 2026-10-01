@@ -158,10 +158,25 @@ export interface CTAContent {
   buttonText: string;
 }
 
-export interface FooterSocialLinks {
-  instagram: string;
-  facebook: string;
+export type SocialPlatform =
+  | "instagram"
+  | "facebook"
+  | "tiktok"
+  | "youtube"
+  | "whatsapp"
+  | "x"
+  | "telegram"
+  | "linkedin"
+  | "threads"
+  | "website";
+
+export interface SocialMediaItem {
+  platform: SocialPlatform | string;
+  url: string;
+  label?: string;
 }
+
+export type FooterSocialLinks = SocialMediaItem[];
 
 export interface FooterNavLink {
   label: string;
@@ -170,7 +185,7 @@ export interface FooterNavLink {
 
 export interface FooterContent {
   tagline: string;
-  socialLinks: FooterSocialLinks;
+  socialLinks: SocialMediaItem[];
   contactPhone: string;
   contactWaDisplay: string;
   navLinks: FooterNavLink[];

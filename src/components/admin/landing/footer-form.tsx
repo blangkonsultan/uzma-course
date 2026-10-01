@@ -1,18 +1,32 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { InputField } from "@/components/admin/form-field";
+import { InputField, SelectField } from "@/components/admin/form-field";
 import { SortableItemList } from "@/components/admin/landing/sortable-item-list";
 import { FormActions } from "@/components/admin/landing/form-actions";
 import { updateLandingSection } from "@/app/admin/landing/actions";
-import type { FooterContent, FooterNavLink } from "@/types/landing";
+import { normalizeSocialLinks } from "@/lib/landing-content";
+import {
+  SocialIcon,
+  SOCIAL_PLATFORMS,
+  getSocialPlatformConfig,
+} from "@/components/ui/social-icon";
+import type {
+  FooterContent,
+  FooterNavLink,
+  SocialMediaItem,
+  SocialPlatform,
+} from "@/types/landing";
 
 interface FooterFormProps {
   initialData: FooterContent;
 }
 
 export function FooterForm({ initialData }: FooterFormProps) {
-  const [data, setData] = useState<FooterContent>(initialData);
+  const [data, setData] = useState<FooterContent>(() => ({
+    ...initialData,
+    socialLinks: normalizeSocialLinks(initialData.socialLinks),
+  }));
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -77,46 +91,89 @@ export function FooterForm({ initialData }: FooterFormProps) {
         </div>
       </div>
 
-      {/* Social Media Links */}
-      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
-        <h2 className="text-base font-bold text-slate-800 font-heading border-b border-slate-100 pb-3">
-          Media Sosial Resmi
-        </h2>
+      {/* Dynamic Social Media Links */}
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs">
+        <SortableItemList<SocialMediaItem>
+          title="Media Sosial Resmi"
+          description="Daftar tautan akun media sosial yang tampil pada footer website"
+          items={data.socialLinks || []}
+          onItemsChange={(socialLinks) => setData({ ...data, socialLinks })}
+          createEmptyItem={() => ({
+            platform: "instagram",
+            label: "Instagram",
+            url: "",
+          })}
+          itemLabel={(item) => {
+            const cfg = getSocialPlatformConfig(item.platform);
+            return `${item.label || cfg.label} (${item.url || "Belum ada tautan"})`;
+          }}
+          addButtonText="Tambah Akun Media Sosial"
+          renderItem={(item, index, updateItem) => {
+            const config = getSocialPlatformConfig(item.platform);
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          <InputField
-            id="instagram"
-            label="Tautan Instagram"
-            value={data.socialLinks.instagram}
-            onChange={(e) =>
-              setData({
-                ...data,
-                socialLinks: {
-                  ...data.socialLinks,
-                  instagram: e.target.value,
-                },
-              })
-            }
-            hint="https://instagram.com/..."
-            required
-          />
-          <InputField
-            id="facebook"
-            label="Tautan Facebook"
-            value={data.socialLinks.facebook}
-            onChange={(e) =>
-              setData({
-                ...data,
-                socialLinks: {
-                  ...data.socialLinks,
-                  facebook: e.target.value,
-                },
-              })
-            }
-            hint="https://facebook.com/..."
-            required
-          />
-        </div>
+            return (
+              <div className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <div className="w-5 h-5 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0">
+                        <SocialIcon platform={item.platform} className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold text-slate-600">
+                        Pratinjau: {config.label}
+                      </span>
+                    </div>
+                    <SelectField
+                      id={`social-platform-${index}`}
+                      label="Platform Media Sosial"
+                      value={item.platform}
+                      onChange={(e) => {
+                        const newPlatform = e.target.value as SocialPlatform;
+                        const newCfg = getSocialPlatformConfig(newPlatform);
+                        updateItem({
+                          ...item,
+                          platform: newPlatform,
+                          label:
+                            !item.label || item.label === config.label
+                              ? newCfg.label
+                              : item.label,
+                        });
+                      }}
+                      options={SOCIAL_PLATFORMS.map((p) => ({
+                        value: p.id,
+                        label: p.label,
+                      }))}
+                      required
+                    />
+                  </div>
+
+                  <InputField
+                    id={`social-label-${index}`}
+                    label="Nama / Label Tampilan (Opsional)"
+                    value={item.label || ""}
+                    onChange={(e) =>
+                      updateItem({ ...item, label: e.target.value })
+                    }
+                    placeholder={config.label}
+                    hint="Nama akun atau teks tooltip yang muncul saat hover"
+                  />
+                </div>
+
+                <InputField
+                  id={`social-url-${index}`}
+                  label="Tautan Profil / URL"
+                  value={item.url}
+                  onChange={(e) =>
+                    updateItem({ ...item, url: e.target.value })
+                  }
+                  placeholder={config.placeholder}
+                  hint={config.hint}
+                  required
+                />
+              </div>
+            );
+          }}
+        />
       </div>
 
       {/* Footer Nav Links */}
@@ -145,12 +202,11 @@ export function FooterForm({ initialData }: FooterFormProps) {
               />
               <InputField
                 id={`footer-href-${index}`}
-                label="Tautan (Href / Anchor)"
+                label="Target URL / Anchor"
                 value={item.href}
                 onChange={(e) =>
                   updateItem({ ...item, href: e.target.value })
                 }
-                hint="Contoh: #programs atau /admin"
                 required
               />
             </div>
