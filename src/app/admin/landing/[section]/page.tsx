@@ -10,6 +10,7 @@ import { ProgramsForm } from "@/components/admin/landing/programs-form";
 import { WhyUsForm } from "@/components/admin/landing/why-us-form";
 import { FacilitiesForm } from "@/components/admin/landing/facilities-form";
 import { TeamForm } from "@/components/admin/landing/team-form";
+import { GalleryForm } from "@/components/admin/landing/gallery-form";
 import { TestimonialsForm } from "@/components/admin/landing/testimonials-form";
 import { VideosForm } from "@/components/admin/landing/videos-form";
 import { LocationsForm } from "@/components/admin/landing/locations-form";
@@ -38,7 +39,11 @@ const SECTION_LABELS: Record<LandingSectionKey, { label: string; desc: string }>
   },
   team: {
     label: "Tim & Pengelola",
-    desc: "Profil pendiri, foto tim pengajar, komitmen, dan foto galeri kegiatan",
+    desc: "Profil pendiri, foto tim pengajar, dan komitmen",
+  },
+  gallery: {
+    label: "Galeri",
+    desc: "Foto-foto kegiatan, wisuda kelulusan, lisensi, dan dokumentasi belajar",
   },
   testimonials: {
     label: "Testimoni",
@@ -148,6 +153,9 @@ export default async function EditSectionPage({ params }: EditSectionPageProps) 
         )}
         {sectionKey === "team" && (
           <TeamForm initialData={content as never} />
+        )}
+        {sectionKey === "gallery" && (
+          <GalleryForm initialData={content as never} />
         )}
         {sectionKey === "testimonials" && (
           <TestimonialsForm initialData={content as never} />

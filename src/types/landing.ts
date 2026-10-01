@@ -82,9 +82,22 @@ export interface TeamContent {
   founderPhotoUrl?: string;
   founderPhotoAlt?: string;
   values: TeamValueItem[];
-  galleryImageUrl: string;
-  galleryImageAlt: string;
-  galleryCaption: string;
+}
+
+export interface GalleryImage {
+  url: string;
+  alt: string;
+}
+
+export interface GalleryGroup {
+  label: string;
+  images: GalleryImage[];
+}
+
+export interface GalleryContent {
+  title: string;
+  subtitle: string;
+  groups: GalleryGroup[];
 }
 
 export interface TestimonialItem {
@@ -184,6 +197,7 @@ export type LandingSectionKey =
   | "why_us"
   | "facilities"
   | "team"
+  | "gallery"
   | "testimonials"
   | "videos"
   | "locations"
@@ -199,6 +213,7 @@ export interface AllLandingContent {
   why_us: WhyUsContent;
   facilities: FacilitiesContent;
   team: TeamContent;
+  gallery: GalleryContent;
   testimonials: TestimonialsContent;
   videos: VideosContent;
   locations: LocationsContent;

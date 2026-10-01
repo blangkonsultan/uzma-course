@@ -4,6 +4,7 @@ import { ProgramsSection } from "@/components/landing/programs-section";
 import { WhyUsSection } from "@/components/landing/why-us-section";
 import { FacilitiesSection } from "@/components/landing/facilities-section";
 import { TeamSection } from "@/components/landing/team-section";
+import { GallerySection } from "@/components/landing/gallery-section";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { VideoSection } from "@/components/landing/video-section";
 import { LocationsSection } from "@/components/landing/locations-section";
@@ -107,6 +108,7 @@ export default async function Home() {
       <WhyUsSection data={content.why_us} />
       <FacilitiesSection data={content.facilities} />
       <TeamSection data={content.team} />
+      <GallerySection data={content.gallery} />
       <TestimonialsSection data={content.testimonials} />
       <VideoSection data={content.videos} />
       <LocationsSection data={content.locations} />

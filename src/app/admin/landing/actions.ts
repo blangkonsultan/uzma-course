@@ -12,6 +12,7 @@ const VALID_SECTIONS: readonly LandingSectionKey[] = [
   "why_us",
   "facilities",
   "team",
+  "gallery",
   "testimonials",
   "videos",
   "locations",

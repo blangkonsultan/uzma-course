@@ -230,34 +230,6 @@ export function TeamForm({ initialData }: TeamFormProps) {
         />
       </div>
 
-      {/* Gallery Collage */}
-      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
-        <h2 className="text-base font-bold text-slate-800 font-heading border-b border-slate-100 pb-3">
-          Galeri Kegiatan & Wisuda
-        </h2>
-
-        <ImageUrlField
-          idPrefix="gallery-photo"
-          label="Foto Kolase Galeri"
-          value={data.galleryImageUrl}
-          onChange={(url) => setData({ ...data, galleryImageUrl: url })}
-          altValue={data.galleryImageAlt}
-          onAltChange={(alt) => setData({ ...data, galleryImageAlt: alt })}
-          hint="Rasio 16:9 hingga 21:9 panorama, min 1200×675px. Format JPG/PNG/WebP."
-          previewAspect="aspect-[21/9]"
-        />
-
-        <TextareaField
-          id="galleryCaption"
-          label="Keterangan Galeri (Caption Bawah)"
-          value={data.galleryCaption}
-          onChange={(e) =>
-            setData({ ...data, galleryCaption: e.target.value })
-          }
-          rows={2}
-          required
-        />
-      </div>
 
       {/* Submit controls */}
       <FormActions isPending={isPending} />

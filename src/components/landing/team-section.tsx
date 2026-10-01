@@ -138,28 +138,6 @@ export function TeamSection({ data }: TeamSectionProps) {
           </div>
         </div>
 
-        {/* Gallery Collage */}
-        {content.galleryImageUrl && (
-          <div className="mt-16">
-            <div className="relative aspect-[16/9] md:aspect-[21/9] w-full rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-100">
-              {/* Native img avoids Next.js remotePatterns restriction for arbitrary CMS URLs */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={normalizeImageUrl(content.galleryImageUrl)}
-                alt={content.galleryImageAlt || "Galeri Kegiatan Belajar dan Wisuda Ahe SumoWangi"}
-                loading="lazy"
-                decoding="async"
-                referrerPolicy="no-referrer"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </div>
-            {content.galleryCaption && (
-              <p className="text-center text-xs text-slate-500 mt-3 italic">
-                {content.galleryCaption}
-              </p>
-            )}
-          </div>
-        )}
       </Container>
     </section>
   );

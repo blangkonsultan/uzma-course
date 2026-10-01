@@ -9,6 +9,7 @@ import {
   Award,
   Building2,
   Users,
+  Image as ImageIcon,
   MessageSquareQuote,
   Play,
   MapPin,
@@ -65,9 +66,15 @@ const SECTIONS: SectionMeta[] = [
   {
     slug: "team",
     label: "Tim & Pengelola",
-    description: "Profil pendiri, foto tim pengajar, nilai pengajaran, dan foto galeri kegiatan",
+    description: "Profil pendiri, foto tim pengajar, dan nilai pengajaran",
     icon: Users,
-    badge: "Gambar & Profil",
+  },
+  {
+    slug: "gallery",
+    label: "Galeri",
+    description: "Foto-foto kegiatan, wisuda kelulusan, lisensi, dan dokumentasi belajar mengajar",
+    icon: ImageIcon,
+    badge: "Multi Foto",
   },
   {
     slug: "testimonials",

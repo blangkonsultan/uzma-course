@@ -144,10 +144,24 @@ export const DEFAULT_LANDING_CONTENT: AllLandingContent = {
         icon: "Award",
       },
     ],
-    galleryImageUrl: "/images/gallery-grid.jpg",
-    galleryImageAlt: "Galeri Kegiatan Belajar dan Wisuda Ahe SumoWangi",
-    galleryCaption:
-      "Dokumentasi keceriaan belajar, pendampingan personal, dan momen wisuda kelulusan di Ahe SumoWangi.",
+  },
+  gallery: {
+    title: "Galeri",
+    subtitle: "Dokumentasi kegiatan belajar, wisuda, dan lisensi di Uzma Course",
+    groups: [
+      {
+        label: "Lisensi",
+        images: [],
+      },
+      {
+        label: "Wisuda",
+        images: [],
+      },
+      {
+        label: "Kegiatan Guru dan Murid",
+        images: [],
+      },
+    ],
   },
   testimonials: {
     title: "Kata Orang Tua Murid",
