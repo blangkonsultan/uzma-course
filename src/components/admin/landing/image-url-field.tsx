@@ -5,6 +5,20 @@ import { InputField } from "@/components/admin/form-field";
 import { cn, normalizeImageUrl } from "@/lib/utils";
 import { ImageIcon, AlertCircle } from "lucide-react";
 
+const PREVIEW_ASPECT_CLASSES: Record<string, string> = {
+  "aspect-square": "w-36 sm:w-44 aspect-square rounded-2xl",
+  "aspect-[4/3]": "w-52 sm:w-64 aspect-[4/3] rounded-xl",
+  "aspect-[16/9]": "w-64 sm:w-80 aspect-[16/9] rounded-xl",
+  "aspect-[21/9]": "w-full max-w-xs sm:max-w-md aspect-[21/9] rounded-xl",
+};
+
+const ASPECT_LABELS: Record<string, string> = {
+  "aspect-square": "1:1 Persegi",
+  "aspect-[4/3]": "4:3 Landscape",
+  "aspect-[16/9]": "16:9 Widescreen",
+  "aspect-[21/9]": "21:9 Panorama",
+};
+
 export interface ImageUrlFieldProps {
   label: string;
   value: string;
@@ -88,9 +102,16 @@ export function ImageUrlField({
 
       {hasValidUrl && (
         <div className="mt-3">
-          <p className="text-xs font-medium text-slate-500 mb-1.5">
-            Preview Thumbnail:
-          </p>
+          <div className="flex items-center gap-2 mb-1.5">
+            <p className="text-xs font-medium text-slate-500">
+              Preview Thumbnail:
+            </p>
+            {ASPECT_LABELS[previewAspect] && (
+              <span className="text-[10px] font-semibold text-slate-500 bg-slate-200/80 px-2 py-0.5 rounded-md">
+                {ASPECT_LABELS[previewAspect]}
+              </span>
+            )}
+          </div>
           {imgError ? (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs">
               <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
@@ -99,8 +120,8 @@ export function ImageUrlField({
           ) : (
             <div
               className={cn(
-                "relative w-full max-w-[280px] sm:max-w-xs h-32 rounded-lg overflow-hidden border border-slate-300 bg-slate-100 shadow-xs",
-                previewAspect
+                "relative overflow-hidden border border-slate-300 bg-slate-100 shadow-xs",
+                PREVIEW_ASPECT_CLASSES[previewAspect] || cn("w-52 max-w-full rounded-xl", previewAspect)
               )}
             >
               {/* Native img avoids Next.js remotePatterns restriction for arbitrary CMS URLs */}
