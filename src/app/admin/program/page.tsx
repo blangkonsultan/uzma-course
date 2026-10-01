@@ -9,7 +9,7 @@ import { ProgramStatusButton } from "@/components/admin/program/program-status-b
 import { getPrograms } from "@/lib/programs";
 import type { Program } from "@/types";
 import { Plus, Eye, Edit2, Award } from "lucide-react";
-import { formatDuration } from "@/lib/utils";
+import { formatClassRatio, formatDuration, formatFrequencyShort } from "@/lib/utils";
 
 export const metadata = {
   title: "Master Program Belajar | Uzma Course",
@@ -99,8 +99,8 @@ export default async function ProgramListPage() {
       header: "Sistem & Durasi",
       cell: (prog) => (
         <div className="text-xs text-slate-600">
-          <p className="font-medium text-slate-800">{prog.system || "-"}</p>
-          <p className="text-slate-400 text-[11px]">{formatDuration(prog.duration)} • {prog.frequency}</p>
+          <p className="font-medium text-slate-800">{formatClassRatio(prog.system)}</p>
+          <p className="text-slate-400 text-[11px]">{formatDuration(prog.duration)} • {formatFrequencyShort(prog.frequency)}</p>
         </div>
       ),
     },

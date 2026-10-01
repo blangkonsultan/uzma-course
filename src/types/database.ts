@@ -68,9 +68,9 @@ export type Database = {
           license_provider: string | null;
           license_url: string | null;
           license_description: string | null;
-          system: string;
+          system: number;
           duration: number;
-          frequency: string;
+          frequency: number;
           features: string[];
           sort_order: number;
           is_active: boolean;
@@ -90,9 +90,9 @@ export type Database = {
           license_provider?: string | null;
           license_url?: string | null;
           license_description?: string | null;
-          system?: string;
+          system?: number;
           duration?: number;
-          frequency?: string;
+          frequency?: number;
           features?: string[];
           sort_order?: number;
           is_active?: boolean;
@@ -112,9 +112,9 @@ export type Database = {
           license_provider?: string | null;
           license_url?: string | null;
           license_description?: string | null;
-          system?: string;
+          system?: number;
           duration?: number;
-          frequency?: string;
+          frequency?: number;
           features?: string[];
           sort_order?: number;
           is_active?: boolean;

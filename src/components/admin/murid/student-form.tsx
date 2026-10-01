@@ -13,6 +13,7 @@ import { Card, CardBody } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
 import type { Student, Program, Branch } from "@/types";
+import { formatClassRatio } from "@/lib/utils";
 
 interface StudentFormProps {
   initialData?: Student;
@@ -271,7 +272,7 @@ export function StudentForm({
                     options={franchisePrograms.map((p) => ({
                       value: p.id,
                       label: `[${p.initials}] ${p.name}`,
-                      description: `${p.system} · ${p.age_range}`,
+                      description: `${formatClassRatio(p.system)} · ${p.age_range}`,
                     }))}
                     values={formData.programs.filter((id) => franchiseIdMap[id])}
                     onChange={(selected) =>
@@ -296,7 +297,7 @@ export function StudentForm({
                     options={originalPrograms.map((p) => ({
                       value: p.id,
                       label: `[${p.initials}] ${p.name}`,
-                      description: `${p.system} · ${p.age_range}`,
+                      description: `${formatClassRatio(p.system)} · ${p.age_range}`,
                     }))}
                     values={formData.programs.filter((id) => originalIdMap[id])}
                     onChange={(selected) =>

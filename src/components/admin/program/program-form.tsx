@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save, Plus, Trash2 } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
+import { formatClassRatio, formatDuration, formatFrequency } from "@/lib/utils";
 import type { Program } from "@/types";
 
 interface ProgramFormProps {
@@ -35,9 +36,9 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
     license_provider: initialData?.license_provider || "",
     license_url: initialData?.license_url || "",
     license_description: initialData?.license_description || "",
-    system: initialData?.system || "",
+    system: initialData?.system ?? 2,
     duration: initialData?.duration ?? 30,
-    frequency: initialData?.frequency || "",
+    frequency: initialData?.frequency ?? 3,
     features: initialData?.features || [""],
     sort_order: initialData?.sort_order ?? 0,
     is_active: initialData?.is_active ?? true,
@@ -112,9 +113,9 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
         data.append("license_provider", formData.license_provider.trim());
         data.append("license_url", formData.license_url.trim());
         data.append("license_description", formData.license_description.trim());
-        data.append("system", formData.system.trim());
+        data.append("system", formData.system.toString());
         data.append("duration", formData.duration.toString());
-        data.append("frequency", formData.frequency.trim());
+        data.append("frequency", formData.frequency.toString());
         data.append("sort_order", formData.sort_order.toString());
         formData.features
           .filter((f) => f.trim().length > 0)
@@ -266,8 +267,8 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
 
           {/* Section 3: Informasi Lisensi & Logo Franchise (Conditional) */}
           {formData.type === "franchise" && (
-            <div className="space-y-4 p-4 sm:p-5 rounded-2xl bg-purple-50/50 border border-purple-100">
-              <h3 className="text-sm font-bold text-purple-900 uppercase tracking-wider border-b border-purple-200/60 pb-2">
+            <div className="space-y-4 p-4 sm:p-5 rounded-2xl bg-primary-50/40 border border-primary-100">
+              <h3 className="text-sm font-bold text-primary-950 uppercase tracking-wider border-b border-primary-200/60 pb-2">
                 Atribusi Franchise & Lisensi
               </h3>
 
@@ -323,38 +324,56 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <InputField
-                id="system"
-                name="system"
-                label="Rasio Kelas"
-                placeholder="1 guru max 2 murid"
-                value={formData.system}
-                onChange={(e) => updateField("system", e.target.value)}
-                disabled={isPending}
-              />
+              <div>
+                <InputField
+                  id="system"
+                  name="system"
+                  label="Rasio Kelas (Maks. Murid)"
+                  type="number"
+                  placeholder="2"
+                  min={1}
+                  value={formData.system.toString()}
+                  onChange={(e) => updateField("system", parseInt(e.target.value) || 0)}
+                  error={fieldErrors.system}
+                  hint={`Pratinjau: ${formatClassRatio(formData.system)}`}
+                  required
+                  disabled={isPending}
+                />
+              </div>
 
-              <InputField
-                id="duration"
-                name="duration"
-                label="Durasi per Sesi (menit)"
-                type="number"
-                placeholder="30"
-                min={1}
-                value={formData.duration.toString()}
-                onChange={(e) => updateField("duration", parseInt(e.target.value) || 0)}
-                error={fieldErrors.duration}
-                disabled={isPending}
-              />
+              <div>
+                <InputField
+                  id="duration"
+                  name="duration"
+                  label="Durasi per Sesi (menit)"
+                  type="number"
+                  placeholder="30"
+                  min={1}
+                  value={formData.duration.toString()}
+                  onChange={(e) => updateField("duration", parseInt(e.target.value) || 0)}
+                  error={fieldErrors.duration}
+                  hint={`Pratinjau: ${formatDuration(formData.duration)}`}
+                  required
+                  disabled={isPending}
+                />
+              </div>
 
-              <InputField
-                id="frequency"
-                name="frequency"
-                label="Frekuensi Belajar"
-                placeholder="3x / minggu (12x / bulan)"
-                value={formData.frequency}
-                onChange={(e) => updateField("frequency", e.target.value)}
-                disabled={isPending}
-              />
+              <div>
+                <InputField
+                  id="frequency"
+                  name="frequency"
+                  label="Frekuensi Belajar (/ Minggu)"
+                  type="number"
+                  placeholder="3"
+                  min={1}
+                  value={formData.frequency.toString()}
+                  onChange={(e) => updateField("frequency", parseInt(e.target.value) || 0)}
+                  error={fieldErrors.frequency}
+                  hint={`Pratinjau: ${formatFrequency(formData.frequency)}`}
+                  required
+                  disabled={isPending}
+                />
+              </div>
             </div>
           </div>
 
@@ -394,7 +413,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                     type="button"
                     onClick={() => removeFeature(idx)}
                     disabled={isPending}
-                    className="p-2.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0"
+                    className="p-2.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 transition-colors shrink-0"
                     title="Hapus fasilitas ini"
                   >
                     <Trash2 className="w-4 h-4" />

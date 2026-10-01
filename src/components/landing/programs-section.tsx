@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProgramIcon } from "@/components/landing/program-icon";
 import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
 import type { ProgramsContent } from "@/types/landing";
-import { formatDuration } from "@/lib/utils";
+import { formatDuration, formatClassRatio, formatFrequency } from "@/lib/utils";
 
 export interface ProgramsSectionProps {
   data?: ProgramsContent;
@@ -73,12 +73,12 @@ export function ProgramsSection({ data }: ProgramsSectionProps) {
                     <div className="mt-5 p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5 text-xs text-slate-700">
                       <div className="flex items-center gap-2 font-semibold text-primary-800">
                         <Users className="w-3.5 h-3.5 text-primary-600" aria-hidden="true" />
-                        <span>{program.system}</span>
+                        <span>{formatClassRatio(program.system)}</span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-600">
                         <Clock className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
                         <span>
-                          {formatDuration(program.duration)} · {program.frequency}
+                          {formatDuration(program.duration)} · {formatFrequency(program.frequency)}
                         </span>
                       </div>
                     </div>

@@ -46,9 +46,9 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
   const licenseProvider = formData.get("license_provider")?.toString().trim() || null;
   const licenseUrl = formData.get("license_url")?.toString().trim() || null;
   const licenseDescription = formData.get("license_description")?.toString().trim() || null;
-  const system = formData.get("system")?.toString().trim() || "";
+  const system = parseInt(formData.get("system")?.toString() || "2", 10);
   const duration = parseInt(formData.get("duration")?.toString() || "30", 10);
-  const frequency = formData.get("frequency")?.toString().trim() || "";
+  const frequency = parseInt(formData.get("frequency")?.toString() || "3", 10);
   const sortOrder = parseInt(formData.get("sort_order")?.toString() || "0", 10);
   const rawFeatures = formData.getAll("features").map((f) => f.toString().trim()).filter(Boolean);
 
@@ -60,8 +60,14 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
   if (!name || name.length < 2) {
     fieldErrors.name = "Nama program minimal 2 karakter.";
   }
+  if (isNaN(system) || system < 1) {
+    fieldErrors.system = "Rasio kelas harus berupa angka positif (minimal 1 murid).";
+  }
   if (isNaN(duration) || duration < 1) {
     fieldErrors.duration = "Durasi harus berupa angka positif (dalam menit).";
+  }
+  if (isNaN(frequency) || frequency < 1) {
+    fieldErrors.frequency = "Frekuensi belajar harus berupa angka positif (minimal 1 sesi per minggu).";
   }
 
   if (Object.keys(fieldErrors).length > 0) {
@@ -114,9 +120,9 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
   const licenseProvider = formData.get("license_provider")?.toString().trim() || null;
   const licenseUrl = formData.get("license_url")?.toString().trim() || null;
   const licenseDescription = formData.get("license_description")?.toString().trim() || null;
-  const system = formData.get("system")?.toString().trim() || "";
+  const system = parseInt(formData.get("system")?.toString() || "2", 10);
   const duration = parseInt(formData.get("duration")?.toString() || "30", 10);
-  const frequency = formData.get("frequency")?.toString().trim() || "";
+  const frequency = parseInt(formData.get("frequency")?.toString() || "3", 10);
   const sortOrder = parseInt(formData.get("sort_order")?.toString() || "0", 10);
   const rawFeatures = formData.getAll("features").map((f) => f.toString().trim()).filter(Boolean);
   const isActive = formData.get("is_active") === "true";
@@ -126,8 +132,14 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
   if (!name || name.length < 2) {
     fieldErrors.name = "Nama program minimal 2 karakter.";
   }
+  if (isNaN(system) || system < 1) {
+    fieldErrors.system = "Rasio kelas harus berupa angka positif (minimal 1 murid).";
+  }
   if (isNaN(duration) || duration < 1) {
     fieldErrors.duration = "Durasi harus berupa angka positif (dalam menit).";
+  }
+  if (isNaN(frequency) || frequency < 1) {
+    fieldErrors.frequency = "Frekuensi belajar harus berupa angka positif (minimal 1 sesi per minggu).";
   }
 
   if (Object.keys(fieldErrors).length > 0) {

@@ -18,7 +18,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { getBranches } from "@/lib/branches";
-import { formatDuration } from "@/lib/utils";
+import { formatDuration, formatClassRatio, formatFrequencyShort } from "@/lib/utils";
 
 export const metadata = {
   title: "Detail Murid | Uzma Course",
@@ -242,9 +242,9 @@ export default async function StudentDetailPage({
                         </p>
                         {prog && (
                           <div className="mt-2 pt-2 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                            {prog.system && <p>• {prog.system}</p>}
+                            {prog.system > 0 && <p>• {formatClassRatio(prog.system)}</p>}
                             {prog.duration > 0 && (
-                              <p>• {formatDuration(prog.duration)} {prog.frequency ? `(${prog.frequency})` : ""}</p>
+                              <p>• {formatDuration(prog.duration)} {prog.frequency > 0 ? `(${formatFrequencyShort(prog.frequency)})` : ""}</p>
                             )}
                             {sp.spp_amount > 0 && (
                               <p className="text-primary-700 font-semibold">

@@ -26,9 +26,9 @@ export interface ProgramItem {
   type: "franchise" | "original";
   logoUrl?: string;
   licenseInfo?: ProgramLicenseInfo;
-  system: string;
+  system: number;
   duration: number;
-  frequency: string;
+  frequency: number;
   features: string[];
 }
 

@@ -18,7 +18,7 @@ import {
   ExternalLink,
   CheckCircle2,
 } from "lucide-react";
-import { formatDuration } from "@/lib/utils";
+import { formatClassRatio, formatDuration, formatFrequency } from "@/lib/utils";
 
 export const metadata = {
   title: "Detail Program Belajar | Uzma Course",
@@ -242,12 +242,12 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
 
           {/* Franchise Details (if applicable) */}
           {program.type === "franchise" && (
-            <Card className="border border-purple-200 shadow-xs overflow-hidden bg-purple-50/20">
-              <CardHeader className="bg-purple-100/50 border-b border-purple-200/60 p-5 flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-purple-200 text-purple-800 flex items-center justify-center font-bold text-sm">
+            <Card className="border border-primary-200 shadow-xs overflow-hidden bg-primary-50/20">
+              <CardHeader className="bg-primary-100/50 border-b border-primary-200/60 p-5 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-primary-200 text-primary-800 flex items-center justify-center font-bold text-sm">
                   <Award className="w-4 h-4" />
                 </div>
-                <h2 className="text-base font-bold text-purple-950">
+                <h2 className="text-base font-bold text-primary-950">
                   Informasi Lisensi Franchise
                 </h2>
               </CardHeader>
@@ -330,7 +330,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
                   Rasio Kelas
                 </span>
                 <p className="text-sm font-bold text-slate-900">
-                  {program.system || "-"}
+                  {formatClassRatio(program.system)}
                 </p>
               </div>
 
@@ -348,7 +348,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
                   Frekuensi Belajar
                 </span>
                 <p className="text-sm font-semibold text-slate-900">
-                  {program.frequency || "-"}
+                  {formatFrequency(program.frequency)}
                 </p>
               </div>
 

@@ -50,3 +50,23 @@ export function formatDuration(minutes: number): string {
   const m = minutes % 60;
   return m > 0 ? `${h} jam ${m} menit` : `${h} jam`;
 }
+
+/** Format class ratio (max students per session) to human-readable Indonesian string */
+export function formatClassRatio(studentsCount: number): string {
+  if (!studentsCount || studentsCount <= 0) return "-";
+  if (studentsCount === 1) return "Privat (1 on 1)";
+  return `1 guru max ${studentsCount} murid`;
+}
+
+/** Format frequency (sessions per week) to human-readable Indonesian string with monthly estimate */
+export function formatFrequency(sessionsPerWeek: number): string {
+  if (!sessionsPerWeek || sessionsPerWeek <= 0) return "-";
+  const monthly = sessionsPerWeek * 4;
+  return `${sessionsPerWeek}x / minggu (${monthly}x / bulan)`;
+}
+
+/** Format frequency (sessions per week) short version */
+export function formatFrequencyShort(sessionsPerWeek: number): string {
+  if (!sessionsPerWeek || sessionsPerWeek <= 0) return "-";
+  return `${sessionsPerWeek}x / minggu`;
+}

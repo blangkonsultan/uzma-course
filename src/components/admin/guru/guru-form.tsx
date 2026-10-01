@@ -13,7 +13,7 @@ import { Card, CardBody } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
 import type { Profile, Program, Branch } from "@/types";
-import { formatDuration } from "@/lib/utils";
+import { formatDuration, formatClassRatio } from "@/lib/utils";
 
 interface GuruFormProps {
   initialData?: Profile;
@@ -236,7 +236,7 @@ export function GuruForm({
                     options={franchisePrograms.map((p) => ({
                       value: p.id,
                       label: `[${p.initials}] ${p.name}`,
-                      description: `${p.system} · ${formatDuration(p.duration)}`,
+                      description: `${formatClassRatio(p.system)} · ${formatDuration(p.duration)}`,
                     }))}
                     values={formData.programs.filter((id) => franchiseIdMap[id])}
                     onChange={(selected) =>
@@ -261,7 +261,7 @@ export function GuruForm({
                     options={originalPrograms.map((p) => ({
                       value: p.id,
                       label: `[${p.initials}] ${p.name}`,
-                      description: `${p.system} · ${formatDuration(p.duration)}`,
+                      description: `${formatClassRatio(p.system)} · ${formatDuration(p.duration)}`,
                     }))}
                     values={formData.programs.filter((id) => originalIdMap[id])}
                     onChange={(selected) =>
