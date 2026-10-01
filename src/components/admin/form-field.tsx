@@ -230,10 +230,12 @@ export function CheckboxGroupField({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <span className="block text-sm font-medium text-slate-700">
-        {label}
-        {required && <span className="text-rose-500 ml-1">*</span>}
-      </span>
+      {label && (
+        <span className="block text-sm font-medium text-slate-700">
+          {label}
+          {required && <span className="text-rose-500 ml-1">*</span>}
+        </span>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {options.map((opt) => {
           const optId = `${id}-${opt.value}`;

@@ -40,11 +40,14 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
     label: `${b.name} (${b.subName})`,
   }));
 
-  const programOptions = PROGRAMS.map((p) => ({
-    value: p.id,
-    label: `[${p.initials}] ${p.name}`,
-    description: `${p.system} · ${p.duration}`,
-  }));
+  const franchisePrograms = PROGRAMS.filter((p) => p.type === "franchise");
+  const originalPrograms = PROGRAMS.filter((p) => p.type === "original");
+  const franchiseIdMap: Record<string, true> = Object.fromEntries(
+    franchisePrograms.map((p) => [p.id, true])
+  );
+  const originalIdMap: Record<string, true> = Object.fromEntries(
+    originalPrograms.map((p) => [p.id, true])
+  );
 
   function updateField<K extends keyof typeof formData>(
     field: K,
@@ -207,16 +210,63 @@ export function GuruForm({ initialData, isEdit = false }: GuruFormProps) {
               disabled={isPending}
             />
 
-            <CheckboxGroupField
-              id="programs"
-              name="programs"
-              label="Program Bimbingan yang Diampu"
-              options={programOptions}
-              values={formData.programs}
-              onChange={(vals) => updateField("programs", vals)}
-              error={fieldErrors.programs}
-              hint="Pilih program kursus yang diajarkan oleh guru ini."
-            />
+            <fieldset className="space-y-4">
+              <legend className="text-sm font-semibold text-slate-700">
+                Program Bimbingan yang Diampu
+              </legend>
+
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                  Program Franchise
+                </p>
+                <CheckboxGroupField
+                  id="programs-franchise"
+                  name="programs"
+                  label=""
+                  options={franchisePrograms.map((p) => ({
+                    value: p.id,
+                    label: `[${p.initials}] ${p.name}`,
+                    description: `${p.system} · ${p.duration}`,
+                  }))}
+                  values={formData.programs.filter((id) => franchiseIdMap[id])}
+                  onChange={(selected) =>
+                    updateField("programs", [
+                      ...formData.programs.filter((id) => !franchiseIdMap[id]),
+                      ...selected,
+                    ])
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                  Program Original Uzma Course
+                </p>
+                <CheckboxGroupField
+                  id="programs-original"
+                  name="programs"
+                  label=""
+                  options={originalPrograms.map((p) => ({
+                    value: p.id,
+                    label: `[${p.initials}] ${p.name}`,
+                    description: `${p.system} · ${p.duration}`,
+                  }))}
+                  values={formData.programs.filter((id) => originalIdMap[id])}
+                  onChange={(selected) =>
+                    updateField("programs", [
+                      ...formData.programs.filter((id) => !originalIdMap[id]),
+                      ...selected,
+                    ])
+                  }
+                />
+              </div>
+
+              {fieldErrors.programs && (
+                <p className="text-xs text-rose-600 font-medium mt-1">
+                  {fieldErrors.programs}
+                </p>
+              )}
+            </fieldset>
           </div>
 
           {isEdit && (

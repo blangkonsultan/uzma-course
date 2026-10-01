@@ -1,13 +1,7 @@
-import type { LucideIcon } from "lucide-react";
 import {
-  BookOpen,
-  Calculator,
   CheckCircle2,
   Clock,
-  Globe,
-  GraduationCap,
   MessageCircle,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { buildWaLink } from "@/lib/whatsapp";
@@ -15,16 +9,9 @@ import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ProgramIcon } from "@/components/landing/program-icon";
 import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
 import type { ProgramsContent } from "@/types/landing";
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  BookOpen,
-  Calculator,
-  Globe,
-  GraduationCap,
-  Sparkles,
-};
 
 export interface ProgramsSectionProps {
   data?: ProgramsContent;
@@ -43,8 +30,6 @@ export function ProgramsSection({ data }: ProgramsSectionProps) {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
           {content.items.map((program) => {
-            const Icon = ICON_MAP[program.icon] || BookOpen;
-
             return (
               <Card
                 key={program.id}
@@ -54,14 +39,28 @@ export function ProgramsSection({ data }: ProgramsSectionProps) {
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center text-primary-700">
-                        <Icon className="w-6 h-6" aria-hidden="true" />
+                        <ProgramIcon
+                          logoUrl={program.logoUrl}
+                          icon={program.icon}
+                          name={program.name}
+                        />
                       </div>
-                      <Badge variant="primary">{program.ageRange}</Badge>
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        <Badge variant="primary">{program.ageRange}</Badge>
+                        {program.type === "franchise" && (
+                          <Badge variant="accent">Berlisensi</Badge>
+                        )}
+                      </div>
                     </div>
 
                     <h3 className="text-lg font-bold text-slate-800 leading-snug">
                       {program.name}
                     </h3>
+                    {program.licenseInfo?.provider && (
+                      <p className="text-[11px] text-slate-500">
+                        oleh {program.licenseInfo.provider}
+                      </p>
+                    )}
                     <p className="text-xs italic text-primary-700 mt-1 font-medium">
                       {program.tagline}
                     </p>

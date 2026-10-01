@@ -6,19 +6,13 @@ import {
   TextareaField,
   SelectField,
 } from "@/components/admin/form-field";
+import { IconSelectField } from "@/components/admin/landing/icon-select-field";
+import { LogoUploadField } from "@/components/admin/landing/logo-upload-field";
 import { SortableItemList } from "@/components/admin/landing/sortable-item-list";
 import { FormActions } from "@/components/admin/landing/form-actions";
 import { Plus, X } from "lucide-react";
 import { updateLandingSection } from "@/app/admin/landing/actions";
 import type { ProgramsContent, ProgramItem } from "@/types/landing";
-
-const ICON_OPTIONS = [
-  { value: "BookOpen", label: "BookOpen (Buku Terbuka / AHE)" },
-  { value: "Sparkles", label: "Sparkles (Bintang Ceria / ASE)" },
-  { value: "Globe", label: "Globe (Bahasa Inggris / BEE)" },
-  { value: "GraduationCap", label: "GraduationCap (Topi Toga / Mapel SD)" },
-  { value: "Calculator", label: "Calculator (Kalkulator / Hitung)" },
-];
 
 interface ProgramsFormProps {
   initialData: ProgramsContent;
@@ -90,6 +84,7 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
             tagline: "Tagline Program",
             description: "Deskripsi singkat program bimbingan belajar.",
             ageRange: "Mulai 4 tahun",
+            type: "original",
             icon: "BookOpen",
             system: "1 guru max 2 murid",
             duration: "30 menit / sesi",
@@ -102,39 +97,6 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
           addButtonText="Tambah Program Baru"
           renderItem={(item, index, updateItem) => (
             <div className="space-y-4 pt-2">
-              <div className="grid sm:grid-cols-3 gap-3">
-                <InputField
-                  id={`prog-initials-${index}`}
-                  label="Inisial Singkat"
-                  value={item.initials}
-                  onChange={(e) =>
-                    updateItem({ ...item, initials: e.target.value.toUpperCase() })
-                  }
-                  hint="Contoh: AHE, BEE, MAPEL"
-                  required
-                />
-                <InputField
-                  id={`prog-id-${index}`}
-                  label="Kode ID Program"
-                  value={item.id}
-                  onChange={(e) =>
-                    updateItem({ ...item, id: e.target.value.toLowerCase().trim() })
-                  }
-                  hint="Huruf kecil unik (misal: ahe, bee)"
-                  required
-                />
-                <SelectField
-                  id={`prog-icon-${index}`}
-                  label="Ikon Tampilan"
-                  options={ICON_OPTIONS}
-                  value={item.icon}
-                  onChange={(e) =>
-                    updateItem({ ...item, icon: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
               <div className="grid sm:grid-cols-2 gap-3">
                 <InputField
                   id={`prog-name-${index}`}
@@ -143,6 +105,7 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
                   onChange={(e) =>
                     updateItem({ ...item, name: e.target.value })
                   }
+                  placeholder="Contoh: Ala Sekolah (ASE)"
                   required
                 />
                 <InputField
@@ -152,9 +115,127 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
                   onChange={(e) =>
                     updateItem({ ...item, tagline: e.target.value })
                   }
+                  placeholder="Contoh: Stimulasi Tumbuh Kembang Sensori & Kognitif"
                   required
                 />
               </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <InputField
+                  id={`prog-initials-${index}`}
+                  label="Inisial Singkat"
+                  value={item.initials}
+                  onChange={(e) =>
+                    updateItem({ ...item, initials: e.target.value.toUpperCase() })
+                  }
+                  hint="Contoh: AHE, ASE, BEE, MAPEL"
+                  required
+                />
+                <InputField
+                  id={`prog-id-${index}`}
+                  label="Kode ID Program"
+                  value={item.id}
+                  onChange={(e) =>
+                    updateItem({ ...item, id: e.target.value.toLowerCase().trim() })
+                  }
+                  hint="Huruf kecil unik (misal: ahe, ase, bee)"
+                  required
+                />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <SelectField
+                  id={`prog-type-${index}`}
+                  label="Kategori Program"
+                  options={[
+                    { value: "franchise", label: "Program Franchise (Berlisensi)" },
+                    { value: "original", label: "Program Original Uzma Course" },
+                  ]}
+                  value={item.type || "original"}
+                  onChange={(e) =>
+                    updateItem({
+                      ...item,
+                      type: e.target.value as "franchise" | "original",
+                    })
+                  }
+                  required
+                />
+
+                <IconSelectField
+                  id={`prog-icon-${index}`}
+                  label="Ikon Tampilan (Fallback)"
+                  value={item.icon}
+                  onChange={(icon) => updateItem({ ...item, icon })}
+                  required
+                />
+              </div>
+
+              {item.type === "franchise" && (
+                <LogoUploadField
+                  value={item.logoUrl}
+                  onChange={(url) => updateItem({ ...item, logoUrl: url })}
+                  programId={item.id}
+                />
+              )}
+              {item.type === "franchise" && (
+                <div className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50/50">
+                  <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
+                    Detail Lisensi
+                  </h4>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <InputField
+                      id={`prog-lic-provider-${index}`}
+                      label="Nama Franchisor"
+                      value={item.licenseInfo?.provider || ""}
+                      onChange={(e) =>
+                        updateItem({
+                          ...item,
+                          licenseInfo: {
+                            ...item.licenseInfo,
+                            provider: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="Ahe Indonesia"
+                      required
+                    />
+                    <InputField
+                      id={`prog-lic-url-${index}`}
+                      label="Website Franchisor"
+                      value={item.licenseInfo?.url || ""}
+                      onChange={(e) =>
+                        updateItem({
+                          ...item,
+                          licenseInfo: {
+                            provider: item.licenseInfo?.provider || "",
+                            ...item.licenseInfo,
+                            url: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <TextareaField
+                    id={`prog-lic-desc-${index}`}
+                    label="Keterangan Lisensi"
+                    value={item.licenseInfo?.description || ""}
+                    onChange={(e) =>
+                      updateItem({
+                        ...item,
+                        licenseInfo: {
+                          provider: item.licenseInfo?.provider || "",
+                          ...item.licenseInfo,
+                          description: e.target.value,
+                        },
+                      })
+                    }
+                    rows={2}
+                    placeholder="Informasi tambahan tentang lisensi program..."
+                  />
+                </div>
+              )}
+
 
               <TextareaField
                 id={`prog-desc-${index}`}

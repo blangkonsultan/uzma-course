@@ -9,6 +9,12 @@ export interface HeroContent {
   secondaryCtaHref: string;
 }
 
+export interface ProgramLicenseInfo {
+  provider: string;
+  url?: string;
+  description?: string;
+}
+
 export interface ProgramItem {
   id: string;
   initials: string;
@@ -17,6 +23,9 @@ export interface ProgramItem {
   description: string;
   ageRange: string;
   icon: string;
+  type: "franchise" | "original";
+  logoUrl?: string;
+  licenseInfo?: ProgramLicenseInfo;
   system: string;
   duration: string;
   frequency: string;

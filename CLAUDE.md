@@ -75,6 +75,7 @@ Each section is a self-contained component importing from `ui/` primitives and `
 - Props interfaces: named `{ComponentName}Props`, exported.
 - Server Components by default. Add `"use client"` only when React hooks or browser APIs are needed.
 - Lucide icons: import individually (`import { BookOpen } from "lucide-react"`), never the entire library.
+- Icon selectors: any admin UI that lets the user pick a Lucide icon MUST render a visual preview of each icon next to its label. Never use a plain text-only `<select>`. Use `IconSelectField` from `src/components/admin/landing/icon-select-field.tsx` or build an equivalent custom dropdown with rendered icon components.
 
 ### Data Flow
 
