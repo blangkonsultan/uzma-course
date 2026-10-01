@@ -37,43 +37,71 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
   const [isLoggingOut, startLogoutTransition] = useTransition();
 
 
-  const navItems = [
+  interface NavItem {
+    label: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+    roles: ("admin" | "guru")[];
+    exact?: boolean;
+  }
+
+  interface NavGroup {
+    title: string;
+    items: NavItem[];
+  }
+
+  const navGroups: NavGroup[] = [
     {
-      label: "Dashboard",
-      href: "/admin",
-      icon: LayoutDashboard,
-      roles: ["admin", "guru"],
-      exact: true,
+      title: "Menu Utama",
+      items: [
+        {
+          label: "Dashboard",
+          href: "/admin",
+          icon: LayoutDashboard,
+          roles: ["admin", "guru"],
+          exact: true,
+        },
+      ],
     },
     {
-      label: "Program",
-      href: "/admin/program",
-      icon: Layers,
-      roles: ["admin"],
+      title: "Data Master",
+      items: [
+        {
+          label: "Data Cabang",
+          href: "/admin/cabang",
+          icon: Building2,
+          roles: ["admin"],
+        },
+        {
+          label: "Program Belajar",
+          href: "/admin/program",
+          icon: Layers,
+          roles: ["admin"],
+        },
+        {
+          label: "Data Guru",
+          href: "/admin/guru",
+          icon: Users,
+          roles: ["admin"],
+        },
+        {
+          label: "Data Murid",
+          href: "/admin/murid",
+          icon: GraduationCap,
+          roles: ["admin", "guru"],
+        },
+      ],
     },
     {
-      label: "Data Guru",
-      href: "/admin/guru",
-      icon: Users,
-      roles: ["admin"],
-    },
-    {
-      label: "Data Murid",
-      href: "/admin/murid",
-      icon: GraduationCap,
-      roles: ["admin", "guru"],
-    },
-    {
-      label: "Data Cabang",
-      href: "/admin/cabang",
-      icon: Building2,
-      roles: ["admin"],
-    },
-    {
-      label: "Landing Page",
-      href: "/admin/landing",
-      icon: LayoutTemplate,
-      roles: ["admin"],
+      title: "Konten & Website",
+      items: [
+        {
+          label: "Landing Page",
+          href: "/admin/landing",
+          icon: LayoutTemplate,
+          roles: ["admin"],
+        },
+      ],
     },
   ];
 
@@ -84,9 +112,12 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
     { label: "Laporan", icon: FileBarChart },
   ];
 
-  const allowedNav = navItems.filter((item) =>
-    item.roles.includes(profile.role)
-  );
+  const allowedGroups = navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => item.roles.includes(profile.role)),
+    }))
+    .filter((group) => group.items.length > 0);
 
   function handleLogout() {
     startLogoutTransition(async () => {
@@ -154,39 +185,41 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
 
         {/* Navigation Links */}
         <div className="flex-1 overflow-y-auto py-5 px-3 space-y-6">
-          <div>
-            <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-              Menu Utama
-            </p>
-            <nav className="space-y-1">
-              {allowedNav.map((item) => {
-                const isActive = item.exact
-                  ? pathname === item.href
-                  : pathname.startsWith(item.href);
-                const Icon = item.icon;
+          {allowedGroups.map((group) => (
+            <div key={group.title}>
+              <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                {group.title}
+              </p>
+              <nav className="space-y-1">
+                {group.items.map((item) => {
+                  const isActive = item.exact
+                    ? pathname === item.href
+                    : pathname.startsWith(item.href);
+                  const Icon = item.icon;
 
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3.5 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      isActive
-                        ? "bg-primary-50 text-primary-700 shadow-xs font-semibold"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
-                  >
-                    <Icon
-                      className={`w-4 h-4 shrink-0 ${
-                        isActive ? "text-primary-600" : "text-slate-400"
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-3.5 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        isActive
+                          ? "bg-primary-50 text-primary-700 shadow-xs font-semibold"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                       }`}
-                    />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+                    >
+                      <Icon
+                        className={`w-4 h-4 shrink-0 ${
+                          isActive ? "text-primary-600" : "text-slate-400"
+                        }`}
+                      />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          ))}
 
           <div>
             <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
