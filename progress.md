@@ -1,5 +1,68 @@
 # Progress Log — Uzma Course
 
+## Current State
+
+**Last Updated:** 2026-10-01 19:40
+**Session ID:** 2026-10-01-harness
+**Current Objective:** Complete harness implementation, automated testing infrastructure, and project agent instructions.
+**Recommended Next Step:** Phase 2b ERP - Teacher Presence & Geolocation (`feat-008`).
+
+### What's Done
+
+- [x] Standardized mobile card layout with reusable `MasterMobileCard` across Master Program, Guru, and Murid (`feat-006`).
+- [x] Established Vitest automated testing suite with 20 passing unit tests (`feat-007`).
+- [x] Created `init.sh` standard verification entrypoint (`npm run lint && npm test && npm run build`).
+- [x] Created `feature_list.json` tracking 10 core features with dependency graph and explicit status.
+- [x] Created `session-handoff.md` template for clean session transitions.
+- [x] Updated project documentation in `CLAUDE.md` and `AGENTS.md`.
+
+### What's In Progress
+
+- [ ] Verifying 100/100 harness validation and testing restartability.
+  - Details: run `validate-harness.mjs` and execute `./init.sh`.
+  - Blockers: None.
+
+### What's Next
+
+1. Run `./init.sh` and ensure fast failure on broken state.
+2. Verify zero harness validator bottlenecks.
+3. Commit harness artifacts to git repository.
+
+## Blockers / Risks
+
+- [ ] None currently blocking. All builds and test suites are passing.
+
+## Decisions Made
+
+- **Reusable MasterMobileCard**: Encapsulated standard 5-row responsive mobile card layout in `src/components/admin/master-mobile-card.tsx` to prevent UI drift across master menus.
+- **Vitest over Jest**: Selected Vitest for native ESM and Next.js 16/Turbopack compatibility with sub-second execution times.
+- **Preserve Next.js in AGENTS.md**: Maintained the auto-generated Next.js header in `AGENTS.md` while adding comprehensive harness instructions.
+
+## Files Modified This Session
+
+- `src/components/admin/master-mobile-card.tsx` - Reusable master mobile card component
+- `src/app/admin/guru/page.tsx` - Refactored to use MasterMobileCard
+- `src/app/admin/murid/page.tsx` - Refactored to use MasterMobileCard
+- `src/app/admin/program/page.tsx` - Refactored to use MasterMobileCard
+- `src/lib/utils.ts` - Robust parsing in format helpers
+- `tests/utils.test.ts` - Unit tests for utility functions
+- `tests/whatsapp.test.ts` - Unit tests for WhatsApp link builder
+- `tests/landing-content.test.ts` - Unit tests for default landing content
+- `vitest.config.mts` - Vitest configuration file
+- `init.sh` - Standard verification and startup script
+- `feature_list.json` - Feature state and dependency tracker
+- `session-handoff.md` - Session handoff template
+- `progress.md` - Progress log and restart state
+- `AGENTS.md` - Agent harness instructions
+- `CLAUDE.md` - Claude agent harness instructions
+
+## Evidence of Completion
+
+- [x] Tests pass: `npm test` - 3 test files passed, 20 tests passed in 302ms.
+- [x] Linter clean: `npm run lint` - 0 errors, 0 warnings.
+- [x] Production build clean: `npm run build` - Compiled successfully in 1.3s with Turbopack.
+- [x] Full harness verification: `./init.sh` - passes with `set -e`.
+
 ## Session: 2026-09-30 (Phase 1 — Public Landing Page & Project Foundation)
 
 ### Summary of Completed Work

@@ -1,0 +1,84 @@
+{
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "Public Landing Page & Showcase",
+      "description": "Public responsive landing page with program catalog, facilities, teacher profile, authentic gallery, parent testimonials, branch locations, and WhatsApp CTAs",
+      "dependencies": [],
+      "status": "completed",
+      "evidence": "Deployed and verified live on production domain https://uzmacourse.com with zero console errors"
+    },
+    {
+      "id": "feat-002",
+      "name": "Landing Page CMS (14 Sections)",
+      "description": "Dynamic landing page content management system powered by Supabase landing_content table, server actions, and sortable item list forms with live image normalizer",
+      "dependencies": ["feat-001"],
+      "status": "completed",
+      "evidence": "All 14 sections (hero, programs, why_us, facilities, team, gallery, testimonials, videos, locations, faq, cta, footer, navbar, floating_wa) editable with revalidatePath"
+    },
+    {
+      "id": "feat-003",
+      "name": "Master Data Program Belajar",
+      "description": "Admin CRUD management for educational programs, fee structures, class ratios (system), and weekly session frequencies (frequency)",
+      "dependencies": ["feat-001"],
+      "status": "completed",
+      "evidence": "Migration 20261001070000_system_frequency_to_integer.sql applied, UI supports number inputs with preview, verified on /admin/program"
+    },
+    {
+      "id": "feat-004",
+      "name": "Master Data Guru / Pendidik",
+      "description": "Admin management of teachers, qualifications, contact info, branch placements, assigned programs, and active/inactive status toggles",
+      "dependencies": ["feat-003"],
+      "status": "completed",
+      "evidence": "Server actions at /admin/guru/actions.ts, GuruStatusButton with optimistic toggle, verified on /admin/guru"
+    },
+    {
+      "id": "feat-005",
+      "name": "Master Data Murid",
+      "description": "Admin management of student enrollments, guardian WhatsApp contacts, branch assignments, enrolled programs, and active status toggles",
+      "dependencies": ["feat-003", "feat-004"],
+      "status": "completed",
+      "evidence": "Server actions at /admin/murid/actions.ts, StudentStatusButton, verified on /admin/murid"
+    },
+    {
+      "id": "feat-006",
+      "name": "Master Mobile Card Standard",
+      "description": "Standardized 5-row responsive mobile card component (MasterMobileCard) across all master menus with 40px touch action bars and clean visual hierarchy",
+      "dependencies": ["feat-003", "feat-004", "feat-005"],
+      "status": "completed",
+      "evidence": "Reusable component src/components/admin/master-mobile-card.tsx integrated across program, guru, and murid pages; passed impeccable audit (0 violations)"
+    },
+    {
+      "id": "feat-007",
+      "name": "Vitest Automated Unit Testing Suite",
+      "description": "Automated unit test framework covering utils, WhatsApp URL builder, and landing page content defaults",
+      "dependencies": ["feat-001"],
+      "status": "completed",
+      "evidence": "20 unit tests pass in ~300ms via npm test (vitest run)"
+    },
+    {
+      "id": "feat-008",
+      "name": "Phase 2b ERP - Teacher Presence & Geolocation",
+      "description": "Teacher mobile attendance check-in and check-out verified against branch coordinates with radius validation",
+      "dependencies": ["feat-004"],
+      "status": "not-started",
+      "evidence": ""
+    },
+    {
+      "id": "feat-009",
+      "name": "Phase 2b ERP - Teaching Log & Student Session Cards",
+      "description": "Digital learning progress card (kartu kendali les) recording student lesson achievements and teacher notes per session",
+      "dependencies": ["feat-005", "feat-008"],
+      "status": "not-started",
+      "evidence": ""
+    },
+    {
+      "id": "feat-010",
+      "name": "Phase 2b ERP - Payroll & Student Billing",
+      "description": "Automated monthly teacher payout calculations based on session attendance and student SPP tuition invoicing",
+      "dependencies": ["feat-008", "feat-009"],
+      "status": "not-started",
+      "evidence": ""
+    }
+  ]
+}

@@ -7,3 +7,84 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Agent Operating Harness — Uzma Course
+
+Project harness for reliable agent-assisted development on Uzma Course.
+
+## Startup Workflow
+
+Before writing code:
+
+1. **Confirm working directory** with `pwd` (must be `~/projects/laragon/uzma-course`)
+2. **Read this file** and `CLAUDE.md` completely
+3. **Run `./init.sh`** to verify environment is healthy
+4. **Read `feature_list.json`** to see current feature state and dependencies
+5. **Read `progress.md`** and `session-handoff.md` for session continuity
+6. **Review recent commits** with `git log --oneline -5`
+
+If baseline verification is failing, repair that first before adding new scope.
+
+## Working Rules
+
+- **One feature at a time**: Pick exactly one unfinished feature from `feature_list.json`
+- **Stay in scope**: Do not modify files unrelated to the active feature
+- **Verification required**: Don't claim done without running `./init.sh` or documented verification commands
+- **Update artifacts**: Before ending session, update `progress.md`, `session-handoff.md`, and `feature_list.json`
+- **Leave clean state**: Next session must be able to run `./init.sh` immediately and be restartable
+
+## Required Artifacts
+
+- `feature_list.json` — Feature state tracker and dependency tree (source of truth)
+- `progress.md` — Session continuity log with current state, restart markers, and evidence
+- `init.sh` — Standard startup and verification entrypoint (`set -e`)
+- `session-handoff.md` — Handoff documentation for multi-session work
+
+## Definition of Done
+
+A feature is done only when ALL of the following are true:
+
+- [ ] Target behavior is implemented
+- [ ] `./init.sh` succeeds with zero errors (lint, tests, build)
+- [ ] `npm run lint` passes with zero errors/warnings
+- [ ] `npm test` succeeds with zero failures (vitest)
+- [ ] `npm run build` succeeds with zero errors
+- [ ] Responsive verified at 360px, 375px, and 1280px+ with 0 horizontal overflow
+- [ ] Evidence recorded in `feature_list.json` or `progress.md`
+- [ ] Repository remains restartable from standard startup path
+
+## End of Session
+
+Before ending a session:
+
+1. Update `progress.md` with current state and evidence.
+2. Update `feature_list.json` with new feature status.
+3. Update `session-handoff.md` with blockers, files, and recommended next step.
+4. Commit with descriptive message once work is in safe state.
+5. Leave repo clean enough for next session to run `./init.sh` immediately.
+
+## Verification Commands
+
+```bash
+# Full verification entrypoint
+./init.sh
+```
+
+Required checks:
+- `npm run lint` — ESLint
+- `npm test` — Vitest unit test suite
+- `npm run build` — Next.js Turbopack production build
+
+## Project Overview
+
+**Uzma Course** — a tutoring center web app with two active modules:
+1. **Public Landing Page**: Dynamic showcase with categorized gallery (Lisensi, Wisuda, Kegiatan), program catalog, WhatsApp CTAs, testimonials, video embeds, and branch locations.
+2. **Internal Admin & Teacher Portal**: Master Program Belajar, Master Guru, Master Murid, and 14-section Landing Page CMS.
+
+Stack: Next.js 16 (Turbopack) · React 19 · Vitest · Supabase (Auth + Postgres) · Tailwind CSS v4 · TypeScript · Vercel.
+
+## Testing Accounts
+
+- **Admin Portal**: `admin@uzmacourse.com` / `admin123456`
+  - Login URL: `http://localhost:3000/login` or `https://uzmacourse.com/login`
+  - Role: `admin` (Full access to Master Data & CMS)
