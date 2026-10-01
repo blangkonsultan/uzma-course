@@ -9,7 +9,7 @@ import { Pagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
 import { GuruStatusButton } from "@/components/admin/guru/guru-status-button";
 import type { Profile } from "@/types";
-import { Plus, Edit2, Phone, MapPin } from "lucide-react";
+import { Plus, Edit2, Phone, MapPin, MessageCircle } from "lucide-react";
 import { getPrograms } from "@/lib/programs";
 import { getBranches } from "@/lib/branches";
 
@@ -29,6 +29,14 @@ interface GuruPageProps {
 type ProfileWithPrograms = Profile & {
   profile_programs?: { program_id: string }[];
 };
+function getInitials(name: string): string {
+  if (!name) return "GR";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+}
 
 export default async function GuruPage({ searchParams }: GuruPageProps) {
   const supabase = await createClient();
@@ -239,8 +247,122 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
         data={guruList || []}
         keyExtractor={(item) => item.id}
         emptyStateMessage="Tidak ada data guru yang sesuai dengan filter pencarian."
-      />
+        mobileCard={(guru) => {
+          const branchName = guru.branch_id
+            ? branchMap[guru.branch_id] ?? guru.branch_id
+            : "Belum ditentukan";
+          const initials = getInitials(guru.full_name);
+          const cleanPhone = guru.phone?.replace(/[^0-9]/g, "");
 
+          return (
+            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+              {/* Header: Avatar, Name, Email, Status */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs shrink-0">
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <Link
+                      href={`/admin/guru/${guru.id}/edit`}
+                      className="font-semibold text-slate-900 hover:text-primary-600 transition-colors text-sm leading-tight block truncate"
+                    >
+                      {guru.full_name}
+                    </Link>
+                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+                      Pengajar • {branchName}
+                    </p>
+                  </div>
+                </div>
+                <StatusBadge isActive={guru.is_active} />
+              </div>
+
+              {/* Pills / Badges Row */}
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200/80">
+                  <MapPin className="w-3 h-3 text-slate-500 shrink-0" />
+                  <span>{branchName}</span>
+                </div>
+                {guru.phone ? (
+                  <span className="text-slate-500 text-[11px] inline-flex items-center gap-1">
+                    <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <strong className="text-slate-700 font-medium">{guru.phone}</strong>
+                  </span>
+                ) : (
+                  <span className="text-slate-400 text-[11px]">HP: Belum ada</span>
+                )}
+              </div>
+
+              {/* Summary Specs Box (Two-column Key-Value summary box) */}
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">
+                    Program Diampu
+                  </span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {guru.profile_programs && guru.profile_programs.length > 0 ? (
+                      guru.profile_programs.map((pp) => {
+                        const prog = programMap[pp.program_id];
+                        return (
+                          <span
+                            key={pp.program_id}
+                            title={prog?.name ?? pp.program_id}
+                            className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200/80"
+                          >
+                            {prog?.initials ?? pp.program_id}
+                          </span>
+                        );
+                      })
+                    ) : (
+                      <span className="font-semibold text-slate-600 text-xs">Semua Program</span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">
+                    Penempatan Cabang
+                  </span>
+                  <span className="font-semibold text-slate-800 block mt-1 truncate">
+                    {branchName}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons Bar */}
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <Link
+                  href={`/admin/guru/${guru.id}/edit`}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 h-10 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-2xs"
+                >
+                  <Edit2 className="w-3.5 h-3.5" />
+                  <span>Edit Guru</span>
+                </Link>
+                {cleanPhone ? (
+                  <a
+                    href={`https://wa.me/${cleanPhone}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 h-10 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors shadow-2xs"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>WhatsApp</span>
+                  </a>
+                ) : null}
+                <GuruStatusButton
+                  guruId={guru.id}
+                  guruName={guru.full_name}
+                  isActive={guru.is_active}
+                  className={`inline-flex items-center justify-center w-10 h-10 rounded-xl border transition-colors shadow-2xs shrink-0 ${
+                    guru.is_active
+                      ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
+                      : "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                  }`}
+                />
+              </div>
+            </div>
+          );
+        }}
+      />
       <Pagination
         currentPage={page}
         totalPages={totalPages}

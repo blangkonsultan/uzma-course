@@ -254,7 +254,7 @@ export default async function AdminLandingPage({ searchParams }: LandingPageProp
 
                   <Link
                     href={`/admin/landing/${section.slug}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-lg text-xs font-semibold bg-primary-50 text-primary-700 hover:bg-primary-600 hover:text-white transition-colors min-h-[36px] sm:min-h-0"
+                    className="inline-flex items-center gap-1.5 px-3.5 h-9 rounded-xl text-xs font-semibold bg-primary-50 text-primary-700 hover:bg-primary-600 hover:text-white transition-colors shadow-2xs shrink-0"
                   >
                     <Edit3 className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                     <span>Edit Konten</span>

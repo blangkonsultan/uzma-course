@@ -9,16 +9,19 @@ interface GuruStatusButtonProps {
   guruId: string;
   guruName: string;
   isActive: boolean;
+  showLabel?: boolean;
+  className?: string;
 }
 
 export function GuruStatusButton({
   guruId,
   guruName,
   isActive,
+  showLabel = false,
+  className,
 }: GuruStatusButtonProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-
   function handleConfirm() {
     startTransition(async () => {
       try {
@@ -39,18 +42,24 @@ export function GuruStatusButton({
       <button
         type="button"
         onClick={() => setDialogOpen(true)}
-        className={`p-1.5 rounded-lg transition-colors ${
-          isActive
-            ? "text-rose-600 hover:bg-rose-50"
-            : "text-emerald-600 hover:bg-emerald-50"
-        }`}
+        className={
+          className ||
+          `p-1.5 rounded-lg transition-colors ${
+            isActive
+              ? "text-rose-600 hover:bg-rose-50"
+              : "text-emerald-600 hover:bg-emerald-50"
+          }`
+        }
         title={isActive ? "Nonaktifkan Guru" : "Aktifkan Guru"}
         aria-label={isActive ? `Nonaktifkan ${guruName}` : `Aktifkan ${guruName}`}
       >
         {isActive ? (
-          <UserX className="w-4 h-4" />
+          <UserX className="w-4 h-4 shrink-0" />
         ) : (
-          <UserCheck className="w-4 h-4" />
+          <UserCheck className="w-4 h-4 shrink-0" />
+        )}
+        {showLabel && (
+          <span>{isActive ? "Nonaktifkan" : "Aktifkan"}</span>
         )}
       </button>
 
