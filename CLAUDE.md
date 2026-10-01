@@ -4,11 +4,11 @@ Project harness for agent-assisted development on Uzma Course.
 
 ## Project Overview
 
-**Uzma Course** — a tutoring center web app with two modules:
-1. **Public Landing Page** (Phase 1 — current): Program showcase, WhatsApp CTA, branch locations.
-2. **Internal Mini ERP** (Phase 2 — planned): User management, session scheduling, teacher pay, student billing, reports.
+**Uzma Course** — a tutoring center web app with two active modules:
+1. **Public Landing Page**: Dynamic showcase with categorized gallery (Lisensi, Wisuda, Kegiatan), program catalog, WhatsApp CTAs, testimonials, video embeds, and branch locations.
+2. **Internal Admin & Teacher Portal**: Master Program Belajar, Master Guru, Master Murid, and 14-section Landing Page CMS.
 
-Stack: Next.js 16 (App Router) · React 19 · Supabase (Auth + Postgres) · Tailwind CSS · TypeScript · Vercel.
+Stack: Next.js 16 (Turbopack) · React 19 · Vitest · Supabase (Auth + Postgres) · Tailwind CSS v4 · TypeScript · Vercel.
 
 ## Startup Workflow
 
@@ -24,6 +24,8 @@ Stack: Next.js 16 (App Router) · React 19 · Supabase (Auth + Postgres) · Tail
 npm run dev          # Next.js dev server (Turbopack)
 npm run build        # Production build
 npm run lint         # ESLint
+npm test             # Vitest unit test suite
+npm run test:watch   # Vitest interactive watcher
 ```
 
 ## Architecture
@@ -33,24 +35,29 @@ npm run lint         # ESLint
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── (public)/           # Landing page routes (future: multi-page public)
-│   ├── admin/              # ERP routes (Phase 2, protected by middleware)
-│   ├── api/                # Route handlers
+│   ├── page.tsx            # Public landing page (composes landing sections)
+│   ├── login/              # Portal authentication (admin & teacher)
+│   ├── admin/              # Protected admin ERP & CMS routes
+│   │   ├── guru/           # Master Guru list, tambah, edit, server actions
+│   │   ├── murid/          # Master Murid list, tambah, detail, edit, server actions
+│   │   ├── program/        # Master Program list, tambah, detail, edit, server actions
+│   │   └── landing/        # Landing Page CMS (14 section editors & actions)
 │   ├── layout.tsx          # Root layout (Poppins font, metadata, skip-link)
-│   ├── page.tsx            # Landing page (composes landing sections)
 │   ├── robots.ts
 │   └── sitemap.ts
 ├── components/
-│   ├── landing/            # Landing page section components
+│   ├── admin/              # Admin CMS & ERP components (forms, tables, MasterMobileCard)
+│   ├── landing/            # Landing page section components (hero, gallery, etc.)
 │   └── ui/                 # Reusable UI primitives (Button, Card, Badge, etc.)
 ├── lib/
-│   ├── constants.ts        # PROGRAMS, BRANCHES, PROMO_VIDEOS, WA_NUMBER
-│   ├── whatsapp.ts         # buildWaLink() utility
-│   ├── utils.ts            # cn() and shared utilities
+│   ├── constants.ts        # Programs, branches, WA config
+│   ├── landing-content.ts  # Supabase CMS data fetcher & DEFAULT_LANDING_CONTENT
+│   ├── programs.ts         # Master programs database query & mappers
+│   ├── utils.ts            # Formatting helpers, image normalizer, cn()
 │   └── supabase/           # Supabase client (client.ts, server.ts, middleware.ts)
-├── hooks/                  # Custom React hooks
-├── types/                  # TypeScript type definitions
-└── proxy.ts                # Supabase auth session refresh (/admin/* only)
+├── types/                  # TypeScript interfaces (landing.ts, database.ts, index.ts)
+└── proxy.ts                # Next.js edge proxy & auth session protection
+tests/                      # Vitest unit test suites (utils, whatsapp, landing-content)
 ```
 
 ### Component Architecture
@@ -79,10 +86,15 @@ Each section is a self-contained component importing from `ui/` primitives and `
 
 ### Data Flow
 
-- **Landing page**: All data from `src/lib/constants.ts` (static). No API calls, no Supabase.
+- **Landing page**: Dynamic data fetched from Supabase `landing_content` & `programs` tables via `src/lib/landing-content.ts` and `src/lib/programs.ts`, with resilient static fallback to `DEFAULT_LANDING_CONTENT`.
+- **Admin CMS & ERP**: Server Actions colocated in `/admin/{module}/actions.ts`, protected with `requireAdmin()` and Supabase server client.
 - **WhatsApp links**: All generated via `buildWaLink(context?)` from `src/lib/whatsapp.ts`.
-- **ERP (Phase 2)**: Server Actions in `src/app/admin/actions/`, Supabase server client, Zod validation.
+- **Image assets**: Remote images (Google Drive, external CDN) MUST be normalized via `normalizeImageUrl()` from `@/lib/utils` with `referrerPolicy="no-referrer"`.
 
+### Testing Accounts
+- **Admin Portal**: `admin@uzmacourse.com` / `admin123456`
+  - Login URL: `http://localhost:3000/login` or `https://uzmacourse.com/login`
+  - Role: `admin` (Full access to Master Data & CMS)
 ### Database Policy
 
 All schema changes via Supabase CLI migrations only (`supabase/migrations/`). Never inject SQL directly in dashboard or via `supabase db execute`. Create migrations with `npx supabase migration new <name>`, apply with `npx supabase db push`.
@@ -137,6 +149,7 @@ Setiap halaman master baru (misal: Master Cabang, Master Ruangan, Master Jadwal,
 - [ ] Target behavior implemented
 - [ ] `npm run build` succeeds with zero errors
 - [ ] `npm run lint` passes
+- [ ] `npm test` succeeds with zero failures
 - [ ] Responsive verified at 360px, 375px, and 1280px+ with 0 horizontal overflow, comfortable touch targets (min 36–44px), and zero broken/clipped elements
 - [ ] All new components follow ui/ primitives pattern
 - [ ] Evidence recorded in `progress.md`
