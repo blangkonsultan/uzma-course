@@ -239,7 +239,7 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                             <button
                               type="button"
                               onClick={() => handleRemoveImage(imgIndex)}
-                              className="self-end sm:self-center p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              className="self-end sm:self-center w-9 h-9 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 rounded-lg transition-colors"
                               title="Hapus foto ini"
                               aria-label="Hapus foto"
                             >

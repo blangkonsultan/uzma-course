@@ -47,23 +47,23 @@ export function ProgramsForm({ initialData }: ProgramsFormProps) {
       )}
 
       {/* Info Notice about Centralized Master Program */}
-      <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-purple-900">
+      <div className="bg-primary-50/70 border border-primary-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-primary-900">
         <div className="flex items-start gap-3">
-          <div className="p-2 rounded-xl bg-purple-100 text-purple-700 shrink-0 mt-0.5">
+          <div className="p-2 rounded-xl bg-primary-100 text-primary-700 shrink-0 mt-0.5">
             <Layers className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-purple-950">
+            <h3 className="text-sm font-bold text-primary-950">
               Pengelolaan Daftar Program Terpusat
             </h3>
-            <p className="text-xs text-purple-800/90 mt-0.5 leading-relaxed">
+            <p className="text-xs text-primary-800/90 mt-0.5 leading-relaxed">
               Daftar program belajar, kurikulum, atribusi lisensi franchise, dan logo sekarang dikelola langsung melalui database Master Program.
             </p>
           </div>
         </div>
         <Link
           href="/admin/program"
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs transition-colors shrink-0 shadow-xs"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs transition-colors shrink-0 shadow-xs"
         >
           <span>Master Program</span>
           <ArrowRight className="w-3.5 h-3.5" />

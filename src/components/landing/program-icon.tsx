@@ -16,6 +16,7 @@ export function ProgramIcon({ logoUrl, icon, name }: ProgramIconProps) {
 
   if (logoUrl && !imgError) {
     return (
+      /* eslint-disable-next-line @next/next/no-img-element */
       <img
         src={logoUrl}
         alt={`Logo ${name}`}

@@ -90,7 +90,7 @@ export function GallerySection({ data }: GallerySectionProps) {
                 type="button"
                 onClick={() => setActiveCategory("all")}
                 className={cn(
-                  "px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 cursor-pointer",
+                  "min-h-[40px] px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 cursor-pointer flex items-center justify-center",
                   activeCategory === "all"
                     ? "bg-primary-600 text-white shadow-xs"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -104,7 +104,7 @@ export function GallerySection({ data }: GallerySectionProps) {
                   type="button"
                   onClick={() => setActiveCategory(group.label)}
                   className={cn(
-                    "px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 cursor-pointer",
+                    "min-h-[40px] px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 cursor-pointer flex items-center justify-center",
                     activeCategory === group.label
                       ? "bg-primary-600 text-white shadow-xs"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -235,7 +235,7 @@ export function GallerySection({ data }: GallerySectionProps) {
                       <button
                         type="button"
                         onClick={() => toggleExpandGroup(group.label)}
-                        className="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200/80 text-slate-700 hover:text-primary-600 hover:border-primary-200 hover:bg-primary-50/50 text-xs sm:text-sm font-semibold transition-all shadow-2xs cursor-pointer active:scale-95"
+                        className="inline-flex items-center gap-2 min-h-[40px] px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200/80 text-slate-700 hover:text-primary-600 hover:border-primary-200 hover:bg-primary-50/50 text-xs sm:text-sm font-semibold transition-all shadow-2xs cursor-pointer active:scale-95"
                       >
                         {isExpanded ? (
                           <>

@@ -58,13 +58,13 @@ export function Navbar({ data }: NavbarProps) {
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
           {content.navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-md px-1 py-0.5",
+                "text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-md px-2 py-1.5",
                 scrolled
                   ? "text-slate-600 hover:text-primary-700"
                   : "text-white/90 hover:text-white"
@@ -74,9 +74,8 @@ export function Navbar({ data }: NavbarProps) {
             </a>
           ))}
         </nav>
-
         {/* Desktop CTA */}
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <Button
             href={buildWaLink()}
             size="sm"
@@ -95,7 +94,7 @@ export function Navbar({ data }: NavbarProps) {
           type="button"
           onClick={() => setMobileMenuOpen((prev) => !prev)}
           className={cn(
-            "md:hidden p-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
+            "lg:hidden p-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
             scrolled
               ? "text-slate-700 hover:bg-slate-100"
               : "text-white hover:bg-white/10"
@@ -113,7 +112,7 @@ export function Navbar({ data }: NavbarProps) {
 
       {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-4 pb-6 space-y-3 shadow-xl">
+        <div className="lg:hidden bg-white border-b border-slate-200 px-4 pt-4 pb-6 space-y-3 shadow-xl">
           <nav className="flex flex-col space-y-2">
             {content.navLinks.map((link) => (
               <a

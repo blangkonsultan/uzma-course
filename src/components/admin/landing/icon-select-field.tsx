@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useId } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   BookOpen,
   Sparkles,
@@ -172,6 +172,7 @@ export function IconSelectField({
       <div className="relative">
         <button
           type="button"
+          role="combobox"
           id={id}
           aria-haspopup="listbox"
           aria-expanded={isOpen}

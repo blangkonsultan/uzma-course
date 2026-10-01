@@ -38,9 +38,9 @@ export function FloatingWhatsApp({ data }: FloatingWhatsAppProps) {
         rel="noopener noreferrer"
         aria-label="Chat via WhatsApp"
         className={cn(
-          "w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300",
+          "w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl hover:shadow-green-500/25 flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2",
-          animate && "animate-bounce"
+          animate && "ring-4 ring-green-400/50 ring-offset-2"
         )}
       >
         <MessageCircle className="w-7 h-7" aria-hidden="true" />

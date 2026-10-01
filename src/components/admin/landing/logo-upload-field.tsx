@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useTransition } from "react";
-import { Upload, X, Loader2, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uploadProgramLogo, deleteProgramLogo } from "@/app/admin/landing/upload-logo";
 
@@ -101,6 +101,7 @@ export function LogoUploadField({
       {value ? (
         <div className="flex items-center gap-4">
           <div className="relative w-16 h-16 rounded-lg bg-white border border-slate-200 flex items-center justify-center p-1 overflow-hidden shrink-0 shadow-xs">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={value}
               alt="Logo Franchise"
