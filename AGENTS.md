@@ -71,9 +71,12 @@ Before ending a session:
 ```
 
 Required checks:
+- `npm run dev` — Next.js dev server (Turbopack, bound to 0.0.0.0:3000)
 - `npm run lint` — ESLint
 - `npm test` — Vitest unit test suite
 - `npm run build` — Next.js Turbopack production build
+- `npx supabase migration new <name>` — Create new migration
+- `npx supabase db push --db-url "$DATABASE_URL"` — Apply migrations to database
 
 ## Project Overview
 

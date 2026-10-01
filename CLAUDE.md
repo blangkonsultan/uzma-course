@@ -44,11 +44,15 @@ If baseline verification is failing, repair that first before adding new scope.
 ./init.sh
 
 # Individual commands
-npm run dev          # Next.js dev server (Turbopack)
+npm run dev          # Next.js dev server (Turbopack, bound to 0.0.0.0:3000)
 npm run build        # Production build
 npm run lint         # ESLint
 npm test             # Vitest unit test suite
 npm run test:watch   # Vitest interactive watcher
+
+# Database migrations (Supabase CLI)
+npx supabase migration new <name>
+npx supabase db push --db-url "$DATABASE_URL"
 ```
 ## Architecture
 
