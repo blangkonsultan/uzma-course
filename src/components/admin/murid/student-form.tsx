@@ -26,6 +26,7 @@ interface StudentFormProps {
 type DiscountType = "none" | "nominal" | "percentage";
 
 interface StudentProgramState {
+  status?: string;
   program_id: string;
   variant_id: string;
   spp_amount: number;
@@ -64,6 +65,7 @@ export function StudentForm({
         on_time_discount_type: (sp.on_time_discount_type as "none" | "nominal" | "percentage") || "none",
         on_time_discount_value: sp.on_time_discount_value ?? 0,
         cycle_start_date: sp.cycle_start_date || new Date().toISOString().split('T')[0],
+        status: (sp as Record<string, unknown>).status as string || "active",
       }));
     }
     return [];
@@ -109,6 +111,7 @@ export function StudentForm({
           on_time_discount_type: "none",
           on_time_discount_value: 0,
           cycle_start_date: new Date().toISOString().split('T')[0],
+          status: "active",
         }
       ]);
     } else {
@@ -425,6 +428,20 @@ export function StudentForm({
                           value={sp.variant_id}
                           onChange={(e) => updateStudentProgram(sp.program_id, "variant_id", e.target.value)}
                           error={fieldErrors[`variant_${sp.program_id}`]}
+                          disabled={isPending}
+                        />
+                        <SelectField
+                          id={`status_${sp.program_id}`}
+                          name={`status_${sp.program_id}`}
+                          label="Status Program"
+                          required
+                          options={[
+                            { value: 'active', label: 'Sedang Aktif' },
+                            { value: 'graduated', label: 'Lulus' },
+                            { value: 'inactive', label: 'Berhenti / Tidak Aktif' }
+                          ]}
+                          value={sp.status || 'active'}
+                          onChange={(e) => updateStudentProgram(sp.program_id, "status", e.target.value)}
                           disabled={isPending}
                         />
                         <InputField

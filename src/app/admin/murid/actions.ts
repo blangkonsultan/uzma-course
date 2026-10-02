@@ -45,7 +45,7 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
   const notes = formData.get("notes")?.toString().trim() || "";
   
   const studentProgramsJson = formData.get("student_programs_json")?.toString();
-  let studentPrograms: { program_id: string; variant_id: string; spp_amount: number; on_time_discount_type: 'none' | 'nominal' | 'percentage'; on_time_discount_value: number; cycle_start_date: string }[] = [];
+  let studentPrograms: { program_id: string; variant_id: string; spp_amount: number; on_time_discount_type: "none" | "nominal" | "percentage"; on_time_discount_value: number; cycle_start_date: string; status?: string }[] = [];
   try {
     if (studentProgramsJson) {
       studentPrograms = JSON.parse(studentProgramsJson);
@@ -108,6 +108,7 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
           on_time_discount_type: sp.on_time_discount_type,
           on_time_discount_value: sp.on_time_discount_value,
           cycle_start_date: sp.cycle_start_date,
+          status: sp.status || "active",
         }))
       );
 
@@ -135,7 +136,7 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
   const isActive = formData.get("is_active") === "true";
 
   const studentProgramsJson = formData.get("student_programs_json")?.toString();
-  let studentPrograms: { program_id: string; variant_id: string; spp_amount: number; on_time_discount_type: 'none' | 'nominal' | 'percentage'; on_time_discount_value: number; cycle_start_date: string }[] = [];
+  let studentPrograms: { program_id: string; variant_id: string; spp_amount: number; on_time_discount_type: "none" | "nominal" | "percentage"; on_time_discount_value: number; cycle_start_date: string; status?: string }[] = [];
   try {
     if (studentProgramsJson) {
       studentPrograms = JSON.parse(studentProgramsJson);
@@ -208,6 +209,7 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
           on_time_discount_type: sp.on_time_discount_type,
           on_time_discount_value: sp.on_time_discount_value,
           cycle_start_date: sp.cycle_start_date,
+          status: sp.status || "active",
         }))
       );
 
