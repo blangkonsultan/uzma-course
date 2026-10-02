@@ -101,7 +101,7 @@ export default async function ProgramListPage() {
       cell: (prog) => (
         <div className="text-xs text-slate-600">
           <p className="font-medium text-slate-800">{formatClassRatio(prog.system)}</p>
-          <p className="text-slate-400 text-[11px]">{formatDuration(prog.duration)} • {formatFrequencyShort(prog.frequency)}</p>
+          <p className="text-slate-400 text-[11px]">{formatDuration(prog.duration)} • {formatFrequencyShort(prog.program_variants?.[0]?.frequency ?? 3)}</p>
         </div>
       ),
     },
@@ -189,7 +189,7 @@ export default async function ProgramListPage() {
               },
               right: {
                 label: "Jadwal Sesi",
-                value: `${formatDuration(prog.duration)} • ${formatFrequencyShort(prog.frequency)}`,
+                value: `${formatDuration(prog.duration)} • ${formatFrequencyShort(prog.program_variants?.[0]?.frequency ?? 3)}`,
               },
             }}
             actions={

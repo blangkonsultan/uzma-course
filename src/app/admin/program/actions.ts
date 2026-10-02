@@ -46,7 +46,6 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
   const licenseProvider = formData.get("license_provider")?.toString().trim() || null;
   const licenseUrl = formData.get("license_url")?.toString().trim() || null;
   const licenseDescription = formData.get("license_description")?.toString().trim() || null;
-  const frequency = parseInt(formData.get("frequency")?.toString() || "3", 10);
   const variantsJson = formData.get("variants_json")?.toString() || "[]";
   const sortOrder = parseInt(formData.get("sort_order")?.toString() || "0", 10);
   const rawFeatures = formData.getAll("features").map((f) => f.toString().trim()).filter(Boolean);
@@ -69,10 +68,6 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
   if (variants.length === 0) {
     fieldErrors.variants = "Minimal harus ada 1 varian program.";
   }
-  if (isNaN(frequency) || frequency < 1) {
-    fieldErrors.frequency = "Frekuensi belajar harus berupa angka positif (minimal 1 sesi per minggu).";
-  }
-
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
@@ -89,7 +84,6 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
     license_provider: type === "franchise" ? licenseProvider : null,
     license_url: type === "franchise" ? licenseUrl : null,
     license_description: type === "franchise" ? licenseDescription : null,
-    frequency,
     features: rawFeatures,
     sort_order: isNaN(sortOrder) ? 0 : sortOrder,
     is_active: true,
@@ -108,6 +102,7 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
     program_id: programId,
     name: typeof v.name === "string" ? v.name : "",
     duration: typeof v.duration === "number" ? v.duration : 30,
+    frequency: typeof v.frequency === "number" ? v.frequency : 3,
     system: typeof v.system === "number" ? v.system : 2,
     teacher_fee: typeof v.teacher_fee === "number" ? v.teacher_fee : 0,
     default_spp: typeof v.default_spp === "number" ? v.default_spp : 0,
@@ -141,7 +136,6 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
   const licenseProvider = formData.get("license_provider")?.toString().trim() || null;
   const licenseUrl = formData.get("license_url")?.toString().trim() || null;
   const licenseDescription = formData.get("license_description")?.toString().trim() || null;
-  const frequency = parseInt(formData.get("frequency")?.toString() || "3", 10);
   const sortOrder = parseInt(formData.get("sort_order")?.toString() || "0", 10);
   const variantsJson = formData.get("variants_json")?.toString() || "[]";
   const rawFeatures = formData.getAll("features").map((f) => f.toString().trim()).filter(Boolean);
@@ -162,10 +156,6 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
   if (variants.length === 0) {
     fieldErrors.variants = "Minimal harus ada 1 varian program.";
   }
-  if (isNaN(frequency) || frequency < 1) {
-    fieldErrors.frequency = "Frekuensi belajar harus berupa angka positif (minimal 1 sesi per minggu).";
-  }
-
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
@@ -183,7 +173,6 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
       license_provider: type === "franchise" ? licenseProvider : null,
       license_url: type === "franchise" ? licenseUrl : null,
       license_description: type === "franchise" ? licenseDescription : null,
-      frequency,
       features: rawFeatures,
       sort_order: isNaN(sortOrder) ? 0 : sortOrder,
       is_active: isActive,
@@ -202,6 +191,7 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
       program_id: id,
       name: typeof v.name === "string" ? v.name : "",
       duration: typeof v.duration === "number" ? v.duration : 30,
+    frequency: typeof v.frequency === "number" ? v.frequency : 3,
       system: typeof v.system === "number" ? v.system : 2,
       teacher_fee: typeof v.teacher_fee === "number" ? v.teacher_fee : 0,
       default_spp: typeof v.default_spp === "number" ? v.default_spp : 0,

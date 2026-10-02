@@ -250,6 +250,7 @@ export type Database = {
           created_at: string;
           default_spp: number;
           duration: number;
+          frequency: number;
           id: string;
           is_active: boolean;
           name: string;
@@ -263,6 +264,7 @@ export type Database = {
           created_at?: string;
           default_spp?: number;
           duration?: number;
+          frequency?: number;
           id?: string;
           is_active?: boolean;
           name: string;
@@ -276,6 +278,7 @@ export type Database = {
           created_at?: string;
           default_spp?: number;
           duration?: number;
+          frequency?: number;
           id?: string;
           is_active?: boolean;
           name?: string;
@@ -302,7 +305,6 @@ export type Database = {
           description: string;
           duration: number;
           features: string[];
-          frequency: number;
           icon: string;
           id: string;
           initials: string;
@@ -324,7 +326,6 @@ export type Database = {
           description?: string;
           duration?: number;
           features?: string[];
-          frequency?: number;
           icon?: string;
           id?: string;
           initials: string;
@@ -346,7 +347,6 @@ export type Database = {
           description?: string;
           duration?: number;
           features?: string[];
-          frequency?: number;
           icon?: string;
           id?: string;
           initials?: string;

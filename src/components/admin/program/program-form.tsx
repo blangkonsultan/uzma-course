@@ -36,10 +36,10 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
     license_provider: initialData?.license_provider || "",
     license_url: initialData?.license_url || "",
     license_description: initialData?.license_description || "",
-    frequency: initialData?.frequency ?? 3,
+    
     variants: initialData?.program_variants && initialData.program_variants.length > 0
       ? initialData.program_variants
-      : [{ id: "new-0", name: "Standar", duration: 30, system: 2, teacher_fee: 0, default_spp: 0, sort_order: 0, is_active: true }],
+      : [{ id: "new-0", name: "Standar", duration: 30, frequency: 3, system: 2, teacher_fee: 0, default_spp: 0, sort_order: 0, is_active: true }],
     features: initialData?.features || [""],
     sort_order: initialData?.sort_order ?? 0,
     is_active: initialData?.is_active ?? true,
@@ -152,8 +152,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
         data.append("license_provider", formData.license_provider.trim());
         data.append("license_url", formData.license_url.trim());
         data.append("license_description", formData.license_description.trim());
-        data.append("frequency", formData.frequency.toString());
-        data.append("variants_json", JSON.stringify(formData.variants));
+                data.append("variants_json", JSON.stringify(formData.variants));
         data.append("sort_order", formData.sort_order.toString());
         formData.features
           .filter((f) => f.trim().length > 0)
@@ -362,22 +361,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <InputField
-                  id="frequency"
-                  name="frequency"
-                  label="Frekuensi Belajar (/ Minggu)"
-                  type="number"
-                  placeholder="3"
-                  min={1}
-                  value={formData.frequency.toString()}
-                  onChange={(e) => updateField("frequency", parseInt(e.target.value) || 0)}
-                  error={fieldErrors.frequency}
-                  hint={`Pratinjau: ${formatFrequency(formData.frequency)}`}
-                  required
-                  disabled={isPending}
-                />
-              </div>
+              
             </div>
           </div>
 
@@ -435,7 +419,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                       required
                       disabled={isPending}
                     />
-                    <div className="grid grid-cols-2 gap-4 items-end">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
                       <InputField
                         id={`variant-${variant.id}-duration`}
                         name={`variant-${variant.id}-duration`}
@@ -444,6 +428,17 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                         min={1}
                         value={variant.duration.toString()}
                         onChange={(e) => updateVariant(idx, "duration", parseInt(e.target.value) || 0)}
+                        required
+                        disabled={isPending}
+                      />
+                      <InputField
+                        id={`variant-${variant.id}-frequency`}
+                        name={`variant-${variant.id}-frequency`}
+                        label="Frekuensi (/minggu)"
+                        type="number"
+                        min={1}
+                        value={(variant.frequency || 3).toString()}
+                        onChange={(e) => updateVariant(idx, "frequency", parseInt(e.target.value) || 0)}
                         required
                         disabled={isPending}
                       />

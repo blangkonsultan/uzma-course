@@ -13,13 +13,13 @@ import {
   Users,
   GraduationCap,
   Award,
-  Clock,
+  Clock, Calendar,
   Wallet,
   Sparkles,
   ExternalLink,
   CheckCircle2,
 } from "lucide-react";
-import { formatClassRatio, formatDuration, formatFrequency } from "@/lib/utils";
+import { formatClassRatio, formatDuration, formatFrequencyShort } from "@/lib/utils";
 
 export const metadata = {
   title: "Detail Program Belajar | Uzma Course",
@@ -344,6 +344,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
                         <p className="text-sm font-semibold text-slate-800">{v.name}</p>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
                           <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {formatDuration(v.duration)}</span>
+                          <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {formatFrequencyShort(v.frequency || 3)}</span>
                           <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {formatClassRatio(v.system)}</span>
                           <span className="flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5" /> Rp {v.teacher_fee.toLocaleString('id-ID')}</span>
                         </div>
@@ -355,14 +356,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
                 )}
               </div>
 
-              <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                  Frekuensi Belajar
-                </span>
-                <p className="text-sm font-semibold text-slate-900">
-                  {formatFrequency(program.frequency)}
-                </p>
-              </div>
+
 
               <div>
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">

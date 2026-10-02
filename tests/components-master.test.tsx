@@ -511,7 +511,7 @@ describe("Master Components (src/components/admin/[entity]/)", () => {
       fireEvent.change(ageInput, { target: { value: "3-6 tahun" } });
       fireEvent.change(providerInput, { target: { value: "Uzma Pusat" } });
       fireEvent.change(licenseUrlInput, { target: { value: "https://uzmacourse.com" } });
-      const freqInput = screen.getByLabelText(/Frekuensi Belajar/i);
+      const freqInput = screen.getByLabelText(/Frekuensi \(\/minggu\)/i);
       fireEvent.change(freqInput, { target: { value: "3" } });
 
       await act(async () => {
