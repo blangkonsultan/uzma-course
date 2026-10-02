@@ -95,7 +95,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
           default_spp: 0,
           sort_order: prev.variants.length,
           is_active: true, show_on_landing: true,
-        } as any,
+        } as import("@/types/database").Database["public"]["Tables"]["program_variants"]["Row"],
       ],
     }));
   }

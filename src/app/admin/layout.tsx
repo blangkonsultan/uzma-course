@@ -43,12 +43,13 @@ export default async function AdminLayout({
     role: (user.user_metadata?.role as "admin" | "guru") || "guru",
     branch_id: null,
     is_active: true,
-    allowance_transport: 0,
+    allowances: [],
+    minimum_income: 0,
     birth_date: null,
-    allowance_presence: 0,
-    allowance_creativity: 0,
-    allowance_education: 0,
-    morning_guarantee_threshold: 0,
+    
+    
+    
+    
     bank_name: null,
     bank_account_holder: null,
     bank_account_number: null,

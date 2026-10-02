@@ -179,11 +179,7 @@ export type Database = {
       };
       profiles: {
         Row: {
-          allowance_creativity: number;
-          allowance_education: number;
-          allowance_presence: number;
-          allowance_transport: number;
-          bank_account_holder: string | null;
+                                                  bank_account_holder: string | null;
           bank_account_number: string | null;
           bank_name: string | null;
           birth_date: string | null;
@@ -192,17 +188,14 @@ export type Database = {
           full_name: string;
           id: string;
           is_active: boolean;
-          morning_guarantee_threshold: number;
+          allowances: Json;
+          minimum_income: number | null;
           phone: string | null;
           role: string;
           updated_at: string;
         };
         Insert: {
-          allowance_creativity?: number;
-          allowance_education?: number;
-          allowance_presence?: number;
-          allowance_transport?: number;
-          bank_account_holder?: string | null;
+                                                  bank_account_holder?: string | null;
           bank_account_number?: string | null;
           bank_name?: string | null;
           birth_date?: string | null;
@@ -211,17 +204,14 @@ export type Database = {
           full_name: string;
           id: string;
           is_active?: boolean;
-          morning_guarantee_threshold?: number;
+          allowances?: Json;
+          minimum_income?: number | null;
           phone?: string | null;
           role?: string;
           updated_at?: string;
         };
         Update: {
-          allowance_creativity?: number;
-          allowance_education?: number;
-          allowance_presence?: number;
-          allowance_transport?: number;
-          bank_account_holder?: string | null;
+                                                  bank_account_holder?: string | null;
           bank_account_number?: string | null;
           bank_name?: string | null;
           birth_date?: string | null;
@@ -230,7 +220,8 @@ export type Database = {
           full_name?: string;
           id?: string;
           is_active?: boolean;
-          morning_guarantee_threshold?: number;
+          allowances?: Json;
+          minimum_income?: number | null;
           phone?: string | null;
           role?: string;
           updated_at?: string;

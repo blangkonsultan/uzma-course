@@ -54,11 +54,13 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
     return isNaN(n) ? undefined : n;
   };
 
-  const allowanceTransport = parseNum(formData.get("allowance_transport"));
-  const allowancePresence = parseNum(formData.get("allowance_presence"));
-  const allowanceCreativity = parseNum(formData.get("allowance_creativity"));
-  const allowanceEducation = parseNum(formData.get("allowance_education"));
-  const morningGuaranteeThreshold = parseNum(formData.get("morning_guarantee_threshold"));
+  let allowances = [];
+  try {
+    allowances = JSON.parse(formData.get("allowances_json")?.toString() || "[]");
+  } catch (e) {
+    allowances = [];
+  }
+  const minimumIncome = formData.has("minimum_income") ? parseNum(formData.get("minimum_income")) : null;
 
   const fieldErrors: Record<string, string> = {};
 
@@ -113,11 +115,8 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
       bank_name: bankName,
       bank_account_number: bankAccountNumber,
       bank_account_holder: bankAccountHolder,
-      allowance_transport: allowanceTransport,
-      allowance_presence: allowancePresence,
-      allowance_creativity: allowanceCreativity,
-      allowance_education: allowanceEducation,
-      morning_guarantee_threshold: morningGuaranteeThreshold,
+      allowances: allowances,
+    minimum_income: minimumIncome,
       updated_at: new Date().toISOString(),
     });
 
@@ -174,11 +173,13 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
     return isNaN(n) ? undefined : n;
   };
 
-  const allowanceTransport = parseNum(formData.get("allowance_transport"));
-  const allowancePresence = parseNum(formData.get("allowance_presence"));
-  const allowanceCreativity = parseNum(formData.get("allowance_creativity"));
-  const allowanceEducation = parseNum(formData.get("allowance_education"));
-  const morningGuaranteeThreshold = parseNum(formData.get("morning_guarantee_threshold"));
+  let allowances = [];
+  try {
+    allowances = JSON.parse(formData.get("allowances_json")?.toString() || "[]");
+  } catch (e) {
+    allowances = [];
+  }
+  const minimumIncome = formData.has("minimum_income") ? parseNum(formData.get("minimum_income")) : null;
 
   const fieldErrors: Record<string, string> = {};
 
@@ -201,11 +202,8 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
       bank_name: bankName,
       bank_account_number: bankAccountNumber,
       bank_account_holder: bankAccountHolder,
-      allowance_transport: allowanceTransport,
-      allowance_presence: allowancePresence,
-      allowance_creativity: allowanceCreativity,
-      allowance_education: allowanceEducation,
-      morning_guarantee_threshold: morningGuaranteeThreshold,
+      allowances: allowances,
+    minimum_income: minimumIncome,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)

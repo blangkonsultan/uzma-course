@@ -188,30 +188,26 @@ export default async function GuruDetailPage({ params }: GuruDetailPageProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-3 p-4 sm:p-6 gap-2 sm:gap-4">
                   <div className="text-sm font-medium text-slate-500">Tunjangan Bulanan</div>
                   <div className="text-sm text-slate-900 sm:col-span-2 space-y-1">
-                    <div className="flex justify-between max-w-xs">
-                      <span className="text-slate-500">Transport:</span>
-                      <span className="font-semibold">Rp {guru.allowance_transport.toLocaleString('id-ID')}</span>
-                    </div>
-                    <div className="flex justify-between max-w-xs">
-                      <span className="text-slate-500">Kehadiran:</span>
-                      <span className="font-semibold">Rp {guru.allowance_presence.toLocaleString('id-ID')}</span>
-                    </div>
-                    <div className="flex justify-between max-w-xs">
-                      <span className="text-slate-500">Kreativitas:</span>
-                      <span className="font-semibold">Rp {guru.allowance_creativity.toLocaleString('id-ID')}</span>
-                    </div>
-                    <div className="flex justify-between max-w-xs">
-                      <span className="text-slate-500">Pendidikan:</span>
-                      <span className="font-semibold">Rp {guru.allowance_education.toLocaleString('id-ID')}</span>
-                    </div>
+                    {(guru.allowances as {name: string, amount: number}[])?.length > 0 ? (
+                      (guru.allowances as {name: string, amount: number}[]).map((a, idx) => (
+                        <div key={idx} className="flex justify-between max-w-xs">
+                          <span className="text-slate-500">{a.name}:</span>
+                          <span className="font-semibold">Rp {(a.amount || 0).toLocaleString('id-ID')}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-slate-400 italic">Tidak ada tunjangan khusus</span>
+                    )}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 p-4 sm:p-6 gap-2 sm:gap-4 bg-slate-50/50">
-                  <div className="text-sm font-medium text-slate-500">Garansi Pagi</div>
-                  <div className="text-sm font-semibold text-slate-900 sm:col-span-2">
-                    Rp {guru.morning_guarantee_threshold.toLocaleString('id-ID')}
+                {guru.minimum_income != null && guru.minimum_income > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 p-4 sm:p-6 gap-2 sm:gap-4 bg-slate-50/50">
+                    <div className="text-sm font-medium text-slate-500">Pendapatan Minimal</div>
+                    <div className="text-sm font-semibold text-slate-900 sm:col-span-2">
+                      Rp {guru.minimum_income.toLocaleString('id-ID')}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </CardBody>
           </Card>

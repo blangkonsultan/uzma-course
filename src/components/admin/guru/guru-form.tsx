@@ -10,7 +10,7 @@ import {
 } from "@/components/admin/form-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save, Plus, Trash2 } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
 import type { Profile, Program, Branch } from "@/types";
 import { formatDuration, formatClassRatio } from "@/lib/utils";
@@ -44,14 +44,36 @@ export function GuruForm({
     bank_name: initialData?.bank_name || "",
     bank_account_number: initialData?.bank_account_number || "",
     bank_account_holder: initialData?.bank_account_holder || "",
-    allowance_transport: initialData?.allowance_transport?.toString() || "",
-    allowance_presence: initialData?.allowance_presence?.toString() || "",
-    allowance_creativity: initialData?.allowance_creativity?.toString() || "",
-    allowance_education: initialData?.allowance_education?.toString() || "",
-    morning_guarantee_threshold: initialData?.morning_guarantee_threshold?.toString() || "",
+    allowances: ((initialData && "allowances" in initialData ? initialData.allowances : []) as {name: string, amount: number}[]),
+    minimum_income_enabled: (initialData && "minimum_income" in initialData && (initialData.minimum_income as number) > 0) ? true : false,
+    minimum_income: (initialData && "minimum_income" in initialData && initialData.minimum_income != null) ? (initialData.minimum_income as number).toString() : "",
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  function addAllowance() {
+    setFormData((prev) => ({
+      ...prev,
+      allowances: [...prev.allowances, { name: "", amount: 0 }],
+    }));
+  }
+
+  function updateAllowance(index: number, field: string, value: string | number) {
+    setFormData((prev) => {
+      const newAllowances = [...prev.allowances];
+      newAllowances[index] = { ...newAllowances[index], [field]: value };
+      return { ...prev, allowances: newAllowances };
+    });
+  }
+
+  function removeAllowance(index: number) {
+    setFormData((prev) => {
+      const newAllowances = [...prev.allowances];
+      newAllowances.splice(index, 1);
+      return { ...prev, allowances: newAllowances };
+    });
+  }
+
 
   const branchOptions = branches.map((b) => ({
     value: b.id,
@@ -115,11 +137,10 @@ export function GuruForm({
         data.append("bank_name", formData.bank_name);
         data.append("bank_account_number", formData.bank_account_number);
         data.append("bank_account_holder", formData.bank_account_holder);
-        data.append("allowance_transport", formData.allowance_transport);
-        data.append("allowance_presence", formData.allowance_presence);
-        data.append("allowance_creativity", formData.allowance_creativity);
-        data.append("allowance_education", formData.allowance_education);
-        data.append("morning_guarantee_threshold", formData.morning_guarantee_threshold);
+        data.append("allowances_json", JSON.stringify(formData.allowances));
+        if (formData.minimum_income_enabled && formData.minimum_income) {
+          data.append("minimum_income", formData.minimum_income);
+        }
         formData.programs.forEach((prog) => data.append("programs", prog));
 
         let res;
@@ -346,60 +367,105 @@ export function GuruForm({
               disabled={isPending}
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <InputField
-                id="allowance_transport"
-                name="allowance_transport"
-                type="number"
-                label="Tunjangan Transportasi (Rp)"
-                placeholder="Contoh: 50000"
-                value={formData.allowance_transport}
-                onChange={(e) => updateField("allowance_transport", e.target.value)}
-                disabled={isPending}
-              />
-              <InputField
-                id="allowance_presence"
-                name="allowance_presence"
-                type="number"
-                label="Tunjangan Kehadiran (Rp)"
-                placeholder="Contoh: 50000"
-                value={formData.allowance_presence}
-                onChange={(e) => updateField("allowance_presence", e.target.value)}
-                disabled={isPending}
-              />
-              <InputField
-                id="allowance_creativity"
-                name="allowance_creativity"
-                type="number"
-                label="Tunjangan Kreativitas (Rp)"
-                placeholder="Contoh: 25000"
-                value={formData.allowance_creativity}
-                onChange={(e) => updateField("allowance_creativity", e.target.value)}
-                disabled={isPending}
-              />
-              <InputField
-                id="allowance_education"
-                name="allowance_education"
-                type="number"
-                label="Tunjangan Pendidikan (Rp)"
-                placeholder="Contoh: 25000"
-                value={formData.allowance_education}
-                onChange={(e) => updateField("allowance_education", e.target.value)}
-                disabled={isPending}
-              />
-              <InputField
-                id="morning_guarantee_threshold"
-                name="morning_guarantee_threshold"
-                type="number"
-                label="Batas Garansi Pagi (Rp)"
-                hint="Batas nominal untuk pencairan insentif shift pagi."
-                placeholder="Contoh: 250000"
-                value={formData.morning_guarantee_threshold}
-                onChange={(e) => updateField("morning_guarantee_threshold", e.target.value)}
-                disabled={isPending}
-              />
+            <div className="pt-6">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Pengaturan Tunjangan Khusus
+                </h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addAllowance}
+                  disabled={isPending}
+                  className="h-8 px-3 text-xs"
+                >
+                  <Plus className="w-3 h-3" />
+                  Tambah Tunjangan
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {formData.allowances.map((allowance: {name: string, amount: number}, idx: number) => (
+                  <div key={idx} className="flex items-end gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                    <div className="flex-1">
+                      <InputField
+                        id={`allowance-${idx}-name`}
+                        name={`allowance-${idx}-name`}
+                        label="Nama Tunjangan"
+                        placeholder="Contoh: Tunjangan Transportasi"
+                        value={allowance.name}
+                        onChange={(e) => updateAllowance(idx, "name", e.target.value)}
+                        disabled={isPending}
+                        required
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <InputField
+                        id={`allowance-${idx}-amount`}
+                        name={`allowance-${idx}-amount`}
+                        label="Nominal (Rp)"
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        value={allowance.amount.toString()}
+                        onChange={(e) => updateAllowance(idx, "amount", parseInt(e.target.value) || 0)}
+                        disabled={isPending}
+                        required
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeAllowance(idx)}
+                      disabled={isPending}
+                      className="w-10 h-10 mb-[2px] flex shrink-0 items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-100/50 transition-colors"
+                      title="Hapus tunjangan"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+                {formData.allowances.length === 0 && (
+                  <p className="text-sm text-slate-500 italic">Belum ada tunjangan khusus. Klik &quot;Tambah Tunjangan&quot; jika diperlukan.</p>
+                )}
+              </div>
+
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2 pt-6 mb-4">
+                Pendapatan Minimal
+              </h3>
+              
+              <div className="space-y-4 bg-slate-50/50 border border-slate-200 p-4 rounded-xl">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.minimum_income_enabled}
+                    onChange={(e) => updateField("minimum_income_enabled", e.target.checked)}
+                    disabled={isPending}
+                    className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <span className="text-sm text-slate-700 font-medium">Aktifkan Pendapatan Minimal (Fixed)</span>
+                </label>
+                
+                {formData.minimum_income_enabled && (
+                  <div className="pt-2 border-t border-slate-100">
+                    <InputField
+                      id="minimum_income"
+                      name="minimum_income"
+                      type="number"
+                      label="Nominal Pendapatan Minimal (Rp)"
+                      hint="Garansi pendapatan minimum jika pendapatan riil berada di bawah nominal ini."
+                      placeholder="Contoh: 250000"
+                      value={formData.minimum_income}
+                      onChange={(e) => updateField("minimum_income", e.target.value)}
+                      disabled={isPending}
+                      required
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+
+
 
           {isEdit && (
             <div className="space-y-4 pt-2">
