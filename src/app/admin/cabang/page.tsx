@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getPaginatedBranchesWithStats, type BranchWithStats } from "@/lib/branches";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/components/admin/page-header";
@@ -9,7 +10,6 @@ import { MasterMobileCard } from "@/components/admin/master-mobile-card";
 import { Pagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
 import { BranchStatusButton } from "@/components/admin/cabang/branch-status-button";
-import type { Branch } from "@/types";
 import { Plus, Edit2, MapPin, ExternalLink, Eye } from "lucide-react";
 
 export const metadata = {
@@ -51,50 +51,13 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
   const page = Math.max(1, parseInt(resolvedParams.page || "1", 10));
   const pageSize = 10;
 
-  // Build query for branches
-  let query = supabase.from("branches").select("*", { count: "exact" });
-
-  if (status === "active") {
-    query = query.eq("is_active", true);
-  } else if (status === "inactive") {
-    query = query.eq("is_active", false);
-  }
-
-  if (search) {
-    query = query.ilike("name", `%${search}%`);
-  }
-
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-
-  // Fetch branches, active guru placements, and active students in parallel
-  const [
-    { data: branchList, count },
-    { data: activeGurus },
-    { data: activeStudents },
-  ] = await Promise.all([
-    query.order("name", { ascending: true }).range(from, to),
-    supabase.from("profiles").select("branch_id").eq("role", "guru").eq("is_active", true),
-    supabase.from("students").select("branch_id").eq("is_active", true),
-  ]);
-
-  // Aggregate counts per branch
-  const guruCountMap: Record<string, number> = {};
-  (activeGurus || []).forEach((g) => {
-    if (g.branch_id) {
-      guruCountMap[g.branch_id] = (guruCountMap[g.branch_id] || 0) + 1;
-    }
+  // Data Access Layer (DAL) call - Clean and abstract
+  const { branches, totalItems, totalPages } = await getPaginatedBranchesWithStats({
+    search,
+    status,
+    page,
+    pageSize,
   });
-
-  const muridCountMap: Record<string, number> = {};
-  (activeStudents || []).forEach((s) => {
-    if (s.branch_id) {
-      muridCountMap[s.branch_id] = (muridCountMap[s.branch_id] || 0) + 1;
-    }
-  });
-
-  const totalItems = count ?? 0;
-  const totalPages = Math.ceil(totalItems / pageSize);
 
   const filterConfigs = [
     {
@@ -107,7 +70,7 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
     },
   ];
 
-  const columns: Column<Branch>[] = [
+  const columns: Column<BranchWithStats>[] = [
     {
       header: "Cabang",
       cell: (b) => (
@@ -141,7 +104,7 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
       header: "Guru & Murid",
       cell: (b) => (
         <span className="text-xs text-slate-700 font-medium">
-          {guruCountMap[b.id] || 0} guru · {muridCountMap[b.id] || 0} murid
+          {b.guruCount} guru · {b.muridCount} murid
         </span>
       ),
     },
@@ -218,12 +181,12 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
 
       <DataTable
         columns={columns}
-        data={branchList || []}
+        data={branches}
         keyExtractor={(item) => item.id}
         emptyStateMessage="Tidak ada data cabang yang sesuai dengan filter pencarian."
         mobileCard={(b) => {
-          const guruCount = guruCountMap[b.id] || 0;
-          const muridCount = muridCountMap[b.id] || 0;
+          const guruCount = b.guruCount;
+          const muridCount = b.muridCount;
 
           return (
             <MasterMobileCard
