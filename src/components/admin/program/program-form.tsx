@@ -417,7 +417,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                     <Trash2 className="w-4 h-4" />
                   </button>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-10 items-end">
                     <InputField
                       id={`variant-${variant.id}-name`}
                       name={`variant-${variant.id}-name`}
@@ -428,7 +428,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                       required
                       disabled={isPending}
                     />
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4 items-end">
                       <InputField
                         id={`variant-${variant.id}-duration`}
                         name={`variant-${variant.id}-duration`}
@@ -454,7 +454,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                     <InputField
                       id={`variant-${variant.id}-default_spp`}
                       name={`variant-${variant.id}-default_spp`}
