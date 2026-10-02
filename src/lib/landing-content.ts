@@ -366,7 +366,7 @@ function mapProgramRowToItem(p: import("@/types").Program): ProgramItem {
         }
       : undefined,
     variants: p.program_variants?.map((v) => ({ id: v.id, name: v.name, duration: v.duration, system: v.system })) || [],
-    frequency: p.frequency,
+    
     features: p.features,
   };
 }

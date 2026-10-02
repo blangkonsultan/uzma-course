@@ -244,7 +244,7 @@ export default async function StudentDetailPage({
                           <div className="mt-2 pt-2 border-t border-slate-100 text-xs text-slate-500 space-y-1">
                             {prog.system > 0 && <p>• {formatClassRatio(prog.system)}</p>}
                             {prog.duration > 0 && (
-                              <p>• {formatDuration(prog.duration)} {prog.frequency > 0 ? `(${formatFrequencyShort(prog.frequency)})` : ""}</p>
+                              <p>• {formatDuration(prog.duration)}</p>
                             )}
                             {sp.spp_amount > 0 && (
                               <p className="text-primary-700 font-semibold">

@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProgramIcon } from "@/components/landing/program-icon";
 import { DEFAULT_LANDING_CONTENT } from "@/lib/landing-content";
 import type { ProgramsContent } from "@/types/landing";
-import { formatDuration, formatClassRatio, formatFrequency } from "@/lib/utils";
+import { formatDuration, formatClassRatio, formatFrequencyShort } from "@/lib/utils";
 
 export interface ProgramsSectionProps {
   data?: ProgramsContent;
@@ -82,16 +82,16 @@ export function ProgramsSection({ data }: ProgramsSectionProps) {
                               <span className="text-slate-300">|</span>
                               <Clock className="w-3 h-3 text-slate-400" />
                               <span>{formatDuration(v.duration)}</span>
+                              <span className="text-slate-300">|</span>
+                              <Calendar className="w-3 h-3 text-slate-400" />
+                              <span>{formatFrequencyShort((v as any).frequency || 3)}</span>
                             </div>
                           </div>
                         ))
                       ) : (
                         <span className="text-slate-400 italic">Varian program belum dikonfigurasi</span>
                       )}
-                      <div className="pt-2 mt-2 border-t border-slate-200/60 font-medium text-slate-600 flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                        {formatFrequency(program.frequency)}
-                      </div>
+
                     </div>
 
                     {/* Features checklist */}

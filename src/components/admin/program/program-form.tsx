@@ -89,12 +89,13 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
           id: `new-${Date.now()}`,
           name: "",
           duration: 30,
+          frequency: 3,
           system: 2,
           teacher_fee: 0,
           default_spp: 0,
           sort_order: prev.variants.length,
           is_active: true,
-        },
+        } as any,
       ],
     }));
   }
