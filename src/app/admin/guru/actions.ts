@@ -40,6 +40,7 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
   const email = formData.get("email")?.toString().trim();
   const password = formData.get("password")?.toString();
   const phone = formData.get("phone")?.toString().trim() || null;
+  const birthDate = formData.get("birth_date")?.toString().trim() || null;
   const branchId = formData.get("branch_id")?.toString().trim() || null;
   const programs = formData.getAll("programs").map((p) => p.toString());
 
@@ -105,6 +106,7 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
       id: newUserId,
       full_name: fullName!,
       phone,
+      birth_date: birthDate,
       role: "guru",
       branch_id: branchId || null,
       is_active: true,
@@ -157,6 +159,7 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
 
   const fullName = formData.get("full_name")?.toString().trim();
   const phone = formData.get("phone")?.toString().trim() || null;
+  const birthDate = formData.get("birth_date")?.toString().trim() || null;
   const branchId = formData.get("branch_id")?.toString().trim() || null;
   const programs = formData.getAll("programs").map((p) => p.toString());
   const isActive = formData.get("is_active") === "true";
@@ -192,6 +195,7 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
     .update({
       full_name: fullName,
       phone,
+      birth_date: birthDate,
       branch_id: branchId || null,
       is_active: isActive,
       bank_name: bankName,

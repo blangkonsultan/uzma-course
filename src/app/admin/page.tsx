@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { BirthdayDashboard } from "@/components/admin/birthday-dashboard";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -234,8 +235,9 @@ export default async function AdminDashboardPage() {
         })}
       </div>
 
-      {/* Program Distribution Section */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+      {/* Bottom Grid: Programs and Birthdays */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-primary-50 text-primary-600">
@@ -280,6 +282,11 @@ export default async function AdminDashboardPage() {
             </div>
           ))}
         </div>
+      </div>
+      
+      <div className="lg:col-span-1">
+        <BirthdayDashboard branchId={userBranch || undefined} isAdmin={isAdmin} />
+      </div>
       </div>
     </div>
   );

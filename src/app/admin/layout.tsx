@@ -44,6 +44,7 @@ export default async function AdminLayout({
     branch_id: null,
     is_active: true,
     allowance_transport: 0,
+    birth_date: null,
     allowance_presence: 0,
     allowance_creativity: 0,
     allowance_education: 0,

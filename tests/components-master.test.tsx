@@ -82,7 +82,8 @@ describe("Master Components (src/components/admin/[entity]/)", () => {
     updated_at: "",
   };
 
-  const dummyGuru = { allowance_transport: 0, allowance_presence: 0, allowance_creativity: 0, allowance_education: 0, bank_account_holder: null, bank_account_number: null, bank_name: null, morning_guarantee_threshold: 0, 
+  const dummyGuru = { allowance_transport: 0, allowance_presence: 0, allowance_creativity: 0, allowance_education: 0, bank_account_holder: null, bank_account_number: null, bank_name: null, morning_guarantee_threshold: 0,
+      birth_date: null, 
     id: "g-1",
     full_name: "Ustadzah Siti",
     email: "siti@uzma.com",

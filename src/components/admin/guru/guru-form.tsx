@@ -37,6 +37,7 @@ export function GuruForm({
     email: "",
     password: "",
     phone: initialData?.phone || "",
+    birth_date: initialData?.birth_date || "",
     branch_id: initialData?.branch_id || "",
     programs: (initialProgramIds || []) as string[],
     is_active: initialData?.is_active ?? true,
@@ -109,6 +110,7 @@ export function GuruForm({
         const data = new FormData();
         data.append("full_name", formData.full_name.trim());
         data.append("phone", formData.phone.trim());
+        data.append("birth_date", formData.birth_date);
         data.append("branch_id", formData.branch_id);
         data.append("bank_name", formData.bank_name);
         data.append("bank_account_number", formData.bank_account_number);
@@ -169,6 +171,17 @@ export function GuruForm({
               value={formData.full_name}
               onChange={(e) => updateField("full_name", e.target.value)}
               error={fieldErrors.full_name}
+              disabled={isPending}
+            />
+            <InputField
+              id="birth_date"
+              name="birth_date"
+              type="date"
+              label="Tanggal Lahir"
+              hint="Format: Bulan/Hari/Tahun (tergantung pengaturan browser)"
+              value={formData.birth_date}
+              onChange={(e) => updateField("birth_date", e.target.value)}
+              error={fieldErrors.birth_date}
               disabled={isPending}
             />
 

@@ -75,6 +75,10 @@ vi.mock("@/lib/branches", () => ({
   getBranchById: (id: string) => mockGetBranchById(id),
 }));
 
+vi.mock("@/components/admin/birthday-dashboard", () => ({
+  BirthdayDashboard: () => <div data-testid="birthday-dashboard">Mocked Birthdays</div>,
+}));
+
 vi.mock("@/lib/programs", () => ({
   getPrograms: vi.fn().mockResolvedValue([
     { id: "ahe", initials: "AHE", name: "Baca Tulis Anak Hebat", is_active: true },
