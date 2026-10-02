@@ -74,17 +74,21 @@ export function ProgramsSection({ data }: ProgramsSectionProps) {
                     <div className="mt-5 p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-2.5 text-xs text-slate-700">
                       {program.variants && program.variants.length > 0 ? (
                         program.variants.map((v, i) => (
-                          <div key={v.id || i} className="space-y-1">
-                            <span className="font-bold text-slate-800">{v.name}</span>
-                            <div className="flex items-center gap-2">
-                              <Users className="w-3 h-3 text-primary-600" />
-                              <span>{formatClassRatio(v.system)}</span>
-                              <span className="text-slate-300">|</span>
-                              <Clock className="w-3 h-3 text-slate-400" />
-                              <span>{formatDuration(v.duration)}</span>
-                              <span className="text-slate-300">|</span>
-                              <Calendar className="w-3 h-3 text-slate-400" />
-                              <span>{formatFrequencyShort((v as any).frequency || 3)}</span>
+                          <div key={v.id || i} className="p-3 bg-slate-50/70 border border-slate-100 rounded-xl space-y-1.5">
+                            <span className="font-bold text-slate-800 text-sm">{v.name}</span>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600">
+                              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                                <Users className="w-3.5 h-3.5 text-primary-500 shrink-0" />
+                                <span>{formatClassRatio(v.system)}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                                <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{formatDuration(v.duration)}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{formatFrequencyShort((v as any).frequency || 3)}</span>
+                              </div>
                             </div>
                           </div>
                         ))
