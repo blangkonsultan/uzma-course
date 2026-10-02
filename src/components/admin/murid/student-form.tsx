@@ -45,6 +45,8 @@ export function StudentForm({
   const [isPending, startTransition] = useTransition();
 
   const [formData, setFormData] = useState({
+    student_number: (initialData as Record<string, unknown>)?.student_number as string || "",
+    joined_date: (initialData as Record<string, unknown>)?.joined_date as string || new Date().toISOString().split("T")[0],
     full_name: initialData?.full_name || "",
     birth_date: initialData?.birth_date || "",
     address: initialData?.address || "",

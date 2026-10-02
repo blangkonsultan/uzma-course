@@ -81,6 +81,7 @@ export type Database = {
       branches: {
         Row: {
           address: string;
+          code: string | null;
           created_at: string;
           geofence_radius_m: number;
           gmaps_url: string | null;
@@ -95,6 +96,7 @@ export type Database = {
         };
         Insert: {
           address?: string;
+          code?: string | null;
           created_at?: string;
           geofence_radius_m?: number;
           gmaps_url?: string | null;
@@ -109,6 +111,7 @@ export type Database = {
         };
         Update: {
           address?: string;
+          code?: string | null;
           created_at?: string;
           geofence_radius_m?: number;
           gmaps_url?: string | null;
@@ -425,6 +428,8 @@ export type Database = {
       students: {
         Row: {
           address: string | null;
+          student_number: string | null;
+          joined_date: string | null;
           birth_date: string | null;
           branch_id: string;
           created_at: string;
@@ -439,6 +444,8 @@ export type Database = {
         };
         Insert: {
           address?: string | null;
+          student_number?: string | null;
+          joined_date?: string | null;
           birth_date?: string | null;
           branch_id: string;
           created_at?: string;
@@ -453,6 +460,8 @@ export type Database = {
         };
         Update: {
           address?: string | null;
+          student_number?: string | null;
+          joined_date?: string | null;
           birth_date?: string | null;
           branch_id?: string;
           created_at?: string;

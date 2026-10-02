@@ -42,6 +42,8 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
   const parentPhone = formData.get("parent_phone")?.toString().trim();
   const parentEmail = formData.get("parent_email")?.toString().trim() || "";
   const branchId = formData.get("branch_id")?.toString().trim();
+  let studentNumber = formData.get("student_number")?.toString().trim() || null;
+  const joinedDate = formData.get("joined_date")?.toString().trim() || new Date().toISOString().split("T")[0];
   const notes = formData.get("notes")?.toString().trim() || "";
   
   const studentProgramsJson = formData.get("student_programs_json")?.toString();
@@ -74,6 +76,33 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
 
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
+  }
+
+  // Generate Student Number if empty
+  if (!studentNumber && branchId) {
+    const { data: branchData } = await supabase.from('branches').select('code').eq('id', branchId).single();
+    const branchCode = branchData?.code || '00';
+    
+    const jd = new Date(joinedDate);
+    const yy = jd.getFullYear().toString().slice(-2);
+    const mm = (jd.getMonth() + 1).toString().padStart(2, '0');
+    const prefix = `${yy}${mm}.${branchCode}.`;
+    
+    const { data: maxStudent } = await supabase
+      .from('students')
+      .select('student_number')
+      .like('student_number', `${prefix}%`)
+      .order('student_number', { ascending: false })
+      .limit(1)
+      .single();
+      
+    let nextNum = 1;
+    if (maxStudent && maxStudent.student_number) {
+      const parts = maxStudent.student_number.split('.');
+      const lastStr = parts[parts.length - 1];
+      if (lastStr) nextNum = parseInt(lastStr, 10) + 1;
+    }
+    studentNumber = `${prefix}${nextNum.toString().padStart(3, '0')}`;
   }
 
   const { data: insertedStudent, error: insertError } = await supabase
@@ -132,6 +161,8 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
   const parentPhone = formData.get("parent_phone")?.toString().trim();
   const parentEmail = formData.get("parent_email")?.toString().trim() || "";
   const branchId = formData.get("branch_id")?.toString().trim();
+  let studentNumber = formData.get("student_number")?.toString().trim() || null;
+  const joinedDate = formData.get("joined_date")?.toString().trim() || new Date().toISOString().split("T")[0];
   const notes = formData.get("notes")?.toString().trim() || "";
   const isActive = formData.get("is_active") === "true";
 
@@ -165,6 +196,32 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
 
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
+  }
+
+  if (!studentNumber && branchId) {
+    const { data: branchData } = await supabase.from('branches').select('code').eq('id', branchId).single();
+    const branchCode = branchData?.code || '00';
+    
+    const jd = new Date(joinedDate);
+    const yy = jd.getFullYear().toString().slice(-2);
+    const mm = (jd.getMonth() + 1).toString().padStart(2, '0');
+    const prefix = `${yy}${mm}.${branchCode}.`;
+    
+    const { data: maxStudent } = await supabase
+      .from('students')
+      .select('student_number')
+      .like('student_number', `${prefix}%`)
+      .order('student_number', { ascending: false })
+      .limit(1)
+      .single();
+      
+    let nextNum = 1;
+    if (maxStudent && maxStudent.student_number) {
+      const parts = maxStudent.student_number.split('.');
+      const lastStr = parts[parts.length - 1];
+      if (lastStr) nextNum = parseInt(lastStr, 10) + 1;
+    }
+    studentNumber = `${prefix}${nextNum.toString().padStart(3, '0')}`;
   }
 
   const { error: updateError } = await supabase
