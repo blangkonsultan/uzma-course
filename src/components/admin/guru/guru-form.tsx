@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
-import Link from "next/link";
 import { createGuru, updateGuru } from "@/app/admin/guru/actions";
 import {
   InputField,
@@ -489,14 +488,17 @@ export function GuruForm({
             </div>
           )}
 
-          <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
-            <Link
+          <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
+            <Button
+              type="button"
+              variant="outline"
               href="/admin/guru"
-              className="inline-flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl border border-slate-200 sm:border-transparent hover:bg-slate-100 transition-colors w-full sm:w-auto min-h-[44px]"
+              disabled={isPending}
+              className="w-full sm:w-auto justify-center min-h-[44px]"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Batal</span>
-            </Link>
+            </Button>
 
             <Button
               type="submit"

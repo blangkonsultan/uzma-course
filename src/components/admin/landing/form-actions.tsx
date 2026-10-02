@@ -21,7 +21,7 @@ export function FormActions({
   return (
     <div
       className={cn(
-        "flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-6 border-t border-slate-100",
+        "flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-6 border-t border-slate-100",
         className
       )}
     >

@@ -539,26 +539,32 @@ export function StudentForm({
             )}
           </div>
 
-          <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+          <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
             <Button
               type="button"
               variant="outline"
               href="/admin/murid"
               disabled={isPending}
+              className="w-full sm:w-auto justify-center min-h-[44px]"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Batal
+              <ArrowLeft className="w-4 h-4" />
+              <span>Batal</span>
             </Button>
-            <Button type="submit" disabled={isPending}>
+
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="w-full sm:w-auto justify-center min-h-[44px]"
+            >
               {isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Menyimpan...
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Menyimpan...</span>
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4 mr-2" />
-                  Simpan Data
+                  <Save className="w-4 h-4" />
+                  <span>Simpan Data</span>
                 </>
               )}
             </Button>
