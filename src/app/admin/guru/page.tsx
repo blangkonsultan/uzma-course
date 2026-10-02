@@ -267,7 +267,7 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
             <MasterMobileCard
               avatar={{ initials, color: "emerald" }}
               title={guru.full_name}
-              titleHref={`/admin/guru/${guru.id}/edit`}
+              titleHref={`/admin/guru/${guru.id}`}
               subtitle={`Pengajar • ${branchName}`}
               status={<StatusBadge isActive={guru.is_active} />}
               badges={
