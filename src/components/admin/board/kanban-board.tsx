@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { formatTimeString } from "@/lib/utils";
 import { Search, Users, GraduationCap, GripVertical, Trash2, Loader2 } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
+import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { 
   DndContext, 
   DragOverlay, 
@@ -77,6 +78,17 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
   const [classes, setClasses] = useState<ScheduleClass[]>((initialClasses as ScheduleClass[]) || []);
   const [activeDragItem, setActiveDragItem] = useState<Record<string, unknown> | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
 
   // Generate Teacher-Variant combinations for the sidebar
   const teacherCombos = useMemo(() => {
@@ -171,32 +183,49 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
     }
   };
 
-  const deleteClass = async (classId: string) => {
-    if (!confirm("Hapus wadah kelas ini?")) return;
-    setIsProcessing(true);
-    try {
-      await removeScheduleClass(classId);
-      setClasses(classes.filter(c => c.id !== classId));
-    } catch {
-      showToast("Gagal menghapus", "error");
-    }
-    setIsProcessing(false);
+  const deleteClass = (classId: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Hapus Wadah Kelas",
+      description: "Apakah Anda yakin ingin menghapus wadah kelas ini? Semua murid di dalamnya akan dikeluarkan dari kelas.",
+      onConfirm: async () => {
+        setIsProcessing(true);
+        try {
+          await removeScheduleClass(classId);
+          setClasses(classes.filter(c => c.id !== classId));
+          showToast("Wadah kelas berhasil dihapus", "success");
+        } catch {
+          showToast("Gagal menghapus", "error");
+        }
+        setIsProcessing(false);
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+      }
+    });
   };
 
-  const deletePlacement = async (classId: string, placementId: string) => {
-    setIsProcessing(true);
-    try {
-      await removeSchedulePlacement(placementId);
-      setClasses(classes.map(c => {
-        if (c.id === classId) {
-          return { ...c, schedule_placements: c.schedule_placements.filter((p) => p.id !== placementId) };
+  const deletePlacement = (classId: string, placementId: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Keluarkan Murid",
+      description: "Apakah Anda yakin ingin mengeluarkan murid ini dari kelas?",
+      onConfirm: async () => {
+        setIsProcessing(true);
+        try {
+          await removeSchedulePlacement(placementId);
+          setClasses(classes.map(c => {
+            if (c.id === classId) {
+              return { ...c, schedule_placements: c.schedule_placements.filter((p) => p.id !== placementId) };
+            }
+            return c;
+          }));
+          showToast("Murid berhasil dikeluarkan", "success");
+        } catch {
+          showToast("Gagal menghapus murid dari kelas", "error");
         }
-        return c;
-      }));
-    } catch {
-      showToast("Gagal menghapus murid dari kelas", "error");
-    }
-    setIsProcessing(false);
+        setIsProcessing(false);
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+      }
+    });
   };
 
   return (
@@ -407,6 +436,17 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
             </div>
           ) : null}
         </DragOverlay>
+
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          title={confirmDialog.title}
+          description={confirmDialog.description}
+          isLoading={isProcessing}
+          onConfirm={() => {
+            confirmDialog.onConfirm();
+          }}
+          onCancel={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
+        />
 
       </div>
     </DndContext>
