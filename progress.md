@@ -52,3 +52,10 @@
 - **Status**: Completed.
 - **Evidence**:
   - Pushed migration `20261002164312_redistribute_dummy_students.sql` to randomly assign the 20 dummy students to diverse programs (AHE, ASE, BEE, etc.) instead of everyone defaulting to the first variant.
+
+## 2026-10-02 (Kanban Board Polish)
+- **Status**: Completed.
+- **Evidence**:
+  - Added visual highlight/dimming search logic to Kanban board containers and placements.
+  - Fixed DND-Kit event bubbling bug where full class blocked new session drop underneath.
+  - Added "Kembali ke Draft" back button to `/admin/draft/[id]/board` page.

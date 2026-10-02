@@ -89,7 +89,29 @@ export async function createSchedulePlacement(data: {
   student_id: string;
 }) {
   const { supabase } = await requireAdmin();
+
+  // Validate capacity
+  const { data: classData, error: classErr } = await supabase
+    .from("schedule_classes")
+    .select(`
+      id,
+      program_variants ( system ),
+      schedule_placements ( id )
+    `)
+    .eq("id", data.class_id)
+    .single();
+
+  if (classErr || !classData) throw new Error("Wadah kelas tidak ditemukan.");
   
+  const variant = classData.program_variants as unknown as { system: number } | null | undefined;
+  const capacity = variant?.system || 1;
+  const placements = classData.schedule_placements as unknown as { id: string }[] | null | undefined;
+  const currentCount = Array.isArray(placements) ? placements.length : 0;
+
+  if (currentCount >= capacity) {
+    throw new Error(`Gagal: Kuota kelas sudah penuh (Maksimal ${capacity} murid).`);
+  }
+
   const { data: result, error } = await supabase
     .from("schedule_placements")
     .insert({

@@ -232,8 +232,14 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
     const overData = over.data.current as Record<string, unknown> | undefined;
 
     // RULE 1: Dropping a Teacher-Variant onto a Shift Column (Creates Class Container)
-    if (activeData?.type === "teacher-variant" && overData?.type === "shift") {
-      const shift = shifts.find(s => s.id === overData.shiftId);
+    if (activeData?.type === "teacher-variant" && (overData?.type === "shift" || overData?.type === "class")) {
+      let targetShiftId = overData.shiftId as string;
+      if (overData.type === "class") {
+        const targetClass = classes.find(c => c.id === overData.classId);
+        if (targetClass) targetShiftId = targetClass.shift_id;
+      }
+      
+      const shift = shifts.find(s => s.id === targetShiftId);
       const variant = variants.find(v => v.id === activeData.variantId);
       
       if (!shift || !variant) return;
@@ -256,7 +262,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
       setTimeModal({
         isOpen: true,
         draft_id: draft.id,
-        shift_id: overData.shiftId as string,
+        shift_id: targetShiftId,
         teacher_id: activeData.teacherId as string,
         variant_id: activeData.variantId as string,
         defaultStartTime: defaultStart,
@@ -264,8 +270,6 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
       });
       return;
     }
-
-    // RULE 2: Dropping a Student onto a Class Container (Creates Placement)
     if (activeData?.type === "student" && overData?.type === "class") {
       // Check program match
       const studentData = activeData.student as KanbanBoardProps["students"][number];
@@ -430,13 +434,26 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                       const currentCount = cls.schedule_placements?.length || 0;
                       const isFull = currentCount >= capacity;
 
+                      const searchLower = search.trim().toLowerCase();
+                      const teacherMatch = teacher?.full_name.toLowerCase().includes(searchLower) || false;
+                      const variantMatch = variant?.name.toLowerCase().includes(searchLower) || false;
+                      
+                      let classMatchesSearch = searchLower ? (teacherMatch || variantMatch) : true;
+                      
+                      const placementsWithData = (cls.schedule_placements || []).map(placement => {
+                        const student = students.find((s) => s.id === placement.student_id);
+                        const studentMatch = searchLower ? (student?.full_name.toLowerCase().includes(searchLower) || false) : true;
+                        if (studentMatch && searchLower) classMatchesSearch = true;
+                        return { placement, student, studentMatch };
+                      });
+
                       return (
                         <DroppableClass 
                           key={cls.id} 
                           id={`class-${cls.id}`} 
                           data={{ type: "class", classId: cls.id, variantId: cls.variant_id, variantName: variant?.name }}
                           isFull={isFull}
-                          className={`border rounded-lg shadow-sm bg-white overflow-hidden transition-colors ${isFull ? 'border-red-200' : 'border-slate-200'}`}
+                          className={`border rounded-lg shadow-sm bg-white overflow-hidden transition-all duration-300 ${isFull ? 'border-red-200' : 'border-slate-200'} ${searchLower && !classMatchesSearch ? 'opacity-30 grayscale' : ''}`}
                         >
                           <div className={`px-3 py-2 border-b flex justify-between items-center ${isFull ? 'bg-red-50' : 'bg-slate-50'}`}>
                             <div>
@@ -464,11 +481,10 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                           </div>
                           
                           <div className="p-2 min-h-[60px] space-y-1">
-                            {cls.schedule_placements?.map((placement) => {
-                              const student = students.find((s) => s.id === placement.student_id);
+                            {placementsWithData.map(({ placement, student, studentMatch }) => {
                               return (
-                                <div key={placement.id} className="text-sm bg-blue-50 border border-blue-100 rounded px-2 py-1.5 flex justify-between items-center group">
-                                  <span>{student?.full_name || "Murid ?"}</span>
+                                <div key={placement.id} className={`text-sm bg-blue-50 border border-blue-100 rounded px-2 py-1.5 flex justify-between items-center group transition-all duration-300 ${searchLower && !studentMatch ? 'opacity-40' : ''}`}>
+                                  <span className={searchLower && studentMatch && !teacherMatch && !variantMatch ? "font-bold text-blue-700" : ""}>{student?.full_name || "Murid ?"}</span>
                                   <button type="button" aria-label="Keluarkan murid" onClick={() => deletePlacement(cls.id, placement.id)} className="text-blue-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Trash2 className="w-3 h-3" />
                                   </button>
