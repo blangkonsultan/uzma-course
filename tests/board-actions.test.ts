@@ -32,6 +32,16 @@ describe("Board Actions (src/app/admin/draft/board-actions.ts)", () => {
         if (table === "profiles") {
           return { select: mockProfileSelect };
         }
+        if (table === "branch_shifts") {
+          return { select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: { start_time: "08:00", end_time: "12:00" }, error: null }) }) }) };
+        }
+        if (table === "schedule_classes") {
+          return {
+            insert: mockInsert,
+            delete: mockDelete,
+            select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ or: vi.fn().mockResolvedValue({ data: [], error: null }) }) }) }) }),
+          };
+        }
         return {
           insert: mockInsert,
           delete: mockDelete,
@@ -47,7 +57,9 @@ describe("Board Actions (src/app/admin/draft/board-actions.ts)", () => {
       shift_id: "s1",
       day_of_week: 1,
       teacher_id: "t1",
-      variant_id: "v1"
+      variant_id: "v1",
+      start_time: "09:00",
+      end_time: "10:00"
     });
     expect(result).toHaveProperty("id", "inserted-id");
   });

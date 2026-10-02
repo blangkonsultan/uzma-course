@@ -5,6 +5,7 @@ import { formatTimeString } from "@/lib/utils";
 import { Search, Users, GraduationCap, GripVertical, Trash2, Loader2, Filter, ChevronDown, X } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { ClassTimeModal } from "./class-time-modal";
 import { 
   DndContext, 
   DragOverlay, 
@@ -39,6 +40,8 @@ export interface ScheduleClass {
   day_of_week: number;
   teacher_id: string;
   variant_id: string;
+  start_time: string;
+  end_time: string;
   schedule_placements: Array<{ id: string; student_id: string }>;
 }
 
@@ -78,6 +81,23 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
   const [classes, setClasses] = useState<ScheduleClass[]>((initialClasses as ScheduleClass[]) || []);
   const [activeDragItem, setActiveDragItem] = useState<Record<string, unknown> | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [timeModal, setTimeModal] = useState<{
+    isOpen: boolean;
+    draft_id: string;
+    shift_id: string;
+    teacher_id: string;
+    variant_id: string;
+    defaultStartTime: string;
+    durationMinutes: number;
+  }>({
+    isOpen: false,
+    draft_id: "",
+    shift_id: "",
+    teacher_id: "",
+    variant_id: "",
+    defaultStartTime: "09:00",
+    durationMinutes: 30,
+  });
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     title: string;
@@ -110,22 +130,39 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
   // Generate Teacher-Variant combinations for the sidebar
   const teacherCombos = useMemo(() => {
     const combos: Array<{ id: string; teacher: KanbanBoardProps["teachers"][number]; variant: KanbanBoardProps["variants"][number]; label: string }> = [];
+    
+    const totalShiftMinutes = shifts.reduce((total, shift) => {
+      const [sh, sm] = shift.start_time.split(":").map(Number);
+      const [eh, em] = shift.end_time.split(":").map(Number);
+      return total + ((eh * 60 + em) - (sh * 60 + sm));
+    }, 0);
+
     teachers.forEach((t) => {
-      // Find variants for programs the teacher is assigned to
+      const totalScheduledMinutes = classes
+        .filter(c => c.day_of_week === activeDay && c.teacher_id === t.id)
+        .reduce((total, c) => {
+          if (!c.start_time || !c.end_time) return total;
+          const [sh, sm] = c.start_time.split(":").map(Number);
+          const [eh, em] = c.end_time.split(":").map(Number);
+          return total + ((eh * 60 + em) - (sh * 60 + sm));
+        }, 0);
+
       const teacherProgramIds = t.profile_programs.map((pp) => pp.program_id);
       const teacherVariants = variants.filter((v) => v.program_id && teacherProgramIds.includes(v.program_id));
       
       teacherVariants.forEach((v) => {
-        combos.push({
-          id: `tv-${t.id}-${v.id}`,
-          teacher: t,
-          variant: v,
-          label: `${t.full_name} (${v.name})`
-        });
+        if (totalScheduledMinutes + (v.duration || 30) <= totalShiftMinutes) {
+          combos.push({
+            id: `tv-${t.id}-${v.id}`,
+            teacher: t,
+            variant: v,
+            label: `${t.full_name} (${v.name})`
+          });
+        }
       });
     });
     return combos;
-  }, [teachers, variants]);
+  }, [teachers, variants, classes, activeDay, shifts]);
 
   const filteredCombos = useMemo(() => {
     return teacherCombos.filter((c) => {
@@ -196,22 +233,36 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
 
     // RULE 1: Dropping a Teacher-Variant onto a Shift Column (Creates Class Container)
     if (activeData?.type === "teacher-variant" && overData?.type === "shift") {
-      setIsProcessing(true);
-      try {
-        const newClass = await createScheduleClass({
-          draft_id: draft.id,
-          shift_id: overData.shiftId as string,
-          day_of_week: activeDay,
-          teacher_id: activeData.teacherId as string,
-          variant_id: activeData.variantId as string,
-        }) as unknown as ScheduleClass;
-        
-        // Optimistic update
-        setClasses([...classes, { ...newClass, schedule_placements: [] }]);
-      } catch (err) {
-        showToast(err instanceof Error ? err.message : "Gagal membuat wadah kelas", "error");
+      const shift = shifts.find(s => s.id === overData.shiftId);
+      const variant = variants.find(v => v.id === activeData.variantId);
+      
+      if (!shift || !variant) return;
+
+      // Smart default start time:
+      // Find teacher's classes in this shift today
+      const teacherClassesInShift = classes.filter(
+        c => c.shift_id === shift.id && c.day_of_week === activeDay && c.teacher_id === activeData.teacherId
+      );
+      
+      let defaultStart = shift.start_time.slice(0, 5); // "09:00"
+      if (teacherClassesInShift.length > 0) {
+        // Find the latest end_time
+        const latestEnd = teacherClassesInShift.reduce((latest, c) => {
+          return c.end_time > latest ? c.end_time : latest;
+        }, "00:00");
+        if (latestEnd) defaultStart = latestEnd.slice(0, 5);
       }
-      setIsProcessing(false);
+
+      setTimeModal({
+        isOpen: true,
+        draft_id: draft.id,
+        shift_id: overData.shiftId as string,
+        teacher_id: activeData.teacherId as string,
+        variant_id: activeData.variantId as string,
+        defaultStartTime: defaultStart,
+        durationMinutes: variant.duration || 30,
+      });
+      return;
     }
 
     // RULE 2: Dropping a Student onto a Class Container (Creates Placement)
@@ -245,7 +296,24 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
       setIsProcessing(false);
     }
   };
-
+  const handleSaveTimeModal = async (startTime: string, endTime: string) => {
+    try {
+      const newClass = await createScheduleClass({
+        draft_id: timeModal.draft_id,
+        shift_id: timeModal.shift_id,
+        day_of_week: activeDay,
+        teacher_id: timeModal.teacher_id,
+        variant_id: timeModal.variant_id,
+        start_time: startTime + ":00",
+        end_time: endTime + ":00",
+      }) as unknown as ScheduleClass;
+      
+      setClasses([...classes, { ...newClass, schedule_placements: [] }]);
+      showToast("Wadah kelas berhasil dibuat", "success");
+    } catch (err) {
+      throw err;
+    }
+  };
   const deleteClass = (classId: string) => {
     setConfirmDialog({
       isOpen: true,
@@ -290,9 +358,16 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
       }
     });
   };
-
   return (
     <DndContext id="kanban-dnd-context" sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <ClassTimeModal
+        key={timeModal.isOpen ? timeModal.shift_id + timeModal.teacher_id : "closed"}
+        isOpen={timeModal.isOpen}
+        onClose={() => setTimeModal(prev => ({ ...prev, isOpen: false }))}
+        onSave={handleSaveTimeModal}
+        defaultStartTime={timeModal.defaultStartTime}
+        durationMinutes={timeModal.durationMinutes}
+      />
       <div className="flex flex-col h-full bg-slate-50 border rounded-lg overflow-hidden relative">
         
         {/* Loading Overlay */}
@@ -366,7 +441,17 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                           <div className={`px-3 py-2 border-b flex justify-between items-center ${isFull ? 'bg-red-50' : 'bg-slate-50'}`}>
                             <div>
                               <p className="text-sm font-bold text-slate-800">{teacher?.full_name}</p>
-                              <p className="text-xs font-medium text-primary-600">{variant?.name}</p>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-xs font-medium text-primary-600">{variant?.name}</span>
+                                {cls.start_time && cls.end_time && (
+                                  <>
+                                    <span className="text-slate-300">•</span>
+                                    <span className="text-xs font-medium text-slate-500 bg-white px-1.5 rounded border border-slate-200">
+                                      {cls.start_time.slice(0, 5)} - {cls.end_time.slice(0, 5)}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className={`text-xs font-bold px-2 py-1 rounded-full ${isFull ? 'bg-red-200 text-red-800' : 'bg-green-100 text-green-700'}`}>

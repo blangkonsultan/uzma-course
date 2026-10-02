@@ -146,13 +146,13 @@ isOneToOne: false
                   ]
                 },"schedule_classes": {
                   Row: {
-                    "created_at": string,"day_of_week": number,"draft_id": string,"id": string,"shift_id": string,"teacher_id": string,"updated_at": string,"variant_id": string
+                    "created_at": string,"day_of_week": number,"draft_id": string,"id": string,"shift_id": string,"teacher_id": string,"updated_at": string,"variant_id": string, "start_time": string, "end_time": string
                   }
                   Insert: {
-                    "created_at"?: string,"day_of_week": number,"draft_id": string,"id"?: string,"shift_id": string,"teacher_id": string,"updated_at"?: string,"variant_id": string
+                    "created_at"?: string,"day_of_week": number,"draft_id": string,"id"?: string,"shift_id": string,"teacher_id": string,"updated_at"?: string,"variant_id": string, "start_time": string, "end_time": string
                   }
                   Update: {
-                    "created_at"?: string,"day_of_week"?: number,"draft_id"?: string,"id"?: string,"shift_id"?: string,"teacher_id"?: string,"updated_at"?: string,"variant_id"?: string
+                    "created_at"?: string,"day_of_week"?: number,"draft_id"?: string,"id"?: string,"shift_id"?: string,"teacher_id"?: string,"updated_at"?: string,"variant_id"?: string, "start_time"?: string, "end_time"?: string
                   }
                   Relationships: [
                     {

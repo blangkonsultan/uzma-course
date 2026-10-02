@@ -36,3 +36,14 @@
   - `npm run lint` passes with 0 errors and 0 warnings.
   - `npm test` passes all 226 tests.
   - `npm run build` production build succeeds.
+
+## 2026-10-02 (Dynamic Scheduling Time Bounds)
+- **Status**: Completed.
+- **Evidence**:
+  - Dropped `uq_teacher_shift_day` unique constraint via migration.
+  - Added `start_time` and `end_time` to `schedule_classes`.
+  - Created `ClassTimeModal` for assigning specific times during drag-and-drop on Kanban Board.
+  - Updated backend `createScheduleClass` with validation for shift time boundaries and teacher class overlaps.
+  - Sidebar reactively filters teachers based on available shift minutes vs scheduled minutes.
+  - Supabase types updated and migrations pushed to remote production.
+  - `npm run build` and `npm test` verified 100% passing.
