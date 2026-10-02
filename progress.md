@@ -47,3 +47,8 @@
   - Sidebar reactively filters teachers based on available shift minutes vs scheduled minutes.
   - Supabase types updated and migrations pushed to remote production.
   - `npm run build` and `npm test` verified 100% passing.
+
+## 2026-10-02 (Redistribute Dummy Students)
+- **Status**: Completed.
+- **Evidence**:
+  - Pushed migration `20261002164312_redistribute_dummy_students.sql` to randomly assign the 20 dummy students to diverse programs (AHE, ASE, BEE, etc.) instead of everyone defaulting to the first variant.
