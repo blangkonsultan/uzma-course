@@ -433,8 +433,8 @@ export function GuruForm({
                 Pendapatan Minimal
               </h3>
               
-              <div className="space-y-4 bg-slate-50/50 border border-slate-200 p-4 rounded-xl">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="space-y-4">
+                <label className="flex items-center gap-2.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.minimum_income_enabled}
@@ -442,16 +442,16 @@ export function GuruForm({
                     disabled={isPending}
                     className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                   />
-                  <span className="text-sm text-slate-700 font-medium">Aktifkan Pendapatan Minimal (Fixed)</span>
+                  <span className="text-sm font-medium text-slate-800">Aktifkan Pendapatan Minimal</span>
                 </label>
-                
+
                 {formData.minimum_income_enabled && (
-                  <div className="pt-2 border-t border-slate-100">
+                  <div className="pl-6.5 ml-0.5">
                     <InputField
                       id="minimum_income"
                       name="minimum_income"
                       type="number"
-                      label="Nominal Pendapatan Minimal (Rp)"
+                      label="Nominal (Rp)"
                       hint="Garansi pendapatan minimum jika pendapatan riil berada di bawah nominal ini."
                       placeholder="Contoh: 250000"
                       value={formData.minimum_income}
