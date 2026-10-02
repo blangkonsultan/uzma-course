@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { toggleStudentActive } from "@/app/admin/murid/actions";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { showToast } from "@/components/admin/toast";
 import { UserX, UserCheck } from "lucide-react";
 
 interface StudentStatusButtonProps {
@@ -28,10 +29,11 @@ export function StudentStatusButton({
         await toggleStudentActive(studentId, isActive);
         setDialogOpen(false);
       } catch (err) {
-        alert(
+        showToast(
           err instanceof Error
             ? err.message
-            : "Gagal memperbarui status aktif murid."
+            : "Gagal memperbarui status aktif murid.",
+          "error"
         );
       }
     });
@@ -44,7 +46,7 @@ export function StudentStatusButton({
         onClick={() => setDialogOpen(true)}
         className={
           className ||
-          `p-1.5 rounded-lg transition-colors ${
+          `p-2 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg transition-colors ${
             isActive
               ? "text-rose-600 hover:bg-rose-50"
               : "text-emerald-600 hover:bg-emerald-50"

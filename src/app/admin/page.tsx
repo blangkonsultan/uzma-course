@@ -103,7 +103,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Top Banner Greeting */}
-      <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-purple-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg shadow-primary-900/10">
+      <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-primary-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg shadow-primary-900/10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-white/90 text-xs font-medium backdrop-blur-xs">
@@ -155,7 +155,7 @@ export default async function AdminDashboardPage() {
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Guru Aktif
             </p>
-            <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
+            <p className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1 font-heading">
               {activeGuruCount}
             </p>
             {isAdmin ? (
@@ -167,10 +167,10 @@ export default async function AdminDashboardPage() {
                 <ArrowRight className="w-3 h-3" />
               </Link>
             ) : (
-              <p className="text-xs text-slate-400 mt-2">Terdaftar di sistem</p>
+              <p className="text-xs text-slate-500 mt-2">Terdaftar di sistem</p>
             )}
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
             <Users className="w-6 h-6" />
           </div>
         </div>
@@ -181,7 +181,7 @@ export default async function AdminDashboardPage() {
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Murid Aktif {userBranch && !isAdmin ? `(${userBranch})` : ""}
             </p>
-            <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
+            <p className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1 font-heading">
               {totalMuridCount}
             </p>
             <Link
@@ -218,10 +218,10 @@ export default async function AdminDashboardPage() {
                     branch.name
                   )}
                 </p>
-                <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
+                <p className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1 font-heading">
                   {branch.count}
                 </p>
-                <p className="text-xs text-slate-400 mt-2">
+                <p className="text-xs text-slate-500 mt-2">
                   {branch.sub_name ? `${branch.sub_name} • ` : ""}Murid aktif
                 </p>
               </div>
@@ -262,7 +262,7 @@ export default async function AdminDashboardPage() {
             >
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-primary-100 text-primary-700 border border-primary-200">
                     {prog.initials}
                   </span>
                   <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">

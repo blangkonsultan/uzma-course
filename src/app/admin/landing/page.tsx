@@ -245,7 +245,7 @@ export default async function AdminLandingPage({ searchParams }: LandingPageProp
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
                     <Clock className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>
                       {updatedAt ? formatDate(updatedAt) : "Default"}

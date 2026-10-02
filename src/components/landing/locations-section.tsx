@@ -24,7 +24,7 @@ export function LocationsSection({ data }: LocationsSectionProps) {
         <div className="grid md:grid-cols-2 gap-8 mt-12">
           {content.items.map((branch) => (
             <Card key={branch.id} className="hover:shadow-lg transition-shadow duration-300">
-              <CardBody className="p-8 flex flex-col justify-between h-full">
+              <CardBody className="p-5 sm:p-8 flex flex-col justify-between h-full">
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 mb-4">
                     <MapPin className="w-6 h-6" aria-hidden="true" />

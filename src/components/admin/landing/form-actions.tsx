@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useFormStatus } from "react-dom";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,8 @@ export function FormActions({
   isPending,
   className,
 }: FormActionsProps) {
+  const { pending } = useFormStatus();
+  const isActuallyPending = isPending || pending;
   return (
     <div
       className={cn(
@@ -35,10 +38,10 @@ export function FormActions({
 
       <Button
         type="submit"
-        disabled={isPending}
+        disabled={isActuallyPending}
         className="inline-flex items-center justify-center gap-2 w-full sm:w-auto min-h-[44px] font-semibold text-sm shadow-xs"
       >
-        {isPending ? (
+        {isActuallyPending ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin shrink-0" />
             <span>Menyimpan...</span>

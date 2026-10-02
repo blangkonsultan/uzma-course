@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -25,6 +27,36 @@ async function requireAdmin() {
   }
 
   return { user, supabase };
+}
+
+async function generateStudentNumber(
+  supabase: SupabaseClient<Database>,
+  branchId: string,
+  joinedDate: string
+): Promise<string> {
+  const { data: branchData } = await supabase.from('branches').select('code').eq('id', branchId).single();
+  const branchCode = branchData?.code || '00';
+
+  const jd = new Date(joinedDate);
+  const yy = jd.getFullYear().toString().slice(-2);
+  const mm = (jd.getMonth() + 1).toString().padStart(2, '0');
+  const prefix = `${yy}${mm}.${branchCode}.`;
+
+  const { data: maxStudent } = await supabase
+    .from('students')
+    .select('student_number')
+    .like('student_number', `${prefix}%`)
+    .order('student_number', { ascending: false })
+    .limit(1)
+    .single();
+
+  let nextNum = 1;
+  if (maxStudent && maxStudent.student_number) {
+    const parts = maxStudent.student_number.split('.');
+    const lastStr = parts[parts.length - 1];
+    if (lastStr) nextNum = parseInt(lastStr, 10) + 1;
+  }
+  return `${prefix}${nextNum.toString().padStart(3, '0')}`;
 }
 
 export interface StudentActionResponse {
@@ -80,29 +112,7 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
 
   // Generate Student Number if empty
   if (!studentNumber && branchId) {
-    const { data: branchData } = await supabase.from('branches').select('code').eq('id', branchId).single();
-    const branchCode = branchData?.code || '00';
-    
-    const jd = new Date(joinedDate);
-    const yy = jd.getFullYear().toString().slice(-2);
-    const mm = (jd.getMonth() + 1).toString().padStart(2, '0');
-    const prefix = `${yy}${mm}.${branchCode}.`;
-    
-    const { data: maxStudent } = await supabase
-      .from('students')
-      .select('student_number')
-      .like('student_number', `${prefix}%`)
-      .order('student_number', { ascending: false })
-      .limit(1)
-      .single();
-      
-    let nextNum = 1;
-    if (maxStudent && maxStudent.student_number) {
-      const parts = maxStudent.student_number.split('.');
-      const lastStr = parts[parts.length - 1];
-      if (lastStr) nextNum = parseInt(lastStr, 10) + 1;
-    }
-    studentNumber = `${prefix}${nextNum.toString().padStart(3, '0')}`;
+    studentNumber = await generateStudentNumber(supabase, branchId, joinedDate);
   }
 
   const { data: insertedStudent, error: insertError } = await supabase
@@ -199,29 +209,7 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
   }
 
   if (!studentNumber && branchId) {
-    const { data: branchData } = await supabase.from('branches').select('code').eq('id', branchId).single();
-    const branchCode = branchData?.code || '00';
-    
-    const jd = new Date(joinedDate);
-    const yy = jd.getFullYear().toString().slice(-2);
-    const mm = (jd.getMonth() + 1).toString().padStart(2, '0');
-    const prefix = `${yy}${mm}.${branchCode}.`;
-    
-    const { data: maxStudent } = await supabase
-      .from('students')
-      .select('student_number')
-      .like('student_number', `${prefix}%`)
-      .order('student_number', { ascending: false })
-      .limit(1)
-      .single();
-      
-    let nextNum = 1;
-    if (maxStudent && maxStudent.student_number) {
-      const parts = maxStudent.student_number.split('.');
-      const lastStr = parts[parts.length - 1];
-      if (lastStr) nextNum = parseInt(lastStr, 10) + 1;
-    }
-    studentNumber = `${prefix}${nextNum.toString().padStart(3, '0')}`;
+    studentNumber = await generateStudentNumber(supabase, branchId, joinedDate);
   }
 
   const { error: updateError } = await supabase

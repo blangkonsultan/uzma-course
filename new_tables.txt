@@ -1,0 +1,81 @@
+      schedule_drafts: {
+        Row: {
+          id: string;
+          branch_id: string;
+          name: string;
+          effective_date: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          branch_id: string;
+          name: string;
+          effective_date?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          branch_id?: string;
+          name?: string;
+          effective_date?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      schedule_classes: {
+        Row: {
+          id: string;
+          draft_id: string;
+          shift_id: string;
+          day_of_week: number;
+          teacher_id: string;
+          variant_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          draft_id: string;
+          shift_id: string;
+          day_of_week: number;
+          teacher_id: string;
+          variant_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          draft_id?: string;
+          shift_id?: string;
+          day_of_week?: number;
+          teacher_id?: string;
+          variant_id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      schedule_placements: {
+        Row: {
+          id: string;
+          class_id: string;
+          student_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          class_id: string;
+          student_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          class_id?: string;
+          student_id?: string;
+          created_at?: string;
+        };
+      };

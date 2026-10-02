@@ -122,7 +122,7 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
             >
               {b.name}
             </Link>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               {b.sub_name || "-"}
             </p>
           </div>
@@ -160,7 +160,7 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         ) : (
-          <span className="text-xs text-slate-400 italic">-</span>
+          <span className="text-xs text-slate-500 italic">-</span>
         ),
     },
     {
@@ -238,7 +238,7 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
               badges={
                 b.address ? (
                   <span className="inline-flex items-center gap-1 text-xs text-slate-500 line-clamp-1">
-                    <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+                    <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-500" />
                     <span className="truncate">{b.address}</span>
                   </span>
                 ) : undefined
@@ -256,7 +256,7 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-primary-600 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors min-h-[36px]"
                     >
-                      <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
                       <span>Peta</span>
                     </a>
                   )}
@@ -264,7 +264,7 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
                     href={`/admin/cabang/${b.id}/edit`}
                     className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-primary-600 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors min-h-[36px]"
                   >
-                    <Edit2 className="w-3.5 h-3.5 text-slate-400" />
+                    <Edit2 className="w-3.5 h-3.5 text-slate-500" />
                     <span>Edit</span>
                   </Link>
                   <BranchStatusButton

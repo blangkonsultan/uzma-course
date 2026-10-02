@@ -136,22 +136,22 @@ export default async function StudentDetailPage({
           <Card className="border border-slate-200/80 shadow-xs overflow-hidden">
             <CardHeader className="bg-slate-50/70 border-b border-slate-100 p-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
+                <div className="w-8 h-8 rounded-xl bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
                   <User className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900">
                   Biodata Murid
                 </h2>
               </div>
-              <span className="text-xs text-slate-400 font-mono">
+              <span className="text-xs text-slate-500 font-mono">
                 ID: {student.id.slice(0, 8)}...
               </span>
             </CardHeader>
 
-            <CardBody className="p-6 divide-y divide-slate-100">
+            <CardBody className="p-4 sm:p-6 divide-y divide-slate-100">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4">
                 <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                     Nama Lengkap
                   </span>
                   <p className="text-sm font-bold text-slate-900">
@@ -160,11 +160,11 @@ export default async function StudentDetailPage({
                 </div>
 
                 <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                     Tanggal Lahir & Usia
                   </span>
                   <p className="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-slate-400" />
+                    <Calendar className="w-4 h-4 text-slate-500" />
                     <span>
                       {student.birth_date
                         ? `${new Date(student.birth_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })} (${ageDisplay})`
@@ -175,11 +175,11 @@ export default async function StudentDetailPage({
               </div>
 
               <div className="py-4">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                   Alamat Tempat Tinggal
                 </span>
                 <p className="text-sm text-slate-700 leading-relaxed flex items-start gap-1.5">
-                  <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  <MapPin className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
                   <span>
                     {student.address ||
                       "Alamat belum dilengkapi pada pendaftaran."}
@@ -189,7 +189,7 @@ export default async function StudentDetailPage({
 
               {/* Catatan Khusus */}
               <div className="pt-4">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5 flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1.5 flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5" />
                   <span>Catatan Tambahan</span>
                 </span>
@@ -206,7 +206,7 @@ export default async function StudentDetailPage({
           {/* Programs Enrolled Card */}
           <Card className="border border-slate-200/80 shadow-xs overflow-hidden">
             <CardHeader className="bg-slate-50/70 border-b border-slate-100 p-5 flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
+              <div className="w-8 h-8 rounded-xl bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
                 <BookOpen className="w-4 h-4" />
               </div>
               <h2 className="text-base font-bold text-slate-900">
@@ -214,7 +214,7 @@ export default async function StudentDetailPage({
               </h2>
             </CardHeader>
 
-            <CardBody className="p-6">
+            <CardBody className="p-4 sm:p-6">
               {enrolledPrograms.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {enrolledPrograms.map((sp) => {
@@ -225,7 +225,7 @@ export default async function StudentDetailPage({
                         className="p-4 rounded-xl border border-slate-200/80 bg-white hover:border-primary-300 transition-colors shadow-2xs"
                       >
                         <div className="flex items-center gap-2 mb-1.5">
-                          <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
+                          <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-primary-100 text-primary-700 border border-primary-200">
                             {prog?.initials ?? "PROG"}
                           </span>
                           <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
@@ -258,7 +258,7 @@ export default async function StudentDetailPage({
                   })}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 italic">
+                <p className="text-xs text-slate-500 italic">
                   Belum terdaftar di program bimbingan belajar manapun.
                 </p>
               )}
@@ -279,9 +279,9 @@ export default async function StudentDetailPage({
               </h2>
             </CardHeader>
 
-            <CardBody className="p-6 space-y-4">
+            <CardBody className="p-4 sm:p-6 space-y-4">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                   Nama Orang Tua / Wali
                 </span>
                 <p className="text-sm font-bold text-slate-900">
@@ -290,7 +290,7 @@ export default async function StudentDetailPage({
               </div>
 
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                   Nomor WhatsApp
                 </span>
                 <a
@@ -309,11 +309,11 @@ export default async function StudentDetailPage({
 
               {student.parent_email && (
                 <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                     Email Orang Tua
                   </span>
                   <p className="text-xs font-medium text-slate-700 flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-slate-400" />
+                    <Mail className="w-3.5 h-3.5 text-slate-500" />
                     <span>{student.parent_email}</span>
                   </p>
                 </div>
@@ -334,7 +334,7 @@ export default async function StudentDetailPage({
 
             <CardBody className="p-6 space-y-3">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                   Cabang Penugasan
                 </span>
                 <p className="text-sm font-bold text-slate-900">
@@ -349,7 +349,7 @@ export default async function StudentDetailPage({
 
               {branchObj?.address && (
                 <div className="pt-2 border-t border-slate-100">
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                     Alamat Lengkap Cabang
                   </span>
                   <p className="text-xs text-slate-600 leading-relaxed">

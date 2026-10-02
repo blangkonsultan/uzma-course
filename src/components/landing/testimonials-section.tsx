@@ -1,5 +1,3 @@
-"use client";
-
 import { Quote } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -26,7 +24,7 @@ export function TestimonialsSection({ data }: TestimonialsSectionProps) {
           {content.items.map((item, idx) => (
             <Card
               key={`${item.parentName}-${idx}`}
-              className="min-w-[300px] md:min-w-[350px] max-w-[380px] flex-shrink-0 snap-center flex flex-col justify-between"
+              className="min-w-[85vw] sm:min-w-[320px] md:min-w-[350px] max-w-[380px] flex-shrink-0 snap-center flex flex-col justify-between"
             >
               <CardBody className="p-6 flex flex-col justify-between h-full">
                 <div>

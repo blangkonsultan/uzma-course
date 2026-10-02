@@ -33,6 +33,7 @@ export function Button({
   const classes = cn(
     "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-colors",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2",
+    "disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed",
     variants[variant],
     sizes[size],
     className

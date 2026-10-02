@@ -6,7 +6,7 @@ export interface MasterMobileCardProps {
   /** Initials (1-3 chars) and avatar color scheme */
   avatar: {
     initials: string;
-    color?: "purple" | "blue" | "emerald" | "amber" | "slate";
+    color?: "primary" | "blue" | "emerald" | "amber" | "slate";
   };
   /** Primary title / name of the entity */
   title: string;
@@ -35,7 +35,7 @@ export interface MasterMobileCardProps {
 }
 
 const AVATAR_COLOR_MAP = {
-  purple: "bg-purple-100 text-purple-700",
+  primary: "bg-primary-100 text-primary-700",
   blue: "bg-blue-100 text-blue-700",
   emerald: "bg-emerald-100 text-emerald-800",
   amber: "bg-amber-100 text-amber-800",
@@ -59,7 +59,7 @@ export function MasterMobileCard({
   className,
 }: MasterMobileCardProps) {
   const avatarClass =
-    AVATAR_COLOR_MAP[avatar.color || "purple"] || AVATAR_COLOR_MAP.purple;
+    AVATAR_COLOR_MAP[avatar.color || "primary"] || AVATAR_COLOR_MAP.primary;
 
   return (
     <div

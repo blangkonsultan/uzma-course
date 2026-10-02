@@ -125,7 +125,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
             <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
               {studentCount}
             </p>
-            <p className="text-xs text-slate-400 mt-2">Total murid aktif & arsip</p>
+            <p className="text-xs text-slate-500 mt-2">Total murid aktif & arsip</p>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
             <GraduationCap className="w-6 h-6" />
@@ -140,9 +140,9 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
             <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
               {teacherCount}
             </p>
-            <p className="text-xs text-slate-400 mt-2">Tenaga pengajar yang ditugaskan</p>
+            <p className="text-xs text-slate-500 mt-2">Tenaga pengajar yang ditugaskan</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
             <Users className="w-6 h-6" />
           </div>
         </div>
@@ -155,7 +155,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
             <p className="text-xl font-bold text-slate-900 mt-2 font-heading">
               {program.type === "franchise" ? "Franchise Resmi" : "Original Uzma"}
             </p>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               {program.license_provider || "Internal Uzma Course"}
             </p>
           </div>
@@ -170,14 +170,14 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
               Inisial & Ikon
             </p>
             <div className="flex items-center gap-2 mt-2">
-              <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">
+              <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-primary-100 text-primary-700 border border-primary-200">
                 {program.initials}
               </span>
               <span className="text-xs text-slate-600 font-mono">
                 {program.icon}
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1">Urutan tampil: #{program.sort_order}</p>
+            <p className="text-xs text-slate-500 mt-1">Urutan tampil: #{program.sort_order}</p>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
             <Sparkles className="w-6 h-6" />
@@ -192,21 +192,21 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
           <Card className="border border-slate-200/80 shadow-xs overflow-hidden">
             <CardHeader className="bg-slate-50/70 border-b border-slate-100 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm shrink-0">
                   <BookOpen className="w-4 h-4" />
                 </div>
                 <h2 className="text-base font-bold text-slate-900">
                   Deskripsi & Metode Belajar
                 </h2>
               </div>
-              <span className="text-xs text-slate-400 font-mono truncate max-w-full">
+              <span className="text-xs text-slate-500 font-mono truncate max-w-full">
                 ID: {program.id}
               </span>
             </CardHeader>
 
             <CardBody className="p-4 sm:p-6 space-y-4">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                   Tagline
                 </span>
                 <p className="text-sm font-semibold text-slate-900">
@@ -215,7 +215,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
               </div>
 
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                   Deskripsi Lengkap
                 </span>
                 <p className="text-sm text-slate-700 leading-relaxed">
@@ -224,7 +224,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
               </div>
 
               <div className="pt-4 border-t border-slate-100">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">
                   Fasilitas & Fitur Program
                 </span>
                 {program.features && program.features.length > 0 ? (
@@ -240,7 +240,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs text-slate-400 italic">
+                  <p className="text-xs text-slate-500 italic">
                     Belum ada fasilitas khusus yang dicantumkan.
                   </p>
                 )}
@@ -263,7 +263,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
               <CardBody className="p-4 sm:p-6 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                       Pemberi Lisensi (Licensor)
                     </span>
                     <p className="text-sm font-bold text-slate-900">
@@ -273,7 +273,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
 
                   {program.license_url && (
                     <div>
-                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                         Situs Resmi Licensor
                       </span>
                       <a
@@ -291,7 +291,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
 
                 {program.license_description && (
                   <div>
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                       Keterangan Lisensi
                     </span>
                     <p className="text-xs text-slate-600 leading-relaxed">
@@ -302,7 +302,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
 
                 {program.logo_url && (
                   <div className="pt-2 border-t border-primary-100">
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">
                       Logo Resmi
                     </span>
                     <div className="w-24 h-24 rounded-xl border border-slate-200 bg-white p-2 flex items-center justify-center shadow-xs">
@@ -334,7 +334,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
 
             <CardBody className="p-4 sm:p-6 space-y-4">
               <div className="space-y-3">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
                   Varian Tersedia
                 </span>
                 {program.program_variants && program.program_variants.length > 0 ? (
@@ -359,7 +359,7 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
 
 
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                   Target Usia
                 </span>
                 <p className="text-sm font-semibold text-slate-900">

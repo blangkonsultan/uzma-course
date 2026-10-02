@@ -415,6 +415,7 @@ export function GuruForm({
                       disabled={isPending}
                       className="w-10 h-10 mb-[2px] flex shrink-0 items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-100/50 transition-colors"
                       title="Hapus tunjangan"
+                      aria-label="Hapus tunjangan"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

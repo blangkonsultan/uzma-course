@@ -90,14 +90,15 @@ export function SearchFilterBar({
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder={searchPlaceholder}
+            aria-label={searchPlaceholder}
             className="w-full pl-10 pr-9 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
           />
           {searchValue && (
             <button
               type="button"
               onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
-              title="Hapus pencarian"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5"
+              aria-label="Hapus pencarian"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -117,6 +118,7 @@ export function SearchFilterBar({
                       updateQuery({ [filter.id]: e.target.value })
                     }
                     className="w-full appearance-none pl-3 pr-8 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors cursor-pointer"
+                    aria-label={filter.label}
                   >
                     <option value="all">Semua {filter.label}</option>
                     {filter.options.map((opt) => (

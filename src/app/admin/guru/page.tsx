@@ -137,7 +137,7 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
             <p className="font-semibold text-slate-900 leading-tight">
               {guru.full_name}
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Bergabung {new Date(guru.created_at).toLocaleDateString("id-ID")}
             </p>
           </div>
@@ -158,7 +158,7 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
             <span>{guru.phone}</span>
           </a>
         ) : (
-          <span className="text-xs text-slate-400 italic">-</span>
+          <span className="text-xs text-slate-500 italic">-</span>
         ),
     },
     {
@@ -169,7 +169,7 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
           : "Belum ditentukan";
         return (
           <div className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
-            <MapPin className="w-3.5 h-3.5 text-slate-400" />
+            <MapPin className="w-3.5 h-3.5 text-slate-500" />
             <span>{branchName}</span>
           </div>
         );
@@ -186,14 +186,14 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
                 <span
                   key={pp.program_id}
                   title={prog?.name ?? pp.program_id}
-                  className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs"
+                  className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-primary-50 text-primary-700 border border-primary-200/80 shadow-2xs"
                 >
                   {prog?.initials ?? pp.program_id}
                 </span>
               );
             })
           ) : (
-            <span className="text-xs text-slate-400 italic">Semua program</span>
+            <span className="text-xs text-slate-500 italic">Semua program</span>
           )}
         </div>
       ),
@@ -282,7 +282,7 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
                       <strong className="text-slate-700 font-medium">{guru.phone}</strong>
                     </span>
                   ) : (
-                    <span className="text-slate-400 text-[11px]">HP: Belum ada</span>
+                    <span className="text-slate-500 text-[11px]">HP: Belum ada</span>
                   )}
                 </>
               }
@@ -298,7 +298,7 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
                             <span
                               key={pp.program_id}
                               title={prog?.name ?? pp.program_id}
-                              className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200/80"
+                              className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary-50 text-primary-700 border border-primary-200/80"
                             >
                               {prog?.initials ?? pp.program_id}
                             </span>

@@ -44,6 +44,9 @@ export function GalleryLightbox({
   const lastTapRef = useRef<number>(0);
   const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const lightboxRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousActiveElementRef = useRef<Element | null>(null);
 
   // Keep refs in sync for event listeners
   useEffect(() => {
@@ -129,6 +132,56 @@ export function GalleryLightbox({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose, goToPrev, goToNext, handleZoomIn, handleZoomOut, resetTransform]);
+
+  // Focus trap: store previous focus, auto-focus close button, trap Tab
+  useEffect(() => {
+    previousActiveElementRef.current = document.activeElement;
+
+    // Auto-focus close button on mount
+    requestAnimationFrame(() => {
+      closeButtonRef.current?.focus();
+    });
+
+    function getFocusableElements(): HTMLElement[] {
+      if (!lightboxRef.current) return [];
+      return Array.from(
+        lightboxRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])'
+        )
+      );
+    }
+
+    function handleTabKey(e: KeyboardEvent) {
+      if (e.key !== "Tab") return;
+
+      const focusable = getFocusableElements();
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first || !lightboxRef.current?.contains(document.activeElement)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last || !lightboxRef.current?.contains(document.activeElement)) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleTabKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleTabKey);
+      if (previousActiveElementRef.current instanceof HTMLElement) {
+        previousActiveElementRef.current.focus();
+      }
+    };
+  }, []);
 
   // Lock body scroll while lightbox is open
   useEffect(() => {
@@ -250,6 +303,7 @@ export function GalleryLightbox({
 
   return (
     <div
+      ref={lightboxRef}
       role="dialog"
       aria-modal="true"
       aria-label="Tampilan Foto Galeri"
@@ -314,6 +368,7 @@ export function GalleryLightbox({
 
           {/* Close Button */}
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             className="p-2 sm:p-2.5 rounded-full text-slate-200 hover:text-white hover:bg-rose-500/80 active:scale-95 transition-all cursor-pointer"

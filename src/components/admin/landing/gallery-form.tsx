@@ -140,7 +140,7 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                     <button
                       type="button"
                       onClick={handleAddImage}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] text-xs font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg border border-brand-200 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] text-xs font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg border border-primary-200 transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       Tambah Foto
@@ -156,7 +156,7 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                       <button
                         type="button"
                         onClick={handleAddImage}
-                        className="mt-2 text-xs font-semibold text-brand-600 hover:text-brand-700"
+                        className="mt-2 text-xs font-semibold text-primary-600 hover:text-primary-700"
                       >
                         + Tambah foto pertama
                       </button>
@@ -211,7 +211,7 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                                     })
                                   }
                                   placeholder="https://..."
-                                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-white text-slate-800"
+                                  className="w-full px-3 py-2 text-base sm:text-sm rounded-lg border border-slate-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 bg-white text-slate-800"
                                   required
                                 />
                               </div>
@@ -230,7 +230,7 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                                     })
                                   }
                                   placeholder="Contoh: Wisuda kelulusan AHE 2024"
-                                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-white text-slate-800"
+                                  className="w-full px-3 py-2 text-base sm:text-sm rounded-lg border border-slate-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 bg-white text-slate-800"
                                 />
                               </div>
                             </div>

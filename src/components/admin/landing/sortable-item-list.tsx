@@ -139,7 +139,7 @@ export function SortableItemList<T>({
                       onClick={() => handleMoveUp(idx)}
                       title="Pindah ke atas"
                       aria-label="Pindah ke atas"
-                      className="p-1.5 sm:p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                      className="p-2.5 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200 disabled:opacity-30 disabled:pointer-events-none transition-colors"
                     >
                       <ChevronUp className="w-4 h-4" />
                     </button>
@@ -149,7 +149,7 @@ export function SortableItemList<T>({
                       onClick={() => handleMoveDown(idx)}
                       title="Pindah ke bawah"
                       aria-label="Pindah ke bawah"
-                      className="p-1.5 sm:p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                      className="p-2.5 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200 disabled:opacity-30 disabled:pointer-events-none transition-colors"
                     >
                       <ChevronDown className="w-4 h-4" />
                     </button>
@@ -158,7 +158,7 @@ export function SortableItemList<T>({
                       onClick={() => handleDelete(idx)}
                       title="Hapus item"
                       aria-label="Hapus item"
-                      className="p-1.5 sm:p-1 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors ml-0.5"
+                      className="p-2.5 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors ml-0.5"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

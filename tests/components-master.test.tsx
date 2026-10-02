@@ -42,6 +42,7 @@ import { toggleProgramActive } from "@/app/admin/program/actions";
 describe("Master Components (src/components/admin/[entity]/)", () => {
   beforeEach(() => {
     window.alert = vi.fn();
+    window.dispatchEvent = vi.fn();
   });
 
   const dummyProgram = {
@@ -150,7 +151,7 @@ describe("Master Components (src/components/admin/[entity]/)", () => {
       await act(async () => {
         fireEvent.click(screen.getByText("Ya, Aktifkan"));
       });
-      expect(window.alert).toHaveBeenCalled();
+      expect(window.dispatchEvent).toHaveBeenCalled();
     });
 
     it("handles BranchStatusButton error response", async () => {
@@ -264,7 +265,7 @@ describe("Master Components (src/components/admin/[entity]/)", () => {
       await act(async () => {
         fireEvent.click(screen.getByText("Ya, Aktifkan"));
       });
-      expect(window.alert).toHaveBeenCalled();
+      expect(window.dispatchEvent).toHaveBeenCalled();
     });
 
     it("renders GuruForm, validates inputs, and submits in create mode", async () => {
@@ -486,7 +487,7 @@ describe("Master Components (src/components/admin/[entity]/)", () => {
       await act(async () => {
         fireEvent.click(screen.getByText("Ya, Aktifkan"));
       });
-      expect(window.alert).toHaveBeenCalled();
+      expect(window.dispatchEvent).toHaveBeenCalled();
     });
 
     it("renders ProgramForm, validates inputs, and submits in create mode", async () => {

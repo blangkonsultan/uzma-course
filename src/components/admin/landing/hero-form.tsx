@@ -111,6 +111,7 @@ export function HeroForm({ initialData }: HeroFormProps) {
                   type="button"
                   onClick={() => handleRemovePill(idx)}
                   className="text-primary-500 hover:text-rose-600 transition-colors"
+                  aria-label="Hapus poin keunggulan"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -130,7 +131,8 @@ export function HeroForm({ initialData }: HeroFormProps) {
                 }
               }}
               placeholder="Tambah item pill..."
-              className="px-3.5 py-2 text-xs rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:border-primary-500 min-w-0 flex-1"
+              aria-label="Tambah poin keunggulan"
+              className="px-3.5 py-2 text-base sm:text-sm rounded-xl border border-slate-200 text-slate-800 focus:outline-none focus:border-primary-500 min-w-0 flex-1"
             />
             <button
               type="button"

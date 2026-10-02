@@ -154,7 +154,7 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
       header: "Nama Murid",
       cell: (student) => (
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-sm shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-primary-100 text-primary-700 font-bold flex items-center justify-center text-sm shrink-0">
             {student.full_name.charAt(0).toUpperCase()}
           </div>
           <div>
@@ -164,7 +164,7 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
             >
               {student.full_name}
             </Link>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Daftar: {new Date(student.created_at).toLocaleDateString("id-ID")}
             </p>
           </div>
@@ -176,7 +176,7 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
       cell: (student) => (
         <div>
           <p className="text-xs font-semibold text-slate-800 flex items-center gap-1">
-            <User className="w-3 h-3 text-slate-400" />
+            <User className="w-3 h-3 text-slate-500" />
             <span>{student.parent_name}</span>
           </p>
           {student.parent_phone && (
@@ -199,7 +199,7 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
         const branchName = branchMap[student.branch_id] ?? student.branch_id;
         return (
           <div className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
-            <MapPin className="w-3.5 h-3.5 text-slate-400" />
+            <MapPin className="w-3.5 h-3.5 text-slate-500" />
             <span>{branchName}</span>
           </div>
         );
@@ -216,14 +216,14 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
                 <span
                   key={sp.program_id}
                   title={prog?.name ?? sp.program_id}
-                  className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs"
+                  className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-primary-50 text-primary-700 border border-primary-200/80 shadow-2xs"
                 >
                   {prog?.initials ?? sp.program_id}
                 </span>
               );
             })
           ) : (
-            <span className="text-xs text-slate-400 italic">-</span>
+            <span className="text-xs text-slate-500 italic">-</span>
           )}
         </div>
       ),
@@ -334,14 +334,14 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
                             <span
                               key={sp.program_id}
                               title={prog?.name ?? sp.program_id}
-                              className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200/80"
+                              className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary-50 text-primary-700 border border-primary-200/80"
                             >
                               {prog?.initials ?? sp.program_id}
                             </span>
                           );
                         })
                       ) : (
-                        <span className="text-slate-400 italic text-xs">-</span>
+                        <span className="text-slate-500 italic text-xs">-</span>
                       )}
                     </div>
                   ),

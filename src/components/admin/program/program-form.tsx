@@ -402,8 +402,9 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                       <button
                         type="button"
                         onClick={() => removeVariant(idx)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-100/50 transition-colors"
+                        className="w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-100/50 transition-colors"
                         title="Hapus varian"
+                        aria-label={`Hapus varian ${idx + 1}`}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -545,7 +546,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                     type="button"
                     onClick={() => removeFeature(idx)}
                     disabled={isPending}
-                    className="w-10 h-10 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 transition-colors shrink-0 flex items-center justify-center"
+                    className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 transition-colors shrink-0 flex items-center justify-center"
                     title="Hapus fasilitas ini"
                     aria-label={`Hapus fasilitas ${idx + 1}`}
                   >

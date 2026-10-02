@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { toggleProgramActive } from "@/app/admin/program/actions";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { showToast } from "@/components/admin/toast";
 import { EyeOff, Eye } from "lucide-react";
 
 interface ProgramStatusButtonProps {
@@ -29,10 +30,11 @@ export function ProgramStatusButton({
         await toggleProgramActive(programId, isActive);
         setDialogOpen(false);
       } catch (err) {
-        alert(
+        showToast(
           err instanceof Error
             ? err.message
-            : "Gagal memperbarui status aktif program."
+            : "Gagal memperbarui status aktif program.",
+          "error"
         );
       }
     });
@@ -45,7 +47,7 @@ export function ProgramStatusButton({
         onClick={() => setDialogOpen(true)}
         className={
           className ??
-          `p-1.5 rounded-lg transition-colors ${
+          `p-2 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg transition-colors ${
             isActive
               ? "text-rose-600 hover:bg-rose-50"
               : "text-emerald-600 hover:bg-emerald-50"

@@ -140,14 +140,14 @@ export default async function GuruDetailPage({ params }: GuruDetailPageProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-3 p-4 sm:p-6 gap-2 sm:gap-4">
                   <div className="text-sm font-medium text-slate-500">Email</div>
                   <div className="text-sm text-slate-900 sm:col-span-2 flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-slate-400" />
+                    <Mail className="w-4 h-4 text-slate-500" />
                     {guru.full_name || "-"}
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 p-4 sm:p-6 gap-2 sm:gap-4">
                   <div className="text-sm font-medium text-slate-500">No. WhatsApp</div>
                   <div className="text-sm text-slate-900 sm:col-span-2 flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-slate-400" />
+                    <Phone className="w-4 h-4 text-slate-500" />
                     {guru.phone || "-"}
                   </div>
                 </div>
@@ -196,7 +196,7 @@ export default async function GuruDetailPage({ params }: GuruDetailPageProps) {
                         </div>
                       ))
                     ) : (
-                      <span className="text-slate-400 italic">Tidak ada tunjangan khusus</span>
+                      <span className="text-slate-500 italic">Tidak ada tunjangan khusus</span>
                     )}
                   </div>
                 </div>

@@ -43,7 +43,7 @@ export default async function ProgramListPage() {
       header: "#",
       className: "w-12 text-center",
       cell: (prog) => (
-        <span className="text-xs font-mono font-bold text-slate-400">
+        <span className="text-xs font-mono font-bold text-slate-500">
           {prog.sort_order}
         </span>
       ),
@@ -52,7 +52,7 @@ export default async function ProgramListPage() {
       header: "Program",
       cell: (prog) => (
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-xs shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-primary-100 text-primary-700 font-bold flex items-center justify-center text-xs shrink-0">
             {prog.initials}
           </div>
           <div>
@@ -63,7 +63,7 @@ export default async function ProgramListPage() {
               {prog.name}
             </Link>
             {prog.tagline && (
-              <p className="text-xs text-slate-400 mt-0.5 line-clamp-1 max-w-sm">
+              <p className="text-xs text-slate-500 mt-0.5 line-clamp-1 max-w-sm">
                 {prog.tagline}
               </p>
             )}
@@ -101,7 +101,7 @@ export default async function ProgramListPage() {
       cell: (prog) => (
         <div className="text-xs text-slate-600">
           <p className="font-medium text-slate-800">{formatClassRatio(prog.system)}</p>
-          <p className="text-slate-400 text-[11px]">{formatDuration(prog.duration)} • {formatFrequencyShort(prog.program_variants?.[0]?.frequency ?? 3)}</p>
+          <p className="text-slate-500 text-[11px]">{formatDuration(prog.duration)} • {formatFrequencyShort(prog.program_variants?.[0]?.frequency ?? 3)}</p>
         </div>
       ),
     },
@@ -160,7 +160,7 @@ export default async function ProgramListPage() {
         emptyStateMessage="Belum ada program belajar yang terdaftar."
         mobileCard={(prog) => (
           <MasterMobileCard
-            avatar={{ initials: prog.initials, color: "purple" }}
+            avatar={{ initials: prog.initials, color: "primary" }}
             title={prog.name}
             titleHref={`/admin/program/${prog.id}`}
             subtitle={prog.tagline}

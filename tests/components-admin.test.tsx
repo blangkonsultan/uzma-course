@@ -137,7 +137,7 @@ describe("Admin Core Components (src/components/admin/)", () => {
     it("renders 5-part anatomy correctly", () => {
       render(
         <MasterMobileCard
-          avatar={{ initials: "AH", color: "purple" }}
+          avatar={{ initials: "AH", color: "primary" }}
           title="Cabang Balongbendo"
           titleHref="/admin/cabang/balongbendo"
           subtitle="Sentra Ahe"

@@ -125,7 +125,7 @@ export async function BirthdayDashboard({ branchId, isAdmin }: { branchId?: stri
                       {person.name}
                     </p>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
-                      isToday ? 'bg-pink-500 text-white animate-pulse' :
+                      isToday ? 'bg-pink-500 text-white motion-safe:animate-pulse' :
                       isPast ? 'bg-slate-100 text-slate-500' :
                       'bg-pink-100 text-pink-700'
                     }`}>

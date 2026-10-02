@@ -5,7 +5,7 @@ import { StatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { BranchStatusButton } from "@/components/admin/cabang/branch-status-button";
-import { BranchShiftManager } from "@/components/admin/cabang/branch-shift-manager";
+
 import { getBranchById } from "@/lib/branches";
 import {
   Building2,
@@ -50,12 +50,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
   }
 
   
-  const { data: shifts = [] } = await supabase
-    .from("branch_shifts")
-    .select("*")
-    .eq("branch_id", id)
-    .order("day_of_week", { ascending: true })
-    .order("start_time", { ascending: true });
+
 
   const [branch, guruCountRes, studentCountRes] = await Promise.all([
     getBranchById(id),
@@ -133,7 +128,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
             <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
               {guruCount}
             </p>
-            <p className="text-xs text-slate-400 mt-2">Tenaga pengajar aktif di cabang ini</p>
+            <p className="text-xs text-slate-500 mt-2">Tenaga pengajar aktif di cabang ini</p>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
             <Users className="w-6 h-6" />
@@ -148,7 +143,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
             <p className="text-3xl font-bold text-slate-900 mt-1 font-heading">
               {studentCount}
             </p>
-            <p className="text-xs text-slate-400 mt-2">Siswa aktif belajar di cabang ini</p>
+            <p className="text-xs text-slate-500 mt-2">Siswa aktif belajar di cabang ini</p>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
             <GraduationCap className="w-6 h-6" />
@@ -163,7 +158,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
             <p className="text-xl font-bold text-slate-900 mt-2 font-heading">
               {branch.is_active ? "Aktif Beroperasi" : "Non-aktif"}
             </p>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               {branch.is_active ? "Menerima pendaftaran & penempatan" : "Tidak aktif sementara"}
             </p>
           </div>
@@ -195,7 +190,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
             <CardBody className="p-4 sm:p-6 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                     Nama Cabang
                   </span>
                   <p className="text-sm font-semibold text-slate-900">
@@ -204,7 +199,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
                 </div>
 
                 <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                     Sub-Nama / Unit Sentra
                   </span>
                   <p className="text-sm text-slate-700">
@@ -214,7 +209,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
               </div>
 
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                   Alamat Lengkap
                 </span>
                 <p className="text-sm text-slate-700 leading-relaxed">
@@ -224,7 +219,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
 
               <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-start gap-2.5 text-xs text-slate-500">
-                  <Calendar className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  <Calendar className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-semibold block text-slate-700">Tanggal Dibuat</span>
                     <span>
@@ -238,7 +233,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
                 </div>
 
                 <div className="flex items-start gap-2.5 text-xs text-slate-500">
-                  <Calendar className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  <Calendar className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-semibold block text-slate-700">Terakhir Diperbarui</span>
                     <span>
@@ -283,7 +278,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
                       className="w-full h-full"
                     />
                   </div>
-                  <p className="text-xs text-slate-400 text-center">
+                  <p className="text-xs text-slate-500 text-center">
                     Peta lokasi bimbingan belajar
                   </p>
                 </div>
@@ -307,7 +302,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
                   <ExternalLink className="w-3.5 h-3.5 opacity-80" />
                 </a>
               ) : (
-                <p className="text-xs text-slate-400 italic text-center">
+                <p className="text-xs text-slate-500 italic text-center">
                   Link navigasi Google Maps belum ditambahkan.
                 </p>
               )}
@@ -316,9 +311,7 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
         </div>
       </div>
       {/* Shift Manager */}
-      <div className="mt-8">
-        <BranchShiftManager branchId={branch.id} shifts={shifts || []} />
-      </div>
+
 
     </div>
   );

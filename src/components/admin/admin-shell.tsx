@@ -73,6 +73,18 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
           roles: ["admin"],
         },
         {
+          label: "Data Shift",
+          href: "/admin/shift",
+          icon: Clock,
+          roles: ["admin"],
+        },
+        {
+          label: "Draf Jadwal",
+          href: "/admin/draft",
+          icon: Calendar,
+          roles: ["admin"],
+        },
+        {
           label: "Program Belajar",
           href: "/admin/program",
           icon: Layers,
@@ -176,7 +188,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
           <button
             type="button"
             onClick={() => setMobileMenuOpen(false)}
-            className="md:hidden p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
+            className="md:hidden p-2 min-h-[44px] min-w-[44px] text-slate-400 hover:text-slate-600 rounded-lg"
             aria-label="Tutup Menu"
           >
             <X className="w-5 h-5" />
@@ -190,7 +202,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
               <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                 {group.title}
               </p>
-              <nav className="space-y-1">
+              <nav className="space-y-1" aria-label="Navigasi utama">
                 {group.items.map((item) => {
                   const isActive = item.exact
                     ? pathname === item.href
@@ -257,7 +269,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
               <span
                 className={`text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider ${
                   profile.role === "admin"
-                    ? "bg-purple-100 text-purple-700"
+                    ? "bg-primary-100 text-primary-700"
                     : "bg-blue-100 text-blue-700"
                 }`}
               >
@@ -284,7 +296,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="text-[11px] text-rose-600 hover:text-rose-700 font-medium inline-flex items-center gap-1.5 p-1 rounded-lg hover:bg-rose-50 transition-colors"
+              className="text-[11px] text-rose-600 hover:text-rose-700 font-medium inline-flex items-center gap-1.5 p-1.5 rounded-lg hover:bg-rose-50 transition-colors"
             >
               {isLoggingOut ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />

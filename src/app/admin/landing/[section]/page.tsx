@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { getLandingSectionContent } from "@/lib/landing-content";
 import type { LandingSectionKey } from "@/types/landing";
+import type { ComponentType } from "react";
 
 // Import all 13 section forms
 import { HeroForm } from "@/components/admin/landing/hero-form";
@@ -19,6 +20,24 @@ import { CTAForm } from "@/components/admin/landing/cta-form";
 import { FooterForm } from "@/components/admin/landing/footer-form";
 import { NavbarForm } from "@/components/admin/landing/navbar-form";
 import { FloatingWaForm } from "@/components/admin/landing/floating-wa-form";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SECTION_FORMS: Record<LandingSectionKey, ComponentType<{ initialData: any }>> = {
+  hero: HeroForm,
+  programs: ProgramsForm,
+  why_us: WhyUsForm,
+  facilities: FacilitiesForm,
+  team: TeamForm,
+  gallery: GalleryForm,
+  testimonials: TestimonialsForm,
+  videos: VideosForm,
+  locations: LocationsForm,
+  faq: FAQForm,
+  cta: CTAForm,
+  footer: FooterForm,
+  navbar: NavbarForm,
+  floating_wa: FloatingWaForm,
+};
 
 const SECTION_LABELS: Record<LandingSectionKey, { label: string; desc: string }> = {
   hero: {
@@ -138,50 +157,10 @@ export default async function EditSectionPage({ params }: EditSectionPageProps) 
         ]}
       />
 
-      <div className="mt-4">
-        {sectionKey === "hero" && (
-          <HeroForm initialData={content as never} />
-        )}
-        {sectionKey === "programs" && (
-          <ProgramsForm initialData={content as never} />
-        )}
-        {sectionKey === "why_us" && (
-          <WhyUsForm initialData={content as never} />
-        )}
-        {sectionKey === "facilities" && (
-          <FacilitiesForm initialData={content as never} />
-        )}
-        {sectionKey === "team" && (
-          <TeamForm initialData={content as never} />
-        )}
-        {sectionKey === "gallery" && (
-          <GalleryForm initialData={content as never} />
-        )}
-        {sectionKey === "testimonials" && (
-          <TestimonialsForm initialData={content as never} />
-        )}
-        {sectionKey === "videos" && (
-          <VideosForm initialData={content as never} />
-        )}
-        {sectionKey === "locations" && (
-          <LocationsForm initialData={content as never} />
-        )}
-        {sectionKey === "faq" && (
-          <FAQForm initialData={content as never} />
-        )}
-        {sectionKey === "cta" && (
-          <CTAForm initialData={content as never} />
-        )}
-        {sectionKey === "footer" && (
-          <FooterForm initialData={content as never} />
-        )}
-        {sectionKey === "navbar" && (
-          <NavbarForm initialData={content as never} />
-        )}
-        {sectionKey === "floating_wa" && (
-          <FloatingWaForm initialData={content as never} />
-        )}
-      </div>
+      {(() => {
+        const FormComponent = SECTION_FORMS[sectionKey];
+        return <FormComponent initialData={content} />;
+      })()}
     </div>
   );
 }

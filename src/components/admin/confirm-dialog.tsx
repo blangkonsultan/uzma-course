@@ -28,20 +28,59 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
-
+  const previousActiveElementRef = useRef<Element | null>(null);
   useEffect(() => {
+    function getFocusableElements(): HTMLElement[] {
+      if (!dialogRef.current) return [];
+      return Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])'
+        )
+      );
+    }
+
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape" && isOpen && !isLoading) {
         onCancel();
+        return;
+      }
+
+      if (e.key === "Tab" && isOpen) {
+        const focusable = getFocusableElements();
+        if (focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === first || !dialogRef.current?.contains(document.activeElement)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last || !dialogRef.current?.contains(document.activeElement)) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
       }
     }
+
     if (isOpen) {
+      previousActiveElementRef.current = document.activeElement;
       document.body.style.overflow = "hidden";
       window.addEventListener("keydown", handleKeyDown);
+      // Auto-focus the dialog container
+      requestAnimationFrame(() => {
+        dialogRef.current?.focus();
+      });
     }
     return () => {
       document.body.style.overflow = "unset";
       window.removeEventListener("keydown", handleKeyDown);
+      if (previousActiveElementRef.current instanceof HTMLElement) {
+        previousActiveElementRef.current.focus();
+      }
     };
   }, [isOpen, isLoading, onCancel]);
 
@@ -59,7 +98,8 @@ export function ConfirmDialog({
     >
       <div
         ref={dialogRef}
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200"
+        tabIndex={-1}
+        className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200 outline-none"
       >
         <div className="p-6">
           <div className="flex items-start gap-4">

@@ -152,7 +152,7 @@ export function VideoItemEditor({
                 ? "Contoh: 7683120078589611285"
                 : "Contoh: M7lc1UVf-VE"
             }
-            className="w-full px-3 sm:px-3.5 py-2.5 text-xs sm:text-sm text-slate-800 outline-none font-mono placeholder:text-slate-400 placeholder:font-sans"
+            className="w-full px-3 sm:px-3.5 py-2.5 text-base sm:text-sm text-slate-800 outline-none font-mono placeholder:text-slate-400 placeholder:font-sans"
             required
           />
         </div>

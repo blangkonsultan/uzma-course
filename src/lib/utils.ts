@@ -74,3 +74,27 @@ export function formatFrequencyShort(sessionsPerWeek: number | string): string {
   if (!n || isNaN(n) || n <= 0) return "-";
   return `${n}x / minggu`;
 }
+
+export function formatTimeString(timeStr: string | null | undefined): string {
+  if (!timeStr) return "";
+  // Assumes HH:mm:ss format from PostgreSQL
+  const parts = timeStr.split(":");
+  if (parts.length >= 2) {
+    return `${parts[0]}:${parts[1]}`;
+  }
+  return timeStr;
+}
+
+export function formatDateString(dateStr: string | null | undefined): string {
+  if (!dateStr) return "";
+  try {
+    const date = new Date(dateStr);
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }).format(date);
+  } catch (e) {
+    return dateStr;
+  }
+}
