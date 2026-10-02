@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { toggleBranchActive } from "@/app/admin/cabang/actions";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { showToast } from "@/components/admin/toast";
-import { EyeOff, Eye } from "lucide-react";
+import { Power, PowerOff, Loader2 } from "lucide-react";
 
 interface BranchStatusButtonProps {
   branchId: string;
@@ -31,6 +31,10 @@ export function BranchStatusButton({
         if ("error" in res && res.error) {
           showToast(res.error, "error");
         } else {
+          showToast(
+            `Cabang ${branchName} berhasil di${isActive ? "nonaktifkan" : "aktifkan"}.`,
+            "success"
+          );
           setDialogOpen(false);
         }
       } catch (err) {
@@ -51,19 +55,22 @@ export function BranchStatusButton({
         onClick={() => setDialogOpen(true)}
         className={
           className ??
-          `p-2 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg transition-colors ${
+          `p-2 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
             isActive
               ? "text-rose-600 hover:bg-rose-50"
               : "text-emerald-600 hover:bg-emerald-50"
-          }`
+          } disabled:opacity-50 disabled:cursor-not-allowed`
         }
         title={isActive ? "Nonaktifkan Cabang" : "Aktifkan Cabang"}
         aria-label={isActive ? `Nonaktifkan ${branchName}` : `Aktifkan ${branchName}`}
+        disabled={isPending}
       >
-        {isActive ? (
-          <EyeOff className="w-4 h-4 shrink-0" />
+        {isPending ? (
+          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+        ) : isActive ? (
+          <PowerOff className="w-4 h-4 shrink-0" />
         ) : (
-          <Eye className="w-4 h-4 shrink-0" />
+          <Power className="w-4 h-4 shrink-0" />
         )}
         {showLabel && (
           <span>{isActive ? "Nonaktifkan" : "Aktifkan"}</span>

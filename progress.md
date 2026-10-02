@@ -26,3 +26,13 @@
   - Cards highlight program badges and enrolled variant tags.
   - Added unit test in `tests/components/kanban-board.test.tsx` verifying multi-program filtering across both teacher and student tabs.
   - `./init.sh` succeeds with zero errors (226 tests passed, 0 lint errors, build succeeded).
+
+## 2026-10-02 (Unified Status Toggle Icons)
+- **Status**: Completed.
+- **Evidence**:
+  - Unified all 5 status buttons (`BranchStatusButton`, `GuruStatusButton`, `StudentStatusButton`, `ProgramStatusButton`, `ShiftStatusButton`) to use `PowerOff` (for deactivating, in rose) and `Power` (for activating, in emerald).
+  - Added `Loader2` transition indicator and `showLabel` support to all status toggle buttons.
+  - Eliminated visual collision with the `Eye` icon used for Detail views.
+  - `npm run lint` passes with 0 errors and 0 warnings.
+  - `npm test` passes all 226 tests.
+  - `npm run build` production build succeeds.

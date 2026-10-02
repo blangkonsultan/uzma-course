@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { toggleProgramActive } from "@/app/admin/program/actions";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { showToast } from "@/components/admin/toast";
-import { EyeOff, Eye } from "lucide-react";
+import { Power, PowerOff, Loader2 } from "lucide-react";
 
 interface ProgramStatusButtonProps {
   programId: string;
@@ -28,6 +28,10 @@ export function ProgramStatusButton({
     startTransition(async () => {
       try {
         await toggleProgramActive(programId, isActive);
+        showToast(
+          `Program ${programName} berhasil di${isActive ? "nonaktifkan" : "aktifkan"}.`,
+          "success"
+        );
         setDialogOpen(false);
       } catch (err) {
         showToast(
@@ -45,21 +49,24 @@ export function ProgramStatusButton({
       <button
         type="button"
         onClick={() => setDialogOpen(true)}
+        disabled={isPending}
         className={
           className ??
-          `p-2 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg transition-colors ${
+          `p-2 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
             isActive
               ? "text-rose-600 hover:bg-rose-50"
               : "text-emerald-600 hover:bg-emerald-50"
-          }`
+          } disabled:opacity-50 disabled:cursor-not-allowed`
         }
         title={isActive ? "Nonaktifkan Program" : "Aktifkan Program"}
         aria-label={isActive ? `Nonaktifkan ${programName}` : `Aktifkan ${programName}`}
       >
-        {isActive ? (
-          <EyeOff className="w-4 h-4 shrink-0" />
+        {isPending ? (
+          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+        ) : isActive ? (
+          <PowerOff className="w-4 h-4 shrink-0" />
         ) : (
-          <Eye className="w-4 h-4 shrink-0" />
+          <Power className="w-4 h-4 shrink-0" />
         )}
         {showLabel && (
           <span>{isActive ? "Nonaktifkan" : "Aktifkan"}</span>

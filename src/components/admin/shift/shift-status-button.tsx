@@ -10,6 +10,7 @@ export interface ShiftStatusButtonProps {
   shiftId: string;
   shiftName: string;
   isActive: boolean;
+  showLabel?: boolean;
   className?: string;
 }
 
@@ -17,11 +18,11 @@ export function ShiftStatusButton({
   shiftId,
   shiftName,
   isActive,
+  showLabel = false,
   className,
 }: ShiftStatusButtonProps) {
-  const [isPending, startTransition] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
-
+  const [isPending, startTransition] = useTransition();
   const handleToggle = () => {
     setDialogOpen(true);
   };
@@ -54,7 +55,7 @@ export function ShiftStatusButton({
         disabled={isPending}
         className={
           className ??
-          `p-2 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg transition-colors flex items-center justify-center ${
+          `p-2 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
             isActive
               ? "text-rose-600 hover:bg-rose-50"
               : "text-emerald-600 hover:bg-emerald-50"
@@ -64,11 +65,14 @@ export function ShiftStatusButton({
         aria-label={`${isActive ? "Nonaktifkan" : "Aktifkan"} shift ${shiftName}`}
       >
         {isPending ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
         ) : isActive ? (
-          <PowerOff className="w-4 h-4" />
+          <PowerOff className="w-4 h-4 shrink-0" />
         ) : (
-          <Power className="w-4 h-4" />
+          <Power className="w-4 h-4 shrink-0" />
+        )}
+        {showLabel && (
+          <span>{isActive ? "Nonaktifkan" : "Aktifkan"}</span>
         )}
       </button>
 
