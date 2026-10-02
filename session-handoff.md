@@ -1,22 +1,24 @@
 # Session Handoff
 
 ## Current State
-All master data tables (`cabang`, `guru`, `murid`, `program`, `draft`, `shift`) and the Landing Page CMS are 100% unified in style, interaction patterns, and responsive behavior.
-- Every master module now uses `<DataTable>` on desktop and `<MasterMobileCard>` on mobile (< md).
-- Every master module uses `<SearchFilterBar>` with query string synchronization.
-- Status toggle buttons are available across Cabang, Guru, Murid, Program, and Shift with `<ConfirmDialog>` and `showToast()`.
-- Zero native browser dialogs (`alert()`, `confirm()`, `prompt()`) exist anywhere in the app.
-- ESLint enforces `@typescript-eslint/no-unused-vars: "error"`, and the entire repo has 0 warnings and 0 errors.
-- Vitest suite has 225/225 tests passing.
-- Next.js production build (`npm run build`) compiles with zero errors.
+The master data portal and scheduling board have undergone a complete design, accessibility, and consistency polish pass:
+- **Universal Status Toggles**: All 5 master data modules (`Cabang`, `Guru`, `Murid`, `Program`, `Shift`) now strictly use `<PowerOff />` (deactivate) and `<Power />` (activate) with `<Loader2 />` spinners. The previous collision with the `<Eye />` detail link is completely eliminated.
+- **Draft Board Program Filter**: The Kanban scheduling board sidebar now includes a dynamic program dropdown filter and instant search clear button. Teachers and students can be filtered together by program, with real-time candidate count badges in the tab headers.
+- **Unified Master Data Tables**: All master views use `<DataTable>` on desktop and `<MasterMobileCard>` on mobile (< md), backed by `<SearchFilterBar>`.
+- **Zero Native Dialogs**: No `alert()`, `confirm()`, or `prompt()` exist anywhere. All confirmation actions use accessible `<ConfirmDialog>` modals with `showToast()` feedback.
+- **Zero Linter Warnings / Errors**: ESLint strictly enforces `@typescript-eslint/no-unused-vars: "error"`.
+- **Test Suite**: 226/226 Vitest unit tests pass.
+- **Production Build**: Compiles cleanly with Next.js Turbopack.
 
-## Files Touched (Recent)
-- `src/components/admin/board/kanban-board.tsx`: Replaced native `confirm()` with `ConfirmDialog`.
-- `src/components/admin/shift/shift-status-button.tsx`: Created new status toggle button.
-- `src/app/admin/shift/page.tsx`: Rewrote to standard `DataTable` + `SearchFilterBar` + `ShiftStatusButton`.
-- `src/app/admin/draft/page.tsx`: Rewrote to standard `DataTable` + `SearchFilterBar`.
-- `eslint.config.mjs`: Added `@typescript-eslint/no-unused-vars: "error"`.
+## Files Touched (Latest)
+- `src/components/admin/cabang/branch-status-button.tsx`: Unified to Power/PowerOff/Loader2.
+- `src/components/admin/guru/guru-status-button.tsx`: Unified to Power/PowerOff/Loader2.
+- `src/components/admin/murid/student-status-button.tsx`: Unified to Power/PowerOff/Loader2.
+- `src/components/admin/program/program-status-button.tsx`: Unified to Power/PowerOff/Loader2.
+- `src/components/admin/shift/shift-status-button.tsx`: Unified props and styling.
+- `src/components/admin/board/kanban-board.tsx`: Added program filter dropdown and sidebar polish.
+- `src/components/admin/status-badge.tsx`: Added `activeText` and `inactiveText` props.
+- `tests/components/kanban-board.test.tsx`: Added unit test for sidebar program filtering.
 
 ## Recommended Next Step
-- The entire foundation, master data, and CMS modules are in an impeccably polished state.
-- Proceed to **Phase 2b ERP - Teacher Presence & Geolocation (feat-008)**.
+- The codebase and UI are exceptionally solid. Proceed to **Phase 2b ERP - Teacher Presence & Geolocation (feat-008)**.
