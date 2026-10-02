@@ -54,10 +54,16 @@ During business logic analysis of historical teaching logs (`docs/rumus-gaji-gur
 - **Cycle Calculation**: For start date $D_0$, cycle ends on $D_0 + 27$. Next cycle starts on $D_0 + 28$.
 - **Invoice Generation**: Auto-generated on Day 1 of the new cycle.
 - **On-time Discount Validity**:
-  - Payment timestamp $\le$ Day 1 23:59:59 WIB $\rightarrow$ apply `on_time_discount_value`.
+  - Payment timestamp $\le$ Day 1 23:59:59 WIB $\rightarrow$ apply `on_time_discount_value` (or if paid in advance before the cycle begins).
   - Payment timestamp $\ge$ Day 2 00:00:00 WIB $\rightarrow$ revert to full `spp_amount`.
 
-### 2.6 Schedule Drafting Engine (Auto-Draft + Tweak)
+### 2.6 Payment Workflows, Arrears & Advance Payments
+- **Cash Payments & Bank Accounts**: Teacher compensation is primarily cash, but optional bank account fields are provided for flexibility. SPP collection is handled via cash to the teacher, who informs the admin off-system. Admin marks the invoice as `PAID` in the system.
+- **Advance Payments**: Parents paying multiple cycles in advance (e.g., 3 months) receive the on-time discount for all future cycles paid upfront.
+- **Arrears**: If a parent is late by 2 months and pays in the 3rd month on the first cycle day, the 2 late months are billed at the full rate (no discount), while the 3rd (current) month receives the on-time discount.
+- **Teacher UI Alert**: When a teacher marks attendance on the first day of a student's cycle, the UI displays a reminder that SPP is due, including the specific nominal/discount amount, so the teacher can remind the parent.
+
+### 2.7 Schedule Drafting Engine (Auto-Draft + Tweak)
 - **Quota Target**: Calculated as $\text{frequency (sessions/week)} \times 4 \text{ weeks} = \text{total sessions per 28 days}$.
 - **Draft Generator Algorithm**:
   1. Scan student's enrolled variants and session quota.
@@ -65,7 +71,6 @@ During business logic analysis of historical teaching logs (`docs/rumus-gaji-gur
   3. Identify qualified teachers (`profile_programs`) with remaining capacity in that time slot (respecting variant `system` limit).
   4. Output proposed draft schedule.
 - **Admin Review**: Admin reviews proposed draft in an interactive matrix, swaps slots or reassigns teachers based on child demeanor, and commits the finalized schedule.
-
 ---
 
 ## 3. Database Schema Blueprint (DDL)

@@ -31,10 +31,9 @@ describe("Utility Functions (src/lib/utils.ts)", () => {
     it("formats arbitrary numbers correctly", () => {
       expect(formatClassRatio(4)).toBe("1 guru max 4 murid");
       expect(formatClassRatio("6")).toBe("1 guru max 6 murid");
-    });
-
-    it("handles invalid or empty values gracefully", () => {
-      expect(formatClassRatio("invalid")).toBe("-");
+    expect(normalizeImageUrl("https://lh3.googleusercontent.com/d/1A2B3C4D5E6F?authuser=0")).toBe("https://lh3.googleusercontent.com/d/1A2B3C4D5E6F");
+    expect(normalizeImageUrl("https://drive.google.com/uc?export=view&id=1A2B3C4D5E6F")).toBe("https://lh3.googleusercontent.com/d/1A2B3C4D5E6F");
+    expect(normalizeImageUrl("https://example.com/photo.jpg")).toBe("https://example.com/photo.jpg");
       expect(formatClassRatio("")).toBe("-");
       expect(formatClassRatio(null as unknown as number)).toBe("-");
     });

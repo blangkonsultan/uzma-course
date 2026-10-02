@@ -54,7 +54,7 @@
       "description": "Automated unit test framework covering utils, WhatsApp URL builder, and landing page content defaults",
       "dependencies": ["feat-001"],
       "status": "completed",
-      "evidence": "20 unit tests pass in ~300ms via npm test (vitest run)"
+      "evidence": "179 unit tests pass across 12 test files meeting strict 85% coverage threshold (91.61% statements, 85.03% branches, 87.79% functions, 91.87% lines) via npm test (vitest run)"
     },
     {
       "id": "feat-008",

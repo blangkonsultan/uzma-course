@@ -15,3 +15,15 @@ describe("WhatsApp Link Builder (src/lib/whatsapp.ts)", () => {
     expect(link).toContain(encodeURIComponent("Halo Uzma Course, saya ingin bertanya tentang Program AHE."));
   });
 });
+
+import * as Constants from "@/lib/constants";
+
+describe("Constants (src/lib/constants.ts)", () => {
+  it("exports valid site constants", () => {
+    expect(Constants.SITE_NAME).toBe("Uzma Course");
+    expect(Constants.TAGLINE).toBe("Reader now, Leader tomorrow!");
+    expect(Constants.WA_NUMBER).toBe("6285730332379");
+    expect(Constants.FACILITIES.length).toBeGreaterThan(0);
+    expect(Constants.FOUNDER.name).toBe("Nurul Ilmi Mega Puspita, S.Pd.");
+  });
+});

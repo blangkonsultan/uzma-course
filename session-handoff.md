@@ -27,12 +27,12 @@
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
-| Unit Tests | `npm test` | PASS (26 tests passed) | Vitest v5.0.3 execution time ~335ms |
+| Automated Tests | `npm test` | PASS (179 tests passed in 12 files) | Vitest v5.0.3 execution time ~5.5s |
+| Test Coverage | `npm test` | PASS (All 4 metrics >= 85%) | Statements: 91.61%, Branches: 85.03%, Functions: 87.79%, Lines: 91.87% |
 | Code Quality | `npm run lint` | PASS (0 errors, 0 warnings) | ESLint check clean |
-| Production Build | `npm run build` | PASS (Compiled in ~1s) | Next.js Turbopack 16.3.7, 18 static & dynamic routes |
+| Production Build | `npm run build` | PASS (Compiled in ~1.5s) | Next.js Turbopack 16.3.7, 18 static & dynamic routes |
 | Responsive Audit | Headless Chromium | PASS (0 overflow) | Verified at 360px, 375px, and 1280px viewports |
 | Harness Validation | `./init.sh` | PASS (set -e clean run) | Full test + lint + build verification |
-
 ## Files Changed
 
 - `src/lib/branches.ts`

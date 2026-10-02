@@ -55,6 +55,22 @@ describe("Branch Data Access (src/lib/branches.ts)", () => {
       expect(branches).toHaveLength(2);
       expect(branches[1].id).toBe("krian");
     });
+    it("returns empty array if data is null", async () => {
+      const mockSelect = vi.fn().mockReturnThis();
+      const mockOrder = vi.fn().mockReturnThis();
+      const mockEq = vi.fn().mockResolvedValue({ data: null });
+
+      (createClient as unknown as Mock).mockResolvedValue({
+        from: vi.fn().mockReturnValue({
+          select: mockSelect,
+          order: mockOrder,
+          eq: mockEq,
+        }),
+      });
+
+      const branches = await getBranches();
+      expect(branches).toEqual([]);
+    });
   });
 
   describe("getBranchById", () => {

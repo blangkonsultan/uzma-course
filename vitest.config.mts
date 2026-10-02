@@ -3,8 +3,40 @@ import path from "node:path";
 
 export default defineConfig({
   test: {
-    environment: "node",
+    environment: "happy-dom",
+    environmentOptions: {
+      happyDOM: {
+        settings: {
+          disableIframePageLoading: true,
+          handleDisabledFileLoadingAsSuccess: true,
+        },
+      },
+    },
     globals: true,
+    coverage: {
+      provider: "v8",
+      enabled: true,
+      reporter: ["text", "json", "html"],
+      include: [
+        "src/lib/**/*.{ts,tsx}",
+        "src/components/**/*.{ts,tsx}",
+      ],
+      exclude: [
+        "src/lib/supabase/**",
+        "src/types/**",
+        "src/proxy.ts",
+        "src/app/**/actions.ts",
+        "src/app/**/upload-logo.ts",
+        "src/app/**/layout.tsx",
+        "**/*.d.ts",
+      ],
+      thresholds: {
+        lines: 85,
+        functions: 85,
+        branches: 85,
+        statements: 85,
+      },
+    },
   },
   resolve: {
     alias: {

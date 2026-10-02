@@ -7,13 +7,12 @@
 **Current Objective:** Master Data Cabang module implementation (`feat-011`).
 **Recommended Next Step:** Phase 2b ERP - Teacher Presence & Geolocation (`feat-008`).
 ### What's Done
-
 - [x] Standardized mobile card layout with reusable `MasterMobileCard` across Master Program, Guru, and Murid (`feat-006`).
-- [x] Established Vitest automated testing suite with 26 passing unit tests (`feat-007`).
+- [x] Established Vitest automated testing suite with 179 passing unit tests across 12 test files (`feat-007`).
+- [x] Enforced and satisfied strict >= 85% coverage thresholds across all 4 metrics (Statements: 91.61%, Branches: 85.03%, Functions: 87.79%, Lines: 91.87%).
 - [x] Created `init.sh` standard verification entrypoint (`npm run lint && npm test && npm run build`).
 - [x] Created `feature_list.json` tracking 11 core features with dependency graph and explicit status.
 - [x] Implemented Master Data Cabang module: CRUD, detail view, status toggle, map embed, and dashboard link (`feat-011`).
-
 ### What's In Progress
 
 - [ ] Ready for Phase 2b ERP - Teacher Presence & Geolocation (`feat-008`).
