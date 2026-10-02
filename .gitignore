@@ -44,3 +44,6 @@ next-env.d.ts
 # agent skills & workflows
 .agents/
 .claude/
+
+# generated documentation
+/public/docs/
