@@ -7,6 +7,7 @@ import { MasterMobileCard } from "@/components/admin/master-mobile-card";
 import { SearchFilterBar } from "@/components/admin/search-filter-bar";
 import { DataTable, Column } from "@/components/admin/data-table";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { ShiftStatusButton } from "@/components/admin/shift/shift-status-button";
 import { getBranchShifts, BranchShift } from "@/lib/shifts";
 import { getBranches } from "@/lib/branches";
 import { formatTimeString } from "@/lib/utils";
@@ -104,6 +105,11 @@ export default async function ShiftPage(props: {
           >
             <Edit2 className="w-4 h-4" />
           </Link>
+          <ShiftStatusButton
+            shiftId={s.id}
+            shiftName={s.name}
+            isActive={s.is_active}
+          />
         </div>
       ),
     },
@@ -166,6 +172,12 @@ export default async function ShiftPage(props: {
                   >
                     <Edit2 className="w-4 h-4" />
                   </Link>
+                  <ShiftStatusButton
+                    shiftId={shift.id}
+                    shiftName={shift.name}
+                    isActive={shift.is_active}
+                    className="inline-flex items-center justify-center p-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors min-h-[36px] min-w-[36px]"
+                  />
                 </div>
               }
             />
