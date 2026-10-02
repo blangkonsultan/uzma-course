@@ -77,6 +77,43 @@ describe("KanbanBoard Component", () => {
     expect(screen.getByText("Andi")).toBeInTheDocument();
     expect(screen.queryByText("Budi")).not.toBeInTheDocument();
   });
+  it("filters sidebar items based on program dropdown", () => {
+    const multiProgramProps = {
+      ...mockProps,
+      teachers: [
+        { id: "t1", full_name: "Pak Budi", profile_programs: [{ program_id: "p1" }] },
+        { id: "t2", full_name: "Bu Siti", profile_programs: [{ program_id: "p2" }] },
+      ],
+      variants: [
+        { id: "v1", name: "AHE Reg", system: 2, program_id: "p1", programs: { id: "p1", name: "Les Baca AHE" } },
+        { id: "v2", name: "ASE Reg", system: 2, program_id: "p2", programs: { id: "p2", name: "Les Hitung ASE" } },
+      ],
+      students: [
+        { id: "st1", full_name: "Andi", student_programs: [{ program_id: "p1", variant_id: "v1" }] },
+        { id: "st2", full_name: "Budi", student_programs: [{ program_id: "p2", variant_id: "v2" }] },
+      ],
+    };
+
+    render(<KanbanBoard {...multiProgramProps} />);
+
+    expect(screen.getByText("Pak Budi")).toBeInTheDocument();
+    expect(screen.getByText("Bu Siti")).toBeInTheDocument();
+
+    const programSelect = screen.getByLabelText(/Filter berdasarkan program belajar/i);
+    fireEvent.change(programSelect, { target: { value: "p1" } });
+
+    expect(screen.getByText("Pak Budi")).toBeInTheDocument();
+    expect(screen.queryByText("Bu Siti")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText(/Murid/i));
+
+    expect(screen.getByText("Andi")).toBeInTheDocument();
+    expect(screen.queryByText("Budi")).not.toBeInTheDocument();
+
+    fireEvent.change(programSelect, { target: { value: "p2" } });
+    expect(screen.queryByText("Andi")).not.toBeInTheDocument();
+    expect(screen.getByText("Budi")).toBeInTheDocument();
+  });
 
   it("switches active day", () => {
     render(<KanbanBoard {...mockProps} />);

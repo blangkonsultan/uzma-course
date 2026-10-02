@@ -59,8 +59,6 @@ export default async function ShiftPage(props: {
       accessorKey: "name",
       cell: (s) => {
         const branch = branches.find((b) => b.id === s.branch_id);
-        const dayNames = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
-        const dayName = s.day_of_week >= 1 && s.day_of_week <= 7 ? dayNames[s.day_of_week - 1] : `Hari ${s.day_of_week}`;
         return (
           <div>
             <Link
@@ -70,7 +68,7 @@ export default async function ShiftPage(props: {
               {s.name}
             </Link>
             <p className="text-xs text-slate-500 mt-0.5">
-              {branch?.name || s.branch_id} • {dayName}
+              Cabang: {branch?.name || s.branch_id}
             </p>
           </div>
         );
@@ -140,8 +138,6 @@ export default async function ShiftPage(props: {
         emptyStateMessage="Tidak ada data shift yang sesuai dengan filter pencarian."
         mobileCard={(shift) => {
           const branch = branches.find((b) => b.id === shift.branch_id);
-          const dayNames = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
-          const dayName = shift.day_of_week >= 1 && shift.day_of_week <= 7 ? dayNames[shift.day_of_week - 1] : `Hari ${shift.day_of_week}`;
           
           return (
             <MasterMobileCard
@@ -151,7 +147,7 @@ export default async function ShiftPage(props: {
               }}
               title={shift.name}
               titleHref={`/admin/shift/${shift.id}/edit`}
-              subtitle={`${branch?.name || shift.branch_id} • ${dayName}`}
+              subtitle={`Cabang: ${branch?.name || shift.branch_id}`}
               status={<StatusBadge isActive={shift.is_active} activeText="Aktif" inactiveText="Tidak Aktif" />}
               badges={
                 <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">

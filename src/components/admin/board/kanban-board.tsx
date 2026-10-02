@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { formatTimeString } from "@/lib/utils";
-import { Search, Users, GraduationCap, GripVertical, Trash2, Loader2 } from "lucide-react";
+import { Search, Users, GraduationCap, GripVertical, Trash2, Loader2, Filter, ChevronDown, X } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { 
@@ -73,7 +73,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
   const [activeDay, setActiveDay] = useState(1);
   const [activeTab, setActiveTab] = useState<"teachers" | "students">("teachers");
   const [search, setSearch] = useState("");
-  
+  const [selectedProgram, setSelectedProgram] = useState<string>("all");
   // Local state for optimistic UI updates
   const [classes, setClasses] = useState<ScheduleClass[]>((initialClasses as ScheduleClass[]) || []);
   const [activeDragItem, setActiveDragItem] = useState<Record<string, unknown> | null>(null);
@@ -89,6 +89,23 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
     description: "",
     onConfirm: () => {},
   });
+  // Extract unique active programs list from variants
+  const availablePrograms = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; initials?: string }>();
+    variants.forEach((v) => {
+      if (v.program_id) {
+        if (!map.has(v.program_id)) {
+          const progName = v.programs?.name || v.name || v.program_id;
+          map.set(v.program_id, {
+            id: v.program_id,
+            name: progName,
+            initials: v.programs?.initials,
+          });
+        }
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [variants]);
 
   // Generate Teacher-Variant combinations for the sidebar
   const teacherCombos = useMemo(() => {
@@ -110,10 +127,56 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
     return combos;
   }, [teachers, variants]);
 
-  const filteredCombos = teacherCombos.filter((c) => c.label.toLowerCase().includes(search.toLowerCase()));
-  const filteredStudents = students.filter((s) => s.full_name.toLowerCase().includes(search.toLowerCase()));
+  const filteredCombos = useMemo(() => {
+    return teacherCombos.filter((c) => {
+      if (selectedProgram !== "all" && c.variant.program_id !== selectedProgram) {
+        return false;
+      }
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const matchTeacher = c.teacher.full_name.toLowerCase().includes(q);
+        const matchVariant = c.variant.name.toLowerCase().includes(q);
+        const matchProgram = (c.variant.programs?.name || "").toLowerCase().includes(q);
+        return matchTeacher || matchVariant || matchProgram;
+      }
+      return true;
+    });
+  }, [teacherCombos, selectedProgram, search]);
 
-  // DndKit Sensors
+  const filteredStudents = useMemo(() => {
+    return students.filter((s) => {
+      if (selectedProgram !== "all") {
+        const hasProgram = s.student_programs.some(
+          (sp) => sp.program_id === selectedProgram
+        );
+        if (!hasProgram) return false;
+      }
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const matchName = s.full_name.toLowerCase().includes(q);
+        const matchVariant = s.student_programs.some((sp) => {
+          const variant = variants.find((v) => v.id === sp.variant_id);
+          return (
+            variant?.name.toLowerCase().includes(q) ||
+            (variant?.programs?.name || "").toLowerCase().includes(q)
+          );
+        });
+        return matchName || matchVariant;
+      }
+      return true;
+    });
+  }, [students, selectedProgram, search, variants]);
+
+  const unplacedFilteredStudents = useMemo(() => {
+    return filteredStudents.filter((s) => {
+      const isPlacedToday = classes.some(
+        (c) =>
+          c.day_of_week === activeDay &&
+          c.schedule_placements?.some((p) => p.student_id === s.id)
+      );
+      return !isPlacedToday;
+    });
+  }, [filteredStudents, classes, activeDay]);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor)
@@ -344,82 +407,199 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
 
           {/* Sidebar (Draggable Items) */}
           <div className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l bg-white flex flex-col shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)] z-10 max-h-[50vh] md:max-h-none overflow-y-auto">
-            <div className="flex border-b shrink-0">
+            <div className="flex border-b shrink-0 bg-slate-50/50">
               <button
                 type="button"
                 onClick={() => setActiveTab("teachers")}
-                className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 ${
-                  activeTab === "teachers" ? "text-primary-600 border-b-2 border-primary-600" : "text-slate-500 hover:bg-slate-50"
+                className={`flex-1 py-3 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                  activeTab === "teachers"
+                    ? "text-primary-700 border-b-2 border-primary-600 bg-white"
+                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-100/50"
                 }`}
               >
-                <Users className="w-4 h-4" /> Wadah Guru
+                <Users className="w-4 h-4 shrink-0" />
+                <span>Wadah Guru</span>
+                <span className="text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold">
+                  {filteredCombos.length}
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("students")}
-                className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 ${
-                  activeTab === "students" ? "text-primary-600 border-b-2 border-primary-600" : "text-slate-500 hover:bg-slate-50"
+                className={`flex-1 py-3 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                  activeTab === "students"
+                    ? "text-primary-700 border-b-2 border-primary-600 bg-white"
+                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-100/50"
                 }`}
               >
-                <GraduationCap className="w-4 h-4" /> Murid
+                <GraduationCap className="w-4 h-4 shrink-0" />
+                <span>Murid</span>
+                <span className="text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold">
+                  {unplacedFilteredStudents.length}
+                </span>
               </button>
             </div>
             
-            <div className="p-3 border-b relative shrink-0">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Cari..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                aria-label="Cari guru atau murid"
-                className="w-full pl-9 pr-3 py-2 text-base sm:text-sm border rounded-lg bg-slate-50"
-              />
+            {/* Search & Program Filter Controls */}
+            <div className="p-3 border-b bg-slate-50/60 space-y-2 shrink-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Cari..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  aria-label={activeTab === "teachers" ? "Cari nama guru atau varian" : "Cari nama murid"}
+                  className="w-full pl-8 pr-8 py-2 text-base sm:text-xs border border-slate-200 rounded-xl bg-white shadow-2xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded"
+                    aria-label="Hapus teks pencarian"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {availablePrograms.length > 0 && (
+                <div className="relative">
+                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                  <select
+                    value={selectedProgram}
+                    onChange={(e) => setSelectedProgram(e.target.value)}
+                    aria-label="Filter berdasarkan program belajar"
+                    className="w-full appearance-none pl-8 pr-8 py-2 text-base sm:text-xs bg-white border border-slate-200 rounded-xl text-slate-700 font-medium shadow-2xs focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors cursor-pointer"
+                  >
+                    <option value="all">Semua Program Belajar ({availablePrograms.length})</option>
+                    {availablePrograms.map((prog) => (
+                      <option key={prog.id} value={prog.id}>
+                        Program: {prog.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                </div>
+              )}
             </div>
 
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
               {activeTab === "teachers" ? (
-                filteredCombos.map((combo) => (
-                  <DraggableItem 
-                    key={combo.id} 
-                    id={combo.id} 
-                    data={{ type: "teacher-variant", teacherId: combo.teacher.id, variantId: combo.variant.id }}
-                    className="p-3 border rounded-lg bg-white shadow-sm flex items-center gap-3 cursor-grab hover:border-primary-400 touch-none"
-                  >
-                    <GripVertical className="w-4 h-4 text-slate-300 shrink-0" />
-                    <div>
-                      <p className="text-sm font-bold text-slate-800">{combo.teacher.full_name}</p>
-                      <p className="text-xs font-medium text-primary-600">{combo.variant.name}</p>
+                filteredCombos.length === 0 ? (
+                  <div className="py-8 px-4 text-center">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-2 text-slate-400">
+                      <Users className="w-5 h-5" />
                     </div>
-                  </DraggableItem>
-                ))
+                    <p className="text-xs font-semibold text-slate-700">Tidak ada guru ditemukan</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      {selectedProgram !== "all" || search
+                        ? "Coba ubah kata kunci atau ganti filter program"
+                        : "Belum ada guru yang terdaftar di cabang ini"}
+                    </p>
+                    {(selectedProgram !== "all" || search) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearch("");
+                          setSelectedProgram("all");
+                        }}
+                        className="mt-3 text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+                      >
+                        Reset Filter & Pencarian
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  filteredCombos.map((combo) => (
+                    <DraggableItem 
+                      key={combo.id} 
+                      id={combo.id} 
+                      data={{ type: "teacher-variant", teacherId: combo.teacher.id, variantId: combo.variant.id }}
+                      className="p-3 border border-slate-200/90 rounded-xl bg-white shadow-2xs hover:shadow-xs flex items-center gap-3 cursor-grab hover:border-primary-400 transition-all touch-none group"
+                    >
+                      <GripVertical className="w-4 h-4 text-slate-300 group-hover:text-primary-500 shrink-0 transition-colors" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-1 mb-0.5">
+                          <p className="text-sm font-bold text-slate-800 truncate">{combo.teacher.full_name}</p>
+                          {combo.variant.programs?.name && (
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-primary-50 text-primary-700 rounded border border-primary-200/60 shrink-0">
+                              {combo.variant.programs.initials || combo.variant.programs.name}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-primary-600 font-medium">
+                          <span>{combo.variant.name}</span>
+                          <span className="text-slate-300">•</span>
+                          <span className="text-slate-500 text-[11px]">{combo.variant.duration} mnt</span>
+                        </div>
+                      </div>
+                    </DraggableItem>
+                  ))
+                )
               ) : (
-                filteredStudents.map((s) => {
-                  const isPlacedToday = classes.some((c) => c.day_of_week === activeDay && c.schedule_placements?.some((p) => p.student_id === s.id));
-                  if (isPlacedToday) return null;
-
-                  return (
+                unplacedFilteredStudents.length === 0 ? (
+                  <div className="py-8 px-4 text-center">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-2 text-slate-400">
+                      <GraduationCap className="w-5 h-5" />
+                    </div>
+                    <p className="text-xs font-semibold text-slate-700">Tidak ada murid ditemukan</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      {selectedProgram !== "all" || search
+                        ? "Coba ubah kata kunci atau ganti filter program"
+                        : "Semua murid sudah ditempatkan hari ini atau belum ada murid"}
+                    </p>
+                    {(selectedProgram !== "all" || search) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearch("");
+                          setSelectedProgram("all");
+                        }}
+                        className="mt-3 text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+                      >
+                        Reset Filter & Pencarian
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  unplacedFilteredStudents.map((s) => (
                     <DraggableItem 
                       key={s.id} 
                       id={`student-${s.id}`} 
                       data={{ type: "student", studentId: s.id, student: s }}
-                      className="p-3 border border-blue-100 rounded-lg bg-blue-50/50 flex items-center gap-3 cursor-grab hover:border-blue-400 touch-none"
+                      className="p-3 border border-blue-100 rounded-xl bg-blue-50/50 hover:bg-blue-50/80 shadow-2xs flex items-center gap-3 cursor-grab hover:border-blue-400 transition-all touch-none group"
                     >
-                      <GripVertical className="w-4 h-4 text-blue-300 shrink-0" />
-                      <div>
-                        <p className="text-sm font-medium text-slate-800">{s.full_name}</p>
-                        <p className="text-xs text-slate-500">
-                          {s.student_programs.map((sp) => variants.find((v)=>v.id===sp.variant_id)?.name).join(", ")}
-                        </p>
+                      <GripVertical className="w-4 h-4 text-blue-300 group-hover:text-blue-500 shrink-0 transition-colors" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-slate-800 truncate">{s.full_name}</p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {s.student_programs.map((sp, idx) => {
+                            const variant = variants.find((v) => v.id === sp.variant_id);
+                            const isMatchedProgram = selectedProgram !== "all" && sp.program_id === selectedProgram;
+                            return (
+                              <span
+                                key={idx}
+                                className={`text-[10px] font-medium px-1.5 py-0.5 rounded transition-colors ${
+                                  isMatchedProgram
+                                    ? "bg-primary-100 text-primary-800 font-bold border border-primary-200"
+                                    : "bg-white text-slate-600 border border-slate-200/80"
+                                }`}
+                              >
+                                {variant?.name || "Program"}
+                              </span>
+                            );
+                          })}
+                        </div>
                       </div>
                     </DraggableItem>
-                  )
-                })
+                  ))
+                )
               )}
             </div>
           </div>
         </div>
-
         {/* Drag Overlay for visual feedback */}
         <DragOverlay dropAnimation={null}>
           {activeDragItem ? (

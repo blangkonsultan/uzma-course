@@ -3,9 +3,16 @@ import { cn } from "@/lib/utils";
 interface StatusBadgeProps {
   isActive: boolean;
   className?: string;
+  activeText?: string;
+  inactiveText?: string;
 }
 
-export function StatusBadge({ isActive, className }: StatusBadgeProps) {
+export function StatusBadge({
+  isActive,
+  className,
+  activeText = "Aktif",
+  inactiveText = "Non-aktif",
+}: StatusBadgeProps) {
   if (isActive) {
     return (
       <span
@@ -15,7 +22,7 @@ export function StatusBadge({ isActive, className }: StatusBadgeProps) {
         )}
       >
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-        Aktif
+        {activeText}
       </span>
     );
   }
@@ -28,7 +35,7 @@ export function StatusBadge({ isActive, className }: StatusBadgeProps) {
       )}
     >
       <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-      Non-aktif
+      {inactiveText}
     </span>
   );
 }

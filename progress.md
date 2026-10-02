@@ -16,3 +16,13 @@
   - Eliminated `confirm()` in `kanban-board.tsx`.
   - Added `<ShiftStatusButton>` at `src/components/admin/shift/shift-status-button.tsx`.
   - Shift table and mobile card both support status toggles alongside editing.
+
+## 2026-10-02 (Kanban Board Program Filter & Polish)
+- **Status**: Completed.
+- **Evidence**:
+  - Added program dropdown filter and instant search clear button in Kanban Board sidebar (`src/components/admin/board/kanban-board.tsx`).
+  - Teachers and students in the scheduling sidebar can now be filtered by active educational program (AHE, ASE, BEE, MAPEL, etc.) or viewed all at once.
+  - Active tab badges in Kanban Board dynamically display accurate counts of available/unplaced candidates matching the active filter.
+  - Cards highlight program badges and enrolled variant tags.
+  - Added unit test in `tests/components/kanban-board.test.tsx` verifying multi-program filtering across both teacher and student tabs.
+  - `./init.sh` succeeds with zero errors (226 tests passed, 0 lint errors, build succeeded).
