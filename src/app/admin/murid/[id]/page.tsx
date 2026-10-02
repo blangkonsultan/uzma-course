@@ -18,7 +18,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { getBranches } from "@/lib/branches";
-import { formatDuration, formatClassRatio, formatFrequencyShort } from "@/lib/utils";
+import { formatDuration, formatClassRatio } from "@/lib/utils";
 
 export const metadata = {
   title: "Detail Murid | Uzma Course",

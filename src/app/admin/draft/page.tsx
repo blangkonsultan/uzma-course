@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import Link from "next/link";
-import { Plus, Search, MapPin, Calendar, CheckCircle2 } from "lucide-react";
+
+import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/admin/page-header";
 import { MasterMobileCard } from "@/components/admin/master-mobile-card";
@@ -95,13 +95,10 @@ export default async function DraftPage(props: {
         {filteredDrafts.map((draft) => {
           const branch = branches.find((b) => b.id === draft.branch_id);
           
-          let statusColor = "bg-gray-100 text-gray-700";
           let statusLabel = "Draf";
           if (draft.status === "active") {
-            statusColor = "bg-green-100 text-green-700";
             statusLabel = "Aktif";
           } else if (draft.status === "archived") {
-            statusColor = "bg-red-100 text-red-700";
             statusLabel = "Arsip";
           }
 

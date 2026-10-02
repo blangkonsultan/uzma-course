@@ -17,7 +17,7 @@ export default async function BoardPage({
   try {
     const { id } = await params;
     data = await getBoardData(id);
-  } catch (error) {
+  } catch {
     notFound();
   }
 

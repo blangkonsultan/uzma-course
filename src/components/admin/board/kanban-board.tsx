@@ -177,7 +177,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
     try {
       await removeScheduleClass(classId);
       setClasses(classes.filter(c => c.id !== classId));
-    } catch (e) {
+    } catch {
       showToast("Gagal menghapus", "error");
     }
     setIsProcessing(false);
@@ -193,7 +193,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
         }
         return c;
       }));
-    } catch (e) {
+    } catch {
       showToast("Gagal menghapus murid dari kelas", "error");
     }
     setIsProcessing(false);

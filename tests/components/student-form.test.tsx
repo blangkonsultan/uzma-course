@@ -21,6 +21,7 @@ describe("StudentForm Component", () => {
     { id: "p1", name: "AHE", type: "franchise", initials: "AHE", is_active: true } as any,
     { id: "p2", name: "Mapel", type: "original", initials: "MPL", is_active: true } as any,
   ];
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const mockVariants = [
     { id: "v1", program_id: "p1", name: "AHE Reguler" } as any,
   ];

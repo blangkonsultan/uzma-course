@@ -57,7 +57,7 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
   let allowances = [];
   try {
     allowances = JSON.parse(formData.get("allowances_json")?.toString() || "[]");
-  } catch (e) {
+  } catch {
     allowances = [];
   }
   const minimumIncome = formData.has("minimum_income") ? parseNum(formData.get("minimum_income")) : null;
@@ -176,7 +176,7 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
   let allowances = [];
   try {
     allowances = JSON.parse(formData.get("allowances_json")?.toString() || "[]");
-  } catch (e) {
+  } catch {
     allowances = [];
   }
   const minimumIncome = formData.has("minimum_income") ? parseNum(formData.get("minimum_income")) : null;

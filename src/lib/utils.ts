@@ -94,7 +94,7 @@ export function formatDateString(dateStr: string | null | undefined): string {
       month: "short",
       year: "numeric",
     }).format(date);
-  } catch (e) {
+  } catch {
     return dateStr;
   }
 }

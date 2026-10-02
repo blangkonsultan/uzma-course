@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import Link from "next/link";
-import { Plus, Search, MapPin, Clock } from "lucide-react";
+
+import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/admin/page-header";
 import { MasterMobileCard } from "@/components/admin/master-mobile-card";

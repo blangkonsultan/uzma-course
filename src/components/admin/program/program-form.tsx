@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save, Plus, Trash2 } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
-import { formatFrequency } from "@/lib/utils";
+
 import type { Program } from "@/types";
 
 interface ProgramFormProps {
