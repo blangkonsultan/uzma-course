@@ -35,10 +35,10 @@
     {
       "id": "feat-005",
       "name": "Master Data Murid",
-      "description": "Admin management of student enrollments, guardian WhatsApp contacts, branch assignments, enrolled programs, and active status toggles",
+      "description": "Admin management of student enrollments, guardian WhatsApp contacts, branch assignments, enrolled programs, active status toggles, and auto-generated student numbers (YYMM.BB.NNN)",
       "dependencies": ["feat-003", "feat-004"],
       "status": "completed",
-      "evidence": "Server actions at /admin/murid/actions.ts, StudentStatusButton, verified on /admin/murid"
+      "evidence": "Server actions at /admin/murid/actions.ts with backend YYMM.BB.NNN auto-generation, StudentStatusButton, verified on /admin/murid"
     },
     {
       "id": "feat-006",

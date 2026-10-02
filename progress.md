@@ -2,17 +2,16 @@
 
 ## Current State
 
-**Last Updated:** 2026-10-01 20:30
-**Session ID:** 2026-10-01-master-cabang
-**Current Objective:** Master Data Cabang module implementation (`feat-011`).
+**Last Updated:** 2026-10-02 15:30
+**Session ID:** 2026-10-02-master-cabang-polish
+**Current Objective:** Admin UI Polish, Auto-generate Student Number, and User Guide Documentation.
 **Recommended Next Step:** Phase 2b ERP - Teacher Presence & Geolocation (`feat-008`).
 ### What's Done
-- [x] Standardized mobile card layout with reusable `MasterMobileCard` across Master Program, Guru, and Murid (`feat-006`).
-- [x] Established Vitest automated testing suite with 179 passing unit tests across 12 test files (`feat-007`).
-- [x] Enforced and satisfied strict >= 85% coverage thresholds across all 4 metrics (Statements: 91.61%, Branches: 85.03%, Functions: 87.79%, Lines: 91.87%).
-- [x] Created `init.sh` standard verification entrypoint (`npm run lint && npm test && npm run build`).
-- [x] Created `feature_list.json` tracking 11 core features with dependency graph and explicit status.
 - [x] Implemented Master Data Cabang module: CRUD, detail view, status toggle, map embed, and dashboard link (`feat-011`).
+- [x] Auto-generate Student Number (`YYMM.BB.NNN`) backed by `branches.code` and database sequence (`feat-005`).
+- [x] Updated Excel import template with auto-generation formula for one-time bulk migration.
+- [x] Admin UI Polish: Simplified Pendapatan Minimal, removed misleading program subtitles, standardized form action buttons to `justify-end`, fixed mobile button stacking, moved birthday card down.
+- [x] Generated comprehensive 26-page User Guide PDF with screenshots and added it to `.gitignore`.
 ### What's In Progress
 
 - [ ] Ready for Phase 2b ERP - Teacher Presence & Geolocation (`feat-008`).

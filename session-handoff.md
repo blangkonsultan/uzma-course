@@ -1,27 +1,23 @@
 # Session Handoff
 
-**Last Updated:** 2026-10-01 20:30
+**Last Updated:** 2026-10-02 15:30
 
 ## Current Objective
 
-- Goal: Implement Master Cabang (`feat-011`) full admin module (CRUD, status toggles, map links, dashboard integration).
+- Goal: Auto-generate student numbers (`feat-005`), UI Polish, and Documentation.
 - Current status: Completed & fully verified.
 - Branch / commit: `main`.
 
 ## Completed This Session
 
-- [x] Added `getBranchById(id)` to `src/lib/branches.ts`.
-- [x] Implemented server actions (`createBranch`, `updateBranch`, `toggleBranchActive`) with admin guard in `src/app/admin/cabang/actions.ts`.
-- [x] Created `BranchStatusButton` client component with ConfirmDialog in `src/components/admin/cabang/branch-status-button.tsx`.
-- [x] Created `BranchForm` client component with validation, Google Maps URL hints, and active toggle in `src/components/admin/cabang/branch-form.tsx`.
-- [x] Built list page `/admin/cabang` with search by name, status filter, DataTable with guru/murid KPI counts, and responsive `MasterMobileCard` in `src/app/admin/cabang/page.tsx`.
-- [x] Built tambah page `/admin/cabang/tambah` in `src/app/admin/cabang/tambah/page.tsx`.
-- [x] Built detail page `/admin/cabang/[id]` with KPI cards (Guru Aktif, Murid Aktif, Status), information card, and Google Maps iframe embed in `src/app/admin/cabang/[id]/page.tsx`.
-- [x] Built edit page `/admin/cabang/[id]/edit` in `src/app/admin/cabang/[id]/edit/page.tsx`.
-- [x] Added "Data Cabang" with `Building2` icon in `src/components/admin/admin-shell.tsx` after "Data Murid".
-- [x] Linked branch KPI cards on Admin Dashboard `/admin` to `/admin/cabang/[id]`.
-- [x] Created unit tests `tests/branches.test.ts` covering data access and slug validation (26 tests total now pass).
-- [x] Verified zero horizontal overflow across 360px, 375px, and 1280px viewports across all 4 Cabang routes.
+- [x] Auto-generated `student_number` (No Induk) formatted as `YYMM.BB.NNN` on the backend (`createStudent` action).
+- [x] Added `code` column (`01`, `02`) to `branches` table via database migration.
+- [x] Updated Excel bulk import template with robust formula mirroring the backend logic for initial bulk uploads.
+- [x] Simplified Guru Form Pendapatan Minimal UI by removing heavy border boxes and "(Fixed)" labels.
+- [x] Removed fixed program subtitles (class ratio/duration) from checkboxes because actual session logic varies per program variant.
+- [x] Standardized form actions (Batal/Simpan) across 5 master forms to use `justify-end` with consistent mobile stacked `flex-col-reverse` pattern.
+- [x] Stacked birthday dashboard widget below program distribution widget on desktop to prevent layout stretching on high-count days.
+- [x] Generated comprehensive 26-page User Guide PDF with automated screenshots and added it to `.gitignore`.
 
 ## Verification Evidence
 
@@ -35,26 +31,24 @@
 | Harness Validation | `./init.sh` | PASS (set -e clean run) | Full test + lint + build verification |
 ## Files Changed
 
-- `src/lib/branches.ts`
-- `src/app/admin/cabang/actions.ts`
-- `src/components/admin/cabang/branch-status-button.tsx`
+- `src/app/admin/murid/actions.ts`
+- `src/components/admin/guru/guru-form.tsx`
+- `src/components/admin/murid/student-form.tsx`
 - `src/components/admin/cabang/branch-form.tsx`
-- `src/app/admin/cabang/page.tsx`
-- `src/app/admin/cabang/tambah/page.tsx`
-- `src/app/admin/cabang/[id]/page.tsx`
-- `src/app/admin/cabang/[id]/edit/page.tsx`
-- `src/components/admin/admin-shell.tsx`
+- `src/components/admin/landing/form-actions.tsx`
 - `src/app/admin/page.tsx`
-- `tests/branches.test.ts`
+- `supabase/migrations/20261002051000_add_student_number.sql`
+- `public/Template_Import_Uzma.xlsx`
+- `public/docs/Panduan_Pengguna_Uzma_Course.pdf` (local only, `.gitignore`'d)
 - `feature_list.json`
 - `session-handoff.md`
 - `progress.md`
 
 ## Decisions Made
 
-- Maintained text slug PK convention (`balongbendo`, `krian`) for branches, enforcing `/^[a-z0-9-]+$/` validation on creation and making ID read-only in edit mode.
-- Used standardized `MasterMobileCard` component for mobile cards on `/admin/cabang` list to guarantee strict UI conformity with Guru, Murid, and Program masters.
-- Direct Google Maps navigation link opens in a new tab; interactive embed renders as a 16:9 iframe on the detail page.
+- Decided to use backend querying for sequential student numbers (`NNN`) rather than client-side passing to ensure absolute uniqueness across multiple branch administrators.
+- Included an Excel formula for initial bulk uploads but clearly noted in the user guide that future operations should rely on the automated backend generation.
+- Form controls standardization prioritized functional scanning speed over localized variation.
 
 ## Blockers / Risks
 
