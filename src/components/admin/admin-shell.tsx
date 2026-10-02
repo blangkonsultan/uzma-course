@@ -115,7 +115,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
   const allowedGroups = navGroups
     .map((group) => ({
       ...group,
-      items: group.items.filter((item) => item.roles.includes(profile.role)),
+      items: group.items.filter((item) => item.roles.includes(profile.role as "admin" | "guru")),
     }))
     .filter((group) => group.items.length > 0);
 

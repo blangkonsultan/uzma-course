@@ -356,7 +356,7 @@ function mapProgramRowToItem(p: Database["public"]["Tables"]["programs"]["Row"])
     description: p.description,
     ageRange: p.age_range,
     icon: p.icon,
-    type: p.type,
+    type: p.type as "franchise" | "original",
     logoUrl: p.logo_url || undefined,
     licenseInfo: p.license_provider
       ? {

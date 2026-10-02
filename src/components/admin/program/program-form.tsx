@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save, Plus, Trash2 } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
-import { formatClassRatio, formatDuration, formatFrequency } from "@/lib/utils";
+import { formatFrequency } from "@/lib/utils";
 import type { Program } from "@/types";
 
 interface ProgramFormProps {
@@ -36,9 +36,10 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
     license_provider: initialData?.license_provider || "",
     license_url: initialData?.license_url || "",
     license_description: initialData?.license_description || "",
-    system: initialData?.system ?? 2,
-    duration: initialData?.duration ?? 30,
     frequency: initialData?.frequency ?? 3,
+    variants: initialData?.program_variants && initialData.program_variants.length > 0
+      ? initialData.program_variants
+      : [{ id: "new-0", name: "Standar", duration: 30, system: 2, teacher_fee: 0, default_spp: 0, sort_order: 0, is_active: true }],
     features: initialData?.features || [""],
     sort_order: initialData?.sort_order ?? 0,
     is_active: initialData?.is_active ?? true,
@@ -79,6 +80,44 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
     setFormData((prev) => ({ ...prev, features: nextFeatures }));
   }
 
+  function addVariant() {
+    setFormData((prev) => ({
+      ...prev,
+      variants: [
+        ...prev.variants,
+        {
+          id: `new-${Date.now()}`,
+          name: "",
+          duration: 30,
+          system: 2,
+          teacher_fee: 0,
+          default_spp: 0,
+          sort_order: prev.variants.length,
+          is_active: true,
+        },
+      ],
+    }));
+  }
+
+  function removeVariant(index: number) {
+    if (formData.variants.length <= 1) {
+      showToast("Minimal harus ada 1 varian program.", "error");
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.variants.filter((_, i) => i !== index),
+    }));
+  }
+
+  function updateVariant(index: number, field: string, value: string | number | boolean) {
+    setFormData((prev) => {
+      const nextVariants = [...prev.variants];
+      nextVariants[index] = { ...nextVariants[index], [field]: value };
+      return { ...prev, variants: nextVariants };
+    });
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -113,9 +152,8 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
         data.append("license_provider", formData.license_provider.trim());
         data.append("license_url", formData.license_url.trim());
         data.append("license_description", formData.license_description.trim());
-        data.append("system", formData.system.toString());
-        data.append("duration", formData.duration.toString());
         data.append("frequency", formData.frequency.toString());
+        data.append("variants_json", JSON.stringify(formData.variants));
         data.append("sort_order", formData.sort_order.toString());
         formData.features
           .filter((f) => f.trim().length > 0)
@@ -323,41 +361,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
               Sistem Belajar & Jadwal
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <InputField
-                  id="system"
-                  name="system"
-                  label="Rasio Kelas (Maks. Murid)"
-                  type="number"
-                  placeholder="2"
-                  min={1}
-                  value={formData.system.toString()}
-                  onChange={(e) => updateField("system", parseInt(e.target.value) || 0)}
-                  error={fieldErrors.system}
-                  hint={`Pratinjau: ${formatClassRatio(formData.system)}`}
-                  required
-                  disabled={isPending}
-                />
-              </div>
-
-              <div>
-                <InputField
-                  id="duration"
-                  name="duration"
-                  label="Durasi per Sesi (menit)"
-                  type="number"
-                  placeholder="30"
-                  min={1}
-                  value={formData.duration.toString()}
-                  onChange={(e) => updateField("duration", parseInt(e.target.value) || 0)}
-                  error={fieldErrors.duration}
-                  hint={`Pratinjau: ${formatDuration(formData.duration)}`}
-                  required
-                  disabled={isPending}
-                />
-              </div>
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <InputField
                   id="frequency"
@@ -374,6 +378,121 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                   disabled={isPending}
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Section: Varian Program */}
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                Varian Program
+              </h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addVariant}
+                disabled={isPending}
+                className="h-9 px-3 text-xs"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Tambah Varian</span>
+              </Button>
+            </div>
+
+            {fieldErrors.variants && (
+              <p className="text-sm text-rose-600 font-medium">{fieldErrors.variants}</p>
+            )}
+
+            <div className="space-y-4">
+              {formData.variants.map((variant, idx) => (
+                <div key={variant.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-4 relative">
+                  <button
+                    type="button"
+                    onClick={() => removeVariant(idx)}
+                    disabled={isPending}
+                    className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-100/50 transition-colors"
+                    title="Hapus varian"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-10">
+                    <InputField
+                      id={`variant-${variant.id}-name`}
+                      name={`variant-${variant.id}-name`}
+                      label="Nama Varian"
+                      placeholder="Misal: Standar, Intensif, Kelas Besar"
+                      value={variant.name}
+                      onChange={(e) => updateVariant(idx, "name", e.target.value)}
+                      required
+                      disabled={isPending}
+                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <InputField
+                        id={`variant-${variant.id}-duration`}
+                        name={`variant-${variant.id}-duration`}
+                        label="Durasi (Menit)"
+                        type="number"
+                        min={1}
+                        value={variant.duration.toString()}
+                        onChange={(e) => updateVariant(idx, "duration", parseInt(e.target.value) || 0)}
+                        required
+                        disabled={isPending}
+                      />
+                      <InputField
+                        id={`variant-${variant.id}-system`}
+                        name={`variant-${variant.id}-system`}
+                        label="Sistem (Maks Murid)"
+                        type="number"
+                        min={1}
+                        value={variant.system.toString()}
+                        onChange={(e) => updateVariant(idx, "system", parseInt(e.target.value) || 0)}
+                        required
+                        disabled={isPending}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InputField
+                      id={`variant-${variant.id}-default_spp`}
+                      name={`variant-${variant.id}-default_spp`}
+                      label="Default SPP (Rp)"
+                      type="number"
+                      min={0}
+                      value={variant.default_spp.toString()}
+                      onChange={(e) => updateVariant(idx, "default_spp", parseInt(e.target.value) || 0)}
+                      required
+                      disabled={isPending}
+                    />
+                    <InputField
+                      id={`variant-${variant.id}-teacher_fee`}
+                      name={`variant-${variant.id}-teacher_fee`}
+                      label="Honor Guru per Sesi (Rp)"
+                      type="number"
+                      min={0}
+                      value={variant.teacher_fee.toString()}
+                      onChange={(e) => updateVariant(idx, "teacher_fee", parseInt(e.target.value) || 0)}
+                      required
+                      disabled={isPending}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2 border-t border-slate-200/60">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={variant.is_active}
+                        onChange={(e) => updateVariant(idx, "is_active", e.target.checked)}
+                        disabled={isPending}
+                        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="text-sm text-slate-700 font-medium">Varian Aktif</span>
+                    </label>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

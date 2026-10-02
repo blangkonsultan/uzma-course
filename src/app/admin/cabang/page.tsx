@@ -10,7 +10,7 @@ import { Pagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
 import { BranchStatusButton } from "@/components/admin/cabang/branch-status-button";
 import type { Branch } from "@/types";
-import { Plus, Edit2, MapPin, ExternalLink } from "lucide-react";
+import { Plus, Edit2, MapPin, ExternalLink, Eye } from "lucide-react";
 
 export const metadata = {
   title: "Data Cabang | Uzma Course",
@@ -172,6 +172,14 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
       className: "text-right",
       cell: (b) => (
         <div className="flex items-center justify-end gap-1.5">
+          <Link
+            href={`/admin/cabang/${b.id}`}
+            className="p-1.5 rounded-lg text-slate-500 hover:text-primary-600 hover:bg-primary-50 transition-colors hidden sm:flex"
+            title="Lihat Detail Cabang"
+            aria-label={`Detail data ${b.name}`}
+          >
+            <Eye className="w-4 h-4" />
+          </Link>
           <Link
             href={`/admin/cabang/${b.id}/edit`}
             className="p-1.5 rounded-lg text-slate-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"

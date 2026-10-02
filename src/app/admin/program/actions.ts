@@ -46,11 +46,17 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
   const licenseProvider = formData.get("license_provider")?.toString().trim() || null;
   const licenseUrl = formData.get("license_url")?.toString().trim() || null;
   const licenseDescription = formData.get("license_description")?.toString().trim() || null;
-  const system = parseInt(formData.get("system")?.toString() || "2", 10);
-  const duration = parseInt(formData.get("duration")?.toString() || "30", 10);
   const frequency = parseInt(formData.get("frequency")?.toString() || "3", 10);
+  const variantsJson = formData.get("variants_json")?.toString() || "[]";
   const sortOrder = parseInt(formData.get("sort_order")?.toString() || "0", 10);
   const rawFeatures = formData.getAll("features").map((f) => f.toString().trim()).filter(Boolean);
+
+  let variants = [];
+  try {
+    variants = JSON.parse(variantsJson);
+  } catch {
+    variants = [];
+  }
 
   const fieldErrors: Record<string, string> = {};
 
@@ -60,11 +66,8 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
   if (!name || name.length < 2) {
     fieldErrors.name = "Nama program minimal 2 karakter.";
   }
-  if (isNaN(system) || system < 1) {
-    fieldErrors.system = "Rasio kelas harus berupa angka positif (minimal 1 murid).";
-  }
-  if (isNaN(duration) || duration < 1) {
-    fieldErrors.duration = "Durasi harus berupa angka positif (dalam menit).";
+  if (variants.length === 0) {
+    fieldErrors.variants = "Minimal harus ada 1 varian program.";
   }
   if (isNaN(frequency) || frequency < 1) {
     fieldErrors.frequency = "Frekuensi belajar harus berupa angka positif (minimal 1 sesi per minggu).";
@@ -74,7 +77,7 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
     return { fieldErrors };
   }
 
-  const { error } = await supabase.from("programs").insert({
+  const { data: programData, error } = await supabase.from("programs").insert({
     initials: initials!,
     name: name!,
     tagline,
@@ -86,19 +89,37 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
     license_provider: type === "franchise" ? licenseProvider : null,
     license_url: type === "franchise" ? licenseUrl : null,
     license_description: type === "franchise" ? licenseDescription : null,
-    system,
-    duration,
     frequency,
     features: rawFeatures,
     sort_order: isNaN(sortOrder) ? 0 : sortOrder,
     is_active: true,
-  });
+  }).select("id").single();
 
   if (error) {
     if (error.message.includes("programs_initials_key") || error.message.includes("unique")) {
       return { fieldErrors: { initials: "Inisial program sudah digunakan. Gunakan inisial lain." } };
     }
     return { error: error.message };
+  }
+
+  const programId = programData.id;
+
+  const variantsToInsert = variants.map((v: Record<string, unknown>, idx: number) => ({
+    program_id: programId,
+    name: typeof v.name === "string" ? v.name : "",
+    duration: typeof v.duration === "number" ? v.duration : 30,
+    system: typeof v.system === "number" ? v.system : 2,
+    teacher_fee: typeof v.teacher_fee === "number" ? v.teacher_fee : 0,
+    default_spp: typeof v.default_spp === "number" ? v.default_spp : 0,
+    sort_order: typeof v.sort_order === "number" ? v.sort_order : idx,
+    is_active: typeof v.is_active === "boolean" ? v.is_active : true,
+  }));
+
+  if (variantsToInsert.length > 0) {
+    const { error: variantError } = await supabase.from("program_variants").insert(variantsToInsert);
+    if (variantError) {
+      return { error: "Gagal menyimpan varian: " + variantError.message };
+    }
   }
 
   revalidatePath("/admin/program");
@@ -120,23 +141,26 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
   const licenseProvider = formData.get("license_provider")?.toString().trim() || null;
   const licenseUrl = formData.get("license_url")?.toString().trim() || null;
   const licenseDescription = formData.get("license_description")?.toString().trim() || null;
-  const system = parseInt(formData.get("system")?.toString() || "2", 10);
-  const duration = parseInt(formData.get("duration")?.toString() || "30", 10);
   const frequency = parseInt(formData.get("frequency")?.toString() || "3", 10);
   const sortOrder = parseInt(formData.get("sort_order")?.toString() || "0", 10);
+  const variantsJson = formData.get("variants_json")?.toString() || "[]";
   const rawFeatures = formData.getAll("features").map((f) => f.toString().trim()).filter(Boolean);
   const isActive = formData.get("is_active") === "true";
+
+  let variants = [];
+  try {
+    variants = JSON.parse(variantsJson);
+  } catch {
+    variants = [];
+  }
 
   const fieldErrors: Record<string, string> = {};
 
   if (!name || name.length < 2) {
     fieldErrors.name = "Nama program minimal 2 karakter.";
   }
-  if (isNaN(system) || system < 1) {
-    fieldErrors.system = "Rasio kelas harus berupa angka positif (minimal 1 murid).";
-  }
-  if (isNaN(duration) || duration < 1) {
-    fieldErrors.duration = "Durasi harus berupa angka positif (dalam menit).";
+  if (variants.length === 0) {
+    fieldErrors.variants = "Minimal harus ada 1 varian program.";
   }
   if (isNaN(frequency) || frequency < 1) {
     fieldErrors.frequency = "Frekuensi belajar harus berupa angka positif (minimal 1 sesi per minggu).";
@@ -159,8 +183,6 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
       license_provider: type === "franchise" ? licenseProvider : null,
       license_url: type === "franchise" ? licenseUrl : null,
       license_description: type === "franchise" ? licenseDescription : null,
-      system,
-      duration,
       frequency,
       features: rawFeatures,
       sort_order: isNaN(sortOrder) ? 0 : sortOrder,
@@ -171,6 +193,35 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
 
   if (error) {
     return { error: error.message };
+  }
+
+  const variantsToUpsert = variants.map((v: Record<string, unknown>, idx: number) => {
+    const isNew = typeof v.id === "string" && v.id.startsWith("new-");
+    return {
+      ...(isNew ? {} : { id: v.id }),
+      program_id: id,
+      name: typeof v.name === "string" ? v.name : "",
+      duration: typeof v.duration === "number" ? v.duration : 30,
+      system: typeof v.system === "number" ? v.system : 2,
+      teacher_fee: typeof v.teacher_fee === "number" ? v.teacher_fee : 0,
+      default_spp: typeof v.default_spp === "number" ? v.default_spp : 0,
+      sort_order: typeof v.sort_order === "number" ? v.sort_order : idx,
+      is_active: typeof v.is_active === "boolean" ? v.is_active : true,
+    };
+  });
+
+  if (variantsToUpsert.length > 0) {
+    const { error: variantError } = await supabase.from("program_variants").upsert(variantsToUpsert);
+    if (variantError) {
+      return { error: "Gagal menyimpan varian: " + variantError.message };
+    }
+  }
+
+  const activeVariantIds = variantsToUpsert.filter((v: Record<string, unknown>) => v.id).map((v: Record<string, unknown>) => v.id);
+  if (activeVariantIds.length > 0) {
+    await supabase.from("program_variants").delete().eq("program_id", id).not("id", "in", `(${activeVariantIds.join(",")})`);
+  } else {
+    await supabase.from("program_variants").delete().eq("program_id", id);
   }
 
   revalidatePath("/admin/program");

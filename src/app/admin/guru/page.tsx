@@ -10,7 +10,7 @@ import { Pagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
 import { GuruStatusButton } from "@/components/admin/guru/guru-status-button";
 import type { Profile } from "@/types";
-import { Plus, Edit2, Phone, MapPin, MessageCircle } from "lucide-react";
+import { Plus, Edit2, Phone, MapPin, MessageCircle, Eye } from "lucide-react";
 import { getPrograms } from "@/lib/programs";
 import { getBranches } from "@/lib/branches";
 
@@ -207,6 +207,14 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
       className: "text-right",
       cell: (guru) => (
         <div className="flex items-center justify-end gap-1.5">
+          <Link
+            href={`/admin/guru/${guru.id}`}
+            className="p-1.5 rounded-lg text-slate-500 hover:text-primary-600 hover:bg-primary-50 transition-colors hidden sm:flex"
+            title="Lihat Detail Guru"
+            aria-label={`Detail data ${guru.full_name}`}
+          >
+            <Eye className="w-4 h-4" />
+          </Link>
           <Link
             href={`/admin/guru/${guru.id}/edit`}
             className="p-1.5 rounded-lg text-slate-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"

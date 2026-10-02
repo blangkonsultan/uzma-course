@@ -43,6 +43,22 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
   const branchId = formData.get("branch_id")?.toString().trim() || null;
   const programs = formData.getAll("programs").map((p) => p.toString());
 
+  const bankName = formData.get("bank_name")?.toString().trim() || null;
+  const bankAccountNumber = formData.get("bank_account_number")?.toString().trim() || null;
+  const bankAccountHolder = formData.get("bank_account_holder")?.toString().trim() || null;
+
+  const parseNum = (val: FormDataEntryValue | null) => {
+    if (!val) return undefined;
+    const n = parseInt(val.toString().replace(/\D/g, ""), 10);
+    return isNaN(n) ? undefined : n;
+  };
+
+  const allowanceTransport = parseNum(formData.get("allowance_transport"));
+  const allowancePresence = parseNum(formData.get("allowance_presence"));
+  const allowanceCreativity = parseNum(formData.get("allowance_creativity"));
+  const allowanceEducation = parseNum(formData.get("allowance_education"));
+  const morningGuaranteeThreshold = parseNum(formData.get("morning_guarantee_threshold"));
+
   const fieldErrors: Record<string, string> = {};
 
   if (!fullName || fullName.length < 2) {
@@ -92,6 +108,14 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
       role: "guru",
       branch_id: branchId || null,
       is_active: true,
+      bank_name: bankName,
+      bank_account_number: bankAccountNumber,
+      bank_account_holder: bankAccountHolder,
+      allowance_transport: allowanceTransport,
+      allowance_presence: allowancePresence,
+      allowance_creativity: allowanceCreativity,
+      allowance_education: allowanceEducation,
+      morning_guarantee_threshold: morningGuaranteeThreshold,
       updated_at: new Date().toISOString(),
     });
 
@@ -137,6 +161,22 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
   const programs = formData.getAll("programs").map((p) => p.toString());
   const isActive = formData.get("is_active") === "true";
 
+  const bankName = formData.get("bank_name")?.toString().trim() || null;
+  const bankAccountNumber = formData.get("bank_account_number")?.toString().trim() || null;
+  const bankAccountHolder = formData.get("bank_account_holder")?.toString().trim() || null;
+
+  const parseNum = (val: FormDataEntryValue | null) => {
+    if (!val) return undefined;
+    const n = parseInt(val.toString().replace(/\D/g, ""), 10);
+    return isNaN(n) ? undefined : n;
+  };
+
+  const allowanceTransport = parseNum(formData.get("allowance_transport"));
+  const allowancePresence = parseNum(formData.get("allowance_presence"));
+  const allowanceCreativity = parseNum(formData.get("allowance_creativity"));
+  const allowanceEducation = parseNum(formData.get("allowance_education"));
+  const morningGuaranteeThreshold = parseNum(formData.get("morning_guarantee_threshold"));
+
   const fieldErrors: Record<string, string> = {};
 
   if (!fullName || fullName.length < 2) {
@@ -154,6 +194,14 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
       phone,
       branch_id: branchId || null,
       is_active: isActive,
+      bank_name: bankName,
+      bank_account_number: bankAccountNumber,
+      bank_account_holder: bankAccountHolder,
+      allowance_transport: allowanceTransport,
+      allowance_presence: allowancePresence,
+      allowance_creativity: allowanceCreativity,
+      allowance_education: allowanceEducation,
+      morning_guarantee_threshold: morningGuaranteeThreshold,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)

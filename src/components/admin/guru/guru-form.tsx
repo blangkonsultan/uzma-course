@@ -40,6 +40,14 @@ export function GuruForm({
     branch_id: initialData?.branch_id || "",
     programs: (initialProgramIds || []) as string[],
     is_active: initialData?.is_active ?? true,
+    bank_name: initialData?.bank_name || "",
+    bank_account_number: initialData?.bank_account_number || "",
+    bank_account_holder: initialData?.bank_account_holder || "",
+    allowance_transport: initialData?.allowance_transport?.toString() || "",
+    allowance_presence: initialData?.allowance_presence?.toString() || "",
+    allowance_creativity: initialData?.allowance_creativity?.toString() || "",
+    allowance_education: initialData?.allowance_education?.toString() || "",
+    morning_guarantee_threshold: initialData?.morning_guarantee_threshold?.toString() || "",
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -102,6 +110,14 @@ export function GuruForm({
         data.append("full_name", formData.full_name.trim());
         data.append("phone", formData.phone.trim());
         data.append("branch_id", formData.branch_id);
+        data.append("bank_name", formData.bank_name);
+        data.append("bank_account_number", formData.bank_account_number);
+        data.append("bank_account_holder", formData.bank_account_holder);
+        data.append("allowance_transport", formData.allowance_transport);
+        data.append("allowance_presence", formData.allowance_presence);
+        data.append("allowance_creativity", formData.allowance_creativity);
+        data.append("allowance_education", formData.allowance_education);
+        data.append("morning_guarantee_threshold", formData.morning_guarantee_threshold);
         formData.programs.forEach((prog) => data.append("programs", prog));
 
         let res;
@@ -280,6 +296,96 @@ export function GuruForm({
                 </p>
               )}
             </fieldset>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">
+              Kompensasi & Bank
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <InputField
+                id="bank_name"
+                name="bank_name"
+                label="Nama Bank"
+                placeholder="Contoh: BCA, Mandiri, BRI"
+                value={formData.bank_name}
+                onChange={(e) => updateField("bank_name", e.target.value)}
+                disabled={isPending}
+              />
+              <InputField
+                id="bank_account_number"
+                name="bank_account_number"
+                label="Nomor Rekening"
+                placeholder="Contoh: 1234567890"
+                value={formData.bank_account_number}
+                onChange={(e) => updateField("bank_account_number", e.target.value)}
+                disabled={isPending}
+              />
+            </div>
+            <InputField
+              id="bank_account_holder"
+              name="bank_account_holder"
+              label="Nama Pemilik Rekening"
+              placeholder="Sesuai buku tabungan"
+              value={formData.bank_account_holder}
+              onChange={(e) => updateField("bank_account_holder", e.target.value)}
+              disabled={isPending}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <InputField
+                id="allowance_transport"
+                name="allowance_transport"
+                type="number"
+                label="Tunjangan Transportasi (Rp)"
+                placeholder="Contoh: 50000"
+                value={formData.allowance_transport}
+                onChange={(e) => updateField("allowance_transport", e.target.value)}
+                disabled={isPending}
+              />
+              <InputField
+                id="allowance_presence"
+                name="allowance_presence"
+                type="number"
+                label="Tunjangan Kehadiran (Rp)"
+                placeholder="Contoh: 50000"
+                value={formData.allowance_presence}
+                onChange={(e) => updateField("allowance_presence", e.target.value)}
+                disabled={isPending}
+              />
+              <InputField
+                id="allowance_creativity"
+                name="allowance_creativity"
+                type="number"
+                label="Tunjangan Kreativitas (Rp)"
+                placeholder="Contoh: 25000"
+                value={formData.allowance_creativity}
+                onChange={(e) => updateField("allowance_creativity", e.target.value)}
+                disabled={isPending}
+              />
+              <InputField
+                id="allowance_education"
+                name="allowance_education"
+                type="number"
+                label="Tunjangan Pendidikan (Rp)"
+                placeholder="Contoh: 25000"
+                value={formData.allowance_education}
+                onChange={(e) => updateField("allowance_education", e.target.value)}
+                disabled={isPending}
+              />
+              <InputField
+                id="morning_guarantee_threshold"
+                name="morning_guarantee_threshold"
+                type="number"
+                label="Batas Garansi Pagi (Rp)"
+                hint="Batas nominal untuk pencairan insentif shift pagi."
+                placeholder="Contoh: 250000"
+                value={formData.morning_guarantee_threshold}
+                onChange={(e) => updateField("morning_guarantee_threshold", e.target.value)}
+                disabled={isPending}
+              />
+            </div>
           </div>
 
           {isEdit && (

@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import type { Json } from "@/types/database";
 import { createClient } from "@/lib/supabase/server";
 import type { LandingSectionKey } from "@/types/landing";
-import type { Json } from "@/types/database";
+ 
 
 const VALID_SECTIONS: readonly LandingSectionKey[] = [
   "hero",
@@ -85,7 +86,7 @@ export async function updateLandingSection(
       .from("landing_content")
       .upsert({
         section,
-        content: content as Json,
+        content: content as Exclude<Json, null>,
         updated_at: new Date().toISOString(),
         updated_by: user.id,
       });

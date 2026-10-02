@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { BranchStatusButton } from "@/components/admin/cabang/branch-status-button";
+import { BranchShiftManager } from "@/components/admin/cabang/branch-shift-manager";
 import { getBranchById } from "@/lib/branches";
 import {
   Building2,
@@ -47,6 +48,14 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
   if (profile?.role !== "admin") {
     redirect("/admin");
   }
+
+  
+  const { data: shifts = [] } = await supabase
+    .from("branch_shifts")
+    .select("*")
+    .eq("branch_id", id)
+    .order("day_of_week", { ascending: true })
+    .order("start_time", { ascending: true });
 
   const [branch, guruCountRes, studentCountRes] = await Promise.all([
     getBranchById(id),
@@ -306,6 +315,11 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
           </Card>
         </div>
       </div>
+      {/* Shift Manager */}
+      <div className="mt-8">
+        <BranchShiftManager branchId={branch.id} shifts={shifts || []} />
+      </div>
+
     </div>
   );
 }

@@ -12,6 +12,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://uzmacourse.com"),
+  manifest: "/manifest.json",
   alternates: {
     canonical: "/",
   },

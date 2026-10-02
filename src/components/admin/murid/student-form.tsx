@@ -12,20 +12,31 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
-import type { Student, Program, Branch } from "@/types";
+import type { Student, Program, Branch, StudentProgram } from "@/types";
 import { formatClassRatio } from "@/lib/utils";
 
 interface StudentFormProps {
   initialData?: Student;
-  initialProgramIds?: string[];
+  initialStudentPrograms?: StudentProgram[];
   programs: Program[];
   branches: Branch[];
   isEdit?: boolean;
 }
 
+type DiscountType = "none" | "nominal" | "percentage";
+
+interface StudentProgramState {
+  program_id: string;
+  variant_id: string;
+  spp_amount: number;
+  on_time_discount_type: DiscountType;
+  on_time_discount_value: number;
+  cycle_start_date: string;
+}
+
 export function StudentForm({
   initialData,
-  initialProgramIds,
+  initialStudentPrograms,
   programs,
   branches,
   isEdit = false,
@@ -40,9 +51,22 @@ export function StudentForm({
     parent_phone: initialData?.parent_phone || "",
     parent_email: initialData?.parent_email || "",
     branch_id: initialData?.branch_id || "",
-    programs: (initialProgramIds || []) as string[],
     notes: initialData?.notes || "",
     is_active: initialData?.is_active ?? true,
+  });
+
+  const [studentPrograms, setStudentPrograms] = useState<StudentProgramState[]>(() => {
+    if (initialStudentPrograms && initialStudentPrograms.length > 0) {
+      return initialStudentPrograms.map(sp => ({
+        program_id: sp.program_id,
+        variant_id: sp.variant_id || "",
+        spp_amount: sp.spp_amount ?? 0,
+        on_time_discount_type: (sp.on_time_discount_type as "none" | "nominal" | "percentage") || "none",
+        on_time_discount_value: sp.on_time_discount_value ?? 0,
+        cycle_start_date: sp.cycle_start_date || new Date().toISOString().split('T')[0],
+      }));
+    }
+    return [];
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -57,10 +81,7 @@ export function StudentForm({
   const franchiseIdMap: Record<string, true> = Object.fromEntries(
     franchisePrograms.map((p) => [p.id, true])
   );
-  const originalIdMap: Record<string, true> = Object.fromEntries(
-    originalPrograms.map((p) => [p.id, true])
-  );
-
+  
   function updateField<K extends keyof typeof formData>(
     field: K,
     value: typeof formData[K]
@@ -75,10 +96,54 @@ export function StudentForm({
     }
   }
 
+  function handleProgramToggle(programId: string, checked: boolean) {
+    if (checked) {
+      const program = programs.find(p => p.id === programId);
+      const defaultVariant = program?.program_variants?.[0];
+      setStudentPrograms(prev => [
+        ...prev,
+        {
+          program_id: programId,
+          variant_id: defaultVariant?.id || "",
+          spp_amount: defaultVariant?.default_spp || 0,
+          on_time_discount_type: "none",
+          on_time_discount_value: 0,
+          cycle_start_date: new Date().toISOString().split('T')[0],
+        }
+      ]);
+    } else {
+      setStudentPrograms(prev => prev.filter(p => p.program_id !== programId));
+    }
+    if (fieldErrors.programs) {
+      setFieldErrors(prev => {
+        const next = { ...prev };
+        delete next.programs;
+        return next;
+      });
+    }
+  }
+
+  function updateStudentProgram<K extends keyof StudentProgramState>(programId: string, field: K, value: StudentProgramState[K]) {
+    setStudentPrograms(prev => prev.map(sp => {
+      if (sp.program_id === programId) {
+        const updated = { ...sp, [field]: value };
+        // If variant changes, auto-update spp_amount if possible
+        if (field === 'variant_id') {
+          const program = programs.find(p => p.id === programId);
+          const variant = program?.program_variants?.find(v => v.id === value);
+          if (variant) {
+            updated.spp_amount = variant.default_spp;
+          }
+        }
+        return updated;
+      }
+      return sp;
+    }));
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    // Client-side pre-validation
     const errors: Record<string, string> = {};
     if (!formData.full_name.trim() || formData.full_name.trim().length < 2) {
       errors.full_name = "Nama lengkap murid minimal 2 karakter.";
@@ -92,9 +157,19 @@ export function StudentForm({
     if (!formData.branch_id) {
       errors.branch_id = "Cabang belajar wajib dipilih.";
     }
-    if (formData.programs.length === 0) {
+    if (studentPrograms.length === 0) {
       errors.programs = "Pilih minimal 1 program bimbingan.";
     }
+    
+    // Validate individual program selections
+    studentPrograms.forEach(sp => {
+      if (!sp.variant_id) {
+        errors[`variant_${sp.program_id}`] = "Varian program wajib dipilih.";
+      }
+      if (!sp.cycle_start_date) {
+        errors[`date_${sp.program_id}`] = "Tanggal mulai wajib diisi.";
+      }
+    });
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -113,8 +188,9 @@ export function StudentForm({
         data.append("parent_phone", formData.parent_phone.trim());
         data.append("parent_email", formData.parent_email.trim());
         data.append("branch_id", formData.branch_id);
-        formData.programs.forEach((prog) => data.append("programs", prog));
         data.append("notes", formData.notes.trim());
+        
+        data.append("student_programs_json", JSON.stringify(studentPrograms));
 
         let res;
         if (isEdit && initialData) {
@@ -143,6 +219,8 @@ export function StudentForm({
       }
     });
   }
+
+  const selectedProgramIds = studentPrograms.map(sp => sp.program_id);
 
   return (
     <Card className="max-w-3xl border border-slate-200/80 shadow-xs">
@@ -260,6 +338,10 @@ export function StudentForm({
                 Program Bimbingan yang Diikuti <span className="text-rose-500">*</span>
               </legend>
 
+              {fieldErrors.programs && (
+                <p className="text-xs text-rose-500">{fieldErrors.programs}</p>
+              )}
+
               {franchisePrograms.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
@@ -274,19 +356,20 @@ export function StudentForm({
                       label: `[${p.initials}] ${p.name}`,
                       description: `${formatClassRatio(p.system)} · ${p.age_range}`,
                     }))}
-                    values={formData.programs.filter((id) => franchiseIdMap[id])}
-                    onChange={(selected) =>
-                      updateField("programs", [
-                        ...formData.programs.filter((id) => !franchiseIdMap[id]),
-                        ...selected,
-                      ])
-                    }
+                    values={selectedProgramIds.filter((id) => franchiseIdMap[id])}
+                    onChange={(selected) => {
+                      const currentFranchise = selectedProgramIds.filter(id => franchiseIdMap[id]);
+                      const added = selected.filter(id => !currentFranchise.includes(id));
+                      const removed = currentFranchise.filter(id => !selected.includes(id));
+                      added.forEach(id => handleProgramToggle(id, true));
+                      removed.forEach(id => handleProgramToggle(id, false));
+                    }}
                   />
                 </div>
               )}
 
               {originalPrograms.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-2 mt-4">
                   <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
                     Program Original Uzma Course
                   </p>
@@ -299,87 +382,164 @@ export function StudentForm({
                       label: `[${p.initials}] ${p.name}`,
                       description: `${formatClassRatio(p.system)} · ${p.age_range}`,
                     }))}
-                    values={formData.programs.filter((id) => originalIdMap[id])}
-                    onChange={(selected) =>
-                      updateField("programs", [
-                        ...formData.programs.filter((id) => !originalIdMap[id]),
-                        ...selected,
-                      ])
-                    }
+                    values={selectedProgramIds.filter((id) => !franchiseIdMap[id])}
+                    onChange={(selected) => {
+                      const currentOriginal = selectedProgramIds.filter(id => !franchiseIdMap[id]);
+                      const added = selected.filter(id => !currentOriginal.includes(id));
+                      const removed = currentOriginal.filter(id => !selected.includes(id));
+                      added.forEach(id => handleProgramToggle(id, true));
+                      removed.forEach(id => handleProgramToggle(id, false));
+                    }}
                   />
                 </div>
               )}
-
-              {fieldErrors.programs && (
-                <p className="text-xs text-rose-500 font-medium mt-1">
-                  {fieldErrors.programs}
-                </p>
-              )}
             </fieldset>
+
+            {/* Selected Programs Details */}
+            {studentPrograms.length > 0 && (
+              <div className="space-y-6 mt-6 border-t border-slate-100 pt-6">
+                <h4 className="text-sm font-semibold text-slate-800">
+                  Detail Tagihan SPP & Siklus
+                </h4>
+                {studentPrograms.map(sp => {
+                  const program = programs.find(p => p.id === sp.program_id);
+                  const variants = program?.program_variants || [];
+                  const variantOptions = variants.map(v => ({
+                    value: v.id,
+                    label: v.name,
+                  }));
+
+                  return (
+                    <div key={sp.program_id} className="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-4">
+                      <div className="font-medium text-slate-900 border-b border-slate-200 pb-2 mb-2">
+                        {program?.name}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <SelectField
+                          id={`variant_${sp.program_id}`}
+                          name={`variant_${sp.program_id}`}
+                          label="Varian Program"
+                          required
+                          options={variantOptions}
+                          value={sp.variant_id}
+                          onChange={(e) => updateStudentProgram(sp.program_id, "variant_id", e.target.value)}
+                          error={fieldErrors[`variant_${sp.program_id}`]}
+                          disabled={isPending}
+                        />
+                        <InputField
+                          id={`cycle_${sp.program_id}`}
+                          name={`cycle_${sp.program_id}`}
+                          label="Tanggal Mulai Siklus"
+                          type="date"
+                          required
+                          value={sp.cycle_start_date}
+                          onChange={(e) => updateStudentProgram(sp.program_id, "cycle_start_date", e.target.value)}
+                          error={fieldErrors[`date_${sp.program_id}`]}
+                          disabled={isPending}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <InputField
+                          id={`spp_${sp.program_id}`}
+                          name={`spp_${sp.program_id}`}
+                          label="Nominal SPP (Rp)"
+                          type="number"
+                          required
+                          value={sp.spp_amount}
+                          onChange={(e) => updateStudentProgram(sp.program_id, "spp_amount", parseInt(e.target.value) || 0)}
+                          disabled={isPending}
+                        />
+                        
+                        <SelectField
+                          id={`disc_type_${sp.program_id}`}
+                          name={`disc_type_${sp.program_id}`}
+                          label="Tipe Diskon Tepat Waktu"
+                          options={[
+                            { value: "none", label: "Tidak Ada" },
+                            { value: "nominal", label: "Nominal (Rp)" },
+                            { value: "percentage", label: "Persentase (%)" },
+                          ]}
+                          value={sp.on_time_discount_type}
+                          onChange={(e) => updateStudentProgram(sp.program_id, "on_time_discount_type", e.target.value as "none" | "nominal" | "percentage")}
+                          disabled={isPending}
+                        />
+
+                        {sp.on_time_discount_type !== "none" && (
+                          <InputField
+                            id={`disc_val_${sp.program_id}`}
+                            name={`disc_val_${sp.program_id}`}
+                            label={`Nilai Diskon ${sp.on_time_discount_type === "percentage" ? "(%)" : "(Rp)"}`}
+                            type="number"
+                            required
+                            value={sp.on_time_discount_value}
+                            onChange={(e) => updateStudentProgram(sp.program_id, "on_time_discount_value", parseInt(e.target.value) || 0)}
+                            disabled={isPending}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Section 4: Catatan & Status */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">
+              Lain-lain
+            </h3>
 
             <TextareaField
               id="notes"
               name="notes"
               label="Catatan Khusus (Opsional)"
-              placeholder="Contoh: Belum mengenal huruf sama sekali, pemalu di awal pertemuan, dll."
+              placeholder="Contoh: Murid memiliki riwayat alergi tertentu, atau butuh perhatian khusus..."
               value={formData.notes}
               onChange={(e) => updateField("notes", e.target.value)}
               rows={3}
               disabled={isPending}
             />
+
+            {isEdit && (
+              <SelectField
+                id="is_active"
+                name="is_active"
+                label="Status Murid"
+                options={[
+                  { value: "true", label: "Aktif" },
+                  { value: "false", label: "Non-aktif" },
+                ]}
+                value={formData.is_active ? "true" : "false"}
+                onChange={(e) => updateField("is_active", e.target.value === "true")}
+                disabled={isPending}
+                hint="Murid yang non-aktif tidak akan muncul di form absensi atau SPP."
+              />
+            )}
           </div>
 
-          {/* Section 4: Status Aktif (Edit Mode Only) */}
-          {isEdit && (
-            <div className="space-y-4 pt-4 border-t border-slate-100">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                Status Murid
-              </h3>
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="is_active"
-                  name="is_active"
-                  checked={formData.is_active}
-                  onChange={(e) => updateField("is_active", e.target.checked)}
-                  disabled={isPending}
-                  className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 border-slate-300"
-                />
-                <label
-                  htmlFor="is_active"
-                  className="text-sm font-semibold text-slate-800 cursor-pointer"
-                >
-                  Murid Aktif Belajar
-                </label>
-              </div>
-              <p className="text-xs text-slate-400">
-                Nonaktifkan jika murid telah lulus, cuti, atau berhenti les.
-              </p>
-            </div>
-          )}
-
-          {/* Form Actions */}
-          <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
+          <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
             <Button
               type="button"
               variant="outline"
-              href={isEdit && initialData ? `/admin/murid/${initialData.id}` : "/admin/murid"}
+              href="/admin/murid"
               disabled={isPending}
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Batal</span>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Batal
             </Button>
-
             <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Menyimpan...</span>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Menyimpan...
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4" />
-                  <span>{isEdit ? "Perbarui Data" : "Daftarkan Murid"}</span>
+                  <Save className="w-4 h-4 mr-2" />
+                  Simpan Data
                 </>
               )}
             </Button>

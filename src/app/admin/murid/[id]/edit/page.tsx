@@ -41,7 +41,7 @@ export default async function EditStudentPage({
   const [{ data: student }, programs, branches] = await Promise.all([
     supabase
       .from("students")
-      .select("*, student_programs(program_id)")
+      .select("*, student_programs(*)")
       .eq("id", id)
       .single(),
     getPrograms(true),
@@ -52,8 +52,7 @@ export default async function EditStudentPage({
     notFound();
   }
 
-  const initialProgramIds =
-    student.student_programs?.map((sp) => sp.program_id) ?? [];
+  const initialStudentPrograms = student.student_programs ?? [];
 
   return (
     <div className="space-y-6">
@@ -70,7 +69,7 @@ export default async function EditStudentPage({
 
       <StudentForm
         initialData={student}
-        initialProgramIds={initialProgramIds}
+        initialStudentPrograms={initialStudentPrograms}
         programs={programs}
         branches={branches}
         isEdit

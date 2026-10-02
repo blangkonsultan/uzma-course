@@ -1,0 +1,21 @@
+{
+  "name": "Uzma Course Guru",
+  "short_name": "Uzma Guru",
+  "description": "Portal Presensi dan Mengajar Uzma Course",
+  "start_url": "/guru",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "/icon.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/icon.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

@@ -42,8 +42,17 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
   const parentPhone = formData.get("parent_phone")?.toString().trim();
   const parentEmail = formData.get("parent_email")?.toString().trim() || "";
   const branchId = formData.get("branch_id")?.toString().trim();
-  const programs = formData.getAll("programs").map((p) => p.toString());
   const notes = formData.get("notes")?.toString().trim() || "";
+  
+  const studentProgramsJson = formData.get("student_programs_json")?.toString();
+  let studentPrograms: { program_id: string; variant_id: string; spp_amount: number; on_time_discount_type: 'none' | 'nominal' | 'percentage'; on_time_discount_value: number; cycle_start_date: string }[] = [];
+  try {
+    if (studentProgramsJson) {
+      studentPrograms = JSON.parse(studentProgramsJson);
+    }
+  } catch (e) {
+    console.error("Failed to parse student_programs_json", e);
+  }
 
   const fieldErrors: Record<string, string> = {};
 
@@ -59,7 +68,7 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
   if (!branchId) {
     fieldErrors.branch_id = "Cabang belajar wajib dipilih.";
   }
-  if (programs.length === 0) {
+  if (studentPrograms.length === 0) {
     fieldErrors.programs = "Pilih minimal 1 program bimbingan.";
   }
 
@@ -87,13 +96,18 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
     return { error: insertError?.message || "Gagal menambahkan data murid." };
   }
 
-  if (programs.length > 0) {
+  if (studentPrograms.length > 0) {
     const { error: junctionError } = await supabase
       .from("student_programs")
       .insert(
-        programs.map((pid) => ({
+        studentPrograms.map((sp) => ({
           student_id: insertedStudent.id,
-          program_id: pid,
+          program_id: sp.program_id,
+          variant_id: sp.variant_id,
+          spp_amount: sp.spp_amount,
+          on_time_discount_type: sp.on_time_discount_type,
+          on_time_discount_value: sp.on_time_discount_value,
+          cycle_start_date: sp.cycle_start_date,
         }))
       );
 
@@ -117,9 +131,18 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
   const parentPhone = formData.get("parent_phone")?.toString().trim();
   const parentEmail = formData.get("parent_email")?.toString().trim() || "";
   const branchId = formData.get("branch_id")?.toString().trim();
-  const programs = formData.getAll("programs").map((p) => p.toString());
   const notes = formData.get("notes")?.toString().trim() || "";
   const isActive = formData.get("is_active") === "true";
+
+  const studentProgramsJson = formData.get("student_programs_json")?.toString();
+  let studentPrograms: { program_id: string; variant_id: string; spp_amount: number; on_time_discount_type: 'none' | 'nominal' | 'percentage'; on_time_discount_value: number; cycle_start_date: string }[] = [];
+  try {
+    if (studentProgramsJson) {
+      studentPrograms = JSON.parse(studentProgramsJson);
+    }
+  } catch (e) {
+    console.error("Failed to parse student_programs_json", e);
+  }
 
   const fieldErrors: Record<string, string> = {};
 
@@ -135,7 +158,7 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
   if (!branchId) {
     fieldErrors.branch_id = "Cabang belajar wajib dipilih.";
   }
-  if (programs.length === 0) {
+  if (studentPrograms.length === 0) {
     fieldErrors.programs = "Pilih minimal 1 program bimbingan.";
   }
 
@@ -173,13 +196,18 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
     return { error: deleteError.message };
   }
 
-  if (programs.length > 0) {
+  if (studentPrograms.length > 0) {
     const { error: insertJunctionError } = await supabase
       .from("student_programs")
       .insert(
-        programs.map((pid) => ({
+        studentPrograms.map((sp) => ({
           student_id: id,
-          program_id: pid,
+          program_id: sp.program_id,
+          variant_id: sp.variant_id,
+          spp_amount: sp.spp_amount,
+          on_time_discount_type: sp.on_time_discount_type,
+          on_time_discount_value: sp.on_time_discount_value,
+          cycle_start_date: sp.cycle_start_date,
         }))
       );
 
