@@ -406,18 +406,25 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
 
             <div className="space-y-4">
               {formData.variants.map((variant, idx) => (
-                <div key={variant.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-4 relative">
-                  <button
-                    type="button"
-                    onClick={() => removeVariant(idx)}
-                    disabled={isPending}
-                    className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-100/50 transition-colors"
-                    title="Hapus varian"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                <div key={variant.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-4">
+                    <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                      <h4 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center text-xs">
+                          {idx + 1}
+                        </span>
+                        Varian {idx + 1}
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => removeVariant(idx)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-100/50 transition-colors"
+                        title="Hapus varian"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-10 items-end">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                     <InputField
                       id={`variant-${variant.id}-name`}
                       name={`variant-${variant.id}-name`}
