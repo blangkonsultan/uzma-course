@@ -347,7 +347,7 @@ function getSupabaseAnonClient() {
     },
   });
 }
-function mapProgramRowToItem(p: Database["public"]["Tables"]["programs"]["Row"]): ProgramItem {
+function mapProgramRowToItem(p: import("@/types").Program): ProgramItem {
   return {
     id: p.initials.toLowerCase(),
     initials: p.initials,
@@ -365,8 +365,7 @@ function mapProgramRowToItem(p: Database["public"]["Tables"]["programs"]["Row"])
           description: p.license_description || undefined,
         }
       : undefined,
-    system: p.system,
-    duration: p.duration,
+    variants: p.program_variants?.map((v) => ({ id: v.id, name: v.name, duration: v.duration, system: v.system })) || [],
     frequency: p.frequency,
     features: p.features,
   };

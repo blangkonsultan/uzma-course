@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Award,
   Clock,
+  Wallet,
   Sparkles,
   ExternalLink,
   CheckCircle2,
@@ -332,22 +333,26 @@ export default async function ProgramDetailPage({ params }: ProgramDetailPagePro
             </CardHeader>
 
             <CardBody className="p-4 sm:p-6 space-y-4">
-              <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                  Rasio Kelas
+              <div className="space-y-3">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                  Varian Tersedia
                 </span>
-                <p className="text-sm font-bold text-slate-900">
-                  {formatClassRatio(program.system)}
-                </p>
-              </div>
-
-              <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                  Durasi Sesi
-                </span>
-                <p className="text-sm font-semibold text-slate-900">
-                  {formatDuration(program.duration)}
-                </p>
+                {program.program_variants && program.program_variants.length > 0 ? (
+                  <div className="space-y-2">
+                    {program.program_variants.map((v) => (
+                      <div key={v.id} className="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
+                        <p className="text-sm font-semibold text-slate-800">{v.name}</p>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
+                          <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {formatDuration(v.duration)}</span>
+                          <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {formatClassRatio(v.system)}</span>
+                          <span className="flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5" /> Rp {v.teacher_fee.toLocaleString('id-ID')}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500 italic">Belum ada varian program.</p>
+                )}
               </div>
 
               <div>

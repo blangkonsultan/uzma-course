@@ -1,6 +1,7 @@
 import {
   CheckCircle2,
   Clock,
+  Calendar,
   MessageCircle,
   Users,
 } from "lucide-react";
@@ -70,16 +71,26 @@ export function ProgramsSection({ data }: ProgramsSectionProps) {
                     </p>
 
                     {/* Learning System Box */}
-                    <div className="mt-5 p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5 text-xs text-slate-700">
-                      <div className="flex items-center gap-2 font-semibold text-primary-800">
-                        <Users className="w-3.5 h-3.5 text-primary-600" aria-hidden="true" />
-                        <span>{formatClassRatio(program.system)}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-slate-600">
-                        <Clock className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-                        <span>
-                          {formatDuration(program.duration)} · {formatFrequency(program.frequency)}
-                        </span>
+                    <div className="mt-5 p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-2.5 text-xs text-slate-700">
+                      {program.variants && program.variants.length > 0 ? (
+                        program.variants.map((v, i) => (
+                          <div key={v.id || i} className="space-y-1">
+                            <span className="font-bold text-slate-800">{v.name}</span>
+                            <div className="flex items-center gap-2">
+                              <Users className="w-3 h-3 text-primary-600" />
+                              <span>{formatClassRatio(v.system)}</span>
+                              <span className="text-slate-300">|</span>
+                              <Clock className="w-3 h-3 text-slate-400" />
+                              <span>{formatDuration(v.duration)}</span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-slate-400 italic">Varian program belum dikonfigurasi</span>
+                      )}
+                      <div className="pt-2 mt-2 border-t border-slate-200/60 font-medium text-slate-600 flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        {formatFrequency(program.frequency)}
                       </div>
                     </div>
 
