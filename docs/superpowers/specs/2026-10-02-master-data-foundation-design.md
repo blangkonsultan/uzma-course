@@ -63,7 +63,17 @@ During business logic analysis of historical teaching logs (`docs/rumus-gaji-gur
 - **Arrears**: If a parent is late by 2 months and pays in the 3rd month on the first cycle day, the 2 late months are billed at the full rate (no discount), while the 3rd (current) month receives the on-time discount.
 - **Teacher UI Alert**: When a teacher marks attendance on the first day of a student's cycle, the UI displays a reminder that SPP is due, including the specific nominal/discount amount, so the teacher can remind the parent.
 
-### 2.7 Schedule Drafting Engine (Auto-Draft + Tweak)
+### 2.7 Attendance Models: Teacher vs. Student
+- **Teacher Attendance (Shift-based)**:
+  - Teachers check in (datang) and check out (pulang) **per shift**.
+  - E.g., If assigned to Morning and Afternoon shifts, they generate 4 timestamp events (In-Morning, Out-Morning, In-Afternoon, Out-Afternoon).
+  - **PWA Portal**: The teacher interface (for checking in, viewing schedules, and marking student attendance) will be built as a **Progressive Web App (PWA)**. This provides native-like mobile access to GPS (Geofencing) and Camera (QR Scanning) without App Store publishing overhead.
+- **Student Attendance (Session-based)**:
+  - Students do not check themselves in.
+  - The assigned teacher flags the student's status (`Hadir` or `Tidak Hadir`) during the session.
+  - This action simultaneously logs the student's progress (Kartu Mengajar) and triggers the teacher's session fee snapshot for that specific variant.
+
+### 2.8 Schedule Drafting Engine (Auto-Draft + Tweak)
 - **Quota Target**: Calculated as $\text{frequency (sessions/week)} \times 4 \text{ weeks} = \text{total sessions per 28 days}$.
 - **Draft Generator Algorithm**:
   1. Scan student's enrolled variants and session quota.
