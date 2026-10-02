@@ -1,6 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import { requireAdminPage } from "@/lib/auth";
+import { getActiveGuruCount, getActiveStudents } from "@/lib/dashboard";
 import { BirthdayDashboard } from "@/components/admin/birthday-dashboard";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,20 +20,7 @@ export const metadata = {
 };
 
 export default async function AdminDashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  const { user, profile, supabase } = await requireAdminPage();
 
   const isAdmin = profile?.role === "admin";
   const userBranch = profile?.branch_id;
@@ -46,24 +33,17 @@ export default async function AdminDashboardPage() {
     branches,
   ] = await Promise.all([
     // Active teachers count
-    supabase
-      .from("profiles")
-      .select("*", { count: "exact", head: true })
-      .eq("role", "guru")
-      .eq("is_active", true),
+    getActiveGuruCount(supabase),
 
     // All active students with their branch & programs junction
-    supabase
-      .from("students")
-      .select("id, branch_id, student_programs(program_id)")
-      .eq("is_active", true),
+    getActiveStudents(supabase),
 
     getPrograms(),
     getBranches(),
   ]);
 
-  const activeGuruCount = guruCountRes.count ?? 0;
-  const activeStudents = allStudentsRes.data ?? [];
+  const activeGuruCount = guruCountRes;
+  const activeStudents = allStudentsRes;
 
   // Filter students if current user is guru with specific branch
   const relevantStudents =

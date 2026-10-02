@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/admin/page-header";
 import { DraftForm } from "@/components/admin/draft/draft-form";
 import { getBranches } from "@/lib/branches";
 import { getScheduleDraftById } from "@/lib/drafts";
+import { requireAdminPage } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Edit Draf Jadwal | Admin Uzma Course",
@@ -15,6 +16,7 @@ export default async function EditDraftPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  await requireAdminPage();
   const [draft, branches] = await Promise.all([
     getScheduleDraftById(id),
     getBranches(),

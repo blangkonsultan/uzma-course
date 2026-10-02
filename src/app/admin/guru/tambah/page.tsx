@@ -1,5 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
 import { PageHeader } from "@/components/admin/page-header";
 import { GuruForm } from "@/components/admin/guru/guru-form";
 import { getPrograms } from "@/lib/programs";
@@ -10,24 +9,7 @@ export const metadata = {
 };
 
 export default async function TambahGuruPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    redirect("/admin");
-  }
+  await requireAdminPage();
 
   const [programs, branches] = await Promise.all([
     getPrograms(),

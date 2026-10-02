@@ -1,5 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
-import { notFound, redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
+import { getStudentByIdForView } from "@/lib/students";
+import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { StudentStatusButton } from "@/components/admin/murid/student-status-button";
@@ -34,30 +35,10 @@ export default async function StudentDetailPage({
   params,
 }: StudentDetailPageProps) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  await requireAdminPage();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, branch_id")
-    .eq("id", user.id)
-    .single();
-
-  const isAdmin = profile?.role === "admin";
-  const guruBranch = profile?.branch_id;
-
-  const [{ data: student }, branches] = await Promise.all([
-    supabase
-      .from("students")
-      .select("*, student_programs(program_id, spp_amount, enrolled_at, status, programs(*))")
-      .eq("id", id)
-      .single(),
+  const [student, branches] = await Promise.all([
+    getStudentByIdForView(id),
     getBranches(true),
   ]);
 
@@ -65,10 +46,7 @@ export default async function StudentDetailPage({
     notFound();
   }
 
-  // If guru is restricted to a branch, verify matching branch
-  if (!isAdmin && guruBranch && student.branch_id !== guruBranch) {
-    redirect("/admin/murid");
-  }
+  const isAdmin = true;
 
   const branchObj = branches.find((b) => b.id === student.branch_id);
 

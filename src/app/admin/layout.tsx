@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getBranches } from "@/lib/branches";
 import { AdminShell } from "@/components/admin/admin-shell";

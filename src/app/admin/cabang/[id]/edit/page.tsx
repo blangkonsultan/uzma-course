@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import { notFound, redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
+import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { BranchForm } from "@/components/admin/cabang/branch-form";
 import { getBranchById } from "@/lib/branches";
@@ -16,25 +16,7 @@ interface EditBranchPageProps {
 
 export default async function EditBranchPage({ params }: EditBranchPageProps) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    redirect("/admin/cabang");
-  }
-
+  await requireAdminPage();
   const branch = await getBranchById(id);
 
   if (!branch) {

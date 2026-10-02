@@ -29,6 +29,8 @@ If baseline verification is failing, repair that first before adding new scope.
 
 - **One feature at a time**: Pick exactly one unfinished feature from `feature_list.json`
 - **Stay in scope**: Do not modify files unrelated to the active feature
+- **Data Access Layer (DAL) Standard**: NEVER write raw database queries (`supabase.from(...)`) in UI components. Abstract all DB reads into `src/lib/` services and call them from Server Components.
+- **Centralized Authentication**: Admin pages MUST use `await requireAdminPage()` from `src/lib/auth.ts` instead of inline role checks.
 - **Verification required**: Don't claim done without running `./init.sh` or documented verification commands
 - **Update artifacts**: Before ending session, update `progress.md`, `session-handoff.md`, and `feature_list.json`
 - **Leave clean state**: Next session must be able to run `./init.sh` immediately and be restartable

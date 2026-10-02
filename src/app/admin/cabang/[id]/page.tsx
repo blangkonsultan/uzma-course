@@ -1,12 +1,12 @@
-import { createClient } from "@/lib/supabase/server";
-import { notFound, redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
+import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { BranchStatusButton } from "@/components/admin/cabang/branch-status-button";
 
-import { getBranchById } from "@/lib/branches";
+import { getBranchDetailData } from "@/lib/branches";
 import {
   Building2,
   ArrowLeft,
@@ -30,49 +30,14 @@ interface BranchDetailPageProps {
 
 export default async function BranchDetailPage({ params }: BranchDetailPageProps) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  await requireAdminPage();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    redirect("/admin");
-  }
-
-  
-
-
-  const [branch, guruCountRes, studentCountRes] = await Promise.all([
-    getBranchById(id),
-    supabase
-      .from("profiles")
-      .select("*", { count: "exact", head: true })
-      .eq("role", "guru")
-      .eq("branch_id", id)
-      .eq("is_active", true),
-    supabase
-      .from("students")
-      .select("*", { count: "exact", head: true })
-      .eq("branch_id", id)
-      .eq("is_active", true),
-  ]);
+  const { branch, guruCount, studentCount } = await getBranchDetailData(id);
 
   if (!branch) {
     notFound();
   }
 
-  const guruCount = guruCountRes.count ?? 0;
-  const studentCount = studentCountRes.count ?? 0;
 
   return (
     <div className="space-y-6">

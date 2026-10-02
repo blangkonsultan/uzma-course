@@ -1,8 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
 import Link from "next/link";
-import { PageHeader } from "@/components/admin/page-header";
 import { Card, CardBody } from "@/components/ui/card";
+import { PageHeader } from "@/components/admin/page-header";
+import { getAdminLandingSectionsUpdateDates } from "@/lib/landing";
 import {
   Megaphone,
   BookOpen,
@@ -148,37 +148,10 @@ function formatDate(isoString: string): string {
 }
 
 export default async function AdminLandingPage({ searchParams }: LandingPageProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: currentProfile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (currentProfile?.role !== "admin") {
-    redirect("/admin");
-  }
-
+  await requireAdminPage();
   const resolvedParams = await searchParams;
 
-  const { data: rows } = await supabase
-    .from("landing_content")
-    .select("section, updated_at");
-
-  const updatedMap: Record<string, string> = {};
-  if (rows) {
-    for (const r of rows) {
-      updatedMap[r.section] = r.updated_at;
-    }
-  }
+  const updatedMap = await getAdminLandingSectionsUpdateDates();
 
   return (
     <div>

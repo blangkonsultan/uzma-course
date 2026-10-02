@@ -1,5 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
-import { notFound, redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
+import { getStudentByIdForEdit } from "@/lib/students";
+import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { StudentForm } from "@/components/admin/murid/student-form";
 import { getPrograms } from "@/lib/programs";
@@ -19,31 +20,10 @@ export default async function EditStudentPage({
   params,
 }: EditStudentPageProps) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  await requireAdminPage();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    redirect("/admin/murid");
-  }
-
-  const [{ data: student }, programs, branches] = await Promise.all([
-    supabase
-      .from("students")
-      .select("*, student_programs(*)")
-      .eq("id", id)
-      .single(),
+  const [student, programs, branches] = await Promise.all([
+    getStudentByIdForEdit(id),
     getPrograms(true),
     getBranches(true),
   ]);

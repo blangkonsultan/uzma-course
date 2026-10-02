@@ -20,3 +20,21 @@ export async function getProgramById(id: string): Promise<Program | null> {
   }
   return data;
 }
+
+export async function getProgramEnrollmentStats(id: string): Promise<{ studentCount: number; teacherCount: number }> {
+  const supabase = await createClient();
+  const [studentCountRes, teacherCountRes] = await Promise.all([
+    supabase
+      .from("student_programs")
+      .select("*", { count: "exact", head: true })
+      .eq("program_id", id),
+    supabase
+      .from("profile_programs")
+      .select("*", { count: "exact", head: true })
+      .eq("program_id", id),
+  ]);
+  return {
+    studentCount: studentCountRes.count ?? 0,
+    teacherCount: teacherCountRes.count ?? 0,
+  };
+}

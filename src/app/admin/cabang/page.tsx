@@ -1,6 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
 import { getPaginatedBranchesWithStats, type BranchWithStats } from "@/lib/branches";
-import { redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
 import Link from "next/link";
 import { PageHeader } from "@/components/admin/page-header";
 import { SearchFilterBar } from "@/components/admin/search-filter-bar";
@@ -25,25 +24,7 @@ interface CabangPageProps {
 }
 
 export default async function CabangPage({ searchParams }: CabangPageProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  // Check admin role
-  const { data: currentProfile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (currentProfile?.role !== "admin") {
-    redirect("/admin");
-  }
+  await requireAdminPage();
 
   const resolvedParams = await searchParams;
   const search = resolvedParams.search?.trim() || "";

@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
 import { PageHeader } from "@/components/admin/page-header";
 import { getLandingSectionContent } from "@/lib/landing-content";
 import type { LandingSectionKey } from "@/types/landing";
@@ -116,25 +116,7 @@ export async function generateMetadata({ params }: EditSectionPageProps) {
 }
 
 export default async function EditSectionPage({ params }: EditSectionPageProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    redirect("/admin");
-  }
-
+  await requireAdminPage();
   const resolved = await params;
   const sectionKey = resolved.section as LandingSectionKey;
 

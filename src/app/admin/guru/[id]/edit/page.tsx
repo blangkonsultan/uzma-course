@@ -1,5 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
-import { notFound, redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
+import { getGuruById } from "@/lib/gurus";
+import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { GuruForm } from "@/components/admin/guru/guru-form";
 import { getPrograms } from "@/lib/programs";
@@ -17,32 +18,10 @@ interface EditGuruPageProps {
 
 export default async function EditGuruPage({ params }: EditGuruPageProps) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  await requireAdminPage();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    redirect("/admin");
-  }
-
-  const [{ data: guru }, programs, branches] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("*, profile_programs(program_id)")
-      .eq("id", id)
-      .eq("role", "guru")
-      .single(),
+  const [guru, programs, branches] = await Promise.all([
+    getGuruById(id),
     getPrograms(true),
     getBranches(true),
   ]);

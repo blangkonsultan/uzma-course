@@ -8,6 +8,7 @@ import { SearchFilterBar } from "@/components/admin/search-filter-bar";
 import { DataTable, Column } from "@/components/admin/data-table";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { ShiftStatusButton } from "@/components/admin/shift/shift-status-button";
+import { requireAdminPage } from "@/lib/auth";
 import { getBranchShifts, BranchShift } from "@/lib/shifts";
 import { getBranches } from "@/lib/branches";
 import { formatTimeString } from "@/lib/utils";
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
 export default async function ShiftPage(props: {
   searchParams: Promise<{ search?: string; branch?: string; status?: string }>;
 }) {
+  await requireAdminPage();
   const searchParams = await props.searchParams;
   const shifts = await getBranchShifts();
   const branches = await getBranches();

@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { getBoardData } from "@/lib/board";
 import { KanbanBoard } from "@/components/admin/board/kanban-board";
 import { PageHeader } from "@/components/admin/page-header";
+import { requireAdminPage } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Papan Jadwal | Admin Uzma Course",
@@ -16,6 +17,7 @@ export default async function BoardPage({
   params: Promise<{ id: string }>;
 }) {
   let data;
+  await requireAdminPage();
   try {
     const { id } = await params;
     data = await getBoardData(id);

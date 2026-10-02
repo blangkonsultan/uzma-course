@@ -1,6 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
+import { requireAdminPage } from "@/lib/auth";
+import { getGuruById } from "@/lib/gurus";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
@@ -33,31 +34,9 @@ interface GuruDetailPageProps {
 
 export default async function GuruDetailPage({ params }: GuruDetailPageProps) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  await requireAdminPage();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    redirect("/admin/guru");
-  }
-
-  const { data: guru } = await supabase
-    .from("profiles")
-    .select("*, profile_programs(program_id)")
-    .eq("id", id)
-    .eq("role", "guru")
-    .single();
+  const guru = await getGuruById(id);
 
   if (!guru) {
     notFound();
@@ -69,9 +48,9 @@ export default async function GuruDetailPage({ params }: GuruDetailPageProps) {
   ]);
 
   const assignedBranch = branches.find((b) => b.id === guru.branch_id);
-  const assignedPrograms = guru.profile_programs
+  const assignedPrograms = (guru.profile_programs || [])
     ? programs.filter((p) =>
-        guru.profile_programs.some((pp) => pp.program_id === p.id)
+        (guru.profile_programs || []).some((pp) => pp.program_id === p.id)
       )
     : [];
 

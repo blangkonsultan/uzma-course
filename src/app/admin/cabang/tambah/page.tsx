@@ -1,5 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
 import { PageHeader } from "@/components/admin/page-header";
 import { BranchForm } from "@/components/admin/cabang/branch-form";
 
@@ -8,25 +7,7 @@ export const metadata = {
 };
 
 export default async function TambahCabangPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    redirect("/admin");
-  }
-
+  await requireAdminPage();
   return (
     <div className="space-y-6">
       <PageHeader

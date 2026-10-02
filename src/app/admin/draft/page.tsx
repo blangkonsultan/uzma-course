@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/admin/status-badge";
 import { getScheduleDrafts, ScheduleDraft } from "@/lib/drafts";
 import { getBranches } from "@/lib/branches";
 import { formatDateString } from "@/lib/utils";
+import { requireAdminPage } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Draf Jadwal | Admin Uzma Course",
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default async function DraftPage(props: {
   searchParams: Promise<{ search?: string; branch?: string; status?: string }>;
 }) {
+  await requireAdminPage();
   const searchParams = await props.searchParams;
   const drafts = await getScheduleDrafts();
   const branches = await getBranches();

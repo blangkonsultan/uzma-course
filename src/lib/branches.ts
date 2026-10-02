@@ -79,3 +79,27 @@ export async function getPaginatedBranchesWithStats(params: {
 
   return { branches: branchesWithStats, totalItems, totalPages };
 }
+
+export async function getBranchDetailData(id: string) {
+  const supabase = await createClient();
+  const [branch, guruCountRes, studentCountRes] = await Promise.all([
+    getBranchById(id),
+    supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("role", "guru")
+      .eq("branch_id", id)
+      .eq("is_active", true),
+    supabase
+      .from("students")
+      .select("*", { count: "exact", head: true })
+      .eq("branch_id", id)
+      .eq("is_active", true),
+  ]);
+
+  return {
+    branch,
+    guruCount: guruCountRes.count ?? 0,
+    studentCount: studentCountRes.count ?? 0,
+  };
+}

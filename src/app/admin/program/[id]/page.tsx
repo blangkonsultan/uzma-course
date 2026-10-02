@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
-import { notFound, redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
+import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { ProgramStatusButton } from "@/components/admin/program/program-status-button";
-import { getProgramById } from "@/lib/programs";
+import { getProgramById, getProgramEnrollmentStats } from "@/lib/programs";
 import {
   BookOpen,
   ArrowLeft,
@@ -33,43 +33,19 @@ interface ProgramDetailPageProps {
 
 export default async function ProgramDetailPage({ params }: ProgramDetailPageProps) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  await requireAdminPage();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    redirect("/admin");
-  }
-
-  const [program, studentCountRes, teacherCountRes] = await Promise.all([
+  const [program, stats] = await Promise.all([
     getProgramById(id),
-    supabase
-      .from("student_programs")
-      .select("*", { count: "exact", head: true })
-      .eq("program_id", id),
-    supabase
-      .from("profile_programs")
-      .select("*", { count: "exact", head: true })
-      .eq("program_id", id),
+    getProgramEnrollmentStats(id),
   ]);
 
   if (!program) {
     notFound();
   }
 
-  const studentCount = studentCountRes.count ?? 0;
-  const teacherCount = teacherCountRes.count ?? 0;
+  const studentCount = stats.studentCount;
+  const teacherCount = stats.teacherCount;
 
   return (
     <div className="space-y-6">

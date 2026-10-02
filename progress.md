@@ -1,5 +1,13 @@
 # Progress Log
 
+## 2026-10-03 (Security Audit & Architecture Refactoring)
+- **Status**: Completed.
+- **Evidence**:
+  - Performed security and production readiness audit. Confirmed route protection via Next.js `proxy.ts` instead of deprecated `middleware.ts`.
+  - Refactored `src/app/admin/cabang/page.tsx` to abstract raw Supabase queries into a Data Access Layer (DAL) function `getPaginatedBranchesWithStats` in `src/lib/branches.ts`.
+  - Demonstrated best practices for Server Components without exposing raw queries in the UI.
+  - Linting passed cleanly; architecture set up for further DAL migrations.
+
 ## 2026-10-02 (Impeccable Audit & Remediation - Phase 2)
 - **Status**: Completed secondary sweep requested by user.
 - **Evidence**:

@@ -7,6 +7,10 @@ import {
 } from "@/app/admin/draft/board-actions";
 import { createClient } from "@/lib/supabase/server";
 
+vi.mock("@/lib/board", () => ({
+  getScheduleClassById: vi.fn().mockResolvedValue({ id: "class-1" }),
+  verifyScheduleClass: vi.fn().mockResolvedValue({ id: "class-1", start_time: "08:00", end_time: "09:00" })
+}));
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
 
 describe("Board Actions (src/app/admin/draft/board-actions.ts)", () => {
@@ -36,10 +40,18 @@ describe("Board Actions (src/app/admin/draft/board-actions.ts)", () => {
           return { select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: { start_time: "08:00", end_time: "12:00" }, error: null }) }) }) };
         }
         if (table === "schedule_classes") {
+          const mockClassEq = vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                or: vi.fn().mockResolvedValue({ data: [], error: null })
+              })
+            }),
+            single: vi.fn().mockResolvedValue({ data: { id: "class-1", program_variants: { system: 1 }, schedule_placements: [] }, error: null })
+          });
           return {
             insert: mockInsert,
             delete: mockDelete,
-            select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ or: vi.fn().mockResolvedValue({ data: [], error: null }) }) }) }) }),
+            select: vi.fn().mockReturnValue({ eq: mockClassEq }),
           };
         }
         return {

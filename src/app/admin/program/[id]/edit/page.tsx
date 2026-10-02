@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import { notFound, redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
+import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { ProgramForm } from "@/components/admin/program/program-form";
 import { getProgramById } from "@/lib/programs";
@@ -16,24 +16,7 @@ interface EditProgramPageProps {
 
 export default async function EditProgramPage({ params }: EditProgramPageProps) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    redirect("/admin/program");
-  }
+  await requireAdminPage();
 
   const program = await getProgramById(id);
 

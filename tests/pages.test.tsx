@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import React from "react";
+import { requireAdminPage } from "@/lib/auth";
+import { getProgramById } from "@/lib/programs";
+import { getBranchById, getBranchDetailData } from "@/lib/branches";
+import { getStudentByIdForView } from "@/lib/students";
 
 const mockGetUser = vi.fn();
 const mockSingle = vi.fn();
@@ -54,6 +58,52 @@ vi.mock("@/lib/supabase/server", () => ({
   ),
 }));
 
+
+vi.mock("@/lib/auth", () => ({
+  requireAdminPage: vi.fn()
+}));
+
+vi.mock("@/lib/dashboard", () => ({
+  getActiveGuruCount: vi.fn().mockResolvedValue(10),
+  getActiveStudents: vi.fn().mockResolvedValue([]),
+  getActiveBranches: vi.fn().mockResolvedValue(5),
+  getActivePrograms: vi.fn().mockResolvedValue(3),
+  getRecentStudents: vi.fn().mockResolvedValue([]),
+  getRecentGurus: vi.fn().mockResolvedValue([])
+}));
+
+vi.mock("@/lib/branches", () => ({
+  getPaginatedBranchesWithStats: vi.fn().mockResolvedValue({ branches: [{ id: "krian", name: "Cabang Krian" }], totalItems: 1, totalPages: 1 }),
+  getBranchById: vi.fn(),
+  getBranchDetailData: vi.fn().mockResolvedValue({ branch: { id: "krian", name: "Cabang Krian" }, guruCount: 0, studentCount: 0 }),
+  getAllBranches: vi.fn().mockResolvedValue([{ id: "krian", name: "Cabang Krian" } as any]),
+  getBranches: vi.fn().mockResolvedValue([{ id: "krian", name: "Cabang Krian" } as any])
+}));
+
+vi.mock("@/lib/programs", () => ({
+  getPaginatedPrograms: vi.fn().mockResolvedValue({ data: [], count: 0 }),
+  getProgramEnrollmentStats: vi.fn().mockResolvedValue([]),
+  getProgramById: vi.fn(),
+  getPrograms: vi.fn().mockResolvedValue([{ id: "ahe", name: "AHE" } as any])
+}));
+
+vi.mock("@/lib/students", () => ({
+  getPaginatedStudents: vi.fn().mockResolvedValue({ students: [], count: 0 }),
+  getStudentById: vi.fn().mockResolvedValue({ id: "murid-1", full_name: "Murid Satu" }),
+  getStudentByIdForView: vi.fn(),
+  getStudentByIdForEdit: vi.fn().mockResolvedValue({ id: "murid-1", full_name: "Murid Satu" })
+}));
+
+vi.mock("@/lib/gurus", () => ({
+  getPaginatedGurus: vi.fn().mockResolvedValue({ data: [], count: 0 }),
+  getGuruById: vi.fn().mockResolvedValue({ id: "guru-1", full_name: "Guru Satu" })
+}));
+
+
+
+
+
+
 // Mock Next.js navigation
 vi.mock("next/navigation", () => ({
   redirect: (url: string) => mockRedirect(url),
@@ -63,28 +113,13 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-const mockGetBranchById = vi.fn();
-const mockGetProgramById = vi.fn();
 
 // Mock libraries
-vi.mock("@/lib/branches", () => ({
-  getBranches: vi.fn().mockResolvedValue([
-    { id: "balongbendo", name: "Cabang Balongbendo", is_active: true },
-    { id: "krian", name: "Cabang Krian", is_active: true },
-  ]),
-  getBranchById: (id: string) => mockGetBranchById(id),
-}));
 
 vi.mock("@/components/admin/birthday-dashboard", () => ({
   BirthdayDashboard: () => <div data-testid="birthday-dashboard">Mocked Birthdays</div>,
 }));
 
-vi.mock("@/lib/programs", () => ({
-  getPrograms: vi.fn().mockResolvedValue([
-    { id: "ahe", initials: "AHE", name: "Baca Tulis Anak Hebat", is_active: true },
-  ]),
-  getProgramById: (id: string) => mockGetProgramById(id),
-}));
 
 import LandingPage from "@/app/page";
 import LoginPage from "@/app/login/page";
@@ -132,21 +167,33 @@ describe("Application Pages (src/app/)", () => {
     vi.clearAllMocks();
     mockGetUser.mockResolvedValue({ data: { user: dummyAdminUser } });
     mockSingle.mockResolvedValue({ data: dummyAdminProfile });
-    mockGetBranchById.mockResolvedValue({
+
+    vi.mocked(requireAdminPage).mockResolvedValue({
+      user: dummyAdminUser as unknown as NonNullable<Awaited<ReturnType<typeof requireAdminPage>>["user"]>,
+      profile: dummyAdminProfile as unknown as NonNullable<Awaited<ReturnType<typeof requireAdminPage>>["profile"]>,
+      supabase: {} as unknown as NonNullable<Awaited<ReturnType<typeof requireAdminPage>>["supabase"]>
+    });
+
+    vi.mocked(getBranchById).mockResolvedValue({
       id: "krian",
       name: "Cabang Krian",
       sub_name: "Sentra Ahe",
       address: "Jl. Raya Krian",
       is_active: true,
-    });
-    mockGetProgramById.mockResolvedValue({
+    } as any);
+    vi.mocked(getProgramById).mockResolvedValue({
       id: "ahe",
       initials: "AHE",
       name: "Baca Tulis Anak Hebat",
       tagline: "Baca Tulis",
       is_active: true,
       features: ["Modul"],
-    });
+    } as any);
+    vi.mocked(getStudentByIdForView).mockResolvedValue({
+      id: "murid-1",
+      full_name: "Murid Satu",
+      parent_phone: "08123456789",
+    } as unknown as NonNullable<Awaited<ReturnType<typeof getStudentByIdForView>>>);
   });
 
   describe("Public Pages", () => {
@@ -177,7 +224,7 @@ describe("Application Pages (src/app/)", () => {
     });
 
     it("redirects unauthenticated user to login", async () => {
-      mockGetUser.mockResolvedValueOnce({ data: { user: null } });
+      vi.mocked(requireAdminPage).mockRejectedValueOnce(new Error("NEXT_REDIRECT: /login"));
       await expect(AdminDashboardPage()).rejects.toThrow("NEXT_REDIRECT: /login");
     });
   });
@@ -196,7 +243,7 @@ describe("Application Pages (src/app/)", () => {
     });
 
     it("redirects non-admin from CabangListPage", async () => {
-      mockSingle.mockResolvedValueOnce({ data: { role: "guru" } });
+      vi.mocked(requireAdminPage).mockRejectedValueOnce(new Error("NEXT_REDIRECT: /admin"));
       await expect(CabangListPage({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT: /admin");
     });
 
@@ -210,8 +257,7 @@ describe("Application Pages (src/app/)", () => {
       const pageJsx = await DetailCabangPage({ params: Promise.resolve({ id: "krian" }) });
       render(pageJsx);
       expect(screen.getAllByText("Cabang Krian").length).toBeGreaterThan(0);
-
-      mockGetBranchById.mockResolvedValueOnce(null);
+      vi.mocked(getBranchDetailData).mockResolvedValueOnce({ branch: null, guruCount: 0, studentCount: 0 } as unknown as { branch: null, guruCount: number, studentCount: number });
       await expect(DetailCabangPage({ params: Promise.resolve({ id: "unknown" }) })).rejects.toThrow("NEXT_NOT_FOUND");
     });
 
@@ -220,7 +266,7 @@ describe("Application Pages (src/app/)", () => {
       render(pageJsx);
       expect(screen.getByText(/Edit Cabang/i)).toBeDefined();
 
-      mockGetBranchById.mockResolvedValueOnce(null);
+      vi.mocked(getBranchById).mockResolvedValueOnce(null);
       await expect(EditCabangPage({ params: Promise.resolve({ id: "unknown" }) })).rejects.toThrow("NEXT_NOT_FOUND");
     });
   });
@@ -239,7 +285,7 @@ describe("Application Pages (src/app/)", () => {
     });
 
     it("redirects non-admin from GuruListPage", async () => {
-      mockSingle.mockResolvedValueOnce({ data: { role: "guru" } });
+      vi.mocked(requireAdminPage).mockRejectedValueOnce(new Error("NEXT_REDIRECT: /admin"));
       await expect(GuruListPage({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT: /admin");
     });
     it("renders TambahGuruPage and checks non-admin redirect", async () => {
@@ -247,7 +293,7 @@ describe("Application Pages (src/app/)", () => {
       render(pageJsx);
       expect(screen.getByText("Tambah Guru Baru")).toBeDefined();
 
-      mockSingle.mockResolvedValueOnce({ data: { role: "guru" } });
+      vi.mocked(requireAdminPage).mockRejectedValueOnce(new Error("NEXT_REDIRECT: /admin"));
       await expect(TambahGuruPage()).rejects.toThrow("NEXT_REDIRECT: /admin");
     });
 
@@ -276,8 +322,8 @@ describe("Application Pages (src/app/)", () => {
       render(pageJsx);
       expect(screen.getByText("Tambah Murid Baru")).toBeDefined();
 
-      mockSingle.mockResolvedValueOnce({ data: { role: "guru" } });
-      await expect(TambahMuridPage()).rejects.toThrow("NEXT_REDIRECT: /admin/murid");
+      vi.mocked(requireAdminPage).mockRejectedValueOnce(new Error("NEXT_REDIRECT: /admin"));
+      await expect(TambahMuridPage()).rejects.toThrow("NEXT_REDIRECT: /admin");
     });
 
     it("renders DetailMuridPage", async () => {
@@ -301,7 +347,7 @@ describe("Application Pages (src/app/)", () => {
     });
 
     it("redirects non-admin from ProgramListPage", async () => {
-      mockSingle.mockResolvedValueOnce({ data: { role: "guru" } });
+      vi.mocked(requireAdminPage).mockRejectedValueOnce(new Error("NEXT_REDIRECT: /admin"));
       await expect(ProgramListPage()).rejects.toThrow("NEXT_REDIRECT: /admin");
     });
 
@@ -310,15 +356,15 @@ describe("Application Pages (src/app/)", () => {
       render(pageJsx);
       expect(screen.getByText("Tambah Program Baru")).toBeDefined();
 
-      mockSingle.mockResolvedValueOnce({ data: { role: "guru" } });
-      await expect(TambahProgramPage()).rejects.toThrow("NEXT_REDIRECT: /admin/program");
+      vi.mocked(requireAdminPage).mockRejectedValueOnce(new Error("NEXT_REDIRECT: /admin"));
+      await expect(TambahProgramPage()).rejects.toThrow("NEXT_REDIRECT: /admin");
     });
     it("renders DetailProgramPage and checks notFound", async () => {
       const pageJsx = await DetailProgramPage({ params: Promise.resolve({ id: "ahe" }) });
       render(pageJsx);
       expect(screen.getAllByText("Baca Tulis Anak Hebat").length).toBeGreaterThan(0);
 
-      mockGetProgramById.mockResolvedValueOnce(null);
+      vi.mocked(getProgramById).mockResolvedValueOnce(null);
       await expect(DetailProgramPage({ params: Promise.resolve({ id: "unknown" }) })).rejects.toThrow("NEXT_NOT_FOUND");
     });
 
@@ -327,7 +373,7 @@ describe("Application Pages (src/app/)", () => {
       render(pageJsx);
       expect(screen.getByText(/Edit Program:/i)).toBeDefined();
 
-      mockGetProgramById.mockResolvedValueOnce(null);
+      vi.mocked(getProgramById).mockResolvedValueOnce(null);
       await expect(EditProgramPage({ params: Promise.resolve({ id: "unknown" }) })).rejects.toThrow("NEXT_NOT_FOUND");
     });
   });
@@ -338,7 +384,7 @@ describe("Application Pages (src/app/)", () => {
       render(pageJsx);
       expect(screen.getByText("Manajemen Landing Page")).toBeDefined();
 
-      mockSingle.mockResolvedValueOnce({ data: { role: "guru" } });
+      vi.mocked(requireAdminPage).mockRejectedValueOnce(new Error("NEXT_REDIRECT: /admin"));
       await expect(LandingCmsPage({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT: /admin");
     });
 
@@ -371,7 +417,7 @@ describe("Application Pages (src/app/)", () => {
     it("redirects on invalid section", async () => {
       await expect(
         SectionEditorPage({ params: Promise.resolve({ section: "invalid" as unknown as LandingSectionKey }) })
-      ).rejects.toThrow("NEXT_REDIRECT: /admin/landing");
+      ).rejects.toThrow("NEXT_REDIRECT: /admin");
     });
   });
 });

@@ -140,6 +140,8 @@ All schema changes via Supabase CLI migrations only (`supabase/migrations/`). Ne
 - External links (wa.me): `target="_blank" rel="noopener noreferrer"`
 - Environment variables: `NEXT_PUBLIC_` prefix for client-accessible values
 - Supabase client: use `createClient()` from `@/lib/supabase/server` in server contexts, `@/lib/supabase/client` in `"use client"` components
+- **Data Access Layer (DAL) Standard**: NEVER write raw database queries (`supabase.from(...)`) directly in UI components (`page.tsx`, `layout.tsx`). Abstract all database reads into dedicated service functions within the `src/lib/` directory and call those functions from your Server Components.
+- **Centralized Authentication**: Use `await requireAdminPage()` from `src/lib/auth.ts` for role and session checks in admin pages instead of repeating inline Supabase profile queries.
 
 ## Design / UI Work
 

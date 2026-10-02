@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
+import { getPaginatedGurus, type ProfileWithPrograms } from "@/lib/gurus";
 import Link from "next/link";
 import { PageHeader } from "@/components/admin/page-header";
 import { SearchFilterBar } from "@/components/admin/search-filter-bar";
@@ -9,7 +9,6 @@ import { MasterMobileCard } from "@/components/admin/master-mobile-card";
 import { Pagination } from "@/components/admin/pagination";
 import { Button } from "@/components/ui/button";
 import { GuruStatusButton } from "@/components/admin/guru/guru-status-button";
-import type { Profile } from "@/types";
 import { Plus, Edit2, Phone, MapPin, MessageCircle, Eye } from "lucide-react";
 import { getPrograms } from "@/lib/programs";
 import { getBranches } from "@/lib/branches";
@@ -27,9 +26,6 @@ interface GuruPageProps {
   }>;
 }
 
-type ProfileWithPrograms = Profile & {
-  profile_programs?: { program_id: string }[];
-};
 function getInitials(name: string): string {
   if (!name) return "GR";
   const parts = name.trim().split(/\s+/);
@@ -40,25 +36,7 @@ function getInitials(name: string): string {
 }
 
 export default async function GuruPage({ searchParams }: GuruPageProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  // Check admin role
-  const { data: currentProfile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (currentProfile?.role !== "admin") {
-    redirect("/admin");
-  }
+  await requireAdminPage();
 
   const resolvedParams = await searchParams;
   const search = resolvedParams.search?.trim() || "";
@@ -79,34 +57,15 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
     programs.map((p) => [p.id, { initials: p.initials, name: p.name }])
   );
 
-  // Build Supabase query with profile_programs relation
-  let query = supabase
-    .from("profiles")
-    .select("*, profile_programs(program_id)", { count: "exact" })
-    .eq("role", "guru");
+  const { data: guruList, count } = await getPaginatedGurus({
+    search,
+    branch,
+    status,
+    page,
+    pageSize,
+  });
 
-  if (branch !== "all") {
-    query = query.eq("branch_id", branch);
-  }
-
-  if (status === "active") {
-    query = query.eq("is_active", true);
-  } else if (status === "inactive") {
-    query = query.eq("is_active", false);
-  }
-
-  if (search) {
-    query = query.ilike("full_name", `%${search}%`);
-  }
-
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-
-  const { data: guruList, count } = await query
-    .order("created_at", { ascending: false })
-    .range(from, to);
-
-  const totalItems = count ?? 0;
+  const totalItems = count;
   const totalPages = Math.ceil(totalItems / pageSize);
 
   const filterConfigs = [

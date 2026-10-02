@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/auth";
+import { getPaginatedStudents } from "@/lib/students";
 import Link from "next/link";
 import { PageHeader } from "@/components/admin/page-header";
 import { SearchFilterBar, type FilterConfig } from "@/components/admin/search-filter-bar";
@@ -41,24 +41,8 @@ function getInitials(name: string): string {
 }
 
 export default async function MuridPage({ searchParams }: MuridPageProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  // Get current user profile and role
-  const { data: currentProfile } = await supabase
-    .from("profiles")
-    .select("role, branch_id")
-    .eq("id", user.id)
-    .single();
-
-  const isAdmin = currentProfile?.role === "admin";
-  const guruBranch = currentProfile?.branch_id;
+  const { profile } = await requireAdminPage();
+  const isAdmin = profile?.role === "admin";
 
   const resolvedParams = await searchParams;
   const search = resolvedParams.search?.trim() || "";
@@ -67,10 +51,9 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
   const page = Math.max(1, parseInt(resolvedParams.page || "1", 10));
   const pageSize = 10;
 
-  // Branch determination:
-  // If guru has a designated branch, lock to that branch.
-  // Otherwise, allow URL filter.
-  const activeBranch = !isAdmin && guruBranch ? guruBranch : resolvedParams.branch || "all";
+  // Since requireAdminPage ensures admin role, we can safely allow all branches
+  // or the selected branch filter. (Guru branch restriction is deprecated)
+  const activeBranch = resolvedParams.branch || "all";
 
   const [programs, branches] = await Promise.all([
     getPrograms(true),
@@ -84,51 +67,24 @@ export default async function MuridPage({ searchParams }: MuridPageProps) {
     programs.map((p) => [p.id, { initials: p.initials, name: p.name }])
   );
 
-  // Build query with student_programs relation
-  const query = supabase.from("students");
+  const { students: studentList, count: totalItems } = await getPaginatedStudents({
+    search,
+    program,
+    status,
+    page,
+    pageSize,
+    branch: activeBranch,
+  });
 
-  let selectQuery = program !== "all"
-    ? query.select("*, student_programs!inner(program_id)", { count: "exact" })
-    : query.select("*, student_programs(program_id)", { count: "exact" });
-
-  if (activeBranch !== "all") {
-    selectQuery = selectQuery.eq("branch_id", activeBranch);
-  }
-
-  if (status === "active") {
-    selectQuery = selectQuery.eq("is_active", true);
-  } else if (status === "inactive") {
-    selectQuery = selectQuery.eq("is_active", false);
-  }
-
-  if (program !== "all") {
-    selectQuery = selectQuery.eq("student_programs.program_id", program);
-  }
-
-  if (search) {
-    selectQuery = selectQuery.or(`full_name.ilike.%${search}%,parent_name.ilike.%${search}%`);
-  }
-
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-
-  const { data: studentList, count } = await selectQuery
-    .order("created_at", { ascending: false })
-    .range(from, to);
-
-  const totalItems = count ?? 0;
   const totalPages = Math.ceil(totalItems / pageSize);
-
   // Configure filters based on role
   const filterConfigs: FilterConfig[] = [];
 
-  if (isAdmin || !guruBranch) {
-    filterConfigs.push({
-      id: "branch",
-      label: "Cabang",
-      options: branches.map((b) => ({ value: b.id, label: b.name })),
-    });
-  }
+  filterConfigs.push({
+    id: "branch",
+    label: "Cabang",
+    options: branches.map((b) => ({ value: b.id, label: b.name })),
+  });
 
   filterConfigs.push(
     {
