@@ -87,7 +87,7 @@ export function ProgramsSection({ data }: ProgramsSectionProps) {
                               </div>
                               <div className="flex items-center gap-1.5 whitespace-nowrap">
                                 <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                <span>{formatFrequencyShort((v as any).frequency || 3)}</span>
+                                <span>{formatFrequencyShort(v.frequency || 3)}</span>
                               </div>
                             </div>
                           </div>

@@ -365,7 +365,7 @@ function mapProgramRowToItem(p: import("@/types").Program): ProgramItem {
           description: p.license_description || undefined,
         }
       : undefined,
-    variants: p.program_variants?.map((v) => ({ id: v.id, name: v.name, duration: v.duration, system: v.system })) || [],
+    variants: p.program_variants?.filter(v => v.is_active && v.show_on_landing).map((v) => ({ id: v.id, name: v.name, duration: v.duration, system: v.system, frequency: (v as any).frequency })) || [],
     
     features: p.features,
   };

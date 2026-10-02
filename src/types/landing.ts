@@ -26,7 +26,7 @@ export interface ProgramItem {
   type: "franchise" | "original";
   logoUrl?: string;
   licenseInfo?: ProgramLicenseInfo;
-  variants: { id: string; name: string; duration: number; system: number; }[];
+  variants: { id: string; name: string; duration: number; system: number; frequency?: number; }[];
   
   features: string[];
 }

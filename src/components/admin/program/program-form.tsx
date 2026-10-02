@@ -39,7 +39,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
     
     variants: initialData?.program_variants && initialData.program_variants.length > 0
       ? initialData.program_variants
-      : [{ id: "new-0", name: "Standar", duration: 30, frequency: 3, system: 2, teacher_fee: 0, default_spp: 0, sort_order: 0, is_active: true }],
+      : [{ id: "new-0", name: "Standar", duration: 30, frequency: 3, system: 2, teacher_fee: 0, default_spp: 0, sort_order: 0, is_active: true, show_on_landing: true }],
     features: initialData?.features || [""],
     sort_order: initialData?.sort_order ?? 0,
     is_active: initialData?.is_active ?? true,
@@ -94,7 +94,7 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
           teacher_fee: 0,
           default_spp: 0,
           sort_order: prev.variants.length,
-          is_active: true,
+          is_active: true, show_on_landing: true,
         } as any,
       ],
     }));
@@ -492,6 +492,16 @@ export function ProgramForm({ initialData, isEdit = false }: ProgramFormProps) {
                         className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                       />
                       <span className="text-sm text-slate-700 font-medium">Varian Aktif</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer ml-4">
+                      <input
+                        type="checkbox"
+                        checked={variant.show_on_landing ?? true}
+                        onChange={(e) => updateVariant(idx, "show_on_landing", e.target.checked)}
+                        disabled={isPending}
+                        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="text-sm text-slate-700 font-medium">Tampil di Landing Page</span>
                     </label>
                   </div>
                 </div>

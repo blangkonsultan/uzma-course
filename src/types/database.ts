@@ -253,6 +253,7 @@ export type Database = {
           frequency: number;
           id: string;
           is_active: boolean;
+          show_on_landing: boolean;
           name: string;
           program_id: string;
           sort_order: number;
@@ -267,6 +268,7 @@ export type Database = {
           frequency?: number;
           id?: string;
           is_active?: boolean;
+          show_on_landing?: boolean;
           name: string;
           program_id: string;
           sort_order?: number;
@@ -281,6 +283,7 @@ export type Database = {
           frequency?: number;
           id?: string;
           is_active?: boolean;
+          show_on_landing?: boolean;
           name?: string;
           program_id?: string;
           sort_order?: number;

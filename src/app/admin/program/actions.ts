@@ -108,6 +108,7 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
     default_spp: typeof v.default_spp === "number" ? v.default_spp : 0,
     sort_order: typeof v.sort_order === "number" ? v.sort_order : idx,
     is_active: typeof v.is_active === "boolean" ? v.is_active : true,
+    show_on_landing: typeof v.show_on_landing === "boolean" ? v.show_on_landing : true,
   }));
 
   if (variantsToInsert.length > 0) {
@@ -197,6 +198,7 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
       default_spp: typeof v.default_spp === "number" ? v.default_spp : 0,
       sort_order: typeof v.sort_order === "number" ? v.sort_order : idx,
       is_active: typeof v.is_active === "boolean" ? v.is_active : true,
+    show_on_landing: typeof v.show_on_landing === "boolean" ? v.show_on_landing : true,
     };
   });
 
