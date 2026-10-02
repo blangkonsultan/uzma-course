@@ -437,7 +437,7 @@ export async function getLandingContent(): Promise<AllLandingContent> {
       supabase.from("landing_content").select("section, content"),
       supabase
         .from("programs")
-        .select("*")
+        .select("*, program_variants(*)")
         .eq("is_active", true)
         .order("sort_order", { ascending: true }),
     ]);
@@ -497,7 +497,7 @@ export async function getLandingSectionContent<K extends LandingSectionKey>(
     if (section === "programs") {
       const { data: programRows } = await supabase
         .from("programs")
-        .select("*")
+        .select("*, program_variants(*)")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
 
