@@ -76,15 +76,15 @@ vi.mock("@/lib/branches", () => ({
   getPaginatedBranchesWithStats: vi.fn().mockResolvedValue({ branches: [{ id: "krian", name: "Cabang Krian" }], totalItems: 1, totalPages: 1 }),
   getBranchById: vi.fn(),
   getBranchDetailData: vi.fn().mockResolvedValue({ branch: { id: "krian", name: "Cabang Krian" }, guruCount: 0, studentCount: 0 }),
-  getAllBranches: vi.fn().mockResolvedValue([{ id: "krian", name: "Cabang Krian" } as any]),
-  getBranches: vi.fn().mockResolvedValue([{ id: "krian", name: "Cabang Krian" } as any])
+  getAllBranches: vi.fn().mockResolvedValue([{ id: "krian", name: "Cabang Krian" } as never]),
+  getBranches: vi.fn().mockResolvedValue([{ id: "krian", name: "Cabang Krian" } as never])
 }));
 
 vi.mock("@/lib/programs", () => ({
   getPaginatedPrograms: vi.fn().mockResolvedValue({ data: [], count: 0 }),
   getProgramEnrollmentStats: vi.fn().mockResolvedValue([]),
   getProgramById: vi.fn(),
-  getPrograms: vi.fn().mockResolvedValue([{ id: "ahe", name: "AHE" } as any])
+  getPrograms: vi.fn().mockResolvedValue([{ id: "ahe", name: "AHE" } as never])
 }));
 
 vi.mock("@/lib/students", () => ({
@@ -180,7 +180,7 @@ describe("Application Pages (src/app/)", () => {
       sub_name: "Sentra Ahe",
       address: "Jl. Raya Krian",
       is_active: true,
-    } as any);
+    } as never);
     vi.mocked(getProgramById).mockResolvedValue({
       id: "ahe",
       initials: "AHE",
@@ -188,7 +188,7 @@ describe("Application Pages (src/app/)", () => {
       tagline: "Baca Tulis",
       is_active: true,
       features: ["Modul"],
-    } as any);
+    } as never);
     vi.mocked(getStudentByIdForView).mockResolvedValue({
       id: "murid-1",
       full_name: "Murid Satu",
