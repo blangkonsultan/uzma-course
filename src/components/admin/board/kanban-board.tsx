@@ -2,23 +2,12 @@
 
 import { useState, useMemo } from "react";
 import { formatTimeString } from "@/lib/utils";
-import { Search, Users, GraduationCap, GripVertical, Trash2, Loader2, Filter, ChevronDown, X } from "lucide-react";
+import { Search, Users, GraduationCap, Trash2, Loader2, Filter, ChevronDown, X, Plus } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { ClassTimeModal } from "./class-time-modal";
-import { 
-  DndContext, 
-  DragOverlay, 
-  closestCorners, 
-  KeyboardSensor, 
-  PointerSensor, 
-  useSensor, 
-  useSensors, 
-  useDraggable, 
-  useDroppable,
-  DragStartEvent,
-  DragEndEvent
-} from '@dnd-kit/core';
+import { AddClassModal } from "./add-class-modal";
+import { AddStudentModal } from "./add-student-modal";
 import { 
   createScheduleClass, 
   createSchedulePlacement,
@@ -27,12 +16,6 @@ import {
 } from "@/app/admin/draft/board-actions";
 import { KanbanBoardProps } from "./kanban-board-props";
 
-interface DndWrapperProps {
-  id: string;
-  data: unknown;
-  children: React.ReactNode;
-  className?: string;
-}
 
 export interface ScheduleClass {
   id: string;
@@ -45,32 +28,6 @@ export interface ScheduleClass {
   schedule_placements: Array<{ id: string; student_id: string }>;
 }
 
-function DraggableItem({ id, data, children, className }: DndWrapperProps) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id, data: data as Record<string, unknown> });
-  return (
-    <div ref={setNodeRef} {...listeners} {...attributes} className={`${className} ${isDragging ? "opacity-50" : ""}`}>
-      {children}
-    </div>
-  );
-}
-
-function DroppableColumn({ id, data, children, className }: DndWrapperProps) {
-  const { isOver, setNodeRef } = useDroppable({ id, data: data as Record<string, unknown> });
-  return (
-    <div ref={setNodeRef} className={`${className} ${isOver ? "ring-2 ring-primary-400 bg-primary-50/30" : ""}`}>
-      {children}
-    </div>
-  );
-}
-
-function DroppableClass({ id, data, children, className, isFull }: DndWrapperProps & { isFull: boolean }) {
-  const { isOver, setNodeRef } = useDroppable({ id, data: data as Record<string, unknown>, disabled: isFull });
-  return (
-    <div ref={setNodeRef} className={`${className} ${isOver && !isFull ? "ring-2 ring-blue-400 bg-blue-50" : ""} ${isFull ? "opacity-90" : ""}`}>
-      {children}
-    </div>
-  );
-}
 
 export function KanbanBoard({ draft, shifts, teachers, variants, students, initialClasses }: KanbanBoardProps) {
   const [activeDay, setActiveDay] = useState(1);
@@ -79,7 +36,15 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
   const [selectedProgram, setSelectedProgram] = useState<string>("all");
   // Local state for optimistic UI updates
   const [classes, setClasses] = useState<ScheduleClass[]>((initialClasses as ScheduleClass[]) || []);
-  const [activeDragItem, setActiveDragItem] = useState<Record<string, unknown> | null>(null);
+  const [classModal, setClassModal] = useState<{
+    isOpen: boolean;
+    shiftId: string;
+  }>({ isOpen: false, shiftId: "" });
+  const [studentModal, setStudentModal] = useState<{
+    isOpen: boolean;
+    classId: string;
+    variantId: string;
+  }>({ isOpen: false, classId: "", variantId: "" });
   const [isProcessing, setIsProcessing] = useState(false);
   const [timeModal, setTimeModal] = useState<{
     isOpen: boolean;
@@ -214,89 +179,39 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
       return !isPlacedToday;
     });
   }, [filteredStudents, classes, activeDay]);
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
-  );
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveDragItem(event.active.data.current as Record<string, unknown>);
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    setActiveDragItem(null);
-    const { active, over } = event;
-    if (!over) return;
-
-    const activeData = active.data.current as Record<string, unknown> | undefined;
-    const overData = over.data.current as Record<string, unknown> | undefined;
-
-    // RULE 1: Dropping a Teacher-Variant onto a Shift Column (Creates Class Container)
-    if (activeData?.type === "teacher-variant" && (overData?.type === "shift" || overData?.type === "class")) {
-      let targetShiftId = overData.shiftId as string;
-      if (overData.type === "class") {
-        const targetClass = classes.find(c => c.id === overData.classId);
-        if (targetClass) targetShiftId = targetClass.shift_id;
-      }
-      
-      const shift = shifts.find(s => s.id === targetShiftId);
-      const variant = variants.find(v => v.id === activeData.variantId);
-      
-      if (!shift || !variant) return;
-
-      // Smart default start time:
-      // Find teacher's classes in this shift today
-      const teacherClassesInShift = classes.filter(
-        c => c.shift_id === shift.id && c.day_of_week === activeDay && c.teacher_id === activeData.teacherId
-      );
-      
-      let defaultStart = shift.start_time.slice(0, 5); // "09:00"
-      if (teacherClassesInShift.length > 0) {
-        // Find the latest end_time
-        const latestEnd = teacherClassesInShift.reduce((latest, c) => {
-          return c.end_time > latest ? c.end_time : latest;
-        }, "00:00");
-        if (latestEnd) defaultStart = latestEnd.slice(0, 5);
-      }
-
-      setTimeModal({
-        isOpen: true,
-        draft_id: draft.id,
-        shift_id: targetShiftId,
-        teacher_id: activeData.teacherId as string,
-        variant_id: activeData.variantId as string,
-        defaultStartTime: defaultStart,
-        durationMinutes: variant.duration || 30,
-      });
+  const handleAddStudent = async (studentId: string) => {
+    const { classId, variantId } = studentModal;
+    if (!classId) return;
+    
+    // Find student to double check variant match
+    const studentData = students.find(s => s.id === studentId);
+    if (!studentData) return;
+    
+    const studentProgramVariantIds = studentData.student_programs.map(sp => sp.variant_id);
+    if (!studentProgramVariantIds.includes(variantId)) {
+      showToast("Murid ini tidak terdaftar di varian tersebut!", "error");
       return;
     }
-    if (activeData?.type === "student" && overData?.type === "class") {
-      // Check program match
-      const studentData = activeData.student as KanbanBoardProps["students"][number];
-      const studentProgramVariantIds = studentData.student_programs.map((sp) => sp.variant_id);
-      
-      if (!studentProgramVariantIds.includes(overData.variantId as string)) {
-        showToast("Murid ini tidak terdaftar di varian tersebut!", "error");
-        return;
-      }
 
-      setIsProcessing(true);
-      try {
-        const newPlacement = await createSchedulePlacement({
-          class_id: overData.classId as string,
-          student_id: activeData.studentId as string,
-        });
+    setIsProcessing(true);
+    try {
+      const newPlacement = await createSchedulePlacement({
+        class_id: classId,
+        student_id: studentId,
+      });
 
-        // Optimistic update
-        setClasses(classes.map(c => {
-          if (c.id === overData.classId) {
-            return { ...c, schedule_placements: [...(c.schedule_placements || []), newPlacement] };
-          }
-          return c;
-        }));
-      } catch (err) {
-        showToast(err instanceof Error ? err.message : "Gagal memasukkan murid ke kelas", "error");
-      }
+      // Optimistic update
+      setClasses(classes.map(c => {
+        if (c.id === classId) {
+          return { ...c, schedule_placements: [...(c.schedule_placements || []), newPlacement] };
+        }
+        return c;
+      }));
+      showToast("Murid berhasil ditambahkan", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Gagal memasukkan murid ke kelas", "error");
+      throw err;
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -363,7 +278,39 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
     });
   };
   return (
-    <DndContext id="kanban-dnd-context" sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <>
+      <AddClassModal
+        isOpen={classModal.isOpen}
+        onClose={() => setClassModal({ isOpen: false, shiftId: "" })}
+        shiftId={classModal.shiftId}
+        activeDay={activeDay}
+        shifts={shifts}
+        teachers={teachers}
+        variants={variants}
+        existingClasses={classes}
+        onNext={(teacherId, variantId, defaultStartTime, duration) => {
+          setClassModal({ isOpen: false, shiftId: "" });
+          setTimeModal({
+            isOpen: true,
+            draft_id: draft.id,
+            shift_id: classModal.shiftId,
+            teacher_id: teacherId,
+            variant_id: variantId,
+            defaultStartTime,
+            durationMinutes: duration,
+          });
+        }}
+      />
+      <AddStudentModal
+        isOpen={studentModal.isOpen}
+        onClose={() => setStudentModal({ isOpen: false, classId: "", variantId: "" })}
+        classId={studentModal.classId}
+        variantId={studentModal.variantId}
+        activeDay={activeDay}
+        students={students}
+        existingClasses={classes}
+        onSave={handleAddStudent}
+      />
       <ClassTimeModal
         key={timeModal.isOpen ? timeModal.shift_id + timeModal.teacher_id : "closed"}
         isOpen={timeModal.isOpen}
@@ -401,29 +348,36 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
         </div>
 
         {/* Main Board Area */}
-        <div className="flex-1 flex flex-col-reverse md:flex-row overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden relative">
           
           {/* Kanban Columns (Shifts) */}
-          <div className="flex-1 flex overflow-x-auto p-4 gap-4">
+          <div className="flex-none md:flex-1 flex overflow-x-auto p-4 gap-4 min-h-[450px] md:min-h-0">
             {shifts.map((shift) => {
               const classesInThisShift = classes.filter(c => c.shift_id === shift.id && c.day_of_week === activeDay);
               
               return (
-                <DroppableColumn 
+                <div 
                   key={shift.id} 
-                  id={`shift-${shift.id}`} 
-                  data={{ type: "shift", shiftId: shift.id }}
                   className="flex-none w-[85vw] sm:w-[340px] bg-slate-100/50 rounded-xl border flex flex-col"
                 >
-                  <div className="p-3 border-b bg-white rounded-t-xl shrink-0">
-                    <h3 className="font-semibold text-slate-800">{shift.name}</h3>
-                    <p className="text-xs text-slate-500">{formatTimeString(shift.start_time)} - {formatTimeString(shift.end_time)}</p>
+                  <div className="p-3 border-b bg-white rounded-t-xl shrink-0 flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-slate-800">{shift.name}</h3>
+                      <p className="text-xs text-slate-500">{formatTimeString(shift.start_time)} - {formatTimeString(shift.end_time)}</p>
+                    </div>
+                    <button 
+                      onClick={() => setClassModal({ isOpen: true, shiftId: shift.id })}
+                      className="flex items-center justify-center p-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
+                      title="Tambah Kelas"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
                   </div>
                   
                   <div className="flex-1 p-3 overflow-y-auto space-y-4 min-h-[150px]">
                     {classesInThisShift.length === 0 && (
                       <div className="h-full min-h-[100px] border-2 border-dashed border-slate-200 rounded-lg flex items-center justify-center text-sm text-slate-400">
-                        Tarik Guru + Varian ke sini
+                        Belum ada kelas
                       </div>
                     )}
                     
@@ -448,11 +402,8 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                       });
 
                       return (
-                        <DroppableClass 
+                        <div 
                           key={cls.id} 
-                          id={`class-${cls.id}`} 
-                          data={{ type: "class", classId: cls.id, variantId: cls.variant_id, variantName: variant?.name }}
-                          isFull={isFull}
                           className={`border rounded-lg shadow-sm bg-white overflow-hidden transition-all duration-300 ${isFull ? 'border-red-200' : 'border-slate-200'} ${searchLower && !classMatchesSearch ? 'opacity-30 grayscale' : ''}`}
                         >
                           <div className={`px-3 py-2 border-b flex justify-between items-center ${isFull ? 'bg-red-50' : 'bg-slate-50'}`}>
@@ -492,23 +443,27 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                               );
                             })}
                             {!isFull && (
-                              <div className="text-xs text-center text-slate-400 py-2 border border-dashed rounded bg-slate-50/50">
-                                Tarik Murid ke sini
-                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setStudentModal({ isOpen: true, classId: cls.id, variantId: cls.variant_id })}
+                                className="w-full text-xs text-center text-primary-600 hover:text-primary-700 py-2 border border-dashed border-primary-200 hover:border-primary-300 hover:bg-primary-50 rounded transition-colors flex items-center justify-center gap-1"
+                              >
+                                <Plus className="w-3 h-3" /> Tambah Murid
+                              </button>
                             )}
                           </div>
-                        </DroppableClass>
+                        </div>
                       );
                     })}
                   </div>
-                </DroppableColumn>
+                </div>
               );
             })}
           </div>
 
           {/* Sidebar (Draggable Items) */}
-          <div className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l bg-white flex flex-col shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)] z-10 max-h-[50vh] md:max-h-none overflow-y-auto">
-            <div className="flex border-b shrink-0 bg-slate-50/50">
+          <div className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l bg-white flex flex-col shadow-[0_-4px_15px_-3px_rgba(0,0,0,0.05)] md:shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)] z-10 flex-none h-auto md:max-h-none overflow-visible md:overflow-hidden">
+            <div className="flex border-b shrink-0 bg-slate-50/50 sticky top-0 z-20 md:static">
               <button
                 type="button"
                 onClick={() => setActiveTab("teachers")}
@@ -542,7 +497,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
             </div>
             
             {/* Search & Program Filter Controls */}
-            <div className="p-3 border-b bg-slate-50/60 space-y-2 shrink-0">
+            <div className="p-3 border-b bg-slate-50/60 space-y-2 shrink-0 sticky top-[45px] z-20 md:static">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                 <input
@@ -586,7 +541,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
               )}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            <div className="flex-1 overflow-y-visible md:overflow-y-auto p-3 space-y-2">
               {activeTab === "teachers" ? (
                 filteredCombos.length === 0 ? (
                   <div className="py-8 px-4 text-center">
@@ -614,13 +569,13 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                   </div>
                 ) : (
                   filteredCombos.map((combo) => (
-                    <DraggableItem 
+                    <div 
                       key={combo.id} 
-                      id={combo.id} 
-                      data={{ type: "teacher-variant", teacherId: combo.teacher.id, variantId: combo.variant.id }}
-                      className="p-3 border border-slate-200/90 rounded-xl bg-white shadow-2xs hover:shadow-xs flex items-center gap-3 cursor-grab hover:border-primary-400 transition-all touch-none group"
+                      className="p-3 border border-slate-200/90 rounded-xl bg-white shadow-2xs flex items-center gap-3 transition-all group"
                     >
-                      <GripVertical className="w-4 h-4 text-slate-300 group-hover:text-primary-500 shrink-0 transition-colors" />
+                      <div className="w-8 h-8 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+                        <Users className="w-4 h-4" />
+                      </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-1 mb-0.5">
                           <p className="text-sm font-bold text-slate-800 truncate">{combo.teacher.full_name}</p>
@@ -636,7 +591,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                           <span className="text-slate-500 text-[11px]">{combo.variant.duration} mnt</span>
                         </div>
                       </div>
-                    </DraggableItem>
+                    </div>
                   ))
                 )
               ) : (
@@ -666,13 +621,13 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                   </div>
                 ) : (
                   unplacedFilteredStudents.map((s) => (
-                    <DraggableItem 
+                    <div 
                       key={s.id} 
-                      id={`student-${s.id}`} 
-                      data={{ type: "student", studentId: s.id, student: s }}
-                      className="p-3 border border-blue-100 rounded-xl bg-blue-50/50 hover:bg-blue-50/80 shadow-2xs flex items-center gap-3 cursor-grab hover:border-blue-400 transition-all touch-none group"
+                      className="p-3 border border-blue-100 rounded-xl bg-blue-50/50 shadow-2xs flex items-center gap-3 transition-all group"
                     >
-                      <GripVertical className="w-4 h-4 text-blue-300 group-hover:text-blue-500 shrink-0 transition-colors" />
+                      <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                        <GraduationCap className="w-4 h-4" />
+                      </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold text-slate-800 truncate">{s.full_name}</p>
                         <div className="flex flex-wrap gap-1 mt-1">
@@ -694,29 +649,13 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                           })}
                         </div>
                       </div>
-                    </DraggableItem>
+                    </div>
                   ))
                 )
               )}
             </div>
           </div>
         </div>
-        {/* Drag Overlay for visual feedback */}
-        <DragOverlay dropAnimation={null}>
-          {activeDragItem ? (
-            <div className="p-3 border-2 border-primary-500 rounded-lg bg-white shadow-xl opacity-90 flex items-center gap-3 w-64">
-              <GripVertical className="w-4 h-4 text-primary-400" />
-              <div>
-                <p className="text-sm font-bold">
-                  {activeDragItem.type === "teacher-variant" 
-                    ? teachers.find((t) => t.id === activeDragItem.teacherId)?.full_name 
-                    : students.find((s) => s.id === activeDragItem.studentId)?.full_name}
-                </p>
-                <p className="text-xs text-slate-500">Sedang dipindahkan...</p>
-              </div>
-            </div>
-          ) : null}
-        </DragOverlay>
 
         <ConfirmDialog
           isOpen={confirmDialog.isOpen}
@@ -730,6 +669,6 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
         />
 
       </div>
-    </DndContext>
+    </>
   );
 }

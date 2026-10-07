@@ -26,7 +26,7 @@ export default async function BoardPage({
   }
 
   return (
-    <div className="space-y-4 flex flex-col h-[calc(100vh-6rem)]">
+    <div className="space-y-4 flex flex-col h-[calc(100dvh-5rem)] md:h-[calc(100vh-6rem)]">
       <PageHeader
         title={`Papan Jadwal: ${data.draft.name}`}
         description={`Cabang: ${data.draft.branch_id.toUpperCase()} | Status: ${data.draft.status}`}
