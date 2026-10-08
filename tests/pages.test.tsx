@@ -5,7 +5,12 @@ import { requireAdminPage } from "@/lib/auth";
 import { getProgramById } from "@/lib/programs";
 import { getBranchById, getBranchDetailData } from "@/lib/branches";
 import { getStudentByIdForView } from "@/lib/students";
+import DraftPage from "@/app/admin/draft/page";
+import { getScheduleDrafts } from "@/lib/drafts";
 
+vi.mock("@/lib/drafts", () => ({
+  getScheduleDrafts: vi.fn().mockResolvedValue([]),
+}));
 const mockGetUser = vi.fn();
 const mockSingle = vi.fn();
 const mockRedirect = vi.fn((url: string) => {
@@ -418,6 +423,20 @@ describe("Application Pages (src/app/)", () => {
       await expect(
         SectionEditorPage({ params: Promise.resolve({ section: "invalid" as unknown as LandingSectionKey }) })
       ).rejects.toThrow("NEXT_REDIRECT: /admin");
+    });
+  });
+
+  describe("Draft Pages", () => {
+    it("renders DraftPage and shows warning banner for pending activation", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      vi.mocked(getScheduleDrafts).mockResolvedValueOnce([
+        { id: "d-1", name: "Draf Peringatan", status: "draft", branch_id: "krian", effective_date: today, created_at: "", updated_at: "" }
+      ]);
+      
+      const pageJsx = await DraftPage({ searchParams: Promise.resolve({}) });
+      render(pageJsx);
+      
+      expect(screen.getByText("Peringatan Aktivasi Jadwal")).toBeDefined();
     });
   });
 });

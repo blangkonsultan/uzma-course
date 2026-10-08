@@ -126,4 +126,51 @@ describe("KanbanBoard Component", () => {
     // but clicking it shouldn't crash.
     expect(tuesdayBtn.className).toContain("bg-primary-600");
   });
+
+  it("opens AddClassModal when Tambah Kelas is clicked", () => {
+    render(<KanbanBoard {...mockProps} />);
+    
+    // Find all 'Tambah Kelas' buttons (one for each shift)
+    const addClassButtons = screen.getAllByTitle("Tambah Kelas");
+    expect(addClassButtons.length).toBe(2); // Pagi, Sore
+    
+    // Click the first one (Pagi)
+    fireEvent.click(addClassButtons[0]);
+    
+    // Verify Modal opens by checking for its header
+    expect(screen.getByText("Tambah Kelas")).toBeInTheDocument();
+    expect(screen.getByText("Shift: Pagi")).toBeInTheDocument();
+  });
+  
+  it("opens AddStudentModal when Tambah Murid is clicked on a class", () => {
+    const propsWithClass = {
+      ...mockProps,
+      initialClasses: [
+        {
+          id: "c1",
+          shift_id: "s1",
+          day_of_week: 1,
+          teacher_id: "t1",
+          variant_id: "v1",
+          start_time: "09:00:00",
+          end_time: "10:30:00",
+          schedule_placements: []
+        }
+      ]
+    };
+    
+    render(<KanbanBoard {...propsWithClass} />);
+    
+    // Find 'Tambah Murid' button inside the rendered class
+    const addStudentButton = screen.getByText(/Tambah Murid/i);
+    expect(addStudentButton).toBeInTheDocument();
+    
+    // Click it
+    fireEvent.click(addStudentButton);
+    
+    // Verify Student Modal opens
+    expect(screen.getByText("Pilih murid untuk dimasukkan ke kelas")).toBeInTheDocument();
+    expect(screen.getByText("Andi")).toBeInTheDocument();
+    expect(screen.getByText("Budi")).toBeInTheDocument();
+  });
 });

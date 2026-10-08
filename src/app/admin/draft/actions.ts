@@ -46,9 +46,15 @@ export async function createDraft(formData: FormData): Promise<DraftActionRespon
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
-
-  // If setting to active, we ideally should archive others, but for now just insert
-  // Complex activation logic is better handled separately
+  // If setting to active, archive others
+  if (status === "active") {
+    await supabase
+      .from("schedule_drafts")
+      .update({ status: "archived", updated_at: new Date().toISOString() })
+      .eq("branch_id", branchId)
+      .eq("status", "active");
+  }
+  
   const { error } = await supabase.from("schedule_drafts").insert({
     branch_id: branchId,
     name,
@@ -76,6 +82,26 @@ export async function updateDraft(id: string, formData: FormData): Promise<Draft
 
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
+  }
+  // Fetch the existing draft to get branch_id
+  const { data: existingDraft } = await supabase
+    .from("schedule_drafts")
+    .select("branch_id")
+    .eq("id", id)
+    .single();
+
+  if (!existingDraft) {
+    return { error: "Draf tidak ditemukan" };
+  }
+
+  // If setting to active, archive others
+  if (status === "active") {
+    await supabase
+      .from("schedule_drafts")
+      .update({ status: "archived", updated_at: new Date().toISOString() })
+      .eq("branch_id", existingDraft.branch_id)
+      .eq("status", "active")
+      .neq("id", id);
   }
 
   const { error } = await supabase

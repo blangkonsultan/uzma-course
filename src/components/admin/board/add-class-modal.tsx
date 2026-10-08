@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { X, Search } from "lucide-react";
 import { ScheduleClass } from "./kanban-board";
+import { KanbanBoardProps } from "./kanban-board-props";
 
 interface AddClassModalProps {
   isOpen: boolean;

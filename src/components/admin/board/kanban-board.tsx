@@ -463,7 +463,8 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
 
           {/* Sidebar (Draggable Items) */}
           <div className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l bg-white flex flex-col shadow-[0_-4px_15px_-3px_rgba(0,0,0,0.05)] md:shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)] z-10 flex-none h-auto md:max-h-none overflow-visible md:overflow-hidden">
-            <div className="flex border-b shrink-0 bg-slate-50/50 sticky top-0 z-20 md:static">
+            <div className="sticky top-0 z-20 md:static bg-white shrink-0 shadow-sm md:shadow-none">
+              <div className="flex border-b">
               <button
                 type="button"
                 onClick={() => setActiveTab("teachers")}
@@ -496,8 +497,8 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
               </button>
             </div>
             
-            {/* Search & Program Filter Controls */}
-            <div className="p-3 border-b bg-slate-50/60 space-y-2 shrink-0 sticky top-[45px] z-20 md:static">
+              {/* Search & Program Filter Controls */}
+              <div className="p-3 border-b space-y-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                 <input
@@ -540,7 +541,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                 </div>
               )}
             </div>
-
+            </div>
             <div className="flex-1 overflow-y-visible md:overflow-y-auto p-3 space-y-2">
               {activeTab === "teachers" ? (
                 filteredCombos.length === 0 ? (
