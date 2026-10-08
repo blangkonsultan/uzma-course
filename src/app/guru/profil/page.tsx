@@ -1,5 +1,5 @@
 import { requireGuruPage } from "@/lib/auth";
-import { User, LogOut, Settings } from "lucide-react";
+import { User, LogOut, KeyRound, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export default async function ProfilPage() {
@@ -23,18 +23,19 @@ export default async function ProfilPage() {
       </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-4 flex items-center justify-between border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors">
+        <Link href="/guru/profil/password" className="p-4 flex items-center justify-between border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors w-full">
           <div className="flex items-center space-x-3 text-slate-700">
-            <Settings className="w-5 h-5 text-slate-400" />
-            <span className="font-medium">Pengaturan Akun</span>
+            <KeyRound className="w-5 h-5 text-slate-400" />
+            <span className="font-medium">Ganti Kata Sandi</span>
           </div>
-        </div>
-        <Link href="/logout" className="p-4 flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors">
+          <ChevronRight className="w-4 h-4 text-slate-300" />
+        </Link>
+        <a href="/logout" className="p-4 flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors">
           <div className="flex items-center space-x-3">
             <LogOut className="w-5 h-5" />
             <span className="font-medium">Keluar</span>
           </div>
-        </Link>
+        </a>
       </div>
     </div>
   );
