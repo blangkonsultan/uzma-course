@@ -20,6 +20,9 @@ export async function createBranch(formData: FormData): Promise<BranchActionResp
   const address = formData.get("address")?.toString().trim() || "";
   const mapEmbedUrl = formData.get("map_embed_url")?.toString().trim() || null;
   const gmapsUrl = formData.get("gmaps_url")?.toString().trim() || null;
+  const latitude = formData.get("latitude") ? parseFloat(formData.get("latitude") as string) : null;
+  const longitude = formData.get("longitude") ? parseFloat(formData.get("longitude") as string) : null;
+  const geofenceRadius = formData.get("geofence_radius_m") ? parseInt(formData.get("geofence_radius_m") as string, 10) : null;
 
   const fieldErrors: Record<string, string> = {};
 
@@ -44,6 +47,9 @@ export async function createBranch(formData: FormData): Promise<BranchActionResp
     map_embed_url: mapEmbedUrl,
     gmaps_url: gmapsUrl,
     is_active: true,
+    latitude,
+    longitude,
+    geofence_radius_m: geofenceRadius,
   });
 
   if (error) {
@@ -77,7 +83,9 @@ export async function updateBranch(
   const mapEmbedUrl = formData.get("map_embed_url")?.toString().trim() || null;
   const gmapsUrl = formData.get("gmaps_url")?.toString().trim() || null;
   const isActive = formData.get("is_active") === "true";
-
+  const latitude = formData.get("latitude") ? parseFloat(formData.get("latitude") as string) : null;
+  const longitude = formData.get("longitude") ? parseFloat(formData.get("longitude") as string) : null;
+  const geofenceRadius = formData.get("geofence_radius_m") ? parseInt(formData.get("geofence_radius_m") as string, 10) : null;
   const fieldErrors: Record<string, string> = {};
 
   if (!name || name.length < 2) {
@@ -96,6 +104,9 @@ export async function updateBranch(
     gmaps_url: gmapsUrl,
     is_active: isActive,
     updated_at: new Date().toISOString(),
+    latitude,
+    longitude,
+    geofence_radius_m: geofenceRadius,
   });
 
   if (error) {

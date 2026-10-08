@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type FormEvent } from "react";
 import { createBranch, updateBranch } from "@/app/admin/cabang/actions";
+import { extractCoordinatesFromUrl } from "@/lib/maps";
 import {
   InputField,
   TextareaField,
@@ -29,6 +30,9 @@ export function BranchForm({ initialData, isEdit = false }: BranchFormProps) {
     map_embed_url: initialData?.map_embed_url || "",
     gmaps_url: initialData?.gmaps_url || "",
     is_active: initialData?.is_active ?? true,
+    latitude: initialData?.latitude?.toString() || "",
+    longitude: initialData?.longitude?.toString() || "",
+    geofence_radius_m: initialData?.geofence_radius_m?.toString() || "",
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -44,6 +48,34 @@ export function BranchForm({ initialData, isEdit = false }: BranchFormProps) {
         delete next[field];
         return next;
       });
+    }
+  }
+
+  const [isExtracting, setIsExtracting] = useState(false);
+
+  async function handleExtractCoordinates() {
+    if (!formData.gmaps_url.trim()) {
+      showToast("Link Navigasi Google Maps belum diisi.", "error");
+      return;
+    }
+    setIsExtracting(true);
+    try {
+      const res = await extractCoordinatesFromUrl(formData.gmaps_url.trim());
+      if ('error' in res && res.error) {
+        showToast(res.error, "error");
+      } else if ('latitude' in res && 'longitude' in res) {
+        setFormData(prev => ({
+          ...prev,
+          latitude: res.latitude?.toString() || "",
+          longitude: res.longitude?.toString() || "",
+          geofence_radius_m: prev.geofence_radius_m || "50"
+        }));
+        showToast("Koordinat berhasil diekstrak.", "success");
+      }
+    } catch {
+      showToast("Gagal mengekstrak koordinat.", "error");
+    } finally {
+      setIsExtracting(false);
     }
   }
 
@@ -79,6 +111,9 @@ export function BranchForm({ initialData, isEdit = false }: BranchFormProps) {
         fd.append("address", formData.address.trim());
         fd.append("map_embed_url", formData.map_embed_url.trim());
         fd.append("gmaps_url", formData.gmaps_url.trim());
+        if (formData.latitude.trim()) fd.append("latitude", formData.latitude.trim());
+        if (formData.longitude.trim()) fd.append("longitude", formData.longitude.trim());
+        if (formData.geofence_radius_m.trim()) fd.append("geofence_radius_m", formData.geofence_radius_m.trim());
         if (isEdit) {
           fd.append("is_active", String(formData.is_active));
         }
@@ -202,17 +237,74 @@ export function BranchForm({ initialData, isEdit = false }: BranchFormProps) {
               hint="URL iframe embed dari Google Maps untuk ditampilkan pada peta interaktif."
             />
 
+            <div className="space-y-2">
+              <InputField
+                id="gmaps_url"
+                name="gmaps_url"
+                label="Link Navigasi Google Maps"
+                type="text"
+                disabled={isPending}
+                placeholder="https://maps.app.goo.gl/..."
+                value={formData.gmaps_url}
+                onChange={(e) => updateField("gmaps_url", e.target.value)}
+                error={fieldErrors.gmaps_url}
+                hint="Link Google Maps untuk navigasi langsung di HP atau browser."
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isExtracting || isPending}
+                onClick={handleExtractCoordinates}
+                className="w-full sm:w-auto"
+              >
+                {isExtracting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Menarik Titik...
+                  </>
+                ) : (
+                  "Tarik Titik Koordinat"
+                )}
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-50">
+              <InputField
+                id="latitude"
+                name="latitude"
+                label="Latitude"
+                type="text"
+                disabled={isPending}
+                placeholder="Contoh: -7.382..."
+                value={formData.latitude}
+                onChange={(e) => updateField("latitude", e.target.value)}
+                error={fieldErrors.latitude}
+              />
+              <InputField
+                id="longitude"
+                name="longitude"
+                label="Longitude"
+                type="text"
+                disabled={isPending}
+                placeholder="Contoh: 112.589..."
+                value={formData.longitude}
+                onChange={(e) => updateField("longitude", e.target.value)}
+                error={fieldErrors.longitude}
+              />
+            </div>
+
             <InputField
-              id="gmaps_url"
-              name="gmaps_url"
-              label="Link Navigasi Google Maps"
-              type="text"
+              id="geofence_radius_m"
+              name="geofence_radius_m"
+              label="Radius Geofence (Meter)"
+              type="number"
               disabled={isPending}
-              placeholder="https://maps.app.goo.gl/..."
-              value={formData.gmaps_url}
-              onChange={(e) => updateField("gmaps_url", e.target.value)}
-              error={fieldErrors.gmaps_url}
-              hint="Link Google Maps untuk navigasi langsung di HP atau browser."
+              placeholder="Contoh: 50"
+              value={formData.geofence_radius_m}
+              onChange={(e) => updateField("geofence_radius_m", e.target.value)}
+              error={fieldErrors.geofence_radius_m}
+              hint="Jarak maksimal dalam meter untuk guru bisa absen dari titik koordinat."
             />
           </div>
 

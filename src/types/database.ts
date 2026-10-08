@@ -275,6 +275,33 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },
+                "teacher_attendances": {
+                  Row: {
+                    "branch_id": string,"check_in_lat": number | null,"check_in_lng": number | null,"check_in_time": string,"check_out_lat": number | null,"check_out_lng": number | null,"check_out_time": string | null,"created_at": string,"id": string,"notes": string | null,"teacher_id": string
+                  }
+                  Insert: {
+                    "branch_id": string,"check_in_lat"?: number | null,"check_in_lng"?: number | null,"check_in_time": string,"check_out_lat"?: number | null,"check_out_lng"?: number | null,"check_out_time"?: string | null,"created_at"?: string,"id"?: string,"notes"?: string | null,"teacher_id": string
+                  }
+                  Update: {
+                    "branch_id"?: string,"check_in_lat"?: number | null,"check_in_lng"?: number | null,"check_in_time"?: string,"check_out_lat"?: number | null,"check_out_lng"?: number | null,"check_out_time"?: string | null,"created_at"?: string,"id"?: string,"notes"?: string | null,"teacher_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "teacher_attendances_branch_id_fkey"
+      columns: ["branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["id"]
+    },
+                    {
+      foreignKeyName: "teacher_attendances_teacher_id_fkey"
+      columns: ["teacher_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {

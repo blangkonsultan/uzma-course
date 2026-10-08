@@ -1,6 +1,14 @@
 # Progress Log
 
-## 2026-10-03 (Security Audit & Architecture Refactoring)
+## 2026-10-08 (Global DAL Migration Phase 2)
+- **Status**: Completed.
+- **Evidence**:
+  - Refactored all remaining modules (Cabang, Guru, Murid, Program, Draft, Shift, Landing CMS).
+  - Eliminated all raw `supabase.from(...)` queries from `src/app/` and `src/components/`, moving them into `src/lib/` (DAL).
+  - Centralized authorization by creating `requireAdminAction()` in `src/lib/auth.ts`.
+  - Vitest test suite updated to mock new DAL interfaces, all 230 tests passing.
+  - Linting passed with 0 errors. Pushed to remote (`dcd6241`).
+
 - **Status**: Completed.
 - **Evidence**:
   - Performed security and production readiness audit. Confirmed route protection via Next.js `proxy.ts` instead of deprecated `middleware.ts`.

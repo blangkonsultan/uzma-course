@@ -1,16 +1,18 @@
 # Session Handoff
 
 ## Current State
-The application underwent a security and production readiness audit. Key findings and actions:
-- **Route Protection**: Confirmed the use of Next.js 16+ `proxy.ts` (which replaces `middleware.ts`) for secure route protection and Supabase session management. The admin routes are securely protected.
-- **Architectural Shift (DAL)**: Began migrating away from inline raw Supabase queries in Server Components to a clean Data Access Layer (DAL) pattern. 
-- **Refactoring Completed**: `src/app/admin/cabang/page.tsx` now uses `getPaginatedBranchesWithStats` from `src/lib/branches.ts`.
-- **Code Quality**: Linting passed cleanly. The DAL approach maintains the performance of Server Components while abstracting away ORM syntax from the UI.
+The application has undergone a comprehensive refactor to enforce a strict Data Access Layer (DAL) architecture.
+- **Global DAL Migration**: ALL UI components and server actions (`actions.ts`) are now completely free of raw `supabase.from(...)` database queries.
+- **Business Logic Encapsulation**: Read/write operations for Cabang, Guru, Murid, Program, Drafts, Shifts, and Landing have been successfully moved to their respective service files in `src/lib/`.
+- **Centralized Auth**: Server actions now universally use `await requireAdminAction()` from `src/lib/auth.ts`.
+- **Code Quality**: All 230 unit tests pass, and TypeScript/ESLint checks run cleanly (0 errors).
 
 ## Files Touched
-- `src/app/admin/cabang/page.tsx`
-- `src/lib/branches.ts`
+- `src/app/admin/**/actions.ts` (All server actions)
+- `src/lib/*.ts` (Auth, Board, Branches, Dashboard, Drafts, Gurus, Landing, Programs, Shifts, Storage, Students)
+- `src/components/admin/birthday-dashboard.tsx`
+- `src/app/admin/layout.tsx` & `src/app/admin/page.tsx`
+- `tests/board-actions.test.ts` & `tests/draft-actions.test.ts`
 
 ## Recommended Next Step
-- Continue migrating other Master Data pages (`guru`, `murid`, `program`) to use the new Server-Side DAL pattern (Option 1) to completely eliminate `.from("...")` queries from UI components.
-- Begin work on **Phase 2b ERP - Teacher Presence & Geolocation (feat-008)**.
+- Begin work on **feat-008: Phase 2b ERP - Teacher Presence & Geolocation**.

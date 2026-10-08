@@ -112,9 +112,15 @@ export async function insertBranch(data: {
   map_embed_url?: string | null;
   gmaps_url?: string | null;
   is_active: boolean;
+  latitude?: number | null;
+  longitude?: number | null;
+  geofence_radius_m?: number | null;
 }) {
   const supabase = await createClient();
-  return supabase.from("branches").insert(data);
+  return supabase.from("branches").insert({
+    ...data,
+    geofence_radius_m: data.geofence_radius_m ?? undefined
+  });
 }
 
 export async function updateBranchData(
@@ -127,10 +133,16 @@ export async function updateBranchData(
     gmaps_url: string | null;
     is_active: boolean;
     updated_at: string;
+    latitude?: number | null;
+    longitude?: number | null;
+    geofence_radius_m?: number | null;
   }
 ) {
   const supabase = await createClient();
-  return supabase.from("branches").update(data).eq("id", id);
+  return supabase.from("branches").update({
+    ...data,
+    geofence_radius_m: data.geofence_radius_m ?? undefined
+  }).eq("id", id);
 }
 
 export async function toggleBranchStatus(id: string, is_active: boolean) {
