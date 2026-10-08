@@ -17,7 +17,7 @@ Project harness for reliable agent-assisted development on Uzma Course.
 Before writing code:
 
 1. **Confirm working directory** with `pwd` (must be `~/projects/laragon/uzma-course`)
-2. **Read this file** and `CLAUDE.md` completely
+2. **Read this file**, `CLAUDE.md`, `PRODUCT.md`, dan `DESIGN.md` secara keseluruhan. Jangan ambil keputusan arsitektur UI/UX tanpa merujuk ke desain sistem.
 3. **Run `./init.sh`** to verify environment is healthy
 4. **Read `feature_list.json`** to see current feature state and dependencies
 5. **Read `progress.md`** and `session-handoff.md` for session continuity

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-08T00:00:00.000Z",
+  "title": "Design System: Uzma Course",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Nurturing Purple", "canonical": "#9333ea", "tonalRamp": ["#faf5ff", "#f3e8ff", "#e9d5ff", "#d8b4fe", "#c084fc", "#a855f7", "#9333ea", "#7e22ce", "#6b21a8", "#581c87", "#3b0764"] },
+      "accent": { "role": "secondary", "displayName": "Warm Magenta", "canonical": "#be3099", "tonalRamp": ["#d946a8", "#be3099"] },
+      "neutral-bg": { "role": "neutral", "displayName": "Slate Background", "canonical": "#f8fafc", "tonalRamp": ["#f8fafc", "#f1f5f9", "#e2e8f0"] },
+      "neutral-text": { "role": "neutral", "displayName": "Slate Text", "canonical": "#334155", "tonalRamp": ["#64748b", "#475569", "#334155", "#1e293b", "#0f172a"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Headline landing page dan judul utama aplikasi." },
+      "headline": { "displayName": "Headline", "purpose": "Judul halaman (PageHeader) dan judul kartu (Card)." },
+      "title": { "displayName": "Title", "purpose": "Label form dan pengelompokan data." },
+      "body": { "displayName": "Body", "purpose": "Teks paragraf dan isi tabel." },
+      "label": { "displayName": "Label", "purpose": "Tombol, badge status, dan metadata kecil." }
+    },
+    "shadows": [
+      { "name": "ambient-lift", "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)", "purpose": "Memberikan kedalaman samar pada kartu dan tombol utama (shadow-sm / shadow-2xs)." },
+      { "name": "floating-panel", "value": "0 -4px 15px -3px rgba(0,0,0,0.05)", "purpose": "Mengangkat modal atau sticky header jauh ke atas antarmuka lainnya." }
+    ],
+    "motion": [
+      { "name": "transition-colors", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing untuk hover state button dan link." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Tombol aksi utama berbentuk pil melingkar.",
+      "html": "<button class=\"ds-btn-primary\">SIMPAN</button>",
+      "css": ".ds-btn-primary { background: #9333ea; color: #ffffff; padding: 8px 24px; font-weight: 600; border: none; border-radius: 9999px; transition: background-color 0.2s, color 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; } .ds-btn-primary:hover { background: #7e22ce; }"
+    },
+    {
+      "name": "Standard Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Wadah utama untuk form dan konten.",
+      "html": "<div class=\"ds-card\"><h3>Judul Kartu</h3><p>Isi konten yang aman dan tidak kaku.</p></div>",
+      "css": ".ds-card { background: #ffffff; border-radius: 24px; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #f1f5f9; font-family: Poppins, sans-serif; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Friendly Classroom",
+    "overview": "Sistem desain Uzma Course dibangun di atas filosofi ramah, hangat, dan bebas trauma. Kami percaya bahwa antarmuka pendidikan harus terasa mengayomi, bukan mengintimidasi. Oleh karena itu, bahasa visual kami secara sadar menghindari kesan kaku dan korporat (garis tajam dan kisi yang kaku) dan beralih ke bentuk yang lebih organik dan lembut.",
+    "keyCharacteristics": [
+      "Sudut melengkung ekstrem (pill-shaped dan large radius) pada elemen interaktif.",
+      "Warna yang menenangkan (Calm & Nurturing) namun tetap mempertahankan kejelasan operasional.",
+      "Ruang putih (whitespace) yang lapang untuk mengurangi beban kognitif.",
+      "Nuansa elemen yang mengambang lembut (lifted)."
+    ],
+    "rules": [
+      {
+        "name": "The Non-Corporate Rule",
+        "body": "Hindari penggunaan abu-abu monokromatik ekstrem atau palet baja/biru korporat. Jika butuh warna abu-abu, selalu gunakan Slate (abu-abu dengan hint kebiruan yang hangat).",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do pertahankan corner radius ekstrem (rounded-full dan rounded-2xl) di seluruh komponen baru untuk menjaga konsistensi.",
+      "Do gunakan varian warna yang menenangkan (Ungu & Magenta) daripada merah atau biru kaku untuk sistem notifikasi dan interaksi.",
+      "Do maksimalkan whitespace antarelemen."
+    ],
+    "donts": [
+      "Don't gunakan sudut kotak (0px radius) di elemen container apa pun.",
+      "Don't menjejalkan data secara padat. Jika terlalu banyak informasi, gunakan paginasi, scroll internal, atau teknik progressive disclosure.",
+      "Don't gunakan warna hitam absolut #000000 untuk teks, gunakan Slate untuk meminimalisasi tegangan mata."
+    ]
+  }
+}

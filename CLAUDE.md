@@ -15,11 +15,12 @@ Stack: Next.js 16 (Turbopack) · React 19 · Vitest · Supabase (Auth + Postgres
 Before writing code:
 
 1. Confirm `pwd` is `~/projects/laragon/uzma-course`
-2. Read this file and `AGENTS.md` completely
-3. Run `./init.sh` to verify environment is healthy
-4. Read `feature_list.json` to see current feature state and dependencies
-5. Read `progress.md` and `session-handoff.md` for session continuity
-6. Review recent commits: `git log --oneline -5`
+2. Read this file, `AGENTS.md`, `PRODUCT.md`, and `DESIGN.md` completely.
+3. Do not make UX or architectural decisions without referring to the source of truth in `PRODUCT.md` and `DESIGN.md`.
+4. Run `./init.sh` to verify environment is healthy
+5. Read `feature_list.json` to see current feature state and dependencies
+6. Read `progress.md` and `session-handoff.md` for session continuity
+7. Review recent commits: `git log --oneline -5`
 
 If baseline verification is failing, repair that first before adding new scope.
 

@@ -38,7 +38,7 @@ export default async function DraftPage(props: {
   });
 
   // Check for pending activations (Option 1: Visual Banner)
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
   const pendingActivations = drafts.filter(
     (d) => d.status === "draft" && d.effective_date && d.effective_date <= today
   );

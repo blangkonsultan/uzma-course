@@ -46,14 +46,6 @@ export async function createDraft(formData: FormData): Promise<DraftActionRespon
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
-  // If setting to active, archive others
-  if (status === "active") {
-    await supabase
-      .from("schedule_drafts")
-      .update({ status: "archived", updated_at: new Date().toISOString() })
-      .eq("branch_id", branchId)
-      .eq("status", "active");
-  }
   
   const { error } = await supabase.from("schedule_drafts").insert({
     branch_id: branchId,
@@ -83,26 +75,6 @@ export async function updateDraft(id: string, formData: FormData): Promise<Draft
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
-  // Fetch the existing draft to get branch_id
-  const { data: existingDraft } = await supabase
-    .from("schedule_drafts")
-    .select("branch_id")
-    .eq("id", id)
-    .single();
-
-  if (!existingDraft) {
-    return { error: "Draf tidak ditemukan" };
-  }
-
-  // If setting to active, archive others
-  if (status === "active") {
-    await supabase
-      .from("schedule_drafts")
-      .update({ status: "archived", updated_at: new Date().toISOString() })
-      .eq("branch_id", existingDraft.branch_id)
-      .eq("status", "active")
-      .neq("id", id);
-  }
 
   const { error } = await supabase
     .from("schedule_drafts")
@@ -126,21 +98,7 @@ export async function updateDraft(id: string, formData: FormData): Promise<Draft
 export async function setDraftActive(id: string, branchId: string) {
   const { supabase } = await requireAdmin();
 
-  // 1. Mark currently active drafts for this branch as archived
-  const { error: archiveError } = await supabase
-    .from("schedule_drafts")
-    .update({ 
-        status: "archived",
-        updated_at: new Date().toISOString()
-    })
-    .eq("branch_id", branchId)
-    .eq("status", "active");
-
-  if (archiveError) {
-    throw new Error(`Gagal mengarsipkan draf lama: ${archiveError.message}`);
-  }
-
-  // 2. Set the selected draft to active
+  // Set the selected draft to active (Database trigger will archive others)
   const { error: activateError } = await supabase
     .from("schedule_drafts")
     .update({ 
