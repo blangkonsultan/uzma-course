@@ -2,8 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Json } from "@/types/database";
-import { createClient } from "@/lib/supabase/server";
+
+import { requireAdminAction } from "@/lib/auth";
+import { upsertLandingSection } from "@/lib/landing";
+
+
 import type { LandingSectionKey } from "@/types/landing";
  
 
@@ -24,34 +27,13 @@ const VALID_SECTIONS: readonly LandingSectionKey[] = [
   "floating_wa",
 ] as const;
 
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    throw new Error("Hanya admin yang memiliki izin untuk operasi ini.");
-  }
-
-  return { user, supabase };
-}
 
 export async function updateLandingSection(
   section: string,
   formData: FormData
 ): Promise<{ error?: string } | void> {
-  const { user, supabase } = await requireAdmin();
+  const { user } = await requireAdminAction();
 
   if (!VALID_SECTIONS.includes(section as LandingSectionKey)) {
     return { error: `Bagian "${section}" tidak valid.` };
@@ -82,17 +64,10 @@ export async function updateLandingSection(
   }
 
   try {
-    const { error: dbError } = await supabase
-      .from("landing_content")
-      .upsert({
-        section,
-        content: content as Exclude<Json, null>,
-        updated_at: new Date().toISOString(),
-        updated_by: user.id,
-      });
-
+    const { error: dbError } = await upsertLandingSection(section, content, user.id);
+    
     if (dbError) {
-      return { error: `Gagal menyimpan ke database: ${dbError.message}` };
+      return { error: dbError };
     }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Terjadi kesalahan internal.";
@@ -108,7 +83,7 @@ export async function updateLandingSection(
 export async function resolveTikTokShortlink(
   shortUrl: string
 ): Promise<{ videoId?: string; error?: string }> {
-  await requireAdmin();
+  await requireAdminAction();
 
   if (!shortUrl || !shortUrl.includes("tiktok.com")) {
     return { error: "Link TikTok tidak valid." };

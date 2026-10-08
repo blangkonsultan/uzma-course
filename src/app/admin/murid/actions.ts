@@ -2,62 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/database";
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    throw new Error("Hanya admin yang memiliki izin untuk operasi ini.");
-  }
-
-  return { user, supabase };
-}
-
-async function generateStudentNumber(
-  supabase: SupabaseClient<Database>,
-  branchId: string,
-  joinedDate: string
-): Promise<string> {
-  const { data: branchData } = await supabase.from('branches').select('code').eq('id', branchId).single();
-  const branchCode = branchData?.code || '00';
-
-  const jd = new Date(joinedDate);
-  const yy = jd.getFullYear().toString().slice(-2);
-  const mm = (jd.getMonth() + 1).toString().padStart(2, '0');
-  const prefix = `${yy}${mm}.${branchCode}.`;
-
-  const { data: maxStudent } = await supabase
-    .from('students')
-    .select('student_number')
-    .like('student_number', `${prefix}%`)
-    .order('student_number', { ascending: false })
-    .limit(1)
-    .single();
-
-  let nextNum = 1;
-  if (maxStudent && maxStudent.student_number) {
-    const parts = maxStudent.student_number.split('.');
-    const lastStr = parts[parts.length - 1];
-    if (lastStr) nextNum = parseInt(lastStr, 10) + 1;
-  }
-  return `${prefix}${nextNum.toString().padStart(3, '0')}`;
-}
+import { requireAdminAction } from "@/lib/auth";
+import { generateStudentNumber, createStudentData, updateStudentData, toggleStudentActiveStatus } from "@/lib/students";
 
 export interface StudentActionResponse {
   error?: string;
@@ -65,7 +11,7 @@ export interface StudentActionResponse {
 }
 
 export async function createStudent(formData: FormData): Promise<StudentActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
   const fullName = formData.get("full_name")?.toString().trim();
   const birthDate = formData.get("birth_date")?.toString().trim() || null;
@@ -110,14 +56,12 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
     return { fieldErrors };
   }
 
-  // Generate Student Number if empty
   if (!studentNumber && branchId) {
-    studentNumber = await generateStudentNumber(supabase, branchId, joinedDate);
+    studentNumber = await generateStudentNumber(branchId, joinedDate);
   }
 
-  const { data: insertedStudent, error: insertError } = await supabase
-    .from("students")
-    .insert({
+  const result = await createStudentData(
+    {
       full_name: fullName!,
       birth_date: birthDate,
       address,
@@ -127,33 +71,21 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
       branch_id: branchId!,
       notes,
       is_active: true,
-    })
-    .select("id")
-    .single();
+      student_number: studentNumber,
+    },
+    studentPrograms.map((sp) => ({
+      program_id: sp.program_id,
+      variant_id: sp.variant_id,
+      spp_amount: sp.spp_amount,
+      on_time_discount_type: sp.on_time_discount_type as "none" | "nominal" | "percentage",
+      on_time_discount_value: sp.on_time_discount_value,
+      cycle_start_date: sp.cycle_start_date,
+      status: sp.status || "active",
+    }))
+  );
 
-  if (insertError || !insertedStudent) {
-    return { error: insertError?.message || "Gagal menambahkan data murid." };
-  }
-
-  if (studentPrograms.length > 0) {
-    const { error: junctionError } = await supabase
-      .from("student_programs")
-      .insert(
-        studentPrograms.map((sp) => ({
-          student_id: insertedStudent.id,
-          program_id: sp.program_id,
-          variant_id: sp.variant_id,
-          spp_amount: sp.spp_amount,
-          on_time_discount_type: sp.on_time_discount_type,
-          on_time_discount_value: sp.on_time_discount_value,
-          cycle_start_date: sp.cycle_start_date,
-          status: sp.status || "active",
-        }))
-      );
-
-    if (junctionError) {
-      return { error: junctionError.message };
-    }
+  if (result.error) {
+    return { error: result.error };
   }
 
   revalidatePath("/admin/murid");
@@ -162,7 +94,7 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
 }
 
 export async function updateStudent(id: string, formData: FormData): Promise<StudentActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
   const fullName = formData.get("full_name")?.toString().trim();
   const birthDate = formData.get("birth_date")?.toString().trim() || null;
@@ -209,12 +141,12 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
   }
 
   if (!studentNumber && branchId) {
-    studentNumber = await generateStudentNumber(supabase, branchId, joinedDate);
+    studentNumber = await generateStudentNumber(branchId, joinedDate);
   }
 
-  const { error: updateError } = await supabase
-    .from("students")
-    .update({
+  const result = await updateStudentData(
+    id,
+    {
       full_name: fullName!,
       birth_date: birthDate,
       address,
@@ -224,43 +156,21 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
       branch_id: branchId!,
       notes,
       is_active: isActive,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+      student_number: studentNumber,
+    },
+    studentPrograms.map((sp) => ({
+      program_id: sp.program_id,
+      variant_id: sp.variant_id,
+      spp_amount: sp.spp_amount,
+      on_time_discount_type: sp.on_time_discount_type as "none" | "nominal" | "percentage",
+      on_time_discount_value: sp.on_time_discount_value,
+      cycle_start_date: sp.cycle_start_date,
+      status: sp.status || "active",
+    }))
+  );
 
-  if (updateError) {
-    return { error: updateError.message };
-  }
-
-  // Delete existing junction rows and insert new ones
-  const { error: deleteError } = await supabase
-    .from("student_programs")
-    .delete()
-    .eq("student_id", id);
-
-  if (deleteError) {
-    return { error: deleteError.message };
-  }
-
-  if (studentPrograms.length > 0) {
-    const { error: insertJunctionError } = await supabase
-      .from("student_programs")
-      .insert(
-        studentPrograms.map((sp) => ({
-          student_id: id,
-          program_id: sp.program_id,
-          variant_id: sp.variant_id,
-          spp_amount: sp.spp_amount,
-          on_time_discount_type: sp.on_time_discount_type,
-          on_time_discount_value: sp.on_time_discount_value,
-          cycle_start_date: sp.cycle_start_date,
-          status: sp.status || "active",
-        }))
-      );
-
-    if (insertJunctionError) {
-      return { error: insertJunctionError.message };
-    }
+  if (result.error) {
+    return { error: result.error };
   }
 
   revalidatePath("/admin/murid");
@@ -271,18 +181,12 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
 }
 
 export async function toggleStudentActive(id: string, currentStatus: boolean) {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
-  const { error } = await supabase
-    .from("students")
-    .update({
-      is_active: !currentStatus,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+  const result = await toggleStudentActiveStatus(id, currentStatus);
 
-  if (error) {
-    return { error: error.message };
+  if (result.error) {
+    return { error: result.error };
   }
 
   revalidatePath("/admin/murid");

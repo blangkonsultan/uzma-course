@@ -41,3 +41,47 @@ export async function getBranchShiftById(id: string) {
   if (error) return null;
   return data as BranchShift;
 }
+
+export async function insertBranchShift(data: {
+  branch_id: string;
+  name: string;
+  start_time: string;
+  end_time: string;
+  is_active: boolean;
+}) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("branch_shifts").insert(data);
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function updateBranchShift(id: string, data: {
+  name: string;
+  start_time: string;
+  end_time: string;
+  updated_at: string;
+}) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("branch_shifts")
+    .update(data)
+    .eq("id", id);
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function toggleBranchShiftActive(id: string, currentStatus: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("branch_shifts")
+    .update({ 
+        is_active: !currentStatus,
+        updated_at: new Date().toISOString()
+    })
+    .eq("id", id);
+  if (error) {
+    throw new Error(error.message);
+  }
+}

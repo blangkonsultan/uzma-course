@@ -20,7 +20,7 @@ export const metadata = {
 };
 
 export default async function AdminDashboardPage() {
-  const { user, profile, supabase } = await requireAdminPage();
+  const { user, profile } = await requireAdminPage();
 
   const isAdmin = profile?.role === "admin";
   const userBranch = profile?.branch_id;
@@ -33,10 +33,10 @@ export default async function AdminDashboardPage() {
     branches,
   ] = await Promise.all([
     // Active teachers count
-    getActiveGuruCount(supabase),
+    getActiveGuruCount(),
 
     // All active students with their branch & programs junction
-    getActiveStudents(supabase),
+    getActiveStudents(),
 
     getPrograms(),
     getBranches(),

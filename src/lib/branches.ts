@@ -103,3 +103,43 @@ export async function getBranchDetailData(id: string) {
     studentCount: studentCountRes.count ?? 0,
   };
 }
+
+export async function insertBranch(data: {
+  id: string;
+  name: string;
+  sub_name?: string;
+  address?: string;
+  map_embed_url?: string | null;
+  gmaps_url?: string | null;
+  is_active: boolean;
+}) {
+  const supabase = await createClient();
+  return supabase.from("branches").insert(data);
+}
+
+export async function updateBranchData(
+  id: string,
+  data: {
+    name: string;
+    sub_name: string;
+    address: string;
+    map_embed_url: string | null;
+    gmaps_url: string | null;
+    is_active: boolean;
+    updated_at: string;
+  }
+) {
+  const supabase = await createClient();
+  return supabase.from("branches").update(data).eq("id", id);
+}
+
+export async function toggleBranchStatus(id: string, is_active: boolean) {
+  const supabase = await createClient();
+  return supabase
+    .from("branches")
+    .update({
+      is_active,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+}

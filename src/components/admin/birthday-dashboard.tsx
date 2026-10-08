@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getActiveGuruAndMuridForBirthdays } from "@/lib/dashboard";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Gift, Calendar, User, GraduationCap } from "lucide-react";
 
@@ -43,17 +43,7 @@ function getBirthdayData(birthDateStr: string | null): { daysDiff: number; ageTu
 }
 
 export async function BirthdayDashboard({ branchId, isAdmin }: { branchId?: string, isAdmin: boolean }) {
-  const supabase = await createClient();
-
-  let guruQuery = supabase.from("profiles").select("id, full_name, birth_date, role, branches(name)").eq("is_active", true).not("birth_date", "is", null);
-  let muridQuery = supabase.from("students").select("id, full_name, birth_date, branches(name)").eq("is_active", true).not("birth_date", "is", null);
-
-  if (!isAdmin && branchId) {
-    guruQuery = guruQuery.eq("branch_id", branchId);
-    muridQuery = muridQuery.eq("branch_id", branchId);
-  }
-
-  const [{ data: gurus }, { data: murids }] = await Promise.all([guruQuery, muridQuery]);
+  const { gurus, murids } = await getActiveGuruAndMuridForBirthdays(branchId, isAdmin);
 
   const upcomingBirthdays: BirthdayPerson[] = [];
 

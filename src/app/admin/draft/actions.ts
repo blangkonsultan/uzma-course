@@ -2,28 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    throw new Error("Hanya admin yang memiliki izin untuk operasi ini.");
-  }
-
-  return { user, supabase };
-}
+import { requireAdminAction } from "@/lib/auth";
+import { insertScheduleDraft, updateScheduleDraft, setScheduleDraftActive } from "@/lib/drafts";
 
 export interface DraftActionResponse {
   error?: string;
@@ -31,7 +11,7 @@ export interface DraftActionResponse {
 }
 
 export async function createDraft(formData: FormData): Promise<DraftActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
   const branchId = formData.get("branch_id")?.toString().trim() || "";
   const name = formData.get("name")?.toString().trim() || "";
@@ -47,15 +27,15 @@ export async function createDraft(formData: FormData): Promise<DraftActionRespon
     return { fieldErrors };
   }
   
-  const { error } = await supabase.from("schedule_drafts").insert({
-    branch_id: branchId,
-    name,
-    effective_date: effectiveDate,
-    status,
-  });
-
-  if (error) {
-    return { error: `Gagal menyimpan draf: ${error.message}` };
+  try {
+    await insertScheduleDraft({
+      branch_id: branchId,
+      name,
+      effective_date: effectiveDate,
+      status,
+    });
+  } catch (error: unknown) {
+    return { error: `Gagal menyimpan draf: ${error instanceof Error ? error.message : "Unknown error"}` };
   }
 
   revalidatePath("/admin/draft");
@@ -63,7 +43,7 @@ export async function createDraft(formData: FormData): Promise<DraftActionRespon
 }
 
 export async function updateDraft(id: string, formData: FormData): Promise<DraftActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
   const name = formData.get("name")?.toString().trim() || "";
   const effectiveDate = formData.get("effective_date")?.toString().trim() || null;
   const status = formData.get("status")?.toString().trim() || "draft";
@@ -76,18 +56,15 @@ export async function updateDraft(id: string, formData: FormData): Promise<Draft
     return { fieldErrors };
   }
 
-  const { error } = await supabase
-    .from("schedule_drafts")
-    .update({
+  try {
+    await updateScheduleDraft(id, {
       name,
       effective_date: effectiveDate,
       status,
       updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-
-  if (error) {
-    return { error: `Gagal memperbarui draf: ${error.message}` };
+    });
+  } catch (error: unknown) {
+    return { error: `Gagal memperbarui draf: ${error instanceof Error ? error.message : "Unknown error"}` };
   }
 
   revalidatePath("/admin/draft");
@@ -95,20 +72,13 @@ export async function updateDraft(id: string, formData: FormData): Promise<Draft
   redirect("/admin/draft?success=" + encodeURIComponent("Draf berhasil diperbarui"));
 }
 
-export async function setDraftActive(id: string, branchId: string) {
-  const { supabase } = await requireAdmin();
+export async function setDraftActive(id: string) {
+  await requireAdminAction();
 
-  // Set the selected draft to active (Database trigger will archive others)
-  const { error: activateError } = await supabase
-    .from("schedule_drafts")
-    .update({ 
-        status: "active",
-        updated_at: new Date().toISOString()
-    })
-    .eq("id", id);
-
-  if (activateError) {
-    throw new Error(`Gagal mengaktifkan draf: ${activateError.message}`);
+  try {
+    await setScheduleDraftActive(id);
+  } catch (error: unknown) {
+    throw new Error(`Gagal mengaktifkan draf: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 
   revalidatePath("/admin/draft");

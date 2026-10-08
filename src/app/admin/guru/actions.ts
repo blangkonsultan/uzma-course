@@ -2,31 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    throw new Error("Hanya admin yang memiliki izin untuk operasi ini.");
-  }
-
-  return { user, supabase };
-}
+import { requireAdminAction } from "@/lib/auth";
+import { insertGuruProfile, updateGuruProfile, toggleGuruStatus } from "@/lib/gurus";
 
 export interface GuruActionResponse {
   error?: string;
@@ -34,7 +11,7 @@ export interface GuruActionResponse {
 }
 
 export async function createGuru(formData: FormData): Promise<GuruActionResponse | void> {
-  await requireAdmin();
+  await requireAdminAction();
 
   const fullName = formData.get("full_name")?.toString().trim();
   const email = formData.get("email")?.toString().trim();
@@ -79,66 +56,20 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
   }
 
   try {
-    const adminClient = createAdminClient();
-
-    // 1. Create auth user with service role
-    const { data: userData, error: authError } =
-      await adminClient.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: fullName,
-          role: "guru",
-        },
-      });
-
-    if (authError || !userData.user) {
-      const msg = authError?.message || "";
-      if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("exists")) {
-        return { fieldErrors: { email: "Email ini sudah terdaftar sebagai pengguna." } };
-      }
-      return { error: msg || "Gagal membuat akun autentikasi guru." };
-    }
-
-    const newUserId = userData.user.id;
-
-    // 2. Update the profile row (created by trigger or upsert)
-    const { error: profileError } = await adminClient.from("profiles").upsert({
-      id: newUserId,
-      full_name: fullName!,
+    await insertGuruProfile({
+      email,
+      password,
+      fullName: fullName!,
       phone,
-      birth_date: birthDate,
-      role: "guru",
-      branch_id: branchId || null,
-      is_active: true,
-      bank_name: bankName,
-      bank_account_number: bankAccountNumber,
-      bank_account_holder: bankAccountHolder,
-      allowances: allowances,
-    minimum_income: minimumIncome,
-      updated_at: new Date().toISOString(),
+      birthDate,
+      branchId,
+      bankName,
+      bankAccountNumber,
+      bankAccountHolder,
+      allowances,
+      minimumIncome,
+      programs,
     });
-
-    if (profileError) {
-      return { error: `Akun dibuat tetapi gagal mengisi data profil: ${profileError.message}` };
-    }
-
-    // 3. Assign profile_programs junction
-    if (programs.length > 0) {
-      const { error: junctionError } = await adminClient
-        .from("profile_programs")
-        .insert(
-          programs.map((pid) => ({
-            profile_id: newUserId,
-            program_id: pid,
-          }))
-        );
-
-      if (junctionError) {
-        return { error: `Akun dibuat tetapi gagal menugaskan program: ${junctionError.message}` };
-      }
-    }
   } catch (err: unknown) {
     return {
       error:
@@ -154,7 +85,7 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
 }
 
 export async function updateGuru(id: string, formData: FormData): Promise<GuruActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
   const fullName = formData.get("full_name")?.toString().trim();
   const phone = formData.get("phone")?.toString().trim() || null;
@@ -191,51 +122,24 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
     return { fieldErrors };
   }
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({
-      full_name: fullName,
+  try {
+    await updateGuruProfile(id, {
+      fullName: fullName!,
       phone,
-      birth_date: birthDate,
-      branch_id: branchId || null,
-      is_active: isActive,
-      bank_name: bankName,
-      bank_account_number: bankAccountNumber,
-      bank_account_holder: bankAccountHolder,
-      allowances: allowances,
-    minimum_income: minimumIncome,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id)
-    .eq("role", "guru");
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  // Delete existing profile_programs and re-insert
-  const { error: deleteError } = await supabase
-    .from("profile_programs")
-    .delete()
-    .eq("profile_id", id);
-
-  if (deleteError) {
-    return { error: deleteError.message };
-  }
-
-  if (programs.length > 0) {
-    const { error: junctionError } = await supabase
-      .from("profile_programs")
-      .insert(
-        programs.map((pid) => ({
-          profile_id: id,
-          program_id: pid,
-        }))
-      );
-
-    if (junctionError) {
-      return { error: junctionError.message };
-    }
+      birthDate,
+      branchId,
+      isActive,
+      bankName,
+      bankAccountNumber,
+      bankAccountHolder,
+      allowances,
+      minimumIncome,
+      programs,
+    });
+  } catch (err: unknown) {
+    return {
+      error: err instanceof Error ? err.message : "Gagal memperbarui data guru.",
+    };
   }
 
   revalidatePath("/admin/guru");
@@ -245,19 +149,14 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
 }
 
 export async function toggleGuruActive(id: string, currentStatus: boolean) {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({
-      is_active: !currentStatus,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id)
-    .eq("role", "guru");
-
-  if (error) {
-    return { error: error.message };
+  try {
+    await toggleGuruStatus(id, currentStatus);
+  } catch (err: unknown) {
+    return {
+      error: err instanceof Error ? err.message : "Gagal mengubah status guru.",
+    };
   }
 
   revalidatePath("/admin/guru");

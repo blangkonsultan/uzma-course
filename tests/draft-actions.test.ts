@@ -16,7 +16,7 @@ describe("Draft Actions (src/app/admin/draft/actions.ts)", () => {
       eq: vi.fn().mockReturnThis(),
       neq: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: { branch_id: "krian" } }),
-      then: function(resolve: any) {
+      then: function(resolve: (value: unknown) => void) {
         resolve({ error: null, data: [] });
       }
     };
@@ -88,6 +88,6 @@ describe("Draft Actions (src/app/admin/draft/actions.ts)", () => {
 
   it("setDraftActive succeeds", async () => {
     setupAdminMock();
-    await setDraftActive("d-1", "krian");
+    await setDraftActive("d-1");
   });
 });

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types";
-
+import type { Json } from "@/types/database";
 export type ProfileWithPrograms = Profile & {
   profile_programs?: { program_id: string }[];
 };
@@ -56,4 +56,169 @@ export async function getGuruById(id: string) {
     .single();
 
   return data as ProfileWithPrograms | null;
+}
+
+import { createAdminClient } from "@/lib/supabase/admin";
+
+export interface CreateGuruProfileData {
+  email?: string;
+  password?: string;
+  fullName: string;
+  phone?: string | null;
+  birthDate?: string | null;
+  branchId?: string | null;
+  bankName?: string | null;
+  bankAccountNumber?: string | null;
+  bankAccountHolder?: string | null;
+  allowances?: Json[];
+  minimumIncome?: number | null;
+  programs?: string[];
+}
+
+export async function insertGuruProfile(data: CreateGuruProfileData) {
+  const adminClient = createAdminClient();
+
+  const { email, password, fullName, phone, birthDate, branchId, bankName, bankAccountNumber, bankAccountHolder, allowances, minimumIncome, programs } = data;
+
+  // 1. Create auth user with service role
+  const { data: userData, error: authError } = await adminClient.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      full_name: fullName,
+      role: "guru",
+    },
+  });
+
+  if (authError || !userData.user) {
+    const msg = authError?.message || "";
+    if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("exists")) {
+      throw new Error("Email ini sudah terdaftar sebagai pengguna.");
+    }
+    throw new Error(msg || "Gagal membuat akun autentikasi guru.");
+  }
+
+  const newUserId = userData.user.id;
+
+  // 2. Update the profile row
+  const { error: profileError } = await adminClient.from("profiles").upsert({
+    id: newUserId,
+    full_name: fullName!,
+    phone,
+    birth_date: birthDate,
+    role: "guru",
+    branch_id: branchId || null,
+    is_active: true,
+    bank_name: bankName,
+    bank_account_number: bankAccountNumber,
+    bank_account_holder: bankAccountHolder,
+    allowances: allowances as Json[] | undefined,
+    minimum_income: minimumIncome,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (profileError) {
+    throw new Error(`Akun dibuat tetapi gagal mengisi data profil: ${profileError.message}`);
+  }
+
+  // 3. Assign profile_programs junction
+  if (programs && programs.length > 0) {
+    const { error: junctionError } = await adminClient
+      .from("profile_programs")
+      .insert(
+        programs.map((pid: string) => ({
+          profile_id: newUserId,
+          program_id: pid,
+        }))
+      );
+
+    if (junctionError) {
+      throw new Error(`Akun dibuat tetapi gagal menugaskan program: ${junctionError.message}`);
+    }
+  }
+
+  return newUserId;
+}
+
+export interface UpdateGuruProfileData {
+  fullName: string;
+  phone?: string | null;
+  birthDate?: string | null;
+  branchId?: string | null;
+  isActive: boolean;
+  bankName?: string | null;
+  bankAccountNumber?: string | null;
+  bankAccountHolder?: string | null;
+  allowances?: Json[];
+  minimumIncome?: number | null;
+  programs?: string[];
+}
+
+export async function updateGuruProfile(id: string, data: UpdateGuruProfileData) {
+  const supabase = await createClient();
+  const { fullName, phone, birthDate, branchId, isActive, bankName, bankAccountNumber, bankAccountHolder, allowances, minimumIncome, programs } = data;
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      full_name: fullName,
+      phone,
+      birth_date: birthDate,
+      branch_id: branchId || null,
+      is_active: isActive,
+      bank_name: bankName,
+      bank_account_number: bankAccountNumber,
+      bank_account_holder: bankAccountHolder,
+      allowances: allowances as Json[] | undefined,
+      minimum_income: minimumIncome,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("role", "guru");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Delete existing profile_programs and re-insert
+  const { error: deleteError } = await supabase
+    .from("profile_programs")
+    .delete()
+    .eq("profile_id", id);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  if (programs && programs.length > 0) {
+    const { error: junctionError } = await supabase
+      .from("profile_programs")
+      .insert(
+        programs.map((pid: string) => ({
+          profile_id: id,
+          program_id: pid,
+        }))
+      );
+
+    if (junctionError) {
+      throw new Error(junctionError.message);
+    }
+  }
+}
+
+export async function toggleGuruStatus(id: string, currentStatus: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      is_active: !currentStatus,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("role", "guru");
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }

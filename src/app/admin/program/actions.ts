@@ -2,30 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    throw new Error("Hanya admin yang memiliki izin untuk operasi ini.");
-  }
-
-  return { user, supabase };
-}
+import { requireAdminAction } from "@/lib/auth";
+import { insertProgram, updateProgramData, updateProgramStatus } from "@/lib/programs";
 
 export interface ProgramActionResponse {
   error?: string;
@@ -33,7 +11,7 @@ export interface ProgramActionResponse {
 }
 
 export async function createProgram(formData: FormData): Promise<ProgramActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
   const initials = formData.get("initials")?.toString().trim().toUpperCase();
   const name = formData.get("name")?.toString().trim();
@@ -72,7 +50,7 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
     return { fieldErrors };
   }
 
-  const { data: programData, error } = await supabase.from("programs").insert({
+  const programDataToInsert = {
     initials: initials!,
     name: name!,
     tagline,
@@ -87,19 +65,9 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
     features: rawFeatures,
     sort_order: isNaN(sortOrder) ? 0 : sortOrder,
     is_active: true,
-  }).select("id").single();
-
-  if (error) {
-    if (error.message.includes("programs_initials_key") || error.message.includes("unique")) {
-      return { fieldErrors: { initials: "Inisial program sudah digunakan. Gunakan inisial lain." } };
-    }
-    return { error: error.message };
-  }
-
-  const programId = programData.id;
+  };
 
   const variantsToInsert = variants.map((v: Record<string, unknown>, idx: number) => ({
-    program_id: programId,
     name: typeof v.name === "string" ? v.name : "",
     duration: typeof v.duration === "number" ? v.duration : 30,
     frequency: typeof v.frequency === "number" ? v.frequency : 3,
@@ -111,12 +79,15 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
     show_on_landing: typeof v.show_on_landing === "boolean" ? v.show_on_landing : true,
   }));
 
-  if (variantsToInsert.length > 0) {
-    const { error: variantError } = await supabase.from("program_variants").insert(variantsToInsert);
-    if (variantError) {
-      return { error: "Gagal menyimpan varian: " + variantError.message };
+  const { error } = await insertProgram(programDataToInsert, variantsToInsert);
+
+  if (error) {
+    if (error.message?.includes("programs_initials_key") || error.message?.includes("unique")) {
+      return { fieldErrors: { initials: "Inisial program sudah digunakan. Gunakan inisial lain." } };
     }
+    return { error: error.message };
   }
+
 
   revalidatePath("/admin/program");
   revalidatePath("/admin");
@@ -125,7 +96,7 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
 }
 
 export async function updateProgram(id: string, formData: FormData): Promise<ProgramActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
   const name = formData.get("name")?.toString().trim();
   const tagline = formData.get("tagline")?.toString().trim() || "";
@@ -161,29 +132,22 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
     return { fieldErrors };
   }
 
-  const { error } = await supabase
-    .from("programs")
-    .update({
-      name: name!,
-      tagline,
-      description,
-      age_range: ageRange,
-      icon,
-      type,
-      logo_url: type === "franchise" ? logoUrl : null,
-      license_provider: type === "franchise" ? licenseProvider : null,
-      license_url: type === "franchise" ? licenseUrl : null,
-      license_description: type === "franchise" ? licenseDescription : null,
-      features: rawFeatures,
-      sort_order: isNaN(sortOrder) ? 0 : sortOrder,
-      is_active: isActive,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-
-  if (error) {
-    return { error: error.message };
-  }
+  const programDataToUpdate = {
+    name: name!,
+    tagline,
+    description,
+    age_range: ageRange,
+    icon,
+    type,
+    logo_url: type === "franchise" ? logoUrl : null,
+    license_provider: type === "franchise" ? licenseProvider : null,
+    license_url: type === "franchise" ? licenseUrl : null,
+    license_description: type === "franchise" ? licenseDescription : null,
+    features: rawFeatures,
+    sort_order: isNaN(sortOrder) ? 0 : sortOrder,
+    is_active: isActive,
+    updated_at: new Date().toISOString(),
+  };
 
   const variantsToUpsert = variants.map((v: Record<string, unknown>, idx: number) => {
     const isNew = typeof v.id === "string" && v.id.startsWith("new-");
@@ -192,30 +156,30 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
       program_id: id,
       name: typeof v.name === "string" ? v.name : "",
       duration: typeof v.duration === "number" ? v.duration : 30,
-    frequency: typeof v.frequency === "number" ? v.frequency : 3,
+      frequency: typeof v.frequency === "number" ? v.frequency : 3,
       system: typeof v.system === "number" ? v.system : 2,
       teacher_fee: typeof v.teacher_fee === "number" ? v.teacher_fee : 0,
       default_spp: typeof v.default_spp === "number" ? v.default_spp : 0,
       sort_order: typeof v.sort_order === "number" ? v.sort_order : idx,
       is_active: typeof v.is_active === "boolean" ? v.is_active : true,
-    show_on_landing: typeof v.show_on_landing === "boolean" ? v.show_on_landing : true,
+      show_on_landing: typeof v.show_on_landing === "boolean" ? v.show_on_landing : true,
     };
   });
 
-  if (variantsToUpsert.length > 0) {
-    const { error: variantError } = await supabase.from("program_variants").upsert(variantsToUpsert);
-    if (variantError) {
-      return { error: "Gagal menyimpan varian: " + variantError.message };
-    }
-  }
+  const activeVariantIds = variantsToUpsert
+    .filter((v: Record<string, unknown>) => typeof v.id === "string")
+    .map((v: Record<string, unknown>) => v.id as string);
 
-  const activeVariantIds = variantsToUpsert.filter((v: Record<string, unknown>) => v.id).map((v: Record<string, unknown>) => v.id);
-  if (activeVariantIds.length > 0) {
-    await supabase.from("program_variants").delete().eq("program_id", id).not("id", "in", `(${activeVariantIds.join(",")})`);
-  } else {
-    await supabase.from("program_variants").delete().eq("program_id", id);
-  }
+  const { error } = await updateProgramData(
+    id,
+    programDataToUpdate,
+    variantsToUpsert,
+    activeVariantIds
+  );
 
+  if (error) {
+    return { error: error.message };
+  }
   revalidatePath("/admin/program");
   revalidatePath(`/admin/program/${id}`);
   revalidatePath(`/admin/program/${id}/edit`);
@@ -225,16 +189,9 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
 }
 
 export async function toggleProgramActive(id: string, currentStatus: boolean) {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
-  const { error } = await supabase
-    .from("programs")
-    .update({
-      is_active: !currentStatus,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-
+  const { error } = await updateProgramStatus(id, !currentStatus);
   if (error) {
     return { error: error.message };
   }

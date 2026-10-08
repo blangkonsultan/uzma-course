@@ -2,30 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdminAction } from "@/lib/auth";
+import { insertBranch, updateBranchData, toggleBranchStatus } from "@/lib/branches";
 
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    throw new Error("Hanya admin yang memiliki izin untuk operasi ini.");
-  }
-
-  return { user, supabase };
-}
 
 export interface BranchActionResponse {
   error?: string;
@@ -33,7 +12,7 @@ export interface BranchActionResponse {
 }
 
 export async function createBranch(formData: FormData): Promise<BranchActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
   const id = formData.get("id")?.toString().trim().toLowerCase() || "";
   const name = formData.get("name")?.toString().trim() || "";
@@ -57,7 +36,7 @@ export async function createBranch(formData: FormData): Promise<BranchActionResp
     return { fieldErrors };
   }
 
-  const { error } = await supabase.from("branches").insert({
+  const { error } = await insertBranch({
     id,
     name,
     sub_name: subName,
@@ -90,7 +69,7 @@ export async function updateBranch(
   id: string,
   formData: FormData
 ): Promise<BranchActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
   const name = formData.get("name")?.toString().trim() || "";
   const subName = formData.get("sub_name")?.toString().trim() || "";
@@ -109,18 +88,15 @@ export async function updateBranch(
     return { fieldErrors };
   }
 
-  const { error } = await supabase
-    .from("branches")
-    .update({
-      name,
-      sub_name: subName,
-      address,
-      map_embed_url: mapEmbedUrl,
-      gmaps_url: gmapsUrl,
-      is_active: isActive,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+  const { error } = await updateBranchData(id, {
+    name,
+    sub_name: subName,
+    address,
+    map_embed_url: mapEmbedUrl,
+    gmaps_url: gmapsUrl,
+    is_active: isActive,
+    updated_at: new Date().toISOString(),
+  });
 
   if (error) {
     return { error: error.message };
@@ -140,15 +116,9 @@ export async function toggleBranchActive(
   id: string,
   currentStatus: boolean
 ): Promise<{ success: boolean } | { error: string }> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
-  const { error } = await supabase
-    .from("branches")
-    .update({
-      is_active: !currentStatus,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+  const { error } = await toggleBranchStatus(id, !currentStatus);
 
   if (error) {
     return { error: error.message };

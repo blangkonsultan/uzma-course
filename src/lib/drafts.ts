@@ -41,3 +41,47 @@ export async function getScheduleDraftById(id: string) {
   if (error) return null;
   return data as ScheduleDraft;
 }
+
+export async function insertScheduleDraft(data: {
+  branch_id: string;
+  name: string;
+  effective_date: string | null;
+  status: string;
+}) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("schedule_drafts").insert(data);
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function updateScheduleDraft(id: string, data: {
+  name: string;
+  effective_date: string | null;
+  status: string;
+  updated_at: string;
+}) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("schedule_drafts")
+    .update(data)
+    .eq("id", id);
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function setScheduleDraftActive(id: string) {
+  const supabase = await createClient();
+  // Database trigger will archive others
+  const { error } = await supabase
+    .from("schedule_drafts")
+    .update({ 
+        status: "active",
+        updated_at: new Date().toISOString()
+    })
+    .eq("id", id);
+  if (error) {
+    throw new Error(error.message);
+  }
+}

@@ -2,28 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    throw new Error("Hanya admin yang memiliki izin untuk operasi ini.");
-  }
-
-  return { user, supabase };
-}
+import { requireAdminAction } from "@/lib/auth";
+import { insertBranchShift, updateBranchShift, toggleBranchShiftActive } from "@/lib/shifts";
 
 export interface ShiftActionResponse {
   error?: string;
@@ -31,7 +11,7 @@ export interface ShiftActionResponse {
 }
 
 export async function createShift(formData: FormData): Promise<ShiftActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
   const branchId = formData.get("branch_id")?.toString().trim() || "";
   const name = formData.get("name")?.toString().trim() || "";
@@ -49,16 +29,16 @@ export async function createShift(formData: FormData): Promise<ShiftActionRespon
     return { fieldErrors };
   }
 
-  const { error } = await supabase.from("branch_shifts").insert({
-    branch_id: branchId,
-    name,
-    start_time: startTime,
-    end_time: endTime,
-    is_active: true,
-  });
-
-  if (error) {
-    return { error: `Gagal menyimpan shift: ${error.message}` };
+  try {
+    await insertBranchShift({
+      branch_id: branchId,
+      name,
+      start_time: startTime,
+      end_time: endTime,
+      is_active: true,
+    });
+  } catch (error: unknown) {
+    return { error: `Gagal menyimpan shift: ${error instanceof Error ? error.message : "Unknown error"}` };
   }
 
   revalidatePath("/admin/shift");
@@ -66,7 +46,7 @@ export async function createShift(formData: FormData): Promise<ShiftActionRespon
 }
 
 export async function updateShift(id: string, formData: FormData): Promise<ShiftActionResponse | void> {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
   const name = formData.get("name")?.toString().trim() || "";
   const startTime = formData.get("start_time")?.toString().trim() || "";
@@ -82,18 +62,15 @@ export async function updateShift(id: string, formData: FormData): Promise<Shift
     return { fieldErrors };
   }
 
-  const { error } = await supabase
-    .from("branch_shifts")
-    .update({
+  try {
+    await updateBranchShift(id, {
       name,
       start_time: startTime,
       end_time: endTime,
       updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-
-  if (error) {
-    return { error: `Gagal memperbarui shift: ${error.message}` };
+    });
+  } catch (error: unknown) {
+    return { error: `Gagal memperbarui shift: ${error instanceof Error ? error.message : "Unknown error"}` };
   }
 
   revalidatePath("/admin/shift");
@@ -102,18 +79,12 @@ export async function updateShift(id: string, formData: FormData): Promise<Shift
 }
 
 export async function toggleShiftActive(id: string, currentStatus: boolean) {
-  const { supabase } = await requireAdmin();
+  await requireAdminAction();
 
-  const { error } = await supabase
-    .from("branch_shifts")
-    .update({ 
-        is_active: !currentStatus,
-        updated_at: new Date().toISOString()
-    })
-    .eq("id", id);
-
-  if (error) {
-    throw new Error(`Gagal mengubah status: ${error.message}`);
+  try {
+    await toggleBranchShiftActive(id, currentStatus);
+  } catch (error: unknown) {
+    throw new Error(`Gagal mengubah status: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 
   revalidatePath("/admin/shift");
