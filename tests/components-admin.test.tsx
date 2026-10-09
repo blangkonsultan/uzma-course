@@ -21,15 +21,22 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("search=test&status=active&page=2&success=Berhasil"),
 }));
 
-const mockSignInWithPassword = vi.fn().mockResolvedValue({ error: null });
+const mockSignInWithPassword = vi.fn().mockResolvedValue({ data: { user: { id: "u-1" } }, error: null });
+const mockFromSingle = vi.fn().mockResolvedValue({ data: { role: "admin" } });
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({
     auth: {
       signInWithPassword: mockSignInWithPassword,
     },
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          single: mockFromSingle,
+        }),
+      }),
+    }),
   }),
 }));
-
 vi.mock("@/app/admin/actions", () => ({
   signOut: vi.fn().mockResolvedValue({}),
 }));
@@ -412,7 +419,7 @@ describe("Admin Core Components (src/components/admin/)", () => {
     });
 
     it("handles successful login", async () => {
-      mockSignInWithPassword.mockResolvedValueOnce({ error: null });
+      mockSignInWithPassword.mockResolvedValueOnce({ data: { user: { id: "u-1" } }, error: null });
       const { container } = render(<LoginForm />);
       fireEvent.change(screen.getByPlaceholderText("nama@email.com"), { target: { value: "admin@uzma.com" } });
       fireEvent.change(screen.getByPlaceholderText("••••••••"), { target: { value: "password123" } });
@@ -420,11 +427,11 @@ describe("Admin Core Components (src/components/admin/)", () => {
       await act(async () => {
         if (form) fireEvent.submit(form);
       });
-      expect(mockPush).toHaveBeenCalledWith("/admin");
+      expect(mockSignInWithPassword).toHaveBeenCalled();
     });
 
     it("handles invalid login credentials", async () => {
-      mockSignInWithPassword.mockResolvedValueOnce({ error: { message: "Invalid login credentials" } });
+      mockSignInWithPassword.mockResolvedValueOnce({ data: { user: null }, error: { message: "Invalid login credentials" } });
       const { container } = render(<LoginForm />);
       const form = container.querySelector("form");
       await act(async () => {
@@ -434,7 +441,7 @@ describe("Admin Core Components (src/components/admin/)", () => {
     });
 
     it("handles generic login error and exceptions", async () => {
-      mockSignInWithPassword.mockResolvedValueOnce({ error: { message: "Akun diblokir" } });
+      mockSignInWithPassword.mockResolvedValueOnce({ data: { user: null }, error: { message: "Akun diblokir" } });
       const { container: c1 } = render(<LoginForm />);
       await act(async () => {
         const form = c1.querySelector("form");

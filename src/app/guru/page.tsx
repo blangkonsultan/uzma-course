@@ -1,5 +1,6 @@
 import { requireGuruPage } from "@/lib/auth";
-import { Clock, Calendar, CheckCircle2, MapPin } from "lucide-react";
+import { Clock, Calendar, CheckCircle2, MapPin, CalendarDays, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default async function GuruDashboard() {
   const { profile } = await requireGuruPage();
@@ -32,6 +33,23 @@ export default async function GuruDashboard() {
           Jangan lupa untuk melakukan absensi kehadiran di lokasi sekolah sebelum jam mengajar dimulai.
         </div>
       </div>
+
+      {/* Shortcut to Jadwal Saya */}
+      <Link
+        href="/guru/jadwal"
+        className="flex items-center justify-between p-4 bg-indigo-50/70 border border-indigo-100/80 rounded-2xl hover:bg-indigo-100/60 transition-colors group"
+      >
+        <div className="flex items-center space-x-3">
+          <div className="p-2.5 bg-indigo-600 text-white rounded-xl shadow-xs">
+            <CalendarDays className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-800 text-sm">Jadwal Mengajar Saya</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Lihat jadwal harian dan daftar murid binaan</p>
+          </div>
+        </div>
+        <ArrowRight className="w-4 h-4 text-indigo-600 transform group-hover:translate-x-0.5 transition-transform" />
+      </Link>
 
       {/* Stats / Menu Placeholder */}
       <div className="grid grid-cols-2 gap-4">
