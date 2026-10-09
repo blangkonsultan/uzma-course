@@ -304,7 +304,7 @@ export function BranchForm({ initialData, isEdit = false }: BranchFormProps) {
               value={formData.geofence_radius_m}
               onChange={(e) => updateField("geofence_radius_m", e.target.value)}
               error={fieldErrors.geofence_radius_m}
-              hint="Jarak maksimal dalam meter untuk guru bisa absen dari titik koordinat."
+              hint="Jarak maksimal dalam meter untuk guru bisa melakukan presensi dari titik koordinat."
             />
           </div>
 

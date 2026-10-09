@@ -260,7 +260,7 @@ export function AttendanceClient({
               setIsCheckedIn(true);
               setAttendanceId(res.data.id);
             } else {
-              throw new Error(res.error || "Gagal absen online");
+              throw new Error(res.error || "Gagal mencatat presensi online");
             }
           } else {
             if (!attendanceId) {
@@ -270,7 +270,7 @@ export function AttendanceClient({
             if (res.success) {
               setIsCheckedOut(true);
             } else {
-              throw new Error(res.error || "Gagal absen online");
+              throw new Error(res.error || "Gagal mencatat presensi online");
             }
           }
         } catch (err: unknown) {
@@ -326,7 +326,7 @@ export function AttendanceClient({
               {isOnline ? "Mode Online" : "Mode Offline"}
             </p>
             <p className="text-[11px] text-slate-500">
-              {isOnline ? "Tersambung ke server pusat" : "Absen tersimpan lokal (IndexedDB)"}
+              {isOnline ? "Tersambung ke server pusat" : "Presensi tersimpan lokal (IndexedDB)"}
             </p>
           </div>
         </div>
@@ -431,7 +431,7 @@ export function AttendanceClient({
                       : "bg-rose-600 text-white shadow-2xs"
                   }`}
                 >
-                  {isInsideRadius ? "Siap Absen" : "Mendekatlah"}
+                  {isInsideRadius ? "Siap Presensi" : "Mendekatlah"}
                 </span>
               </div>
             </div>

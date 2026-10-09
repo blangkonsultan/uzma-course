@@ -534,7 +534,7 @@ export function StudentForm({
                 value={formData.is_active ? "true" : "false"}
                 onChange={(e) => updateField("is_active", e.target.value === "true")}
                 disabled={isPending}
-                hint="Murid yang non-aktif tidak akan muncul di form absensi atau SPP."
+                hint="Murid yang non-aktif tidak akan muncul di form presensi atau SPP."
               />
             )}
           </div>

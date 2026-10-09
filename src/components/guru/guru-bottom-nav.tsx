@@ -32,28 +32,28 @@ export function GuruBottomNav() {
           <span className="text-[9px] font-medium leading-none">Jadwal</span>
         </Link>
         
-        {/* 3. Absen (Tengah - Elevated Floating Button) */}
+        {/* 3. Presensi (Tengah - Elevated Floating Button) */}
         <div className="flex flex-col items-center justify-center h-full relative">
           <Link
             href="/guru/absen"
             className="flex flex-col items-center justify-center w-full"
-            aria-label="Menu Absen Kehadiran"
+            aria-label="Menu Presensi Kehadiran"
           >
             <div
               className={`p-3 rounded-full absolute -top-5 border-4 border-slate-50 shadow-md transition-all active:scale-95 ${
                 pathname === "/guru/absen"
                   ? "bg-emerald-600 text-white"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-primary-600 text-white hover:bg-primary-700"
               }`}
             >
               <MapPin className="w-5 h-5" />
             </div>
             <span
               className={`text-[9px] font-bold mt-7 leading-none ${
-                pathname === "/guru/absen" ? "text-emerald-600" : "text-blue-600"
+                pathname === "/guru/absen" ? "text-emerald-600" : "text-primary-600"
               }`}
             >
-              Absen
+              Presensi
             </span>
           </Link>
         </div>

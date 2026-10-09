@@ -25,12 +25,12 @@ export default async function GuruDashboard() {
             <span className="font-medium opacity-90">Status Hari Ini</span>
           </div>
           <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
-            Belum Absen
+            Belum Presensi
           </span>
         </div>
         
         <div className="text-sm opacity-90 leading-relaxed">
-          Jangan lupa untuk melakukan absensi kehadiran di lokasi sekolah sebelum jam mengajar dimulai.
+          Jangan lupa untuk melakukan presensi kehadiran di lokasi sekolah sebelum jam mengajar dimulai.
         </div>
       </div>
 
@@ -99,7 +99,7 @@ export default async function GuruDashboard() {
             </div>
             <div>
               <p className="font-semibold text-sm text-slate-700">Belum ada aktivitas</p>
-              <p className="text-xs text-slate-500 mt-1">Riwayat absen akan muncul di sini</p>
+              <p className="text-xs text-slate-500 mt-1">Riwayat presensi akan muncul di sini</p>
             </div>
           </div>
         </div>
