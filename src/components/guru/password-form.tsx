@@ -12,6 +12,7 @@ import Link from "next/link";
 export function PasswordForm() {
   const router = useRouter();
   
+  const [oldPassword, setOldPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPending, setIsPending] = useState(false);
@@ -34,6 +35,7 @@ export function PasswordForm() {
     
     try {
       const formData = new FormData();
+      formData.append("oldPassword", oldPassword);
       formData.append("password", password);
       formData.append("confirmPassword", confirmPassword);
 
@@ -74,6 +76,18 @@ export function PasswordForm() {
         )}
 
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-5">
+          <InputField
+            id="oldPassword"
+            name="oldPassword"
+            label="Kata Sandi Lama"
+            type="password"
+            required
+            placeholder="Masukkan kata sandi lama Anda"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            disabled={isPending}
+          />
+          
           <InputField
             id="password"
             name="password"
