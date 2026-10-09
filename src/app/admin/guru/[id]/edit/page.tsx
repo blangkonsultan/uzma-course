@@ -32,7 +32,8 @@ export default async function EditGuruPage({ params }: EditGuruPageProps) {
 
   const initialProgramIds =
     guru.profile_programs?.map((pp) => pp.program_id) ?? [];
-
+  const initialBranchIds =
+    guru.profile_branches?.map((pb) => pb.branch_id) ?? (guru.branch_id ? [guru.branch_id] : []);
   return (
     <div className="space-y-6">
       <PageHeader
@@ -48,6 +49,7 @@ export default async function EditGuruPage({ params }: EditGuruPageProps) {
       <GuruForm
         initialData={guru}
         initialProgramIds={initialProgramIds}
+        initialBranchIds={initialBranchIds}
         programs={programs}
         branches={branches}
         isEdit

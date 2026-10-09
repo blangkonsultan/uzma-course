@@ -1,5 +1,5 @@
 import { requireGuruPage } from "@/lib/auth";
-import { getBranchById } from "@/lib/branches";
+import { getTeacherAssignedBranches, getBranchShiftsMap } from "@/lib/teacher-branches";
 import { getTodayAttendance } from "@/lib/attendances";
 import { AttendanceClient } from "@/components/guru/attendance-client";
 import { MapPin, Navigation } from "lucide-react";
@@ -11,7 +11,10 @@ export const metadata = {
 export default async function AbsenPage() {
   const { profile } = await requireGuruPage();
 
-  if (!profile.branch_id) {
+  // 1. Ambil seluruh cabang yang secara resmi ditugaskan ke guru ini
+  const assignedBranches = await getTeacherAssignedBranches(profile.id);
+
+  if (assignedBranches.length === 0) {
     return (
       <div className="p-6 flex flex-col items-center justify-center min-h-[50vh] text-center max-w-sm mx-auto">
         <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4 border border-amber-200">
@@ -25,15 +28,11 @@ export default async function AbsenPage() {
     );
   }
 
-  const branch = await getBranchById(profile.branch_id);
-  if (!branch) {
-    return (
-      <div className="p-6 text-center text-slate-500 text-sm mt-10">
-        Data cabang bimbingan belajar tidak ditemukan dalam sistem.
-      </div>
-    );
-  }
+  // 2. Ambil map shift aktif untuk cabang-cabang yang ditugaskan
+  const branchIds = assignedBranches.map((b) => b.id);
+  const shiftsMap = await getBranchShiftsMap(branchIds);
 
+  // 3. Status presensi hari ini
   const todayStatus = await getTodayAttendance(profile.id);
 
   return (
@@ -45,17 +44,14 @@ export default async function AbsenPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Presensi Kehadiran</h1>
-          <p className="text-xs text-slate-500">Validasi radius GPS & geofencing cabang</p>
+          <p className="text-xs text-slate-500">Pilih cabang tugas & validasi radius GPS</p>
         </div>
       </div>
 
-      <AttendanceClient 
+      <AttendanceClient
         teacherId={profile.id}
-        branchId={branch.id}
-        branchName={branch.name}
-        branchLat={branch.latitude}
-        branchLng={branch.longitude}
-        radiusMeters={branch.geofence_radius_m || 50}
+        assignedBranches={assignedBranches}
+        shiftsMap={shiftsMap}
         initialAttendanceId={todayStatus?.id || null}
         initialIsCheckedIn={!!todayStatus}
         initialIsCheckedOut={!!(todayStatus?.check_out_time)}

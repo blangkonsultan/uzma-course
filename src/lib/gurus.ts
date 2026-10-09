@@ -1,8 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types";
 import type { Json } from "@/types/database";
+import { createAdminClient } from "@/lib/supabase/admin";
+
 export type ProfileWithPrograms = Profile & {
   profile_programs?: { program_id: string }[];
+  profile_branches?: { branch_id: string; is_primary: boolean }[];
 };
 
 export interface GetPaginatedGurusParams {
@@ -19,7 +22,7 @@ export async function getPaginatedGurus(params: GetPaginatedGurusParams) {
 
   let query = supabase
     .from("profiles")
-    .select("*, profile_programs(program_id)", { count: "exact" })
+    .select("*, profile_programs(program_id), profile_branches(branch_id, is_primary)", { count: "exact" })
     .eq("role", "guru");
 
   if (branch !== "all") {
@@ -50,15 +53,13 @@ export async function getGuruById(id: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("*, profile_programs(program_id)")
+    .select("*, profile_programs(program_id), profile_branches(branch_id, is_primary)")
     .eq("id", id)
     .eq("role", "guru")
     .single();
 
   return data as ProfileWithPrograms | null;
 }
-
-import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface CreateGuruProfileData {
   email?: string;
@@ -67,6 +68,7 @@ export interface CreateGuruProfileData {
   phone?: string | null;
   birthDate?: string | null;
   branchId?: string | null;
+  branchIds?: string[];
   bankName?: string | null;
   bankAccountNumber?: string | null;
   bankAccountHolder?: string | null;
@@ -78,7 +80,24 @@ export interface CreateGuruProfileData {
 export async function insertGuruProfile(data: CreateGuruProfileData) {
   const adminClient = createAdminClient();
 
-  const { email, password, fullName, phone, birthDate, branchId, bankName, bankAccountNumber, bankAccountHolder, allowances, minimumIncome, programs } = data;
+  const {
+    email,
+    password,
+    fullName,
+    phone,
+    birthDate,
+    branchId,
+    branchIds,
+    bankName,
+    bankAccountNumber,
+    bankAccountHolder,
+    allowances,
+    minimumIncome,
+    programs,
+  } = data;
+
+  const effectivePrimaryBranch = branchId || (branchIds && branchIds.length > 0 ? branchIds[0] : null);
+  const effectiveBranchIds = branchIds && branchIds.length > 0 ? branchIds : (branchId ? [branchId] : []);
 
   // 1. Create auth user with service role
   const { data: userData, error: authError } = await adminClient.auth.admin.createUser({
@@ -104,11 +123,11 @@ export async function insertGuruProfile(data: CreateGuruProfileData) {
   // 2. Update the profile row
   const { error: profileError } = await adminClient.from("profiles").upsert({
     id: newUserId,
-    full_name: fullName!,
+    full_name: fullName,
     phone,
     birth_date: birthDate,
     role: "guru",
-    branch_id: branchId || null,
+    branch_id: effectivePrimaryBranch,
     is_active: true,
     bank_name: bankName,
     bank_account_number: bankAccountNumber,
@@ -122,7 +141,24 @@ export async function insertGuruProfile(data: CreateGuruProfileData) {
     throw new Error(`Akun dibuat tetapi gagal mengisi data profil: ${profileError.message}`);
   }
 
-  // 3. Assign profile_programs junction
+  // 3. Assign profile_branches junction
+  if (effectiveBranchIds.length > 0) {
+    const { error: branchJunctionError } = await adminClient
+      .from("profile_branches")
+      .insert(
+        effectiveBranchIds.map((bId) => ({
+          profile_id: newUserId,
+          branch_id: bId,
+          is_primary: bId === effectivePrimaryBranch,
+        }))
+      );
+
+    if (branchJunctionError) {
+      console.error("Notice: profile_branches insert error:", branchJunctionError);
+    }
+  }
+
+  // 4. Assign profile_programs junction
   if (programs && programs.length > 0) {
     const { error: junctionError } = await adminClient
       .from("profile_programs")
@@ -146,6 +182,7 @@ export interface UpdateGuruProfileData {
   phone?: string | null;
   birthDate?: string | null;
   branchId?: string | null;
+  branchIds?: string[];
   isActive: boolean;
   bankName?: string | null;
   bankAccountNumber?: string | null;
@@ -157,7 +194,23 @@ export interface UpdateGuruProfileData {
 
 export async function updateGuruProfile(id: string, data: UpdateGuruProfileData) {
   const supabase = await createClient();
-  const { fullName, phone, birthDate, branchId, isActive, bankName, bankAccountNumber, bankAccountHolder, allowances, minimumIncome, programs } = data;
+  const {
+    fullName,
+    phone,
+    birthDate,
+    branchId,
+    branchIds,
+    isActive,
+    bankName,
+    bankAccountNumber,
+    bankAccountHolder,
+    allowances,
+    minimumIncome,
+    programs,
+  } = data;
+
+  const effectivePrimaryBranch = branchId || (branchIds && branchIds.length > 0 ? branchIds[0] : null);
+  const effectiveBranchIds = branchIds && branchIds.length > 0 ? branchIds : (branchId ? [branchId] : []);
 
   const { error } = await supabase
     .from("profiles")
@@ -165,7 +218,7 @@ export async function updateGuruProfile(id: string, data: UpdateGuruProfileData)
       full_name: fullName,
       phone,
       birth_date: birthDate,
-      branch_id: branchId || null,
+      branch_id: effectivePrimaryBranch,
       is_active: isActive,
       bank_name: bankName,
       bank_account_number: bankAccountNumber,
@@ -179,6 +232,19 @@ export async function updateGuruProfile(id: string, data: UpdateGuruProfileData)
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  // Update profile_branches junction
+  await supabase.from("profile_branches").delete().eq("profile_id", id);
+
+  if (effectiveBranchIds.length > 0) {
+    await supabase.from("profile_branches").insert(
+      effectiveBranchIds.map((bId) => ({
+        profile_id: id,
+        branch_id: bId,
+        is_primary: bId === effectivePrimaryBranch,
+      }))
+    );
   }
 
   // Delete existing profile_programs and re-insert

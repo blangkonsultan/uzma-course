@@ -68,6 +68,31 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"profile_branches": {
+                  Row: {
+                    "branch_id": string,"created_at": string,"is_primary": boolean,"profile_id": string
+                  }
+                  Insert: {
+                    "branch_id": string,"created_at"?: string,"is_primary"?: boolean,"profile_id": string
+                  }
+                  Update: {
+                    "branch_id"?: string,"created_at"?: string,"is_primary"?: boolean,"profile_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "profile_branches_branch_id_fkey"
+      columns: ["branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "profile_branches_profile_id_fkey"
+      columns: ["profile_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profile_programs": {
                   Row: {
                     "created_at": string,"profile_id": string,"program_id": string

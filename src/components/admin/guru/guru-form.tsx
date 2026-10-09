@@ -16,6 +16,7 @@ import type { Profile, Program, Branch } from "@/types";
 interface GuruFormProps {
   initialData?: Profile;
   initialProgramIds?: string[];
+  initialBranchIds?: string[];
   programs: Program[];
   branches: Branch[];
   isEdit?: boolean;
@@ -24,11 +25,16 @@ interface GuruFormProps {
 export function GuruForm({
   initialData,
   initialProgramIds,
+  initialBranchIds,
   programs,
   branches,
   isEdit = false,
 }: GuruFormProps) {
   const [isPending, startTransition] = useTransition();
+
+  const defaultBranchIds = initialBranchIds && initialBranchIds.length > 0
+    ? initialBranchIds
+    : (initialData?.branch_id ? [initialData.branch_id] : []);
 
   const [formData, setFormData] = useState({
     full_name: initialData?.full_name || "",
@@ -36,7 +42,8 @@ export function GuruForm({
     password: "",
     phone: initialData?.phone || "",
     birth_date: initialData?.birth_date || "",
-    branch_id: initialData?.branch_id || "",
+    branch_id: initialData?.branch_id || (defaultBranchIds[0] || ""),
+    branches: defaultBranchIds,
     programs: (initialProgramIds || []) as string[],
     is_active: initialData?.is_active ?? true,
     bank_name: initialData?.bank_name || "",
@@ -132,6 +139,7 @@ export function GuruForm({
         data.append("phone", formData.phone.trim());
         data.append("birth_date", formData.birth_date);
         data.append("branch_id", formData.branch_id);
+        formData.branches.forEach((bId) => data.append("branches", bId));
         data.append("bank_name", formData.bank_name);
         data.append("bank_account_number", formData.bank_account_number);
         data.append("bank_account_holder", formData.bank_account_holder);
@@ -255,17 +263,44 @@ export function GuruForm({
               Penempatan Cabang & Program
             </h3>
 
-            <SelectField
-              id="branch_id"
-              name="branch_id"
-              label="Cabang Penugasan"
-              options={branchOptions}
-              value={formData.branch_id}
-              onChange={(e) => updateField("branch_id", e.target.value)}
-              error={fieldErrors.branch_id}
-              placeholder="Pilih cabang utama..."
-              disabled={isPending}
-            />
+            <fieldset className="space-y-3">
+              <legend className="text-sm font-semibold text-slate-700">
+                Cabang Penugasan (Bisa Pilih Lebih dari 1)
+              </legend>
+              <CheckboxGroupField
+                id="branches-assignment"
+                name="branches"
+                label="Cabang Penugasan"
+                options={branchOptions}
+                values={formData.branches}
+                onChange={(selected) => {
+                  updateField("branches", selected);
+                  if (selected.length > 0 && !selected.includes(formData.branch_id)) {
+                    updateField("branch_id", selected[0]);
+                  }
+                }}
+                hint="Centang seluruh cabang tempat guru diperbolehkan mengajar dan presensi."
+              />
+            </fieldset>
+
+            {formData.branches.length > 1 && (
+              <SelectField
+                id="branch_id"
+                name="branch_id"
+                label="Cabang Utama (Homebase)"
+                options={branchOptions.filter((b) => formData.branches.includes(b.value))}
+                value={formData.branch_id}
+                onChange={(e) => updateField("branch_id", e.target.value)}
+                error={fieldErrors.branch_id}
+                placeholder="Pilih cabang utama..."
+                disabled={isPending}
+                hint="Cabang utama akan dijadikan rujukan default akun."
+              />
+            )}
+
+            {formData.branches.length === 1 && (
+              <input type="hidden" name="branch_id" value={formData.branches[0]} />
+            )}
 
             <fieldset className="space-y-4">
               <legend className="text-sm font-semibold text-slate-700">

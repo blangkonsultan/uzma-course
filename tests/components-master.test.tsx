@@ -283,13 +283,13 @@ describe("Master Components (src/components/admin/[entity]/)", () => {
       const emailInput = screen.getByLabelText(/Email/i);
       const passInput = screen.getByLabelText(/Kata Sandi/i);
       const phoneInput = screen.getByLabelText(/Nomor WhatsApp/i);
-      const branchSelect = screen.getByLabelText(/Cabang Penugasan/i);
+      const branchCheckbox = screen.getByLabelText(/Cabang Krian/i);
 
       fireEvent.change(nameInput, { target: { value: "Guru Teladan" } });
       fireEvent.change(emailInput, { target: { value: "guru@uzma.com" } });
       fireEvent.change(passInput, { target: { value: "password123" } });
       fireEvent.change(phoneInput, { target: { value: "08123456789" } });
-      fireEvent.change(branchSelect, { target: { value: "krian" } });
+      fireEvent.click(branchCheckbox);
 
       // Fill valid inputs
       await act(async () => {

@@ -19,6 +19,7 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
   const phone = formData.get("phone")?.toString().trim() || null;
   const birthDate = formData.get("birth_date")?.toString().trim() || null;
   const branchId = formData.get("branch_id")?.toString().trim() || null;
+  const branchIds = formData.getAll("branches").map((b) => b.toString().trim()).filter(Boolean);
   const programs = formData.getAll("programs").map((p) => p.toString());
 
   const bankName = formData.get("bank_name")?.toString().trim() || null;
@@ -62,7 +63,8 @@ export async function createGuru(formData: FormData): Promise<GuruActionResponse
       fullName: fullName!,
       phone,
       birthDate,
-      branchId,
+      branchId: branchId || (branchIds.length > 0 ? branchIds[0] : null),
+      branchIds,
       bankName,
       bankAccountNumber,
       bankAccountHolder,
@@ -91,6 +93,7 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
   const phone = formData.get("phone")?.toString().trim() || null;
   const birthDate = formData.get("birth_date")?.toString().trim() || null;
   const branchId = formData.get("branch_id")?.toString().trim() || null;
+  const branchIds = formData.getAll("branches").map((b) => b.toString().trim()).filter(Boolean);
   const programs = formData.getAll("programs").map((p) => p.toString());
   const isActive = formData.get("is_active") === "true";
 
@@ -127,7 +130,8 @@ export async function updateGuru(id: string, formData: FormData): Promise<GuruAc
       fullName: fullName!,
       phone,
       birthDate,
-      branchId,
+      branchId: branchId || (branchIds.length > 0 ? branchIds[0] : null),
+      branchIds,
       isActive,
       bankName,
       bankAccountNumber,

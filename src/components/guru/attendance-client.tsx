@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   MapPin,
   Wifi,
@@ -13,9 +13,12 @@ import {
   RotateCcw,
   Check,
   Building2,
+  ChevronDown,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { calculateDistanceMeters, formatDistance } from "@/lib/pwa/haversine";
+import { formatTimeString } from "@/lib/utils";
 import {
   savePendingAttendance,
   getPendingAttendances,
@@ -27,26 +30,68 @@ import {
   processOnlineCheckIn,
   processOnlineCheckOut,
 } from "@/app/guru/absen/actions";
+import type { Branch } from "@/types";
+import type { BranchShift } from "@/lib/shifts";
 
 interface AttendanceClientProps {
   teacherId: string;
-  branchId: string;
-  branchName: string;
-  branchLat: number | null;
-  branchLng: number | null;
-  radiusMeters: number;
+  assignedBranches: Branch[];
+  shiftsMap: Record<string, BranchShift[]>;
   initialAttendanceId: string | null;
   initialIsCheckedIn: boolean;
   initialIsCheckedOut: boolean;
 }
 
+function calculateShiftStatus(shifts: BranchShift[]) {
+  if (!shifts || shifts.length === 0) return null;
+
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  const parseToMinutes = (timeStr: string) => {
+    const [h, m] = timeStr.split(":").map(Number);
+    return (h || 0) * 60 + (m || 0);
+  };
+
+  for (const shift of shifts) {
+    const sStart = parseToMinutes(shift.start_time);
+    const sEnd = parseToMinutes(shift.end_time);
+
+    if (currentMinutes >= sStart && currentMinutes <= sEnd) {
+      return {
+        type: "ongoing" as const,
+        shift,
+        label: "Shift Sedang Berlangsung",
+        badgeColor: "bg-emerald-600 text-white",
+      };
+    }
+  }
+
+  for (const shift of shifts) {
+    const sStart = parseToMinutes(shift.start_time);
+    if (currentMinutes < sStart) {
+      return {
+        type: "upcoming" as const,
+        shift,
+        label: "Shift Terdekat Berikutnya",
+        badgeColor: "bg-primary-600 text-white",
+      };
+    }
+  }
+
+  const lastShift = shifts[shifts.length - 1];
+  return {
+    type: "ended" as const,
+    shift: lastShift,
+    label: "Shift Selesai Hari Ini",
+    badgeColor: "bg-slate-600 text-white",
+  };
+}
+
 export function AttendanceClient({
   teacherId,
-  branchId,
-  branchName,
-  branchLat,
-  branchLng,
-  radiusMeters,
+  assignedBranches,
+  shiftsMap,
   initialAttendanceId,
   initialIsCheckedIn,
   initialIsCheckedOut,
@@ -61,8 +106,14 @@ export function AttendanceClient({
   const [isLoadingGPS, setIsLoadingGPS] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
 
+  // Selected Branch ID (Defaults to first assigned branch)
+  const [selectedBranchId, setSelectedBranchId] = useState<string>(
+    assignedBranches[0]?.id || ""
+  );
+  // Track if user manually switched branch (to avoid overriding user intent)
+  const userManuallySelectedRef = useRef<boolean>(false);
+
   // Real-time distance tracking states
-  const [currentDistance, setCurrentDistance] = useState<number | null>(null);
   const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [gpsStatus, setGpsStatus] = useState<"locating" | "active" | "denied" | "unsupported">("locating");
 
@@ -71,6 +122,57 @@ export function AttendanceClient({
   const [attendanceId, setAttendanceId] = useState<string | null>(initialAttendanceId);
 
   const watchIdRef = useRef<number | null>(null);
+
+  // Active Branch object
+  const activeBranch = useMemo(() => {
+    return assignedBranches.find((b) => b.id === selectedBranchId) || assignedBranches[0];
+  }, [assignedBranches, selectedBranchId]);
+
+  const branchLat = activeBranch?.latitude ?? null;
+  const branchLng = activeBranch?.longitude ?? null;
+  const radiusMeters = activeBranch?.geofence_radius_m || 50;
+
+  // Active Branch shifts
+  const activeBranchShifts = useMemo(() => {
+    return shiftsMap[activeBranch?.id || ""] || [];
+  }, [shiftsMap, activeBranch?.id]);
+
+  // Current distance to ACTIVE selected branch
+  const currentDistance = useMemo(() => {
+    if (!currentCoords || branchLat === null || branchLng === null) return null;
+    return calculateDistanceMeters(currentCoords.lat, currentCoords.lng, branchLat, branchLng);
+  }, [currentCoords, branchLat, branchLng]);
+
+  // Nearest Branch Detection based on live GPS
+  const nearestBranchResult = useMemo(() => {
+    if (!currentCoords || assignedBranches.length <= 1) return null;
+
+    let nearest = assignedBranches[0];
+    let minD = Infinity;
+
+    for (const b of assignedBranches) {
+      if (b.latitude !== null && b.longitude !== null) {
+        const d = calculateDistanceMeters(currentCoords.lat, currentCoords.lng, b.latitude, b.longitude);
+        if (d < minD) {
+          minD = d;
+          nearest = b;
+        }
+      }
+    }
+
+    if (minD === Infinity) return null;
+    return { branch: nearest, distance: minD };
+  }, [currentCoords, assignedBranches]);
+
+  // Auto-select nearest branch when GPS first locks on (if user hasn't explicitly chosen)
+  useEffect(() => {
+    if (!userManuallySelectedRef.current && nearestBranchResult?.branch) {
+      setSelectedBranchId(nearestBranchResult.branch.id);
+    }
+  }, [nearestBranchResult]);
+
+  // Determine current nearest / active shift for the active branch
+  const shiftStatusResult = calculateShiftStatus(activeBranchShifts);
 
   const attemptSync = useCallback(async () => {
     if (isSyncing) return;
@@ -146,11 +248,6 @@ export function AttendanceClient({
       const { latitude, longitude } = position.coords;
       setCurrentCoords({ lat: latitude, lng: longitude });
       setGpsStatus("active");
-
-      if (branchLat !== null && branchLng !== null) {
-        const dist = calculateDistanceMeters(latitude, longitude, branchLat, branchLng);
-        setCurrentDistance(dist);
-      }
     };
 
     const errorHandler = (err: GeolocationPositionError) => {
@@ -166,7 +263,7 @@ export function AttendanceClient({
       timeout: 10000,
       maximumAge: 1000,
     });
-  }, [branchLat, branchLng]);
+  }, []);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -189,10 +286,6 @@ export function AttendanceClient({
         const { latitude, longitude } = position.coords;
         setCurrentCoords({ lat: latitude, lng: longitude });
         setGpsStatus("active");
-        if (branchLat !== null && branchLng !== null) {
-          const dist = calculateDistanceMeters(latitude, longitude, branchLat, branchLng);
-          setCurrentDistance(dist);
-        }
         startWatchingLocation();
       },
       (err) => {
@@ -213,7 +306,7 @@ export function AttendanceClient({
     const record: PendingAttendance = {
       id: crypto.randomUUID(),
       teacher_id: teacherId,
-      branch_id: branchId,
+      branch_id: activeBranch.id,
       type,
       lat,
       lng,
@@ -255,7 +348,7 @@ export function AttendanceClient({
       if (isOnline) {
         try {
           if (type === "check_in") {
-            const res = await processOnlineCheckIn(branchId, latitude, longitude, timestamp);
+            const res = await processOnlineCheckIn(activeBranch.id, latitude, longitude, timestamp);
             if (res.success && res.data) {
               setIsCheckedIn(true);
               setAttendanceId(res.data.id);
@@ -340,25 +433,93 @@ export function AttendanceClient({
       </div>
 
       {/* Main Geofence & Attendance Panel */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-5">
-        {/* Branch Info Header */}
-        <div className="flex items-start space-x-3.5">
-          <div className="bg-primary-50 text-primary-600 p-2.5 rounded-xl border border-primary-100 shrink-0">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2">
-              <h2 className="text-base font-bold text-slate-800 tracking-tight truncate">{branchName}</h2>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                Pusat Tugas
-              </span>
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
+        {/* Multi-Branch Selector (If teacher is assigned to > 1 branch) */}
+        {assignedBranches.length > 1 ? (
+          <div className="space-y-1.5 border-b border-slate-100 pb-4">
+            <div className="flex items-center justify-between">
+              <label htmlFor="branch-selector" className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-primary-600" />
+                <span>Pilih Cabang Tugas Presensi</span>
+              </label>
+              {nearestBranchResult?.branch.id === selectedBranchId && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary-700 bg-primary-50 px-2 py-0.5 rounded-full border border-primary-100">
+                  <Sparkles className="w-2.5 h-2.5" />
+                  Terdekat (Auto)
+                </span>
+              )}
             </div>
-            <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
-              <MapPin className="w-3 h-3 text-slate-400" />
-              Radius toleransi: <span className="font-semibold text-slate-700">{formatDistance(radiusMeters)}</span>
-            </p>
+
+            <div className="relative">
+              <select
+                id="branch-selector"
+                value={selectedBranchId}
+                onChange={(e) => {
+                  userManuallySelectedRef.current = true;
+                  setSelectedBranchId(e.target.value);
+                }}
+                className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 pr-8 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+              >
+                {assignedBranches.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} {b.sub_name ? `(${b.sub_name})` : ""}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-start space-x-3.5 border-b border-slate-100 pb-4">
+            <div className="bg-primary-50 text-primary-600 p-2.5 rounded-xl border border-primary-100 shrink-0">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2">
+                <h2 className="text-base font-bold text-slate-800 tracking-tight truncate">{activeBranch.name}</h2>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                  Cabang Tugas
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
+                <MapPin className="w-3 h-3 text-slate-400" />
+                Radius toleransi: <span className="font-semibold text-slate-700">{formatDistance(radiusMeters)}</span>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Dynamic Nearest Shift Card */}
+        {shiftStatusResult ? (
+          <div className="p-3.5 bg-slate-50/90 border border-slate-200/80 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-primary-100/70 text-primary-700 rounded-xl">
+                <Clock className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-slate-800">
+                    Shift {shiftStatusResult.shift.name}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-500">
+                    ({formatTimeString(shiftStatusResult.shift.start_time)} - {formatTimeString(shiftStatusResult.shift.end_time)})
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Presensi akan dialokasikan ke shift ini
+                </p>
+              </div>
+            </div>
+
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${shiftStatusResult.badgeColor}`}>
+              {shiftStatusResult.label}
+            </span>
+          </div>
+        ) : (
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/60 text-xs text-slate-500 text-center">
+            Belum ada data shift operasional untuk cabang ini.
+          </div>
+        )}
 
         {/* Real-time Distance Guidance Panel */}
         <div aria-live="polite" className="pt-0.5">
@@ -418,7 +579,7 @@ export function AttendanceClient({
                     </span>
                     <span className="text-[11px] font-medium opacity-90">
                       {isInsideRadius
-                        ? "✓ Anda berada di dalam area cabang"
+                        ? `✓ Di dalam area ${activeBranch.name}`
                         : `✕ Di luar radius (Maks. ${formatDistance(radiusMeters)})`}
                     </span>
                   </div>
