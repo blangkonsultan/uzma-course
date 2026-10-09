@@ -43,10 +43,11 @@ export function PasswordForm() {
       
       if (res.error) {
         setError(res.error);
-        showToast(res.error, "error");
       } else if (res.success) {
-        showToast("Kata sandi berhasil diubah!", "success");
-        router.push("/guru/profil");
+        showToast("Kata sandi berhasil diubah! Silakan masuk kembali.", "success");
+        setTimeout(() => {
+          router.push("/logout");
+        }, 1500);
       }
     } catch {
       setError("Terjadi kesalahan sistem.");
