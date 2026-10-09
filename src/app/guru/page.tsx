@@ -1,11 +1,11 @@
 import { requireGuruPage } from "@/lib/auth";
 import { Clock, Calendar, CheckCircle2, MapPin, CalendarDays, ArrowRight, Wallet } from "lucide-react";
 import Link from "next/link";
+import { LiveClock } from "@/components/guru/live-clock";
 
 export default async function GuruDashboard() {
   const { profile } = await requireGuruPage();
 
-  const formattedDate = new Intl.DateTimeFormat("id-ID", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
 
   return (
     <div className="p-4 space-y-6">
@@ -14,7 +14,7 @@ export default async function GuruDashboard() {
         <h1 className="text-2xl font-bold text-slate-800">
           Halo, {profile?.full_name || "Guru"}!
         </h1>
-        <p className="text-slate-500 text-sm">{formattedDate}</p>
+        <LiveClock />
       </div>
 
       {/* Quick Status Card */}
