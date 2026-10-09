@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -10,7 +10,6 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const nextUrl = searchParams.get("next") || "/admin";
 
@@ -26,27 +25,33 @@ export function LoginForm() {
 
     try {
       const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: { user }, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) {
+      if (signInError || !user) {
         if (
-          signInError.message.includes("Invalid login credentials") ||
-          signInError.message.includes("invalid_grant")
+          signInError?.message.includes("Invalid login credentials") ||
+          signInError?.message.includes("invalid_grant")
         ) {
           setError("Email atau kata sandi tidak sesuai.");
         } else {
-          setError(signInError.message || "Gagal masuk. Silakan coba lagi.");
+          setError(signInError?.message || "Gagal masuk. Silakan coba lagi.");
         }
         setIsLoading(false);
         return;
       }
 
-      // Successful sign in, push to destination and refresh session
-      router.push(nextUrl);
-      router.refresh();
+      // Determine destination by role
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      const destination = profile?.role === "guru" ? "/guru" : (nextUrl === "/admin" ? "/admin" : nextUrl);
+      window.location.href = destination;
     } catch (err: unknown) {
       setError(
         err instanceof Error

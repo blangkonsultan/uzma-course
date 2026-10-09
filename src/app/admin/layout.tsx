@@ -33,31 +33,11 @@ export default async function AdminLayout({
     getCurrentProfile(user.id),
     getBranches(),
   ]);
+  if (profile?.role !== "admin") {
+    redirect("/guru");
+  }
 
-  const safeProfile: Profile = profile ?? {
-    id: user.id,
-    full_name:
-      (user.user_metadata?.full_name as string) ||
-      user.email?.split("@")[0] ||
-      "Pengguna",
-    phone: null,
-    role: (user.user_metadata?.role as "admin" | "guru") || "guru",
-    branch_id: null,
-    is_active: true,
-    allowances: [],
-    minimum_income: 0,
-    birth_date: null,
-    
-    
-    
-    
-    bank_name: null,
-    bank_account_holder: null,
-    bank_account_number: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-
+  const safeProfile: Profile = profile;
   return (
     <AdminShell profile={safeProfile} branches={branches}>
       {children}
