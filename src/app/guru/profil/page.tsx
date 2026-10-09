@@ -1,6 +1,7 @@
 import { requireGuruPage } from "@/lib/auth";
 import { User, LogOut, KeyRound, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { NotificationTestButton } from "@/components/guru/notification-test-button";
 
 export default async function ProfilPage() {
   const { profile, user } = await requireGuruPage();
@@ -30,6 +31,7 @@ export default async function ProfilPage() {
           </div>
           <ChevronRight className="w-4 h-4 text-slate-300" />
         </Link>
+        <NotificationTestButton />
         <a href="/logout" className="p-4 flex items-center justify-between text-red-600 hover:bg-red-50 transition-colors">
           <div className="flex items-center space-x-3">
             <LogOut className="w-5 h-5" />
