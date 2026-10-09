@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { TeacherClassItem } from "@/lib/teacher-schedule";
 import { formatTimeString } from "@/lib/utils";
-import { Clock, Users, Calendar, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { Clock, Users, Calendar, BookOpen, ChevronDown, ChevronUp, MapPin } from "lucide-react";
 
 const DAYS = [
   { id: 1, label: "Senin" },
@@ -17,22 +17,17 @@ const DAYS = [
 
 export function TeacherScheduleClient({
   classes,
-  draftName,
 }: {
   classes: TeacherClassItem[];
-  draftName: string | null;
 }) {
-  // Get current JS day (0=Sunday, 1=Monday...7=Sunday for our app)
   const currentJsDay = new Date().getDay();
   const currentAppDay = currentJsDay === 0 ? 7 : currentJsDay;
 
   const [selectedDay, setSelectedDay] = useState<number>(currentAppDay);
   const [expandedClassId, setExpandedClassId] = useState<string | null>(null);
 
-  // Filter classes by selected day
   const dayClasses = classes.filter((c) => c.day_of_week === selectedDay);
 
-  // Day counts for badge
   const classCountByDay = classes.reduce((acc, c) => {
     acc[c.day_of_week] = (acc[c.day_of_week] || 0) + 1;
     return acc;
@@ -41,13 +36,13 @@ export function TeacherScheduleClient({
   return (
     <div className="space-y-4">
       {/* Header Info */}
-      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-5 text-white shadow-md">
-        <div className="flex items-center space-x-2 text-blue-100 text-xs font-medium uppercase tracking-wider mb-1">
+      <div className="bg-gradient-to-br from-primary-600 to-primary-800 rounded-2xl p-5 text-white shadow-md">
+        <div className="flex items-center space-x-2 text-primary-100 text-xs font-medium uppercase tracking-wider mb-1">
           <Calendar className="w-3.5 h-3.5" />
-          <span>Jadwal Mengajar Aktif</span>
+          <span>Sesi Aktif</span>
         </div>
-        <h2 className="text-xl font-bold">{draftName || "Jadwal Belum Diterbitkan"}</h2>
-        <p className="text-xs text-blue-100 mt-1">
+        <h2 className="text-xl font-bold">Seluruh Cabang Tugas</h2>
+        <p className="text-xs text-primary-100 mt-1">
           Total {classes.length} sesi kelas terdaftar minggu ini
         </p>
       </div>
@@ -66,7 +61,7 @@ export function TeacherScheduleClient({
               onClick={() => setSelectedDay(day.id)}
               className={`flex flex-col items-center justify-center min-w-[64px] py-2.5 px-3 rounded-xl border transition-all text-xs shrink-0 ${
                 isSelected
-                  ? "bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-200"
+                  ? "bg-primary-600 text-white border-primary-600 shadow-sm shadow-primary-200"
                   : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
               }`}
             >
@@ -75,7 +70,7 @@ export function TeacherScheduleClient({
                 {count > 0 ? (
                   <span
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                      isSelected ? "bg-white text-blue-600" : "bg-blue-50 text-blue-600"
+                      isSelected ? "bg-white text-primary-600" : "bg-primary-50 text-primary-600"
                     }`}
                   >
                     {count}
@@ -83,7 +78,7 @@ export function TeacherScheduleClient({
                 ) : (
                   <span
                     className={`text-[10px] ${
-                      isSelected ? "text-blue-200" : "text-slate-400"
+                      isSelected ? "text-primary-200" : "text-slate-400"
                     }`}
                   >
                     Libur
@@ -119,7 +114,7 @@ export function TeacherScheduleClient({
             </div>
             <p className="font-semibold text-sm text-slate-700">Tidak ada jadwal mengajar</p>
             <p className="text-xs text-slate-400 mt-1">
-              Hari ini Anda tidak memiliki alokasi sesi mengajar.
+              Hari ini Anda tidak memiliki alokasi sesi mengajar di cabang manapun.
             </p>
           </div>
         ) : (
@@ -130,15 +125,16 @@ export function TeacherScheduleClient({
             return (
               <div
                 key={cls.id}
-                className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs hover:border-blue-200 transition-colors"
+                className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs hover:border-primary-200 transition-colors"
               >
                 <div className="p-4">
-                  {/* Shift Badge & Time */}
+                  {/* Branch & Shift Badge */}
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
-                      {cls.shift_name}
-                    </span>
-                    <div className="flex items-center text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                      <MapPin className="w-3 h-3 text-primary-600" />
+                      <span>{cls.branch_name} • {cls.shift_name}</span>
+                    </div>
+                    <div className="flex items-center text-xs font-bold text-primary-600 bg-primary-50 px-2.5 py-1 rounded-lg">
                       <Clock className="w-3.5 h-3.5 mr-1" />
                       <span>
                         {formatTimeString(cls.start_time)} - {formatTimeString(cls.end_time)}
@@ -148,7 +144,7 @@ export function TeacherScheduleClient({
 
                   {/* Program & Variant */}
                   <div className="flex items-start space-x-2.5 mt-2">
-                    <div className="p-2 bg-blue-50 rounded-xl text-blue-600 shrink-0 mt-0.5">
+                    <div className="p-2 bg-primary-50 rounded-xl text-primary-600 shrink-0 mt-0.5">
                       <BookOpen className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -195,7 +191,7 @@ export function TeacherScheduleClient({
                           className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200/80 text-xs"
                         >
                           <div className="flex items-center space-x-2">
-                            <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px]">
+                            <span className="w-5 h-5 rounded-full bg-primary-100 text-primary-700 font-bold flex items-center justify-center text-[10px]">
                               {idx + 1}
                             </span>
                             <span className="font-semibold text-slate-800">

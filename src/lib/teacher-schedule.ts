@@ -2,6 +2,7 @@ import { createClient } from "./supabase/server";
 
 export interface TeacherClassItem {
   id: string;
+  branch_name: string;
   day_of_week: number;
   start_time: string;
   end_time: string;
@@ -45,35 +46,18 @@ interface RawClassRow {
   end_time: string;
   shift_id: string;
   variant_id: string;
+  schedule_drafts: {
+    branches: { name: string } | null;
+  } | null;
   branch_shifts: RawShift | null;
   program_variants: RawVariant | null;
   schedule_placements: RawPlacement[];
 }
 
-export async function getTeacherActiveSchedule(teacherId: string, branchId?: string | null) {
+export async function getTeacherActiveSchedule(teacherId: string) {
   const supabase = await createClient();
 
-  // 1. Find active schedule draft for this branch
-  let draftQuery = supabase
-    .from("schedule_drafts")
-    .select("id, name, branch_id")
-    .eq("status", "active");
-
-  if (branchId) {
-    draftQuery = draftQuery.eq("branch_id", branchId);
-  }
-
-  const { data: activeDrafts } = await draftQuery.limit(1);
-  const activeDraft = activeDrafts?.[0];
-
-  if (!activeDraft) {
-    return {
-      draft: null,
-      classes: [] as TeacherClassItem[],
-    };
-  }
-
-  // 2. Fetch classes assigned to this teacher in the active draft
+  // Fetch classes assigned to this teacher in any active draft
   const { data: classes } = await supabase
     .from("schedule_classes")
     .select(`
@@ -83,6 +67,10 @@ export async function getTeacherActiveSchedule(teacherId: string, branchId?: str
       end_time,
       shift_id,
       variant_id,
+      schedule_drafts!inner(
+        status,
+        branches(name)
+      ),
       branch_shifts (
         id,
         name
@@ -104,7 +92,7 @@ export async function getTeacherActiveSchedule(teacherId: string, branchId?: str
         )
       )
     `)
-    .eq("draft_id", activeDraft.id)
+    .eq("schedule_drafts.status", "active")
     .eq("teacher_id", teacherId)
     .order("day_of_week")
     .order("start_time");
@@ -115,6 +103,7 @@ export async function getTeacherActiveSchedule(teacherId: string, branchId?: str
     const shiftData = c.branch_shifts;
     const variantData = c.program_variants;
     const placements = c.schedule_placements || [];
+    const branchName = c.schedule_drafts?.branches?.name || "Cabang";
 
     const students = placements
       .map((p) => p.students)
@@ -127,6 +116,7 @@ export async function getTeacherActiveSchedule(teacherId: string, branchId?: str
 
     return {
       id: c.id,
+      branch_name: branchName,
       day_of_week: c.day_of_week,
       start_time: c.start_time,
       end_time: c.end_time,
@@ -138,7 +128,6 @@ export async function getTeacherActiveSchedule(teacherId: string, branchId?: str
   });
 
   return {
-    draft: activeDraft,
     classes: formattedClasses,
   };
 }

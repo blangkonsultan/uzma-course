@@ -9,30 +9,23 @@ export const metadata = {
 
 export default async function JadwalGuruPage() {
   const { profile } = await requireGuruPage();
-
-  const { draft, classes } = await getTeacherActiveSchedule(
-    profile.id,
-    profile.branch_id
-  );
+  const { classes } = await getTeacherActiveSchedule(profile.id);
 
   return (
     <div className="p-4 space-y-4 max-w-md mx-auto">
       <div className="flex items-center space-x-2">
-        <div className="p-2 bg-blue-100 text-blue-700 rounded-xl">
-          <Calendar className="w-5 h-5" />
+        <div className="p-2 bg-primary-100 text-primary-700 rounded-xl border border-primary-200/60 shadow-2xs">
+          <Calendar className="w-5 h-5 text-primary-600" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-slate-800">Jadwal Mengajar</h1>
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">Jadwal Mengajar</h1>
           <p className="text-xs text-slate-500">
-            Jadwal sesi kelas & daftar murid binaan
+            Seluruh jadwal tugas lintas cabang
           </p>
         </div>
       </div>
 
-      <TeacherScheduleClient
-        classes={classes}
-        draftName={draft?.name || null}
-      />
+      <TeacherScheduleClient classes={classes} />
     </div>
   );
 }
