@@ -338,7 +338,7 @@ export function AttendanceClient({
       if (distance > radiusMeters) {
         const userDist = formatDistance(distance);
         const maxDist = formatDistance(radiusMeters);
-        setLocationError(`Anda berada di luar radius area cabang. Jarak Anda: ${userDist} (Batas maksimal: ${maxDist})`);
+        setLocationError(`Anda masih berjarak ${userDist} dari cabang. Mendekatlah ke area dalam radius ${maxDist} untuk bisa presensi.`);
         setIsLoadingGPS(false);
         return;
       }
