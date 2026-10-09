@@ -7,41 +7,70 @@ export interface BranchWithDistance extends Branch {
 }
 
 /**
- * Mengambil seluruh cabang yang secara resmi ditugaskan ke guru tertentu via tabel junction profile_branches.
- * Jika profile_branches kosong, fallback ke profile.branch_id untuk backward compatibility.
+ * Mengambil seluruh cabang yang secara resmi ditugaskan ke guru tertentu.
+ * Strategi cerdas & resilient:
+ * 1. Query tabel junction profile_branches (jika tabel sudah aktif).
+ * 2. Cek profile.branch_id (homebase utama).
+ * 3. Cek seluruh cabang tempat guru dialokasikan mengajar (schedule_classes -> draft -> branch_id).
+ * Menggabungkan ketiganya tanpa duplikasi, sehingga guru multi-cabang selalu terdeteksi.
  */
 export async function getTeacherAssignedBranches(teacherId: string): Promise<Branch[]> {
   const supabase = await createClient();
 
-  // 1. Query junction table
-  const { data: assignments } = await supabase
-    .from("profile_branches")
-    .select("branch_id, is_primary")
-    .eq("profile_id", teacherId)
-    .order("is_primary", { ascending: false });
+  const assignedBranchSet = new Set<string>();
 
-  let assignedBranchIds: string[] = [];
-
-  if (assignments && assignments.length > 0) {
-    assignedBranchIds = assignments.map((a) => a.branch_id);
-  } else {
-    // Fallback: check profile.branch_id
-    const { data: profile } = await supabase
-      .from("profiles")
+  // 1. Cek tabel junction profile_branches (jika ada)
+  try {
+    const { data: assignments } = await supabase
+      .from("profile_branches")
       .select("branch_id")
-      .eq("id", teacherId)
-      .single();
+      .eq("profile_id", teacherId);
 
-    if (profile?.branch_id) {
-      assignedBranchIds = [profile.branch_id];
+    if (assignments && assignments.length > 0) {
+      assignments.forEach((a) => assignedBranchSet.add(a.branch_id));
     }
+  } catch {
+    // Tabel belum di-migrate, lanjutkan ke fallback
   }
+
+  // 2. Cek profile.branch_id
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("branch_id")
+    .eq("id", teacherId)
+    .single();
+
+  if (profile?.branch_id) {
+    assignedBranchSet.add(profile.branch_id);
+  }
+
+  // 3. Cek cabang-cabang tempat guru memiliki alokasi sesi mengajar di draf aktif
+  try {
+    const { data: classes } = await supabase
+      .from("schedule_classes")
+      .select("schedule_drafts ( branch_id, status )")
+      .eq("teacher_id", teacherId);
+
+    if (classes && classes.length > 0) {
+      classes.forEach((c) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const draft = c.schedule_drafts as any;
+        if (draft?.branch_id) {
+          assignedBranchSet.add(draft.branch_id);
+        }
+      });
+    }
+  } catch {
+    // Ignore error
+  }
+
+  const assignedBranchIds = Array.from(assignedBranchSet);
 
   if (assignedBranchIds.length === 0) {
     return [];
   }
 
-  // 2. Fetch full branch records
+  // 4. Fetch data lengkap cabang
   const { data: branches } = await supabase
     .from("branches")
     .select("*")
