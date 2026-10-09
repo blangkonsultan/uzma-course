@@ -1,5 +1,5 @@
 import { requireGuruPage } from "@/lib/auth";
-import { Clock, Calendar, CheckCircle2, MapPin, CalendarDays, ArrowRight } from "lucide-react";
+import { Clock, Calendar, CheckCircle2, MapPin, CalendarDays, ArrowRight, Wallet } from "lucide-react";
 import Link from "next/link";
 
 export default async function GuruDashboard() {
@@ -49,6 +49,23 @@ export default async function GuruDashboard() {
           </div>
         </div>
         <ArrowRight className="w-4 h-4 text-indigo-600 transform group-hover:translate-x-0.5 transition-transform" />
+      </Link>
+
+      {/* Shortcut to Honor Saya */}
+      <Link
+        href="/guru/honor"
+        className="flex items-center justify-between p-4 bg-emerald-50/70 border border-emerald-100/80 rounded-2xl hover:bg-emerald-100/60 transition-colors group"
+      >
+        <div className="flex items-center space-x-3">
+          <div className="p-2.5 bg-emerald-600 text-white rounded-xl shadow-xs">
+            <Wallet className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-800 text-sm">Rekap Honor Saya</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Lihat rincian honor minimum dan tunjangan</p>
+          </div>
+        </div>
+        <ArrowRight className="w-4 h-4 text-emerald-600 transform group-hover:translate-x-0.5 transition-transform" />
       </Link>
 
       {/* Stats / Menu Placeholder */}
