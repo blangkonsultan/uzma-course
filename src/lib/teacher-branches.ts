@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Branch } from "@/types";
 import type { BranchShift } from "@/lib/shifts";
 
@@ -8,20 +9,18 @@ export interface BranchWithDistance extends Branch {
 
 /**
  * Mengambil seluruh cabang yang secara resmi ditugaskan ke guru tertentu.
- * Strategi cerdas & resilient:
- * 1. Query tabel junction profile_branches (jika tabel sudah aktif).
- * 2. Cek profile.branch_id (homebase utama).
- * 3. Cek seluruh cabang tempat guru dialokasikan mengajar (schedule_classes -> draft -> branch_id).
- * Menggabungkan ketiganya tanpa duplikasi, sehingga guru multi-cabang selalu terdeteksi.
+ * Menggunakan admin client (service role) di server untuk mem-bypass RLS tabel schedule_drafts/classes
+ * sehingga cabang tugas guru dari alokasi kelas di semua cabang dapat dibaca 100% akurat.
  */
 export async function getTeacherAssignedBranches(teacherId: string): Promise<Branch[]> {
-  const supabase = await createClient();
+  // Use admin client to reliably inspect all teacher branch assignments across RLS barriers
+  const adminSupabase = createAdminClient();
 
   const assignedBranchSet = new Set<string>();
 
   // 1. Cek tabel junction profile_branches (jika ada)
   try {
-    const { data: assignments } = await supabase
+    const { data: assignments } = await adminSupabase
       .from("profile_branches")
       .select("branch_id")
       .eq("profile_id", teacherId);
@@ -34,7 +33,7 @@ export async function getTeacherAssignedBranches(teacherId: string): Promise<Bra
   }
 
   // 2. Cek profile.branch_id
-  const { data: profile } = await supabase
+  const { data: profile } = await adminSupabase
     .from("profiles")
     .select("branch_id")
     .eq("id", teacherId)
@@ -46,7 +45,7 @@ export async function getTeacherAssignedBranches(teacherId: string): Promise<Bra
 
   // 3. Cek cabang-cabang tempat guru memiliki alokasi sesi mengajar di draf aktif
   try {
-    const { data: classes } = await supabase
+    const { data: classes } = await adminSupabase
       .from("schedule_classes")
       .select("schedule_drafts ( branch_id, status )")
       .eq("teacher_id", teacherId);
@@ -71,7 +70,7 @@ export async function getTeacherAssignedBranches(teacherId: string): Promise<Bra
   }
 
   // 4. Fetch data lengkap cabang
-  const { data: branches } = await supabase
+  const { data: branches } = await adminSupabase
     .from("branches")
     .select("*")
     .in("id", assignedBranchIds)
