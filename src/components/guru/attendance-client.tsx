@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { MapPin, Wifi, WifiOff, Clock, CheckCircle2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { calculateDistanceMeters } from "@/lib/pwa/haversine";
+import { calculateDistanceMeters, formatDistance } from "@/lib/pwa/haversine";
 import { savePendingAttendance, getPendingAttendances, removePendingAttendances, type PendingAttendance } from "@/lib/pwa/db";
 import { syncOfflineAttendances, processOnlineCheckIn, processOnlineCheckOut } from "@/app/guru/absen/actions";
 
@@ -140,7 +140,9 @@ export function AttendanceClient({
         const distance = calculateDistanceMeters(latitude, longitude, branchLat, branchLng);
 
         if (distance > radiusMeters) {
-          setLocationError(`Anda berada di luar radius. Jarak: ${Math.round(distance)}m (Maks: ${radiusMeters}m)`);
+          const userDist = formatDistance(distance);
+          const maxDist = formatDistance(radiusMeters);
+          setLocationError(`Anda berada di luar radius area cabang. Jarak Anda: ${userDist} (Batas maksimal: ${maxDist})`);
           setIsLoadingGPS(false);
           return;
         }
@@ -220,7 +222,7 @@ export function AttendanceClient({
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-800">{branchName}</h2>
-            <p className="text-sm text-slate-500">Radius area: {radiusMeters} meter</p>
+            <p className="text-sm text-slate-500">Radius area: {formatDistance(radiusMeters)}</p>
           </div>
         </div>
 
