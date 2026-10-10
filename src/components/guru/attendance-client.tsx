@@ -73,8 +73,8 @@ function calculateShiftStatus(shifts: BranchShift[]) {
       return {
         type: "upcoming" as const,
         shift,
-        label: "Shift Terdekat Berikutnya",
-        badgeColor: "bg-primary-600 text-white",
+        label: null,
+        badgeColor: "",
       };
     }
   }
@@ -511,9 +511,11 @@ export function AttendanceClient({
               </div>
             </div>
 
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${shiftStatusResult.badgeColor}`}>
-              {shiftStatusResult.label}
-            </span>
+            {shiftStatusResult.label && (
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${shiftStatusResult.badgeColor}`}>
+                {shiftStatusResult.label}
+              </span>
+            )}
           </div>
         ) : (
           <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/60 text-xs text-slate-500 text-center">
