@@ -20,8 +20,12 @@ export function Footer({ data, locationsData }: FooterProps) {
   const locations = locationsData || DEFAULT_LANDING_CONTENT.locations;
   const currentYear = new Date().getFullYear();
 
-  const balongbendo = locations.items.find((b) => b.id === "balongbendo");
-  const krian = locations.items.find((b) => b.id === "krian");
+  const sumokembangsri = locations.items.find(
+    (b) => b.id === "sumokembangsri" || b.id === "balongbendo"
+  );
+  const junwangi = locations.items.find(
+    (b) => b.id === "junwangi" || b.id === "krian"
+  );
 
   const socialItems: SocialMediaItem[] = Array.isArray(content.socialLinks)
     ? content.socialLinks
@@ -86,16 +90,16 @@ export function Footer({ data, locationsData }: FooterProps) {
             </ul>
           </div>
 
-          {/* Col 3: Cabang Balongbendo */}
+          {/* Col 3: Cabang Sumokembangsri */}
           <div>
             <h3 className="text-white font-semibold text-base mb-1">
-              {balongbendo ? balongbendo.name : "Cabang Balongbendo"}
+              {sumokembangsri ? sumokembangsri.name : "Cabang Sumokembangsri"}
             </h3>
             <p className="text-xs text-primary-400 font-medium mb-3">
-              {balongbendo ? balongbendo.subName : "Ahe Sumokembangsri"}
+              {sumokembangsri ? sumokembangsri.subName : "Ahe Sumokembangsri"}
             </p>
             <p className="text-sm text-slate-400 leading-relaxed mb-4">
-              {balongbendo?.address}
+              {sumokembangsri?.address}
             </p>
             <div className="space-y-2">
               <a
@@ -107,7 +111,7 @@ export function Footer({ data, locationsData }: FooterProps) {
               </a>
               <div>
                 <a
-                  href={buildWaLink("Cabang Balongbendo")}
+                  href={buildWaLink(sumokembangsri?.name || "Cabang Sumokembangsri")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
@@ -116,10 +120,10 @@ export function Footer({ data, locationsData }: FooterProps) {
                   <span>WhatsApp ({content.contactWaDisplay})</span>
                 </a>
               </div>
-              {balongbendo?.gmapsUrl && (
+              {sumokembangsri?.gmapsUrl && (
                 <div>
                   <a
-                    href={balongbendo.gmapsUrl}
+                    href={sumokembangsri.gmapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
@@ -132,16 +136,16 @@ export function Footer({ data, locationsData }: FooterProps) {
             </div>
           </div>
 
-          {/* Col 4: Cabang Krian */}
+          {/* Col 4: Cabang Junwangi */}
           <div>
             <h3 className="text-white font-semibold text-base mb-1">
-              {krian ? krian.name : "Cabang Krian"}
+              {junwangi ? junwangi.name : "Cabang Junwangi"}
             </h3>
             <p className="text-xs text-primary-400 font-medium mb-3">
-              {krian ? krian.subName : "Ahe Junwangi"}
+              {junwangi ? junwangi.subName : "Ahe Junwangi"}
             </p>
             <p className="text-sm text-slate-400 leading-relaxed mb-4">
-              {krian?.address}
+              {junwangi?.address}
             </p>
             <div className="space-y-2">
               <a
@@ -153,7 +157,7 @@ export function Footer({ data, locationsData }: FooterProps) {
               </a>
               <div>
                 <a
-                  href={buildWaLink("Cabang Krian")}
+                  href={buildWaLink(junwangi?.name || "Cabang Junwangi")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
@@ -162,10 +166,10 @@ export function Footer({ data, locationsData }: FooterProps) {
                   <span>WhatsApp ({content.contactWaDisplay})</span>
                 </a>
               </div>
-              {krian?.gmapsUrl && (
+              {junwangi?.gmapsUrl && (
                 <div>
                   <a
-                    href={krian.gmapsUrl}
+                    href={junwangi.gmapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"

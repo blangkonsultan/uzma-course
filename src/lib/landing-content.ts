@@ -215,8 +215,8 @@ export const DEFAULT_LANDING_CONTENT: AllLandingContent = {
       "Kunjungi cabang Uzma Course terdekat di area Sidoarjo untuk konsultasi langsung",
     items: [
       {
-        id: "balongbendo",
-        name: "Cabang Balongbendo",
+        id: "sumokembangsri",
+        name: "Cabang Sumokembangsri",
         subName: "Ahe Sumokembangsri",
         address: "Sumotuwo, RT 20 RW 3, Sumokembangsri, Balongbendo, Sidoarjo",
         mapUrl:
@@ -224,8 +224,8 @@ export const DEFAULT_LANDING_CONTENT: AllLandingContent = {
         gmapsUrl: "https://maps.app.goo.gl/qaJuRjZcDDTv4qQx9",
       },
       {
-        id: "krian",
-        name: "Cabang Krian",
+        id: "junwangi",
+        name: "Cabang Junwangi",
         subName: "Ahe Junwangi",
         address: "Junwatu, RT 2 RW 1, Junwangi, Krian, Sidoarjo",
         mapUrl:

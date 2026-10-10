@@ -68,9 +68,9 @@ export default async function Home() {
         "@type": "PostalAddress",
         streetAddress: b.address,
         addressLocality:
-          b.id === "balongbendo"
-            ? "Balongbendo, Sidoarjo"
-            : "Krian, Sidoarjo",
+          b.id === "sumokembangsri" || b.id === "balongbendo"
+            ? "Sumokembangsri, Balongbendo, Sidoarjo"
+            : "Junwangi, Krian, Sidoarjo",
         addressRegion: "Jawa Timur",
         addressCountry: "ID",
       },
