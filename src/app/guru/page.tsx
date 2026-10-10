@@ -6,6 +6,15 @@ import { getTodayAttendance } from "@/lib/attendances";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatTimeString } from "@/lib/utils";
 
+function formatWIB(isoString: string) {
+  const d = new Date(isoString);
+  return d.toLocaleTimeString("id-ID", {
+    timeZone: "Asia/Jakarta",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).replace(".", ":") + " WIB";
+}
+
 export default async function GuruDashboard() {
   const { profile } = await requireGuruPage();
 
@@ -51,7 +60,7 @@ export default async function GuruDashboard() {
         
         <div className="text-sm opacity-90 leading-relaxed">
           {todayAttendance 
-            ? `Terima kasih! Anda telah check-in pada pukul ${formatTimeString(todayAttendance.check_in_time)}.`
+            ? `Terima kasih! Anda telah check-in pada pukul ${formatWIB(todayAttendance.check_in_time)}.`
             : 'Jangan lupa untuk melakukan presensi kehadiran di lokasi sekolah sebelum jam mengajar dimulai.'}
         </div>
       </div>
@@ -117,8 +126,8 @@ export default async function GuruDashboard() {
           {recentActivities.length > 0 ? (
             recentActivities.map((act) => {
               const d = new Date(act.check_in_time);
-              const dateStr = d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
-              const timeStr = formatTimeString(act.check_in_time);
+              const dateStr = d.toLocaleDateString("id-ID", { timeZone: "Asia/Jakarta", day: "numeric", month: "short" });
+              const timeStr = formatWIB(act.check_in_time);
               const branchName = act.branches?.name || "Cabang Utama";
               
               return (
