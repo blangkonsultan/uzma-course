@@ -95,6 +95,7 @@ export default async function ShiftPage(props: {
     },
     {
       header: "Aksi",
+      className: "text-right",
       cell: (s) => (
         <div className="flex items-center justify-end gap-2">
           <Link

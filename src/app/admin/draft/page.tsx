@@ -107,6 +107,7 @@ export default async function DraftPage(props: {
     },
     {
       header: "Aksi",
+      className: "text-right",
       cell: (d) => (
         <div className="flex items-center justify-end gap-1.5">
           <Link

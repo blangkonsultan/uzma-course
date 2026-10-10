@@ -406,30 +406,30 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                           key={cls.id} 
                           className={`border rounded-lg shadow-sm bg-white overflow-hidden transition-all duration-300 ${isFull ? 'border-red-200' : 'border-slate-200'} ${searchLower && !classMatchesSearch ? 'opacity-30 grayscale' : ''}`}
                         >
-                          <div className={`px-3 py-2 border-b flex justify-between items-center ${isFull ? 'bg-red-50' : 'bg-slate-50'}`}>
-                            <div>
-                              <p className="text-sm font-bold text-slate-800">{teacher?.full_name}</p>
-                              <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className="text-xs font-medium text-primary-600">{variant?.name}</span>
-                                {cls.start_time && cls.end_time && (
-                                  <>
-                                    <span className="text-slate-300">•</span>
-                                    <span className="text-xs font-medium text-slate-500 bg-white px-1.5 rounded border border-slate-200">
-                                      {cls.start_time.slice(0, 5)} - {cls.end_time.slice(0, 5)}
-                                    </span>
-                                  </>
-                                )}
+                            <div className={`px-3 py-2 border-b flex flex-wrap gap-2 justify-between items-start ${isFull ? 'bg-red-50' : 'bg-slate-50'}`}>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-bold text-slate-800 break-words leading-tight">{teacher?.full_name}</p>
+                                <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                  <span className="text-xs font-medium text-primary-600">{variant?.name}</span>
+                                  {cls.start_time && cls.end_time && (
+                                    <>
+                                      <span className="text-slate-300 hidden sm:inline">•</span>
+                                      <span className="text-[11px] font-medium text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200 shrink-0">
+                                        {cls.start_time.slice(0, 5)} - {cls.end_time.slice(0, 5)}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0 pt-0.5">
+                                <span className={`text-[11px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap ${isFull ? 'bg-red-200 text-red-800' : 'bg-green-100 text-green-700'}`}>
+                                  {currentCount} / {capacity}
+                                </span>
+                                <button type="button" aria-label="Hapus kelas" onClick={() => deleteClass(cls.id)} className="text-slate-400 hover:text-red-500 p-1 -mr-1">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className={`text-xs font-bold px-2 py-1 rounded-full ${isFull ? 'bg-red-200 text-red-800' : 'bg-green-100 text-green-700'}`}>
-                                {currentCount} / {capacity}
-                              </span>
-                              <button type="button" aria-label="Hapus kelas" onClick={() => deleteClass(cls.id)} className="text-slate-400 hover:text-red-500">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
                           
                           <div className="p-2 min-h-[60px] space-y-1">
                             {placementsWithData.map(({ placement, student, studentMatch }) => {
