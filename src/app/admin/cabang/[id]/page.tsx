@@ -171,6 +171,24 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
                     {branch.sub_name || "-"}
                   </p>
                 </div>
+
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                    Kecamatan
+                  </span>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {branch.kecamatan || "-"}
+                  </p>
+                </div>
+
+                <div>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                    Desa / Kelurahan
+                  </span>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {branch.desa || "-"}
+                  </p>
+                </div>
               </div>
 
               <div>

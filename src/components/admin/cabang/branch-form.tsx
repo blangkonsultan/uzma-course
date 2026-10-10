@@ -26,6 +26,8 @@ export function BranchForm({ initialData, isEdit = false }: BranchFormProps) {
     id: initialData?.id || "",
     name: initialData?.name || "",
     sub_name: initialData?.sub_name || "",
+    kecamatan: initialData?.kecamatan || "",
+    desa: initialData?.desa || "",
     address: initialData?.address || "",
     map_embed_url: initialData?.map_embed_url || "",
     gmaps_url: initialData?.gmaps_url || "",
@@ -108,6 +110,8 @@ export function BranchForm({ initialData, isEdit = false }: BranchFormProps) {
         }
         fd.append("name", formData.name.trim());
         fd.append("sub_name", formData.sub_name.trim());
+        fd.append("kecamatan", formData.kecamatan.trim());
+        fd.append("desa", formData.desa.trim());
         fd.append("address", formData.address.trim());
         fd.append("map_embed_url", formData.map_embed_url.trim());
         fd.append("gmaps_url", formData.gmaps_url.trim());
@@ -191,6 +195,33 @@ export function BranchForm({ initialData, isEdit = false }: BranchFormProps) {
               onChange={(e) => updateField("name", e.target.value)}
               error={fieldErrors.name}
             />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <InputField
+                id="kecamatan"
+                name="kecamatan"
+                label="Kecamatan"
+                required
+                disabled={isPending}
+                placeholder="Contoh: Balongbendo"
+                value={formData.kecamatan}
+                onChange={(e) => updateField("kecamatan", e.target.value)}
+                error={fieldErrors.kecamatan}
+                hint="Kecamatan wilayah cabang."
+              />
+
+              <InputField
+                id="desa"
+                name="desa"
+                label="Desa / Kelurahan"
+                required
+                disabled={isPending}
+                placeholder="Contoh: Sumokembangsri"
+                value={formData.desa}
+                onChange={(e) => updateField("desa", e.target.value)}
+                error={fieldErrors.desa}
+                hint="Desa / Kelurahan letak cabang (basis lisensi cabang)."
+              />
+            </div>
 
             <InputField
               id="sub_name"
@@ -203,7 +234,6 @@ export function BranchForm({ initialData, isEdit = false }: BranchFormProps) {
               error={fieldErrors.sub_name}
               hint="Nama unit, sentra, atau keterangan pelengkap cabang (opsional)."
             />
-
             <TextareaField
               id="address"
               name="address"

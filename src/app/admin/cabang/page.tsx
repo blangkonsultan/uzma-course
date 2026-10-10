@@ -67,7 +67,9 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
               {b.name}
             </Link>
             <p className="text-xs text-slate-500 mt-0.5">
-              {b.sub_name || "-"}
+              {b.desa && b.kecamatan
+                ? `Desa ${b.desa} • Kec. ${b.kecamatan}`
+                : b.sub_name || "-"}
             </p>
           </div>
         </div>
@@ -177,8 +179,11 @@ export default async function CabangPage({ searchParams }: CabangPageProps) {
               }}
               title={b.name}
               titleHref={`/admin/cabang/${b.id}`}
-              subtitle={b.sub_name || "Cabang Uzma Course"}
-              status={<StatusBadge isActive={b.is_active} />}
+              subtitle={
+                b.desa && b.kecamatan
+                  ? `Desa ${b.desa} • Kec. ${b.kecamatan}`
+                  : b.sub_name || "Cabang Uzma Course"
+              }
               badges={
                 b.address ? (
                   <span className="inline-flex items-center gap-1 text-xs text-slate-500 line-clamp-1">

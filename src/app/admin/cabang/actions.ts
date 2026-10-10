@@ -17,6 +17,8 @@ export async function createBranch(formData: FormData): Promise<BranchActionResp
   const id = formData.get("id")?.toString().trim().toLowerCase() || "";
   const name = formData.get("name")?.toString().trim() || "";
   const subName = formData.get("sub_name")?.toString().trim() || "";
+  const kecamatan = formData.get("kecamatan")?.toString().trim() || "";
+  const desa = formData.get("desa")?.toString().trim() || "";
   const address = formData.get("address")?.toString().trim() || "";
   const mapEmbedUrl = formData.get("map_embed_url")?.toString().trim() || null;
   const gmapsUrl = formData.get("gmaps_url")?.toString().trim() || null;
@@ -28,11 +30,19 @@ export async function createBranch(formData: FormData): Promise<BranchActionResp
 
   if (!id || id.length < 2 || !/^[a-z0-9-]+$/.test(id)) {
     fieldErrors.id =
-      "ID cabang minimal 2 karakter dan hanya boleh berisi huruf kecil, angka, dan strip (contoh: balongbendo).";
+      "ID cabang minimal 2 karakter dan hanya boleh berisi huruf kecil, angka, dan strip (contoh: sumokembangsri).";
   }
 
   if (!name || name.length < 2) {
     fieldErrors.name = "Nama cabang minimal 2 karakter.";
+  }
+
+  if (!kecamatan || kecamatan.length < 2) {
+    fieldErrors.kecamatan = "Kecamatan minimal 2 karakter.";
+  }
+
+  if (!desa || desa.length < 2) {
+    fieldErrors.desa = "Desa / Kelurahan minimal 2 karakter.";
   }
 
   if (Object.keys(fieldErrors).length > 0) {
@@ -43,6 +53,8 @@ export async function createBranch(formData: FormData): Promise<BranchActionResp
     id,
     name,
     sub_name: subName,
+    kecamatan,
+    desa,
     address,
     map_embed_url: mapEmbedUrl,
     gmaps_url: gmapsUrl,
@@ -79,6 +91,8 @@ export async function updateBranch(
 
   const name = formData.get("name")?.toString().trim() || "";
   const subName = formData.get("sub_name")?.toString().trim() || "";
+  const kecamatan = formData.get("kecamatan")?.toString().trim() || "";
+  const desa = formData.get("desa")?.toString().trim() || "";
   const address = formData.get("address")?.toString().trim() || "";
   const mapEmbedUrl = formData.get("map_embed_url")?.toString().trim() || null;
   const gmapsUrl = formData.get("gmaps_url")?.toString().trim() || null;
@@ -92,6 +106,14 @@ export async function updateBranch(
     fieldErrors.name = "Nama cabang minimal 2 karakter.";
   }
 
+  if (!kecamatan || kecamatan.length < 2) {
+    fieldErrors.kecamatan = "Kecamatan minimal 2 karakter.";
+  }
+
+  if (!desa || desa.length < 2) {
+    fieldErrors.desa = "Desa / Kelurahan minimal 2 karakter.";
+  }
+
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
@@ -99,6 +121,8 @@ export async function updateBranch(
   const { error } = await updateBranchData(id, {
     name,
     sub_name: subName,
+    kecamatan,
+    desa,
     address,
     map_embed_url: mapEmbedUrl,
     gmaps_url: gmapsUrl,
