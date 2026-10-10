@@ -78,7 +78,12 @@ describe("Branch Data Access (src/lib/branches.ts)", () => {
       const mockSelect = vi.fn().mockReturnThis();
       const mockEq = vi.fn().mockReturnThis();
       const mockSingle = vi.fn().mockResolvedValue({
-        data: { id: "balongbendo", name: "Cabang Balongbendo" },
+        data: {
+          id: "sumokembangsri",
+          name: "Cabang Sumokembangsri",
+          kecamatan: "Balongbendo",
+          desa: "Sumokembangsri",
+        },
       });
 
       (createClient as unknown as Mock).mockResolvedValue({
@@ -89,10 +94,12 @@ describe("Branch Data Access (src/lib/branches.ts)", () => {
         }),
       });
 
-      const branch = await getBranchById("balongbendo");
+      const branch = await getBranchById("sumokembangsri");
       expect(branch).not.toBeNull();
-      expect(branch?.id).toBe("balongbendo");
-      expect(mockEq).toHaveBeenCalledWith("id", "balongbendo");
+      expect(branch?.id).toBe("sumokembangsri");
+      expect(branch?.kecamatan).toBe("Balongbendo");
+      expect(branch?.desa).toBe("Sumokembangsri");
+      expect(mockEq).toHaveBeenCalledWith("id", "sumokembangsri");
     });
 
     it("returns null when branch does not exist", async () => {

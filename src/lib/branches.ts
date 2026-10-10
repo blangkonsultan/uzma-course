@@ -108,6 +108,8 @@ export async function insertBranch(data: {
   id: string;
   name: string;
   sub_name?: string;
+  kecamatan?: string;
+  desa?: string;
   address?: string;
   map_embed_url?: string | null;
   gmaps_url?: string | null;
@@ -119,6 +121,8 @@ export async function insertBranch(data: {
   const supabase = await createClient();
   return supabase.from("branches").insert({
     ...data,
+    kecamatan: data.kecamatan ?? "",
+    desa: data.desa ?? "",
     geofence_radius_m: data.geofence_radius_m ?? undefined
   });
 }
@@ -128,6 +132,8 @@ export async function updateBranchData(
   data: {
     name: string;
     sub_name: string;
+    kecamatan?: string;
+    desa?: string;
     address: string;
     map_embed_url: string | null;
     gmaps_url: string | null;
@@ -141,6 +147,8 @@ export async function updateBranchData(
   const supabase = await createClient();
   return supabase.from("branches").update({
     ...data,
+    kecamatan: data.kecamatan ?? "",
+    desa: data.desa ?? "",
     geofence_radius_m: data.geofence_radius_m ?? undefined
   }).eq("id", id);
 }

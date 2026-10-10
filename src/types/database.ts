@@ -44,13 +44,13 @@ isOneToOne: false
                   ]
                 },"branches": {
                   Row: {
-                    "address": string,"code": string | null,"created_at": string,"geofence_radius_m": number,"gmaps_url": string | null,"id": string,"is_active": boolean,"latitude": number | null,"longitude": number | null,"map_embed_url": string | null,"name": string,"sub_name": string,"updated_at": string
+                    "address": string,"code": string | null,"created_at": string,"desa": string,"geofence_radius_m": number,"gmaps_url": string | null,"id": string,"is_active": boolean,"kecamatan": string,"latitude": number | null,"longitude": number | null,"map_embed_url": string | null,"name": string,"sub_name": string,"updated_at": string
                   }
                   Insert: {
-                    "address"?: string,"code"?: string | null,"created_at"?: string,"geofence_radius_m"?: number,"gmaps_url"?: string | null,"id": string,"is_active"?: boolean,"latitude"?: number | null,"longitude"?: number | null,"map_embed_url"?: string | null,"name": string,"sub_name"?: string,"updated_at"?: string
+                    "address"?: string,"code"?: string | null,"created_at"?: string,"desa"?: string,"geofence_radius_m"?: number,"gmaps_url"?: string | null,"id": string,"is_active"?: boolean,"kecamatan"?: string,"latitude"?: number | null,"longitude"?: number | null,"map_embed_url"?: string | null,"name": string,"sub_name"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "address"?: string,"code"?: string | null,"created_at"?: string,"geofence_radius_m"?: number,"gmaps_url"?: string | null,"id"?: string,"is_active"?: boolean,"latitude"?: number | null,"longitude"?: number | null,"map_embed_url"?: string | null,"name"?: string,"sub_name"?: string,"updated_at"?: string
+                    "address"?: string,"code"?: string | null,"created_at"?: string,"desa"?: string,"geofence_radius_m"?: number,"gmaps_url"?: string | null,"id"?: string,"is_active"?: boolean,"kecamatan"?: string,"latitude"?: number | null,"longitude"?: number | null,"map_embed_url"?: string | null,"name"?: string,"sub_name"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     
