@@ -22,9 +22,8 @@ export async function getPaginatedGurus(params: GetPaginatedGurusParams) {
 
   let query = supabase
     .from("profiles")
-    .select("*, profile_programs(program_id), profile_branches(branch_id, is_primary)", { count: "exact" })
+    .select("*, profile_programs(program_id)", { count: "exact" })
     .eq("role", "guru");
-
   if (branch !== "all") {
     query = query.eq("branch_id", branch);
   }
@@ -45,20 +44,75 @@ export async function getPaginatedGurus(params: GetPaginatedGurusParams) {
   const { data, count } = await query
     .order("created_at", { ascending: false })
     .range(from, to);
+  const profileBranchesMap: Record<string, { branch_id: string; is_primary: boolean }[]> = {};
+  try {
+    const profileIds = (data || []).map((p) => p.id);
+    if (profileIds.length > 0) {
+      const { data: pbData } = await supabase
+        .from("profile_branches")
+        .select("profile_id, branch_id, is_primary")
+        .in("profile_id", profileIds);
+      if (pbData) {
+        pbData.forEach((pb) => {
+          if (!profileBranchesMap[pb.profile_id]) {
+            profileBranchesMap[pb.profile_id] = [];
+          }
+          profileBranchesMap[pb.profile_id].push({
+            branch_id: pb.branch_id,
+            is_primary: pb.is_primary,
+          });
+        });
+      }
+    }
+  } catch {
+    // Graceful fallback if profile_branches table does not exist
+  }
 
-  return { data: (data as ProfileWithPrograms[]) || [], count: count || 0 };
+  const enrichedData = (data || []).map((guru) => ({
+    ...guru,
+    profile_branches:
+      profileBranchesMap[guru.id] && profileBranchesMap[guru.id].length > 0
+        ? profileBranchesMap[guru.id]
+        : guru.branch_id
+        ? [{ branch_id: guru.branch_id, is_primary: true }]
+        : [],
+  })) as ProfileWithPrograms[];
+
+  return { data: enrichedData, count: count || 0 };
 }
 
 export async function getGuruById(id: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("*, profile_programs(program_id), profile_branches(branch_id, is_primary)")
+    .select("*, profile_programs(program_id)")
     .eq("id", id)
     .eq("role", "guru")
     .single();
 
-  return data as ProfileWithPrograms | null;
+  if (!data) return null;
+
+  let profileBranches: { branch_id: string; is_primary: boolean }[] = [];
+  try {
+    const { data: pbData } = await supabase
+      .from("profile_branches")
+      .select("branch_id, is_primary")
+      .eq("profile_id", id);
+    if (pbData && pbData.length > 0) {
+      profileBranches = pbData;
+    }
+  } catch {
+    // Graceful fallback if profile_branches table does not exist
+  }
+
+  if (profileBranches.length === 0 && data.branch_id) {
+    profileBranches = [{ branch_id: data.branch_id, is_primary: true }];
+  }
+
+  return {
+    ...data,
+    profile_branches: profileBranches,
+  } as ProfileWithPrograms;
 }
 
 export interface CreateGuruProfileData {
@@ -234,17 +288,21 @@ export async function updateGuruProfile(id: string, data: UpdateGuruProfileData)
     throw new Error(error.message);
   }
 
-  // Update profile_branches junction
-  await supabase.from("profile_branches").delete().eq("profile_id", id);
+  // Update profile_branches junction with graceful fallback
+  try {
+    await supabase.from("profile_branches").delete().eq("profile_id", id);
 
-  if (effectiveBranchIds.length > 0) {
-    await supabase.from("profile_branches").insert(
-      effectiveBranchIds.map((bId) => ({
-        profile_id: id,
-        branch_id: bId,
-        is_primary: bId === effectivePrimaryBranch,
-      }))
-    );
+    if (effectiveBranchIds.length > 0) {
+      await supabase.from("profile_branches").insert(
+        effectiveBranchIds.map((bId) => ({
+          profile_id: id,
+          branch_id: bId,
+          is_primary: bId === effectivePrimaryBranch,
+        }))
+      );
+    }
+  } catch (pbErr) {
+    console.error("Notice: profile_branches update error:", pbErr);
   }
 
   // Delete existing profile_programs and re-insert
