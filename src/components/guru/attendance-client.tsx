@@ -199,10 +199,22 @@ export function AttendanceClient({
   const checkQueue = useCallback(async () => {
     const records = await getPendingAttendances();
     setQueueCount(records.length);
+
+    // Pulihkan status UI secara optimistik jika halaman dimuat ulang sementara data masih ngantre
+    const pendingCheckIn = records.find(r => r.type === "check_in");
+    if (pendingCheckIn) {
+      setIsCheckedIn(true);
+      if (!attendanceId) setAttendanceId(pendingCheckIn.id);
+    }
+    const pendingCheckOut = records.find(r => r.type === "check_out");
+    if (pendingCheckOut) {
+      setIsCheckedOut(true);
+    }
+
     if (typeof window !== "undefined" && navigator.onLine && records.length > 0) {
       await attemptSync();
     }
-  }, [attemptSync]);
+  }, [attemptSync, attendanceId]);
 
   // Online / Offline listeners
   useEffect(() => {
@@ -623,7 +635,7 @@ export function AttendanceClient({
                 ? "bg-primary-600 text-white hover:bg-primary-700 shadow-md shadow-primary-500/20"
                 : "bg-slate-800 text-white hover:bg-slate-900"
             }`}
-            disabled={isCheckedIn || isLoadingGPS}
+            disabled={isCheckedIn || isLoadingGPS || isSyncing}
             onClick={() => void handleAttendance("check_in")}
           >
             {isCheckedIn ? <Check className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
@@ -647,7 +659,7 @@ export function AttendanceClient({
                 ? "bg-primary-700 text-white hover:bg-primary-800 shadow-md shadow-primary-600/20"
                 : "bg-slate-800 text-white hover:bg-slate-900"
             }`}
-            disabled={!isCheckedIn || isCheckedOut || isLoadingGPS}
+            disabled={!isCheckedIn || isCheckedOut || isLoadingGPS || isSyncing}
             onClick={() => void handleAttendance("check_out")}
           >
             {isCheckedOut ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <MapPin className="w-5 h-5" />}
