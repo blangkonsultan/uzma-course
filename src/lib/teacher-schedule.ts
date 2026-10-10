@@ -1,4 +1,4 @@
-import { createClient } from "./supabase/server";
+import { createAdminClient } from "./supabase/admin";
 
 export interface TeacherClassItem {
   id: string;
@@ -55,7 +55,7 @@ interface RawClassRow {
 }
 
 export async function getTeacherActiveSchedule(teacherId: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   // Fetch classes assigned to this teacher in any active draft
   const { data: classes } = await supabase
