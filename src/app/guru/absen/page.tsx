@@ -37,7 +37,7 @@ export default async function AbsenPage() {
 
   const { data: todayClasses } = await adminSupabase
     .from("schedule_classes")
-    .select("id, shift_id, schedule_drafts!inner(branch_id, status)")
+    .select("id, shift_id, start_time, end_time, schedule_drafts!inner(branch_id, status)")
     .eq("teacher_id", profile.id)
     .eq("day_of_week", dayOfWeek)
     .eq("schedule_drafts.status", "active");
@@ -68,12 +68,34 @@ export default async function AbsenPage() {
   const branchIds = activeAssignedBranches.map((b) => b.id);
   const shiftsMap = await getBranchShiftsMap(branchIds);
 
+  // Kumpulkan bounds aktual dari jadwal guru per shift (bukan waktu penuh shift)
+  const shiftBounds: Record<string, { start_time: string; end_time: string }> = {};
+  todayClasses.forEach((c) => {
+    if (!shiftBounds[c.shift_id]) {
+      shiftBounds[c.shift_id] = { start_time: c.start_time, end_time: c.end_time };
+    } else {
+      if (c.start_time < shiftBounds[c.shift_id].start_time) {
+        shiftBounds[c.shift_id].start_time = c.start_time;
+      }
+      if (c.end_time > shiftBounds[c.shift_id].end_time) {
+        shiftBounds[c.shift_id].end_time = c.end_time;
+      }
+    }
+  });
+
   // Filter shift di shiftsMap hanya yang ada di jadwal guru hari ini
+  // dan ganti start_time / end_time-nya dengan waktu aktual yang dimiliki guru
   const shiftIdsWithClassesToday = new Set(todayClasses.map(c => c.shift_id));
   const filteredShiftsMap: Record<string, typeof shiftsMap[string]> = {};
   for (const bId of branchIds) {
     if (shiftsMap[bId]) {
-      filteredShiftsMap[bId] = shiftsMap[bId].filter(s => shiftIdsWithClassesToday.has(s.id));
+      filteredShiftsMap[bId] = shiftsMap[bId]
+        .filter((s) => shiftIdsWithClassesToday.has(s.id))
+        .map((s) => ({
+          ...s,
+          start_time: shiftBounds[s.id].start_time,
+          end_time: shiftBounds[s.id].end_time,
+        }));
     }
   }
 
