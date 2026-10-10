@@ -126,12 +126,13 @@ describe("Branch Data Access (src/lib/branches.ts)", () => {
     const slugRegex = /^[a-z0-9-]+$/;
 
     it("accepts valid lowercase slug IDs", () => {
+      expect(slugRegex.test("sumokembangsri")).toBe(true);
+      expect(slugRegex.test("junwangi")).toBe(true);
       expect(slugRegex.test("balongbendo")).toBe(true);
       expect(slugRegex.test("krian")).toBe(true);
       expect(slugRegex.test("sidoarjo-kota")).toBe(true);
       expect(slugRegex.test("cabang-2")).toBe(true);
     });
-
     it("rejects invalid slugs with uppercase, spaces, or special characters", () => {
       expect(slugRegex.test("Balongbendo")).toBe(false);
       expect(slugRegex.test("krian cabang")).toBe(false);

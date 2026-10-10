@@ -72,6 +72,8 @@ describe("Master Components (src/components/admin/[entity]/)", () => {
     id: "krian",
     name: "Cabang Krian",
     sub_name: "Sentra Ahe",
+    kecamatan: "Krian",
+    desa: "Junwangi",
     code: "01",
     address: "Jl. Raya Krian",
     latitude: 0,

@@ -379,7 +379,7 @@ describe("Admin Core Components (src/components/admin/)", () => {
             created_at: "",
             updated_at: "",
           }}
-          branches={[{ id: "krian", name: "Cabang Krian", sub_name: "", code: "02", address: "", latitude: 0, longitude: 0, geofence_radius_m: 100, map_embed_url: null, gmaps_url: null, is_active: true, created_at: "", updated_at: "" }]}
+          branches={[{ id: "krian", name: "Cabang Krian", sub_name: "", kecamatan: "Krian", desa: "Junwangi", code: "02", address: "", latitude: 0, longitude: 0, geofence_radius_m: 100, map_embed_url: null, gmaps_url: null, is_active: true, created_at: "", updated_at: "" }]}
         >
           <div data-testid="admin-content">Admin Content</div>
         </AdminShell>
