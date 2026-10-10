@@ -440,7 +440,7 @@ export function AttendanceClient({
             <div className="flex items-center justify-between">
               <label htmlFor="branch-selector" className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5 text-primary-600" />
-                <span>Pilih Cabang Tugas Presensi</span>
+                <span>Pilih Lokasi Mengajar</span>
               </label>
               {nearestBranchResult?.branch.id === selectedBranchId && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary-700 bg-primary-50 px-2 py-0.5 rounded-full border border-primary-100">
