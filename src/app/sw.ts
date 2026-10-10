@@ -2,7 +2,7 @@
 
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { Serwist } from "serwist";
+import { Serwist, NetworkFirst, StaleWhileRevalidate } from "serwist";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -17,7 +17,34 @@ const serwist = new Serwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: defaultCache,
+  runtimeCaching: [
+    {
+      matcher: ({ request, url }) => {
+        // Jangan cache halaman admin untuk alasan keamanan data
+        if (url.pathname.startsWith("/admin")) return false;
+        // Cache navigasi HTML
+        return request.mode === "navigate";
+      },
+      handler: new NetworkFirst({
+        cacheName: "uzma-pages-cache",
+        networkTimeoutSeconds: 3, // Cepat jatuh ke cache jika internet mati
+      }),
+    },
+    {
+      matcher: ({ request, url }) => {
+        // Cache data API/RSC dari Next.js untuk navigasi soft-client
+        if (url.pathname.startsWith("/admin")) return false;
+        return (
+          request.headers.get("rsc") === "1" ||
+          request.headers.get("next-router-prefetch") === "1"
+        );
+      },
+      handler: new StaleWhileRevalidate({
+        cacheName: "uzma-rsc-cache",
+      }),
+    },
+    ...defaultCache,
+  ],
 });
 
 serwist.addEventListeners();
