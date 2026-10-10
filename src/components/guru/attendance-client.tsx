@@ -437,8 +437,8 @@ export function AttendanceClient({
         </div>
 
         {queueCount > 0 && (
-          <div className="flex items-center space-x-1.5 text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full text-[11px] font-bold border border-amber-200/60">
-            <RefreshCw className={`w-3 h-3 ${isSyncing ? "animate-spin" : ""}`} />
+          <div className="flex items-center space-x-1.5 text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full text-[11px] font-bold border border-amber-200/60 shadow-2xs">
+            <RefreshCw className={`w-3 h-3 ${isSyncing ? "animate-[spin_1.2s_cubic-bezier(0.4,0,0.2,1)_infinite]" : "transition-transform duration-500 ease-out"}`} />
             <span>{queueCount} Antrean</span>
           </div>
         )}
