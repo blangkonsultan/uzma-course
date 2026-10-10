@@ -45,8 +45,11 @@ SET
   desa = 'Sumokembangsri',
   updated_at = now()
 WHERE id = 'balongbendo';
-
--- 4. Atomic Branch Data Update: Krian -> Junwangi
+UPDATE public.branches
+SET 
+  kecamatan = 'Balongbendo',
+  desa = 'Sumokembangsri'
+WHERE id = 'sumokembangsri' AND (kecamatan = '' OR kecamatan IS NULL);
 UPDATE public.branches
 SET 
   id = 'junwangi',
@@ -57,6 +60,11 @@ SET
   updated_at = now()
 WHERE id = 'krian';
 
+UPDATE public.branches
+SET 
+  kecamatan = 'Krian',
+  desa = 'Junwangi'
+WHERE id = 'junwangi' AND (kecamatan = '' OR kecamatan IS NULL);
 -- 5. Update Landing Page Locations JSON
 UPDATE public.landing_content
 SET content = jsonb_set(
