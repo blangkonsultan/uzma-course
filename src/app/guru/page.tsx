@@ -2,10 +2,30 @@ import { requireGuruPage } from "@/lib/auth";
 import { Clock, Calendar, CheckCircle2, MapPin, CalendarDays, ArrowRight, Wallet } from "lucide-react";
 import Link from "next/link";
 import { LiveClock } from "@/components/guru/live-clock";
+import { getTodayAttendance } from "@/lib/attendances";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { formatTimeString } from "@/lib/utils";
 
 export default async function GuruDashboard() {
   const { profile } = await requireGuruPage();
 
+  const todayAttendance = await getTodayAttendance(profile.id);
+
+  // Ambil rekap bulan ini & 3 aktivitas terakhir
+  const adminSupabase = createAdminClient();
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const { data: monthlyData } = await adminSupabase
+    .from("teacher_attendances")
+    .select("id, check_in_time, branches(name)")
+    .eq("teacher_id", profile.id)
+    .gte("check_in_time", startOfMonth.toISOString())
+    .order("check_in_time", { ascending: false });
+
+  const hadirBulanIni = monthlyData?.length || 0;
+  const recentActivities = monthlyData?.slice(0, 3) || [];
 
   return (
     <div className="p-4 space-y-6">
@@ -24,13 +44,15 @@ export default async function GuruDashboard() {
             <Clock className="w-5 h-5 opacity-80" />
             <span className="font-medium opacity-90">Status Hari Ini</span>
           </div>
-          <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
-            Belum Presensi
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${todayAttendance ? 'bg-emerald-400/20 text-emerald-50' : 'bg-white/20'}`}>
+            {todayAttendance ? 'Sudah Presensi' : 'Belum Presensi'}
           </span>
         </div>
         
         <div className="text-sm opacity-90 leading-relaxed">
-          Jangan lupa untuk melakukan presensi kehadiran di lokasi sekolah sebelum jam mengajar dimulai.
+          {todayAttendance 
+            ? `Terima kasih! Anda telah check-in pada pukul ${formatTimeString(todayAttendance.check_in_time)}.`
+            : 'Jangan lupa untuk melakukan presensi kehadiran di lokasi sekolah sebelum jam mengajar dimulai.'}
         </div>
       </div>
 
@@ -74,7 +96,7 @@ export default async function GuruDashboard() {
           <div className="bg-green-100 p-3 rounded-full text-green-600 mb-1">
             <CheckCircle2 className="w-6 h-6" />
           </div>
-          <span className="text-xl font-bold text-slate-700">0</span>
+          <span className="text-xl font-bold text-slate-700">{hadirBulanIni}</span>
           <span className="text-xs text-slate-500 font-medium">Hadir Bulan Ini</span>
         </div>
         
@@ -92,16 +114,36 @@ export default async function GuruDashboard() {
         <h2 className="text-lg font-bold text-slate-800 mb-4">Aktivitas Terakhir</h2>
         
         <div className="flex flex-col space-y-3">
-          {/* Placeholder items */}
-          <div className="flex items-start p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <div className="bg-blue-100 p-2 rounded-lg text-blue-600 mr-3 mt-1">
-              <MapPin className="w-4 h-4" />
+          {recentActivities.length > 0 ? (
+            recentActivities.map((act) => {
+              const d = new Date(act.check_in_time);
+              const dateStr = d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+              const timeStr = formatTimeString(act.check_in_time);
+              const branchName = act.branches?.name || "Cabang Utama";
+              
+              return (
+                <div key={act.id} className="flex items-start p-3 bg-white shadow-xs rounded-xl border border-slate-100">
+                  <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600 mr-3 mt-1 shrink-0">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-slate-800">Check-in {branchName}</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5 font-medium">{dateStr} • Pukul {timeStr}</p>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="flex items-start p-3 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="bg-blue-100 p-2 rounded-lg text-blue-600 mr-3 mt-1 shrink-0">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-slate-700">Belum ada aktivitas</p>
+                <p className="text-xs text-slate-500 mt-1">Riwayat presensi akan muncul di sini</p>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-sm text-slate-700">Belum ada aktivitas</p>
-              <p className="text-xs text-slate-500 mt-1">Riwayat presensi akan muncul di sini</p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

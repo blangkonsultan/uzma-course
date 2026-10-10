@@ -2,7 +2,8 @@ import { requireGuruPage } from "@/lib/auth";
 import { getTeacherAssignedBranches, getBranchShiftsMap } from "@/lib/teacher-branches";
 import { getTodayAttendance } from "@/lib/attendances";
 import { AttendanceClient } from "@/components/guru/attendance-client";
-import { MapPin, Navigation } from "lucide-react";
+import { MapPin, Navigation, CalendarOff } from "lucide-react";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const metadata = {
   title: "Presensi Kehadiran | Guru Uzma Course",
@@ -28,11 +29,55 @@ export default async function AbsenPage() {
     );
   }
 
-  // 2. Ambil map shift aktif untuk cabang-cabang yang ditugaskan
-  const branchIds = assignedBranches.map((b) => b.id);
+  // 2. Cek apakah guru memiliki jadwal mengajar HARI INI
+  const adminSupabase = createAdminClient();
+  const d = new Date();
+  // Set zona waktu agar aman, tapi untuk now kita pakai waktu server (idealnya WIB)
+  const dayOfWeek = d.getDay() === 0 ? 7 : d.getDay();
+
+  const { data: todayClasses } = await adminSupabase
+    .from("schedule_classes")
+    .select("id, shift_id, schedule_drafts!inner(branch_id, status)")
+    .eq("teacher_id", profile.id)
+    .eq("day_of_week", dayOfWeek)
+    .eq("schedule_drafts.status", "active");
+
+  const hasScheduleToday = todayClasses && todayClasses.length > 0;
+
+  if (!hasScheduleToday) {
+    return (
+      <div className="p-6 flex flex-col items-center justify-center min-h-[50vh] text-center max-w-sm mx-auto space-y-4">
+        <div className="w-20 h-20 bg-slate-50 text-slate-400 rounded-3xl flex items-center justify-center shadow-sm border border-slate-200">
+          <CalendarOff className="w-10 h-10" />
+        </div>
+        <div className="space-y-1.5">
+          <h2 className="text-xl font-bold text-slate-800 tracking-tight">Hari Ini Libur</h2>
+          <p className="text-slate-500 text-sm leading-relaxed">
+            Anda tidak memiliki jadwal mengajar di cabang manapun untuk hari ini. Waktunya beristirahat!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Filter assignedBranches hanya ke cabang tempat guru mengajar hari ini
+  const branchIdsWithClassesToday = new Set(todayClasses.map(c => c.schedule_drafts.branch_id));
+  const activeAssignedBranches = assignedBranches.filter(b => branchIdsWithClassesToday.has(b.id));
+
+  // 3. Ambil map shift aktif untuk cabang-cabang yang memiliki jadwal hari ini
+  const branchIds = activeAssignedBranches.map((b) => b.id);
   const shiftsMap = await getBranchShiftsMap(branchIds);
 
-  // 3. Status presensi hari ini
+  // Filter shift di shiftsMap hanya yang ada di jadwal guru hari ini
+  const shiftIdsWithClassesToday = new Set(todayClasses.map(c => c.shift_id));
+  const filteredShiftsMap: Record<string, typeof shiftsMap[string]> = {};
+  for (const bId of branchIds) {
+    if (shiftsMap[bId]) {
+      filteredShiftsMap[bId] = shiftsMap[bId].filter(s => shiftIdsWithClassesToday.has(s.id));
+    }
+  }
+
+  // 4. Status presensi hari ini
   const todayStatus = await getTodayAttendance(profile.id);
 
   return (
@@ -50,8 +95,8 @@ export default async function AbsenPage() {
 
       <AttendanceClient
         teacherId={profile.id}
-        assignedBranches={assignedBranches}
-        shiftsMap={shiftsMap}
+        assignedBranches={activeAssignedBranches}
+        shiftsMap={filteredShiftsMap}
         initialAttendanceId={todayStatus?.id || null}
         initialIsCheckedIn={!!todayStatus}
         initialIsCheckedOut={!!(todayStatus?.check_out_time)}
