@@ -1,5 +1,13 @@
 # Progress Log
-
+## 2026-10-10 (Village-Based Branch Refactor & Administrative Hierarchy)
+- **Status**: Completed.
+- **Evidence**:
+  - Migrated branches to be village-based: `balongbendo` -> `sumokembangsri` (Cabang Sumokembangsri) and `krian` -> `junwangi` (Cabang Junwangi).
+  - Added structured regional fields `kecamatan` and `desa` to `branches` table with schema migration `20261010140000_village_based_branch_refactor.sql`.
+  - Atomically relinked all 40 students, 11 teacher/admin profiles, 5 branch shifts, and 2 active schedule drafts with 0 orphan records.
+  - Updated DAL (`src/lib/branches.ts`, `src/types/database.ts`), Admin server actions, Branch form, table views, and detail page to display and manage `kecamatan` and `desa`.
+  - Updated public landing page footer, CMS locations config, and SEO JSON-LD structured data.
+  - Full verification suite `./init.sh` passed with 0 ESLint errors/warnings, 233 Vitest tests passing, and clean Turbopack production build.
 ## 2026-10-08 (Global DAL Migration Phase 2)
 - **Status**: Completed.
 - **Evidence**:

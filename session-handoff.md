@@ -1,18 +1,19 @@
 # Session Handoff
 
-## Current State
-The application has undergone a comprehensive refactor to enforce a strict Data Access Layer (DAL) architecture.
-- **Global DAL Migration**: ALL UI components and server actions (`actions.ts`) are now completely free of raw `supabase.from(...)` database queries.
-- **Business Logic Encapsulation**: Read/write operations for Cabang, Guru, Murid, Program, Drafts, Shifts, and Landing have been successfully moved to their respective service files in `src/lib/`.
-- **Centralized Auth**: Server actions now universally use `await requireAdminAction()` from `src/lib/auth.ts`.
-- **Code Quality**: All 230 unit tests pass, and TypeScript/ESLint checks run cleanly (0 errors).
+The application has successfully undergone the Village-Based Branch Refactor & Administrative Hierarchy migration.
+- **Village-Based Identification**: Branches are now aligned with the real-world business licensing model tethered to villages (*desa*): `Cabang Sumokembangsri` (ID: `sumokembangsri`, Kecamatan: `Balongbendo`, Desa: `Sumokembangsri`) and `Cabang Junwangi` (ID: `junwangi`, Kecamatan: `Krian`, Desa: `Junwangi`).
+- **Data Migration & Zero Orphans**: All 40 students, 11 teacher/admin profiles, 5 branch shifts, and 2 active schedule drafts have been atomically relinked to the new identifiers with 0 orphan records.
+- **Structured Regional Fields**: Added `kecamatan` and `desa` to `branches` table, DAL types, Admin forms, table views, and detail pages.
+- **Verification Gate**: 100% verified via `./init.sh` (233 Vitest tests passing, 0 ESLint errors/warnings, Turbopack production build clean).
 
 ## Files Touched
-- `src/app/admin/**/actions.ts` (All server actions)
-- `src/lib/*.ts` (Auth, Board, Branches, Dashboard, Drafts, Gurus, Landing, Programs, Shifts, Storage, Students)
-- `src/components/admin/birthday-dashboard.tsx`
-- `src/app/admin/layout.tsx` & `src/app/admin/page.tsx`
-- `tests/board-actions.test.ts` & `tests/draft-actions.test.ts`
+- `supabase/migrations/20261010140000_village_based_branch_refactor.sql`
+- `src/types/database.ts` & `src/types/index.ts`
+- `src/lib/branches.ts` & `src/lib/landing-content.ts`
+- `src/app/admin/cabang/actions.ts`, `src/app/admin/cabang/page.tsx`, `src/app/admin/cabang/[id]/page.tsx`
+- `src/components/admin/cabang/branch-form.tsx`
+- `src/app/page.tsx` & `src/components/landing/footer.tsx`
+- `tests/branches.test.ts`, `tests/components-admin.test.tsx`, `tests/components-master.test.tsx`
 
 ## Recommended Next Step
-- Begin work on **feat-008: Phase 2b ERP - Teacher Presence & Geolocation**.
+- Continue expanding **Phase 2b ERP - Teacher Presence & Geolocation (feat-008)** reporting and payroll calculation (**feat-010**).
