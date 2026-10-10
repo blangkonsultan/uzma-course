@@ -41,6 +41,10 @@ export function normalizeImageUrl(url: string): string {
 
   return trimmed;
 }
+export function formatBranchName(name: string | null | undefined): string {
+  if (!name) return "";
+  return name.replace(/^(Cabang\s+)/i, "");
+}
 
 /** Format duration in minutes to human-readable Indonesian string */
 export function formatDuration(minutes: number | string): string {

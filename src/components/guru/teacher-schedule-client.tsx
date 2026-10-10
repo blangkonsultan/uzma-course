@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { TeacherClassItem } from "@/lib/teacher-schedule";
-import { formatTimeString } from "@/lib/utils";
+import { formatTimeString, formatBranchName } from "@/lib/utils";
 import { Clock, Users, Calendar, BookOpen, ChevronDown, ChevronUp, MapPin } from "lucide-react";
 
 const DAYS = [
@@ -132,7 +132,7 @@ export function TeacherScheduleClient({
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
                       <MapPin className="w-3 h-3 text-primary-600" />
-                      <span>{cls.branch_name} • {cls.shift_name}</span>
+                      <span>{formatBranchName(cls.branch_name)} • {cls.shift_name}</span>
                     </div>
                     <div className="flex items-center text-xs font-bold text-primary-600 bg-primary-50 px-2.5 py-1 rounded-lg">
                       <Clock className="w-3.5 h-3.5 mr-1" />
