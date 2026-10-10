@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { TeacherClassItem } from "@/lib/teacher-schedule";
 import { formatTimeString, formatBranchName } from "@/lib/utils";
 import { Clock, Users, Calendar, BookOpen, ChevronDown, ChevronUp, MapPin } from "lucide-react";
@@ -26,6 +26,23 @@ export function TeacherScheduleClient({
   const [selectedDay, setSelectedDay] = useState<number>(currentAppDay);
   const [expandedClassId, setExpandedClassId] = useState<string | null>(null);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const activeBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current && activeBtnRef.current) {
+      const container = containerRef.current;
+      const active = activeBtnRef.current;
+      // Scroll the container so the active button is perfectly centered
+      const scrollLeft = active.offsetLeft - (container.offsetWidth / 2) + (active.offsetWidth / 2);
+      
+      container.scrollTo({
+        left: scrollLeft,
+        behavior: "smooth"
+      });
+    }
+  }, [selectedDay]);
+
   const dayClasses = classes.filter((c) => c.day_of_week === selectedDay);
 
   const classCountByDay = classes.reduce((acc, c) => {
@@ -48,7 +65,10 @@ export function TeacherScheduleClient({
       </div>
 
       {/* Horizontal Day Selector Pills */}
-      <div className="flex space-x-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4">
+      <div 
+        ref={containerRef}
+        className="flex space-x-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 snap-x snap-mandatory"
+      >
         {DAYS.map((day) => {
           const isSelected = selectedDay === day.id;
           const count = classCountByDay[day.id] || 0;
@@ -57,9 +77,10 @@ export function TeacherScheduleClient({
           return (
             <button
               key={day.id}
+              ref={isSelected ? activeBtnRef : null}
               type="button"
               onClick={() => setSelectedDay(day.id)}
-              className={`flex flex-col items-center justify-center min-w-[64px] py-2.5 px-3 rounded-xl border transition-all text-xs shrink-0 ${
+              className={`flex flex-col items-center justify-center min-w-[64px] py-2.5 px-3 rounded-xl border transition-all text-xs shrink-0 snap-center ${
                 isSelected
                   ? "bg-primary-600 text-white border-primary-600 shadow-sm shadow-primary-200"
                   : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
