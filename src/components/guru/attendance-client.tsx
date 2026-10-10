@@ -511,7 +511,7 @@ export function AttendanceClient({
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-bold text-slate-800">
-                    Shift {shiftStatusResult.shift.name}
+                    {shiftStatusResult.shift.name.toLowerCase().startsWith("shift") ? shiftStatusResult.shift.name : `Shift ${shiftStatusResult.shift.name}`}
                   </span>
                   <span className="text-[10px] font-semibold text-slate-500">
                     ({formatTimeString(shiftStatusResult.shift.start_time)} - {formatTimeString(shiftStatusResult.shift.end_time)})
