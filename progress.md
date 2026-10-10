@@ -2,12 +2,14 @@
 ## 2026-10-10 (Village-Based Branch Refactor & Administrative Hierarchy)
 - **Status**: Completed.
 - **Evidence**:
+  - Investigated and resolved empty guru list on `/admin/guru`: PostgREST query in `src/lib/gurus.ts` previously attempted an inline join with `profile_branches` table which caused error `PGRST200` (relationship not found in schema cache). Refactored `getPaginatedGurus` and `getGuruById` to query `profiles` reliably with graceful fallback for branch assignments. Verified all 11 active teachers render properly.
+  - Added new comprehensive test suite `tests/gurus.test.ts` (4 new tests, 237 total passing tests across 27 suites).
   - Migrated branches to be village-based: `balongbendo` -> `sumokembangsri` (Cabang Sumokembangsri) and `krian` -> `junwangi` (Cabang Junwangi).
   - Added structured regional fields `kecamatan` and `desa` to `branches` table with schema migration `20261010140000_village_based_branch_refactor.sql`.
   - Atomically relinked all 40 students, 11 teacher/admin profiles, 5 branch shifts, and 2 active schedule drafts with 0 orphan records.
   - Updated DAL (`src/lib/branches.ts`, `src/types/database.ts`), Admin server actions, Branch form, table views, and detail page to display and manage `kecamatan` and `desa`.
   - Updated public landing page footer, CMS locations config, and SEO JSON-LD structured data.
-  - Full verification suite `./init.sh` passed with 0 ESLint errors/warnings, 233 Vitest tests passing, and clean Turbopack production build.
+  - Full verification suite `./init.sh` passed with 0 ESLint errors/warnings, 237 Vitest tests passing, and clean Turbopack production build.
 ## 2026-10-08 (Global DAL Migration Phase 2)
 - **Status**: Completed.
 - **Evidence**:
