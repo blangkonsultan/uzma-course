@@ -50,7 +50,7 @@ export function LoginForm() {
         .eq("id", user.id)
         .single();
 
-      const destination = profile?.role === "guru" ? "/guru" : (nextUrl === "/admin" ? "/admin" : nextUrl);
+      const destination = profile?.role === "guru" ? "/guru/absen" : (nextUrl === "/admin" ? "/admin" : nextUrl);
       window.location.href = destination;
     } catch (err: unknown) {
       setError(

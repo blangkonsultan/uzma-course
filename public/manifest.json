@@ -2,7 +2,7 @@
   "name": "Uzma Course Guru",
   "short_name": "Uzma Guru",
   "description": "Portal Presensi dan Mengajar Uzma Course",
-  "start_url": "/guru",
+  "start_url": "/guru/absen",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#7c3aed",
