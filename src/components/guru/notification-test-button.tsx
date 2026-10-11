@@ -25,12 +25,13 @@ export function NotificationTestButton() {
       if (perm === "granted") {
         // Coba tampilkan menggunakan Service Worker terlebih dahulu
         let shown = false;
+        let errorMessage = "";
+        
         if ("serviceWorker" in navigator) {
           try {
-            // Gunakan Promise.race untuk mencegah infinite loop jika SW stuck
-            const readyPromise = navigator.serviceWorker.ready;
-            const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('SW Timeout')), 1500));
-            const reg = await Promise.race([readyPromise, timeoutPromise]);
+            // Dapatkan registrasi SW langsung tanpa menunggu (mencegah hang)
+            const regs = await navigator.serviceWorker.getRegistrations();
+            const reg = regs.length > 0 ? regs[0] : await navigator.serviceWorker.getRegistration();
 
             if (reg && reg.showNotification) {
               await reg.showNotification("Uzma Course", {
@@ -39,22 +40,34 @@ export function NotificationTestButton() {
                 badge: "/icon.jpeg",
               });
               shown = true;
+            } else {
+              errorMessage = "Service Worker belum aktif sepenuhnya.";
             }
-          } catch (e: unknown) {
+          } catch (e: any) {
             console.error("SW showNotification error:", e);
-            shown = false;
+            errorMessage = e.message || "Unknown SW error";
           }
         }
 
         if (!shown) {
-          // Fallback ke Notification API klasik jika SW gagal (sering terjadi di iOS/Desktop tertentu)
-          new Notification("Uzma Course", {
-            body: "Notifikasi PWA berfungsi dengan baik! 🔔",
-            icon: "/icon.jpeg",
-          });
+          try {
+            // Fallback ke Notification API klasik jika SW gagal
+            new Notification("Uzma Course", {
+              body: "Notifikasi PWA berfungsi dengan baik! 🔔",
+              icon: "/icon.jpeg",
+            });
+            shown = true;
+          } catch (err: any) {
+            console.error("Classic notification failed:", err);
+            errorMessage = err.message || "Fallback failed";
+          }
         }
 
-        showToast("Notifikasi berhasil dikirim!", "success");
+        if (shown) {
+          showToast("Notifikasi berhasil dikirim!", "success");
+        } else {
+          showToast(`Gagal: ${errorMessage}`, "error");
+        }
       } else if (perm === "denied") {
         showToast("Izin notifikasi diblokir. Harap aktifkan di pengaturan browser.", "error");
       } else {
