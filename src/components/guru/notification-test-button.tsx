@@ -27,8 +27,11 @@ export function NotificationTestButton() {
         let shown = false;
         if ("serviceWorker" in navigator) {
           try {
-            // navigator.serviceWorker.ready menjamin kita mendapatkan instance SW yang aktif
-            const reg = await navigator.serviceWorker.ready;
+            // Gunakan Promise.race untuk mencegah infinite loop jika SW stuck
+            const readyPromise = navigator.serviceWorker.ready;
+            const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('SW Timeout')), 1500));
+            const reg = await Promise.race([readyPromise, timeoutPromise]);
+
             if (reg && reg.showNotification) {
               await reg.showNotification("Uzma Course", {
                 body: "Notifikasi PWA berfungsi dengan baik! 🔔",
