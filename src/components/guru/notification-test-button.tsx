@@ -23,27 +23,30 @@ export function NotificationTestButton() {
       }
 
       if (perm === "granted") {
-        // Try displaying via Service Worker registration first if active, fallback to new Notification
+        // Coba tampilkan menggunakan Service Worker terlebih dahulu
         let shown = false;
         if ("serviceWorker" in navigator) {
           try {
-            const reg = await navigator.serviceWorker.getRegistration();
-            if (reg) {
-              await reg.showNotification("Uzma Course PWA", {
-                body: "Notifikasi sistem berfungsi dengan baik! 🔔",
+            // navigator.serviceWorker.ready menjamin kita mendapatkan instance SW yang aktif
+            const reg = await navigator.serviceWorker.ready;
+            if (reg && reg.showNotification) {
+              await reg.showNotification("Uzma Course", {
+                body: "Notifikasi PWA berfungsi dengan baik! 🔔",
                 icon: "/icon.jpeg",
                 badge: "/icon.jpeg",
               });
               shown = true;
             }
-          } catch {
+          } catch (e: unknown) {
+            console.error("SW showNotification error:", e);
             shown = false;
           }
         }
 
         if (!shown) {
-          new Notification("Uzma Course PWA", {
-            body: "Notifikasi sistem berfungsi dengan baik! 🔔",
+          // Fallback ke Notification API klasik jika SW gagal (sering terjadi di iOS/Desktop tertentu)
+          new Notification("Uzma Course", {
+            body: "Notifikasi PWA berfungsi dengan baik! 🔔",
             icon: "/icon.jpeg",
           });
         }
