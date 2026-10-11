@@ -30,6 +30,7 @@ import {
   processOnlineCheckIn,
   processOnlineCheckOut,
 } from "@/app/guru/absen/actions";
+import { showToast } from "@/components/admin/toast";
 import type { Branch } from "@/types";
 import type { BranchShift } from "@/lib/shifts";
 
@@ -185,6 +186,7 @@ export function AttendanceClient({
 
       if (result.success.length > 0) {
         await removePendingAttendances(result.success);
+        showToast(`${result.success.length} antrean berhasil disinkronkan ke server!`, "success");
       }
 
       const remaining = await getPendingAttendances();
@@ -330,8 +332,10 @@ export function AttendanceClient({
 
     if (type === "check_in") {
       setIsCheckedIn(true);
+      showToast("Koneksi terputus. Presensi masuk antrean offline.", "error");
     } else {
       setIsCheckedOut(true);
+      showToast("Koneksi terputus. Presensi masuk antrean offline.", "error");
     }
   }
 
@@ -364,6 +368,7 @@ export function AttendanceClient({
             if (res.success && res.data) {
               setIsCheckedIn(true);
               setAttendanceId(res.data.id);
+              showToast("Berhasil absen masuk!", "success");
             } else {
               throw new Error(res.error || "Gagal mencatat presensi online");
             }
@@ -374,6 +379,7 @@ export function AttendanceClient({
             const res = await processOnlineCheckOut(attendanceId, latitude, longitude, timestamp);
             if (res.success) {
               setIsCheckedOut(true);
+              showToast("Berhasil absen pulang!", "success");
             } else {
               throw new Error(res.error || "Gagal mencatat presensi online");
             }
