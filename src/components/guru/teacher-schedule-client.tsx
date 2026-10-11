@@ -67,10 +67,8 @@ export function TeacherScheduleClient({
       {/* Horizontal Day Selector Pills */}
       <div 
         ref={containerRef}
-        className="flex space-x-3 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory"
+        className="flex space-x-3 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-4 -mx-4"
       >
-        {/* Spacer Kiri: Memberi ruang agar item pertama bisa ke tengah */}
-        <div className="w-[calc(50%-44px)] shrink-0" aria-hidden="true" />
         {DAYS.map((day) => {
           const isSelected = selectedDay === day.id;
           const count = classCountByDay[day.id] || 0;
@@ -120,8 +118,6 @@ export function TeacherScheduleClient({
             </button>
           );
         })}
-        {/* Spacer Kanan: Memberi ruang agar item terakhir bisa ke tengah */}
-        <div className="w-[calc(50%-44px)] shrink-0" aria-hidden="true" />
       </div>
 
       {/* Class List for Selected Day */}
