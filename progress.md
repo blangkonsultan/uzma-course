@@ -1,4 +1,12 @@
 # Progress Log
+## 2026-10-14 (Phase 1 Security & Authorization Spec Completed)
+- **Status**: Completed (Design & Specification Gate).
+- **Evidence**:
+  - Formulated full architectural specification for Phase 1 remediation: `docs/superpowers/specs/2026-10-14-phase1-security-hardening-design.md`.
+  - Covers S1 (role hardcoding in `handle_new_user` trigger), S2 (enabling RLS on `program_variants` and `branch_shifts`), S3 (explicit `NetworkOnly` boundary on `/admin/*` in `sw.ts` with legacy cache purge, preserving IndexedDB), S4 (`sanitizeNextUrl` to prevent open redirects and script injection), and S5 (admin authorization and strict HTTPS host allowlist for `extractCoordinatesFromUrl`).
+  - Established zero-downtime cutover sequence and test plan across Vitest unit suites and production smoke tests.
+  - No code or database mutations performed in this step. Awaiting user review gate before implementation planning.
+
 ## 2026-10-14 (Guru Profile Notification Polish & Mobile PWA Service Worker Fix)
 - **Status**: Completed.
 - **Evidence**:
