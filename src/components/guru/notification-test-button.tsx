@@ -8,19 +8,23 @@ export function NotificationTestButton() {
   const [testing, setTesting] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
   const [isRequesting, setIsRequesting] = useState(false);
+  const [permissionStatus, setPermissionStatus] = useState<string>("default");
 
   // Periksa izin saat pertama kali dibuka
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
       const savedPref = localStorage.getItem("pwa_notif_enabled");
-      const isGranted = Notification.permission === "granted";
-      
-      // Aktif jika izin granted DAN user tidak sengaja mematikan di localStorage
-      if (isGranted && savedPref !== "false") {
-        setIsEnabled(true);
-      } else {
-        setIsEnabled(false);
-      }
+      const perm = Notification.permission;
+      const active = perm === "granted" && savedPref !== "false";
+
+      queueMicrotask(() => {
+        setPermissionStatus(perm);
+        setIsEnabled(active);
+      });
+    } else {
+      queueMicrotask(() => {
+        setPermissionStatus("unsupported");
+      });
     }
   }, []);
 
@@ -45,6 +49,7 @@ export function NotificationTestButton() {
 
       if (perm !== "granted") {
         perm = await Notification.requestPermission();
+        setPermissionStatus(perm);
       }
 
       if (perm === "granted") {
@@ -80,14 +85,30 @@ export function NotificationTestButton() {
 
       if ("serviceWorker" in navigator) {
         try {
+          let reg: ServiceWorkerRegistration | undefined;
           const regs = await navigator.serviceWorker.getRegistrations();
-          const reg = regs.length > 0 ? regs[0] : await navigator.serviceWorker.getRegistration();
+          if (regs.length > 0) {
+            reg = regs[0];
+          } else {
+            reg = (await navigator.serviceWorker.getRegistration()) ?? undefined;
+          }
 
-          if (reg && reg.showNotification) {
-            await reg.showNotification("Uzma Course", {
+          if (!reg) {
+            reg = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+          }
+
+          const readyPromise = navigator.serviceWorker.ready;
+          const timeoutPromise = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("Timeout menunggu Service Worker aktif.")), 4000)
+          );
+          const activeReg = (await Promise.race([readyPromise, timeoutPromise])) as ServiceWorkerRegistration;
+
+          if (activeReg && activeReg.showNotification) {
+            await activeReg.showNotification("Uzma Course", {
               body: "Notifikasi PWA berfungsi dengan baik! 🔔",
               icon: "/icon.jpeg",
               badge: "/icon.jpeg",
+              tag: "uzma-test-notification",
             });
             shown = true;
           } else {
@@ -98,7 +119,7 @@ export function NotificationTestButton() {
         }
       }
 
-      if (!shown) {
+      if (!shown && typeof window !== "undefined" && "Notification" in window) {
         try {
           new Notification("Uzma Course", {
             body: "Notifikasi PWA berfungsi dengan baik! 🔔",
@@ -123,15 +144,28 @@ export function NotificationTestButton() {
   }
 
   return (
-    <div className="p-4 border-b border-slate-100 flex flex-col space-y-3">
-      {/* Baris Toggle Izin */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3 text-slate-700">
-          <Bell className="w-5 h-5 text-slate-400" />
-          <div>
-            <span className="font-medium text-sm block">Notifikasi Perangkat</span>
-            <span className="text-[11px] text-slate-400 block">
-              {isEnabled ? "Izin aktif & terhubung" : "Izin nonaktif / belum diberikan"}
+    <div className="border-b border-slate-100 transition-colors">
+      {/* Baris Toggle Izin Utama */}
+      <div className="p-4 flex items-center justify-between gap-3">
+        <div className="flex items-center space-x-3 text-slate-700 min-w-0">
+          <Bell className={`w-5 h-5 shrink-0 transition-colors ${isEnabled ? "text-primary-600" : "text-slate-400"}`} />
+          <div className="min-w-0">
+            <span className="font-medium text-slate-800 text-sm block">Notifikasi Perangkat</span>
+            <span className="text-[11px] block mt-0.5">
+              {isRequesting ? (
+                <span className="text-primary-600 flex items-center gap-1 font-medium">
+                  <Loader2 className="w-3 h-3 animate-spin inline shrink-0" />
+                  Meminta izin...
+                </span>
+              ) : permissionStatus === "unsupported" ? (
+                <span className="text-slate-400">Tidak didukung di perangkat ini</span>
+              ) : permissionStatus === "denied" && !isEnabled ? (
+                <span className="text-amber-600 font-medium">Izin diblokir di browser</span>
+              ) : isEnabled ? (
+                <span className="text-emerald-600 font-medium">Izin aktif &amp; terhubung</span>
+              ) : (
+                <span className="text-slate-400">Izin nonaktif</span>
+              )}
             </span>
           </div>
         </div>
@@ -141,9 +175,10 @@ export function NotificationTestButton() {
           type="button"
           role="switch"
           aria-checked={isEnabled}
+          aria-label="Aktifkan notifikasi perangkat"
           onClick={() => void handleToggle()}
           disabled={isRequesting}
-          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500/20 ${
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500/20 disabled:opacity-50 ${
             isEnabled ? "bg-primary-600" : "bg-slate-200"
           }`}
         >
@@ -155,35 +190,40 @@ export function NotificationTestButton() {
         </button>
       </div>
 
-      {/* Baris Tombol Uji Coba */}
-      <div className="flex items-center justify-between pt-1">
-        <span className="text-xs text-slate-500">
-          Uji coba mengirim notifikasi ke bilah HP
-        </span>
+      {/* Sub-panel Uji Coba Diagnostik (Progressive Disclosure: Hanya saat aktif) */}
+      {isEnabled && (
+        <div className="px-4 pb-4 pt-0">
+          <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="min-w-0 flex-1">
+              <span className="text-xs font-semibold text-slate-700 block">
+                Tes Pengiriman
+              </span>
+              <span className="text-[11px] text-slate-400 block mt-0.5 leading-snug">
+                Kirim pesan uji coba ke bilah HP
+              </span>
+            </div>
 
-        <button
-          type="button"
-          onClick={() => void handleCheckNotification()}
-          disabled={!isEnabled || testing}
-          className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all ${
-            isEnabled && !testing
-              ? "bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-200 cursor-pointer shadow-2xs"
-              : "bg-slate-100 text-slate-400 border border-slate-200/60 cursor-not-allowed opacity-70"
-          }`}
-        >
-          {testing ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-primary-600" />
-              <span>Mengirim...</span>
-            </>
-          ) : (
-            <>
-              <Send className="w-3 h-3" />
-              <span>Uji Coba</span>
-            </>
-          )}
-        </button>
-      </div>
+            <button
+              type="button"
+              onClick={() => void handleCheckNotification()}
+              disabled={testing}
+              className="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap bg-white text-primary-700 hover:bg-primary-50 active:scale-95 border border-primary-200/80 shadow-2xs disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {testing ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-primary-600 shrink-0" />
+                  <span>Mengirim...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-3 h-3 text-primary-600 shrink-0" />
+                  <span>Uji Coba</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

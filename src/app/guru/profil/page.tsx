@@ -18,7 +18,7 @@ export default async function ProfilPage() {
           <h2 className="text-xl font-bold text-slate-800">{profile?.full_name || "Guru"}</h2>
           <p className="text-slate-500 text-sm mt-1">{user?.email || "guru@example.com"}</p>
         </div>
-        <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+        <div className="bg-primary-50 text-primary-700 border border-primary-200/60 px-3 py-1 rounded-full text-xs font-semibold">
           Guru
         </div>
       </div>

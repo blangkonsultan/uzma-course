@@ -4,7 +4,6 @@ import Link from "next/link";
 import { LiveClock } from "@/components/guru/live-clock";
 import { getTodayAttendance } from "@/lib/attendances";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { formatTimeString } from "@/lib/utils";
 
 function formatWIB(isoString: string) {
   const d = new Date(isoString);

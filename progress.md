@@ -1,4 +1,18 @@
 # Progress Log
+## 2026-10-14 (Guru Profile Notification Polish & Mobile PWA Service Worker Fix)
+- **Status**: Completed.
+- **Evidence**:
+  - Investigated mobile notification failure on Brave & Edge Android: Next.js 16 defaults to Turbopack which bypassed Serwist's Webpack plugin on Vercel, leaving `/sw.js` as 404 in production. Desktop browsers fell back to `new Notification()`, while mobile Chromium strictly requires `ServiceWorkerRegistration.showNotification()`.
+  - Configured `package.json` `"build": "next build --webpack"` to guarantee Serwist compiles `public/sw.js` during production builds.
+  - Generated and included `public/sw.js` in the repository, adding it to `globalIgnores` in `eslint.config.mjs`.
+  - Polished `NotificationTestButton` UI with progressive disclosure, pill-shaped action button (`rounded-full`), preventing layout squeeze and awkward text wrapping on mobile viewports.
+  - Resolved React 19 / ESLint `react-hooks/set-state-in-effect` by initializing client-side permission state via asynchronous microtask queue.
+  - Hardened notification trigger in `notification-test-button.tsx` to actively register `/sw.js` and wait for `navigator.serviceWorker.ready` with `tag: "uzma-test-notification"`.
+  - Aligned Guru profile role badge to `DESIGN.md` brand palette (`bg-primary-50 text-primary-700 border border-primary-200/60`).
+  - Added comprehensive unit test suite `tests/components/notification-test-button.test.tsx` (5 passing tests).
+  - Removed unused import `formatTimeString` in `src/app/guru/page.tsx`.
+  - Verified `./init.sh`: 0 ESLint errors/warnings, 28 test suites (242 tests passing), and clean production build.
+
 ## 2026-10-10 (Village-Based Branch Refactor & Administrative Hierarchy)
 - **Status**: Completed.
 - **Evidence**:

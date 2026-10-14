@@ -1,6 +1,7 @@
 import { requireGuruPage } from "@/lib/auth";
 import { GuruBottomNav } from "@/components/guru/guru-bottom-nav";
 import type { Viewport } from "next";
+import { Toast } from "@/components/admin/toast";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -23,8 +24,8 @@ export default async function GuruLayout({
       <main className="flex-1 w-full max-w-md mx-auto bg-white shadow-sm h-full">
         {children}
       </main>
-
       <GuruBottomNav />
+      <Toast />
     </div>
   );
 }
