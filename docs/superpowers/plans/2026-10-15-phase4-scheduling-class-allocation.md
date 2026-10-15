@@ -246,22 +246,24 @@ git commit -m "feat(board): include secondary branch teachers in scheduling pool
 
 ---
 
-### Task 2: Student Number Preservation on Edit (A10)
+### Task 2: Student Number Format (01001 / 02001) & Preservation on Edit (A10)
 
 **Files:**
-- Modify: `src/app/admin/murid/actions.ts:135-160`
+- Modify: `src/lib/students.ts` (`generateStudentNumber`)
+- Modify: `src/app/admin/murid/actions.ts:135-160` (`updateStudent`)
 - Test: `tests/crud/student-number-stability.test.ts`
 
 **Interfaces:**
-- Produces: `updateStudent(id: string, formData: FormData)` in `src/app/admin/murid/actions.ts`
+- Produces: `generateStudentNumber(branchId: string, joinedDate?: string): Promise<string>` in `src/lib/students.ts` (returns `01001`... for Sumokembangsri, `02001`... for Junwangi)
+- Produces: `updateStudent(id: string, formData: FormData)` in `src/app/admin/murid/actions.ts` (preserves existing student number)
 
-- [ ] **Step 1: Write failing test verifying student number is preserved on routine profile edits**
+- [ ] **Step 1: Write failing tests for student number format and preservation on edit**
 
 Create `tests/crud/student-number-stability.test.ts`:
 ```typescript
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { updateStudent } from "@/app/admin/murid/actions";
-import { updateStudentData } from "@/lib/students";
+import { generateStudentNumber, updateStudentData } from "@/lib/students";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdminAction } from "@/lib/auth";
 
@@ -289,6 +291,47 @@ describe("Student Number Stability", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
+  it("generates canonical 5-digit number: 01001 for Sumokembangsri and 02001 for Junwangi", async () => {
+    const mockSupabase = {
+      from: vi.fn((table: string) => {
+        if (table === "branches") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockImplementation((_col: string, val: string) => ({
+                single: vi.fn().mockResolvedValue({
+                  data: { code: val === "sumokembangsri" ? "01" : "02" },
+                  error: null,
+                }),
+              })),
+            }),
+          };
+        }
+        if (table === "students") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockImplementation((_col: string, val: string) => ({
+                not: vi.fn().mockResolvedValue({
+                  data: val === "sumokembangsri"
+                    ? [{ student_number: "01001" }, { student_number: "01002" }]
+                    : [{ student_number: "02001" }],
+                  error: null,
+                }),
+              })),
+            }),
+          };
+        }
+        return {};
+      }),
+    };
+    vi.mocked(createClient).mockResolvedValue(mockSupabase as never);
+
+    const sumoNum = await generateStudentNumber("sumokembangsri");
+    expect(sumoNum).toBe("01003");
+
+    const junwangiNum = await generateStudentNumber("junwangi");
+    expect(junwangiNum).toBe("02002");
+  });
+
 
   it("preserves existing student_number during ordinary edits when not provided in form", async () => {
     const existingStudentNumber = "2610.01.005";
@@ -338,7 +381,50 @@ describe("Student Number Stability", () => {
 Run: `npx vitest run tests/crud/student-number-stability.test.ts --coverage=false`
 Expected: FAIL (generates new number instead of preserving existing).
 
-- [ ] **Step 3: Update `updateStudent` in `src/app/admin/murid/actions.ts`**
+- [ ] **Step 3: Update `generateStudentNumber` in `src/lib/students.ts` and `updateStudent` in `src/app/admin/murid/actions.ts`**
+
+In `src/lib/students.ts:generateStudentNumber`:
+```typescript
+export async function generateStudentNumber(
+  branchId: string,
+  _joinedDate?: string
+): Promise<string> {
+  const supabase = await createClient();
+  const { data: branchData } = await supabase
+    .from("branches")
+    .select("code")
+    .eq("id", branchId)
+    .single();
+
+  let branchCode = branchData?.code;
+  if (!branchCode) {
+    branchCode = (branchId === "sumokembangsri" || branchId === "balongbendo") ? "01" : "02";
+  }
+
+  const { data: students } = await supabase
+    .from("students")
+    .select("student_number")
+    .eq("branch_id", branchId)
+    .not("student_number", "is", null);
+
+  let nextNum = 1;
+  if (students && students.length > 0) {
+    for (const s of students) {
+      if (!s.student_number) continue;
+      const regex = new RegExp(`^${branchCode}(\\d{3,})$`);
+      const match = s.student_number.match(regex);
+      if (match && match[1]) {
+        const parsed = parseInt(match[1], 10);
+        if (parsed >= nextNum) {
+          nextNum = parsed + 1;
+        }
+      }
+    }
+  }
+
+  return `${branchCode}${nextNum.toString().padStart(3, "0")}`;
+}
+```
 
 In `src/app/admin/murid/actions.ts:updateStudent`:
 ```typescript
@@ -355,20 +441,20 @@ In `src/app/admin/murid/actions.ts:updateStudent`:
   }
 
   if (!studentNumber && branchId) {
-    studentNumber = await generateStudentNumber(branchId, joinedDate || existingStudent?.joined_date);
+    studentNumber = await generateStudentNumber(branchId);
   }
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/crud/student-number-stability.test.ts --coverage=false`
-Expected: PASS (1 test passing)
+Expected: PASS (2 tests passing)
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/app/admin/murid/actions.ts tests/crud/student-number-stability.test.ts
-git commit -m "fix(murid): preserve existing student number during routine edits"
+git add src/lib/students.ts src/app/admin/murid/actions.ts tests/crud/student-number-stability.test.ts
+git commit -m "feat(murid): format student numbers as 5-digit 01001/02001 and preserve on edit"
 ```
 
 ---

@@ -186,6 +186,18 @@ if (!studentNumber && branchId) {
   studentNumber = await generateStudentNumber(branchId, joinedDate || existingStudent?.joined_date);
 }
 ```
+#### 2.2.2 Nomor Induk Murid (Student Number) Format
+The canonical format for `student_number` is a 5-digit string composed of the 2-digit branch code followed by a 3-digit sequential number:
+`{branch_code}{sequence_padded}`:
+- **Cabang Sumokembangsri** (`code = "01"`): `01001`, `01002`, `01003`, ...
+- **Cabang Junwangi** (`code = "02"`): `02001`, `02002`, `02003`, ...
+
+In `src/lib/students.ts:generateStudentNumber`:
+1. Determine `branchCode` (`"01"` for Sumokembangsri, `"02"` for Junwangi).
+2. Query existing students in `branch_id` matching `^{branchCode}(\\d{3,})$`.
+3. Compute `nextNum = Math.max(...existingSeq) + 1` (starting at 1 / `001`).
+4. Return `${branchCode}${nextNum.toString().padStart(3, "0")}`.
+
 
 #### 2.2.2 Active Status & Weekly Quota Enforcement
 In `src/components/admin/board/add-student-modal.tsx`:
