@@ -13,6 +13,7 @@ import { Card, CardBody } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { showToast } from "@/components/admin/toast";
 import type { Student, Program, Branch, StudentProgram } from "@/types";
+import { STUDENT_PROGRAM_STATUS_OPTIONS } from "@/types";
 import { formatClassRatio } from "@/lib/utils";
 
 interface StudentFormProps {
@@ -59,8 +60,9 @@ export function StudentForm({
   });
 
   const [studentPrograms, setStudentPrograms] = useState<StudentProgramState[]>(() => {
-    if (initialStudentPrograms && initialStudentPrograms.length > 0) {
-      return initialStudentPrograms.map(sp => ({
+    const existingPrograms = initialStudentPrograms || ((initialData as Record<string, unknown>)?.student_programs as StudentProgram[] | undefined);
+    if (existingPrograms && existingPrograms.length > 0) {
+      return existingPrograms.map(sp => ({
         program_id: sp.program_id,
         variant_id: sp.variant_id || "",
         spp_amount: sp.spp_amount ?? 0,
@@ -437,11 +439,7 @@ export function StudentForm({
                           name={`status_${sp.program_id}`}
                           label="Status Program"
                           required
-                          options={[
-                            { value: 'active', label: 'Sedang Aktif' },
-                            { value: 'graduated', label: 'Lulus' },
-                            { value: 'inactive', label: 'Berhenti / Tidak Aktif' }
-                          ]}
+                          options={STUDENT_PROGRAM_STATUS_OPTIONS}
                           value={sp.status || 'active'}
                           onChange={(e) => updateStudentProgram(sp.program_id, "status", e.target.value)}
                           disabled={isPending}

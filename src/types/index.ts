@@ -35,5 +35,13 @@ export type ProfileProgramUpdate = Database["public"]["Tables"]["profile_program
 export type LandingContent = Database["public"]["Tables"]["landing_content"]["Row"];
 
 export type UserRole = "admin" | "guru";
+export type StudentProgramStatus = "active" | "cuti" | "lulus" | "keluar";
+
+export const STUDENT_PROGRAM_STATUS_OPTIONS: { value: StudentProgramStatus; label: string }[] = [
+  { value: "active", label: "Sedang Aktif" },
+  { value: "cuti", label: "Cuti Sementara" },
+  { value: "lulus", label: "Lulus" },
+  { value: "keluar", label: "Keluar / Berhenti" },
+];
 
 export type { Database } from "./database";

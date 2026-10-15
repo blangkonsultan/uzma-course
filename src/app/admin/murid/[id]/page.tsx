@@ -210,8 +210,20 @@ export default async function StudentDetailPage({
                             Program Terdaftar
                           </span>
                           {sp.status && sp.status !== "active" && (
-                            <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${sp.status === 'graduated' ? 'text-emerald-700 bg-emerald-100' : 'text-slate-600 bg-slate-100'}`}>
-                              {sp.status === 'graduated' ? 'LULUS' : 'TIDAK AKTIF'}
+                            <span
+                              className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
+                                sp.status === "lulus" || sp.status === "graduated"
+                                  ? "text-emerald-700 bg-emerald-100"
+                                  : sp.status === "cuti"
+                                  ? "text-amber-700 bg-amber-100"
+                                  : "text-rose-700 bg-rose-100"
+                              }`}
+                            >
+                              {sp.status === "lulus" || sp.status === "graduated"
+                                ? "LULUS"
+                                : sp.status === "cuti"
+                                ? "CUTI"
+                                : "KELUAR"}
                             </span>
                           )}
                         </div>
