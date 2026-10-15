@@ -96,7 +96,7 @@ export async function processOnlineCheckIn(
   const supabase = await createClient();
   const { data: branch, error: branchErr } = await supabase
     .from("branches")
-    .select("latitude, longitude, radius_meters, is_active")
+    .select("latitude, longitude, geofence_radius_m, is_active")
     .eq("id", branchId)
     .single();
 
@@ -111,7 +111,7 @@ export async function processOnlineCheckIn(
       branch.latitude,
       branch.longitude
     );
-    const maxRadius = branch.radius_meters || 100;
+    const maxRadius = branch.geofence_radius_m || 100;
     if (distanceMeters > maxRadius) {
       return {
         success: false,

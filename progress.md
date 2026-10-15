@@ -1,4 +1,13 @@
 # Progress Log
+## 2026-10-15 (Phase 3 Teacher Attendance Lifecycle & PWA Offline Model Implementation Completed)
+- **Status**: Completed.
+- **Evidence**:
+  - Added `getWIBDateBounds` in `src/lib/attendances.ts` and created database migration `supabase/migrations/20261015110000_phase3_teacher_attendance_shift_and_idempotency.sql` adding `shift_id` to `teacher_attendances` with session index (`tests/utils/wib-timezone.test.ts` and `tests/security/attendance-migration-schema.test.ts` passing 5 tests).
+  - Enforced strict database mutation error throwing in `insertCheckIn` / `updateCheckOut`, deterministic client UUID upsert with idempotency, and server-side geofence radius validation in `src/app/guru/absen/actions.ts:processOnlineCheckIn` (`tests/crud/attendance-server-validation.test.ts` passing 4 tests).
+  - Modernized `src/lib/pwa/db.ts` with `transaction.oncomplete` disk persistence, added `attendance_id` and `shift_id` to `PendingAttendance`, isolated offline queues per teacher ID, and synchronized targeted check-outs in `syncOfflineAttendances` (`tests/pwa/offline-queue-lifecycle.test.ts` passing 3 tests).
+  - Stabilized attendance client state with `isSyncingRef` preventing infinite re-sync loops, guarded location unmount lifecycle with `isMountedRef`, cleared stale coordinates on GPS error, handled empty branches without crashing, sorted shifts by teacher bounds, and updated toast mobile geometry (`tests/components/toast-responsive.test.tsx` passing 1 test).
+  - Verified full test suite and build via `./init.sh`: 0 ESLint errors/warnings, 42 Vitest suites (287 tests passing, 61.83% statements, 58.22% branches, 64.92% functions, 62.92% lines exceeding all thresholds), and clean Webpack production build.
+
 ## 2026-10-15 (Phase 3 Teacher Attendance Lifecycle & PWA Offline Model Spec Completed)
 - **Status**: Completed (Design & Specification Gate).
 - **Evidence**:

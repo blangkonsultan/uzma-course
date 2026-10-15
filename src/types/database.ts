@@ -303,13 +303,13 @@ isOneToOne: false
                 },
                 "teacher_attendances": {
                   Row: {
-                    "branch_id": string,"check_in_lat": number | null,"check_in_lng": number | null,"check_in_time": string,"check_out_lat": number | null,"check_out_lng": number | null,"check_out_time": string | null,"created_at": string,"id": string,"notes": string | null,"teacher_id": string
+                    "branch_id": string,"check_in_lat": number | null,"check_in_lng": number | null,"check_in_time": string,"check_out_lat": number | null,"check_out_lng": number | null,"check_out_time": string | null,"created_at": string,"id": string,"notes": string | null,"shift_id": string | null,"teacher_id": string
                   }
                   Insert: {
-                    "branch_id": string,"check_in_lat"?: number | null,"check_in_lng"?: number | null,"check_in_time": string,"check_out_lat"?: number | null,"check_out_lng"?: number | null,"check_out_time"?: string | null,"created_at"?: string,"id"?: string,"notes"?: string | null,"teacher_id": string
+                    "branch_id": string,"check_in_lat"?: number | null,"check_in_lng"?: number | null,"check_in_time": string,"check_out_lat"?: number | null,"check_out_lng"?: number | null,"check_out_time"?: string | null,"created_at"?: string,"id"?: string,"notes"?: string | null,"shift_id"?: string | null,"teacher_id": string
                   }
                   Update: {
-                    "branch_id"?: string,"check_in_lat"?: number | null,"check_in_lng"?: number | null,"check_in_time"?: string,"check_out_lat"?: number | null,"check_out_lng"?: number | null,"check_out_time"?: string | null,"created_at"?: string,"id"?: string,"notes"?: string | null,"teacher_id"?: string
+                    "branch_id"?: string,"check_in_lat"?: number | null,"check_in_lng"?: number | null,"check_in_time"?: string,"check_out_lat"?: number | null,"check_out_lng"?: number | null,"check_out_time"?: string | null,"created_at"?: string,"id"?: string,"notes"?: string | null,"shift_id"?: string | null,"teacher_id"?: string
                   }
                   Relationships: [
                     {

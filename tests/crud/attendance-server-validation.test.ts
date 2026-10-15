@@ -79,7 +79,7 @@ describe("Attendance Server Boundary Validation", () => {
 
   it("processOnlineCheckIn rejects coordinates exceeding branch radius", async () => {
     vi.mocked(requireGuruAction).mockResolvedValue({
-      user: { id: "user-1" },
+      user: { id: "user-1" } as never,
       profile: { id: "teacher-1", role: "guru" } as never,
     });
 
@@ -93,7 +93,7 @@ describe("Attendance Server Boundary Validation", () => {
                   data: {
                     latitude: -7.4320527,
                     longitude: 112.5054893,
-                    radius_meters: 100,
+                    geofence_radius_m: 100,
                     is_active: true,
                   },
                   error: null,
@@ -125,7 +125,7 @@ describe("Attendance Server Boundary Validation", () => {
   });
   it("processOnlineCheckOut updates check out and returns success", async () => {
     vi.mocked(requireGuruAction).mockResolvedValue({
-      user: { id: "user-1" },
+      user: { id: "user-1" } as never,
       profile: { id: "teacher-1", role: "guru" } as never,
     });
 

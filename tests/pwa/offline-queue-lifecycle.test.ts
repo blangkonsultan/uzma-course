@@ -21,7 +21,7 @@ describe("Offline Queue Synchronization Lifecycle", () => {
 
   it("skips and preserves records that belong to a different teacher", async () => {
     vi.mocked(requireGuruAction).mockResolvedValue({
-      user: { id: "teacher-1" },
+      user: { id: "teacher-1" } as never,
       profile: { id: "teacher-1", role: "guru" } as never,
     });
 
@@ -43,7 +43,7 @@ describe("Offline Queue Synchronization Lifecycle", () => {
 
   it("synchronizes check-out using targeted attendance_id rather than current day lookup", async () => {
     vi.mocked(requireGuruAction).mockResolvedValue({
-      user: { id: "teacher-1" },
+      user: { id: "teacher-1" } as never,
       profile: { id: "teacher-1", role: "guru" } as never,
     });
     vi.mocked(updateCheckOut).mockResolvedValue({
@@ -72,7 +72,7 @@ describe("Offline Queue Synchronization Lifecycle", () => {
 
   it("marks records as failed when database insertion throws", async () => {
     vi.mocked(requireGuruAction).mockResolvedValue({
-      user: { id: "teacher-1" },
+      user: { id: "teacher-1" } as never,
       profile: { id: "teacher-1", role: "guru" } as never,
     });
     vi.mocked(insertCheckIn).mockRejectedValueOnce(
