@@ -1,4 +1,12 @@
 # Progress Log
+## 2026-10-15 (Phase 3 Teacher Attendance Lifecycle & PWA Offline Model Spec Completed)
+- **Status**: Completed (Design & Specification Gate).
+- **Evidence**:
+  - Formulated full architectural specification for Phase 3: `docs/superpowers/specs/2026-10-15-phase3-teacher-attendance-pwa-design.md`.
+  - Covers G1 (database error checking before acknowledgement), G2 (server-side geofence and schedule validation in `processOnlineCheckIn`), G3 (targeted offline checkout matching `record.attendance_id`), G4 (shift-aware attendance schema with `shift_id` on `teacher_attendances`), G5 & G7 (deterministic client UUID generation and idempotent insertion), G8 (teacher-scoped queue isolation), G9 (single-flight sync guard stopping infinite re-sync loops), G10 (canonical `Asia/Jakarta` date/weekday normalization), G11 & G12 (replacing `Promise.withResolvers` with standard `Promise` and confirming on `transaction.oncomplete`), and G21 (responsive mobile toast layout).
+  - Documented automated test suites across Vitest and clear Definition of Done.
+  - No implementation code touched yet; awaiting user review gate before implementation planning.
+
 ## 2026-10-15 (Phase 2 Master Data CRUD Integrity Implementation Completed)
 - **Status**: Completed.
 - **Evidence**:
