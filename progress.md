@@ -1,11 +1,19 @@
 # Progress Log
+## 2026-10-15 (Phase 4 Scheduling Invariants, Multi-Branch Allocation & Modal Accessibility Implementation Completed)
+- **Status**: Completed.
+- **Evidence**:
+  - **Task 1: Multi-Branch Teacher Allocation & Cross-Branch Overlap Validation (A4, A5, A14)**: Updated `getBoardData` in `src/lib/board.ts` to include teachers assigned via `profile_branches` junction table. Enforced positive time ordering (`start_time < end_time`), shift boundaries, and cross-branch teacher overlap detection across active drafts in `insertScheduleClass` (`tests/crud/multi-branch-scheduling.test.ts` passing 3 tests).
+  - **Task 2: Student Number Format (01001 / 02001) & Preservation on Edit (A10)**: Implemented canonical 5-digit format (`01001` for Sumokembangsri, `02002` for Junwangi) in `generateStudentNumber` in `src/lib/students.ts`, and preserved existing student numbers during ordinary edits in `src/app/admin/murid/actions.ts:updateStudent` (`tests/crud/student-number-stability.test.ts` passing 2 tests).
+  - **Task 3: Active Enrollment Filtering & Weekly Quota Enforcement (A11, A12, A13)**: Filtered active program enrollments (`status = 'active'`) and enforced weekly frequency quotas (`variant.frequency`) in `AddStudentModal` and `src/lib/board.ts:insertSchedulePlacement`. Filtered inactive variants in `student-form.tsx` (`tests/crud/weekly-quota-placement.test.ts` passing 2 tests).
+  - **Task 4: Positive Ordered Shift Ranges, Safe Shift Narrowing & Variant Numbers Validation (A15, A16, A23)**: Enforced `start_time < end_time` on shift create/update in `src/app/admin/shift/actions.ts`, prevented shift narrowing when existing classes are stranded in `src/lib/shifts.ts:updateBranchShift`, and validated positive operational numbers (`duration > 0, frequency > 0, system > 0`) in `src/app/admin/program/actions.ts` (`tests/crud/shift-time-validation.test.ts` and `tests/crud/program-numbers-validation.test.ts` passing 5 tests).
+  - **Task 5: Kanban Board Modal Focus Traps, Accessibility & Day Locking (A26)**: Added dialog semantics (`role="dialog"`, `aria-modal="true"`), Tab focus traps, Escape key listeners, and day locking across `AddClassModal`, `AddStudentModal`, and `ClassTimeModal` (`tests/components/board-modal-accessibility.test.tsx` passing 3 tests).
+  - **Task 6: Full Verification Harness & Documentation Gate**: Verified via `./init.sh`: 0 ESLint errors/warnings, 48 Vitest suites (302 tests passing, 63.07% statements, 58.74% branches, 65.79% functions, 64.23% lines exceeding all thresholds), and clean Webpack production build.
+
 ## 2026-10-15 (Phase 4 Scheduling Invariants & Modal Accessibility Spec Completed)
 - **Status**: Completed (Design & Specification Gate).
 - **Evidence**:
   - Formulated full architectural specification for Phase 4: `docs/superpowers/specs/2026-10-15-phase4-scheduling-class-allocation-design.md`.
-  - Covers A4 (secondary branch teacher inclusion in scheduling pool via `profile_branches`), A5 (cross-branch teacher schedule conflict validation across active drafts), A10 (preserving student numbers during ordinary edits), A11 & A12 (filtering active enrollments and enforcing weekly variant frequency quotas on placement), A14, A15, A16 (positive ordered time intervals and protecting existing classes before narrowing shift hours), A13 & A23 (filtering inactive variants on registration and validating positive operational numbers), and A26 (modal focus traps and Escape key dismissal on board dialogs).
   - Documented automated test suites across Vitest and clear Definition of Done.
-  - No implementation code touched yet; awaiting user review gate before implementation planning.
 
 ## 2026-10-15 (Phase 3 Teacher Attendance Lifecycle & PWA Offline Model Implementation Completed)
 - **Status**: Completed.

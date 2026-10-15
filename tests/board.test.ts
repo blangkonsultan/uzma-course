@@ -57,10 +57,15 @@ describe("Board Data Access (src/lib/board.ts)", () => {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
-                eq: vi.fn().mockReturnValue({
-                  eq: vi.fn().mockResolvedValue({ data: [{ id: "teacher-1" }] })
-                })
+                eq: vi.fn().mockResolvedValue({ data: [{ id: "teacher-1" }] })
               })
+            })
+          };
+        }
+        if (table === "profile_branches") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({ data: [{ profile_id: "teacher-1", branch_id: "krian" }] })
             })
           };
         }
