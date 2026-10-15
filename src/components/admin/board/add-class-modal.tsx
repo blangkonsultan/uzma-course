@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { X, Search } from "lucide-react";
 import { ScheduleClass } from "./kanban-board";
 import { KanbanBoardProps } from "./kanban-board-props";
@@ -29,9 +29,48 @@ export function AddClassModal({
   onNext
 }: AddClassModalProps) {
   const [search, setSearch] = useState("");
-  
-  const shift = shifts.find(s => s.id === shiftId);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [lockedDay, setLockedDay] = useState(activeDay);
+  const modalRef = useRef<HTMLDivElement>(null);
 
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setLockedDay(activeDay);
+    }
+  }
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key === "Tab" && modalRef.current) {
+        const focusables = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  const shift = shifts.find(s => s.id === shiftId);
   // Generate teacher-variant combos
   const combos = useMemo(() => {
     const list: Array<{ id: string; teacherId: string; variantId: string; teacherName: string; variantName: string; duration: number }> = [];
@@ -67,7 +106,7 @@ export function AddClassModal({
   const handleSelect = (combo: typeof combos[0]) => {
     // Determine default start time based on existing classes for this teacher in this shift
     const teacherClasses = existingClasses.filter(
-      c => c.shift_id === shift.id && c.day_of_week === activeDay && c.teacher_id === combo.teacherId
+      c => c.shift_id === shift.id && c.day_of_week === lockedDay && c.teacher_id === combo.teacherId
     );
     let defaultStart = shift.start_time.slice(0, 5);
     if (teacherClasses.length > 0) {
@@ -80,11 +119,16 @@ export function AddClassModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-class-title"
+        className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200"
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div>
-            <h2 className="text-lg font-semibold text-slate-800">Tambah Kelas</h2>
-            <p className="text-xs text-slate-500">Shift: {shift.name}</p>
+            <h2 id="add-class-title" className="text-lg font-semibold text-slate-800">Tambah Kelas</h2>
           </div>
           <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
             <X className="w-5 h-5" />
@@ -99,6 +143,7 @@ export function AddClassModal({
               placeholder="Cari nama guru atau varian program..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              autoFocus
               className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
             />
           </div>

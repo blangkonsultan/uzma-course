@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { X, Search } from "lucide-react";
 import { KanbanBoardProps } from "./kanban-board-props";
 import { ScheduleClass } from "./kanban-board";
@@ -29,7 +29,37 @@ export function AddStudentModal({
 }: AddStudentModalProps) {
   const [search, setSearch] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key === "Tab" && modalRef.current) {
+        const focusables = modalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
   // Get eligible students for this variant who aren't placed elsewhere today
   // Get eligible students for this variant who aren't placed elsewhere today and haven't exceeded weekly quota
   const eligibleStudents = useMemo(() => {
@@ -82,10 +112,16 @@ export function AddStudentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-student-title"
+        className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200"
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div>
-            <h2 className="text-lg font-semibold text-slate-800">Tambah Murid</h2>
+            <h2 id="add-student-title" className="text-lg font-semibold text-slate-800">Tambah Murid</h2>
             <p className="text-xs text-slate-500">Pilih murid untuk dimasukkan ke kelas</p>
           </div>
           <button onClick={onClose} disabled={isSaving} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
@@ -101,6 +137,7 @@ export function AddStudentModal({
               placeholder="Cari nama murid..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              autoFocus
               className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
             />
           </div>

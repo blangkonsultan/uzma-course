@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Loader2 } from "lucide-react";
 
 interface ClassTimeModalProps {
@@ -15,7 +15,37 @@ export function ClassTimeModal({ isOpen, onClose, onSave, defaultStartTime, dura
   const [startTime, setStartTime] = useState(defaultStartTime);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key === "Tab" && modalRef.current) {
+        const focusables = modalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -51,9 +81,15 @@ export function ClassTimeModal({ isOpen, onClose, onSave, defaultStartTime, dura
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="class-time-title"
+        className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200"
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h2 className="text-lg font-semibold text-slate-800">Atur Waktu Kelas</h2>
+          <h2 id="class-time-title" className="text-lg font-semibold text-slate-800">Atur Waktu Kelas</h2>
           <button
             type="button"
             onClick={onClose}
@@ -77,6 +113,7 @@ export function ClassTimeModal({ isOpen, onClose, onSave, defaultStartTime, dura
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
+                autoFocus
                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-800 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-base sm:text-sm"
               />
             </div>
