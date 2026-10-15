@@ -308,6 +308,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
         variantId={studentModal.variantId}
         activeDay={activeDay}
         students={students}
+        variants={variants}
         existingClasses={classes}
         onSave={handleAddStudent}
       />

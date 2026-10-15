@@ -410,10 +410,12 @@ export function StudentForm({
                 </h4>
                 {studentPrograms.map(sp => {
                   const program = programs.find(p => p.id === sp.program_id);
-                  const variants = program?.program_variants || [];
-                  const variantOptions = variants.map(v => ({
+                  const variants = (program?.program_variants || []).filter(
+                    (v) => v.is_active || v.id === sp.variant_id
+                  );
+                  const variantOptions = variants.map((v) => ({
                     value: v.id,
-                    label: v.name,
+                    label: v.name + (v.is_active === false ? " (Nonaktif)" : ""),
                   }));
 
                   return (

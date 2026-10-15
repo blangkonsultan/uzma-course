@@ -12,6 +12,7 @@ interface AddStudentModalProps {
   variantId: string;
   activeDay: number;
   students: KanbanBoardProps["students"];
+  variants?: KanbanBoardProps["variants"];
   existingClasses: ScheduleClass[];
   onSave: (studentId: string) => Promise<void>;
 }
@@ -22,6 +23,7 @@ export function AddStudentModal({
   variantId,
   activeDay,
   students,
+  variants,
   existingClasses,
   onSave
 }: AddStudentModalProps) {
@@ -29,20 +31,35 @@ export function AddStudentModal({
   const [isSaving, setIsSaving] = useState(false);
 
   // Get eligible students for this variant who aren't placed elsewhere today
+  // Get eligible students for this variant who aren't placed elsewhere today and haven't exceeded weekly quota
   const eligibleStudents = useMemo(() => {
-    return students.filter(s => {
-      // 1. Must be enrolled in this variant
-      const enrolledVariantIds = s.student_programs.map(sp => sp.variant_id);
-      if (!enrolledVariantIds.includes(variantId)) return false;
+    const currentVariant = variants?.find((v) => v.id === variantId);
+    const maxWeeklyFrequency = currentVariant?.frequency || 3;
+
+    return students.filter((s) => {
+      // 1. Must be enrolled in this variant with active status
+      const activeEnrollment = s.student_programs.find(
+        (sp) => sp.variant_id === variantId && (!sp.status || sp.status === "active")
+      );
+      if (!activeEnrollment) return false;
 
       // 2. Must not be placed today
       const isPlacedToday = existingClasses.some(
-        c => c.day_of_week === activeDay && c.schedule_placements?.some(p => p.student_id === s.id)
+        (c) => c.day_of_week === activeDay && c.schedule_placements?.some((p) => p.student_id === s.id)
       );
-      
-      return !isPlacedToday;
+      if (isPlacedToday) return false;
+
+      // 3. Must not exceed weekly frequency quota across all classes of this variant
+      const weeklyPlacements = existingClasses.reduce((acc, c) => {
+        if (c.variant_id === variantId && c.schedule_placements?.some((p) => p.student_id === s.id)) {
+          return acc + 1;
+        }
+        return acc;
+      }, 0);
+
+      return weeklyPlacements < maxWeeklyFrequency;
     });
-  }, [students, variantId, activeDay, existingClasses]);
+  }, [students, variantId, activeDay, existingClasses, variants]);
 
   const filteredStudents = useMemo(() => {
     const q = search.toLowerCase();

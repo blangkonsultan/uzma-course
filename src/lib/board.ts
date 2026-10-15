@@ -147,12 +147,14 @@ export async function insertSchedulePlacement(data: {
 }) {
   const supabase = await createClient();
 
-  // Validate capacity
+  // 1. Fetch class details, variant, and draft
   const { data: classData, error: classErr } = await supabase
     .from("schedule_classes")
     .select(`
       id,
-      program_variants ( system ),
+      draft_id,
+      variant_id,
+      program_variants ( system, frequency ),
       schedule_placements ( id )
     `)
     .eq("id", data.class_id)
@@ -160,8 +162,9 @@ export async function insertSchedulePlacement(data: {
 
   if (classErr || !classData) throw new Error("Wadah kelas tidak ditemukan.");
   
-  const variant = classData.program_variants as unknown as { system: number } | null | undefined;
+  const variant = classData.program_variants as unknown as { system: number; frequency: number } | null | undefined;
   const capacity = variant?.system || 1;
+  const weeklyFrequency = variant?.frequency || 3;
   const placements = classData.schedule_placements as unknown as { id: string }[] | null | undefined;
   const currentCount = Array.isArray(placements) ? placements.length : 0;
 
@@ -169,6 +172,32 @@ export async function insertSchedulePlacement(data: {
     throw new Error(`Gagal: Kuota kelas sudah penuh (Maksimal ${capacity} murid).`);
   }
 
+  // 2. Validate Student Active Enrollment in this variant
+  const { data: enrollment } = await supabase
+    .from("student_programs")
+    .select("status")
+    .eq("student_id", data.student_id)
+    .eq("variant_id", classData.variant_id)
+    .single();
+
+  if (!enrollment || (enrollment.status && enrollment.status !== "active")) {
+    throw new Error("Murid tidak terdaftar aktif dalam varian program ini.");
+  }
+
+  // 3. Validate Weekly Frequency Quota for this variant in current draft
+  const { data: existingPlacements } = await supabase
+    .from("schedule_placements")
+    .select("id, schedule_classes!inner(draft_id, variant_id)")
+    .eq("student_id", data.student_id)
+    .eq("schedule_classes.draft_id", classData.draft_id)
+    .eq("schedule_classes.variant_id", classData.variant_id);
+
+  const weeklyPlacementCount = existingPlacements?.length || 0;
+  if (weeklyPlacementCount >= weeklyFrequency) {
+    throw new Error(
+      `Murid telah mencapai batas kuota mingguan untuk program ini (Maksimal ${weeklyFrequency}x sepekan).`
+    );
+  }
   const { data: result, error } = await supabase
     .from("schedule_placements")
     .insert({
