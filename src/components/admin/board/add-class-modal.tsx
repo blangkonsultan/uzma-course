@@ -129,6 +129,7 @@ export function AddClassModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div>
             <h2 id="add-class-title" className="text-lg font-semibold text-slate-800">Tambah Kelas</h2>
+            <p className="text-xs text-slate-500">Shift: {shift?.name}</p>
           </div>
           <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
             <X className="w-5 h-5" />
