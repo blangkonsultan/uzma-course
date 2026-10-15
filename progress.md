@@ -1,4 +1,13 @@
 # Progress Log
+## 2026-10-15 (Phase 1 Security & Database Authorization Hardening Implementation)
+- **Status**: Completed.
+- **Evidence**:
+  - Implemented `sanitizeNextUrl` in `src/lib/security.ts` and integrated into `src/components/admin/login-form.tsx` to prevent open redirects, executable script schemes, and protocol-relative URLs (`tests/security/login-redirect.test.ts` passing 7 tests).
+  - Hardened `extractCoordinatesFromUrl` in `src/lib/maps.ts` with `requireAdminAction()` and strict HTTPS Google Maps host allowlisting (`tests/security/maps-action.test.ts` passing 6 tests).
+  - Hardened Service Worker in `src/app/sw.ts` with top-priority `NetworkOnly` boundary on `/admin/*`, `/api/*`, `/login`, and `/logout`, and added activation cache cleanup for legacy response caches while strictly preserving IndexedDB offline queues (`tests/pwa/sw-cache-policy.test.ts` passing 4 tests).
+  - Created migration `supabase/migrations/20261015100000_phase1_security_hardening.sql` hardcoding `role = 'guru'` in `handle_new_user()` and enabling RLS with admin mutation policies on `program_variants` and `branch_shifts` (`tests/security/migration-schema.test.ts` passing 4 tests).
+  - Full verification suite `./init.sh` passed: 0 ESLint errors/warnings, 32 Vitest suites (263 tests passing, 60.64% statements, 57.33% branches, 64.27% functions, 61.61% lines), and clean Webpack production build.
+
 ## 2026-10-14 (Phase 1 Security & Authorization Spec Completed)
 - **Status**: Completed (Design & Specification Gate).
 - **Evidence**:
