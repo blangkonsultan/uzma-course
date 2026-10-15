@@ -12,6 +12,23 @@ export interface AttendanceRecord {
   check_out_lng?: number | null;
   notes?: string | null;
 }
+export function getWIBDateBounds(targetDate: Date = new Date()) {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const dateString = formatter.format(targetDate);
+  const startOfDay = new Date(`${dateString}T00:00:00+07:00`).toISOString();
+  const endOfDay = new Date(`${dateString}T23:59:59.999+07:00`).toISOString();
+
+  const nowWIB = new Date(targetDate.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+  const rawDay = nowWIB.getDay();
+  const dayOfWeek = rawDay === 0 ? 7 : rawDay;
+
+  return { dateString, startOfDay, endOfDay, dayOfWeek };
+}
 
 export async function getTodayAttendance(teacherId: string) {
   const supabase = await createClient();
