@@ -1,48 +1,51 @@
 "use server";
 
 import { requireGuruAction } from "@/lib/auth";
-import { insertCheckIn, updateCheckOut, getTodayAttendance } from "@/lib/attendances";
+import { insertCheckIn, updateCheckOut } from "@/lib/attendances";
 import { createClient } from "@/lib/supabase/server";
 import { calculateDistanceMeters } from "@/lib/pwa/haversine";
 import type { PendingAttendance } from "@/lib/pwa/db";
 
 export async function syncOfflineAttendances(records: PendingAttendance[]) {
-  await requireGuruAction();
-  
+  const { profile } = await requireGuruAction();
+
   const results = {
     success: [] as string[],
-    failed: [] as string[]
+    failed: [] as string[],
   };
 
   // We should process them chronologically
-  const sortedRecords = [...records].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  const sortedRecords = [...records].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  );
 
   for (const record of sortedRecords) {
+    // Account isolation: skip records that do not belong to the current authenticated teacher
+    if (record.teacher_id !== profile.id) {
+      continue;
+    }
+
     try {
       if (record.type === "check_in") {
         await insertCheckIn({
+          id: record.id,
           teacher_id: record.teacher_id,
           branch_id: record.branch_id,
+          shift_id: record.shift_id,
           check_in_time: record.timestamp,
           check_in_lat: record.lat,
           check_in_lng: record.lng,
         });
+        results.success.push(record.id);
       } else if (record.type === "check_out") {
-        // Need to find today's attendance to checkout
-        const todayRecord = await getTodayAttendance(record.teacher_id);
-        if (todayRecord && todayRecord.id) {
-          await updateCheckOut(todayRecord.id, {
-            check_out_time: record.timestamp,
-            check_out_lat: record.lat,
-            check_out_lng: record.lng,
-          });
-        } else {
-          // If checkout without checkin, we might log it as error or create a check-out only record if schema permits.
-          // For now, we skip and mark failed if no active check-in.
-          throw new Error("No active check-in found for checkout");
-        }
+        const targetAttendanceId = record.attendance_id || record.id;
+        await updateCheckOut(targetAttendanceId, {
+          check_out_time: record.timestamp,
+          check_out_lat: record.lat,
+          check_out_lng: record.lng,
+        });
+        results.success.push(record.id);
       }
-      results.success.push(record.id);
     } catch {
       results.failed.push(record.id);
     }

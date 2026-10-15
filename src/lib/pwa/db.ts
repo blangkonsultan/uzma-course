@@ -1,7 +1,9 @@
 export interface PendingAttendance {
-  id: string; // uuid
+  id: string; // Deterministic sessionId UUID
+  attendance_id?: string | null; // For checkout: exact ID of the check-in session
   teacher_id: string;
   branch_id: string;
+  shift_id?: string | null;
   type: "check_in" | "check_out";
   lat: number;
   lng: number;
@@ -14,6 +16,7 @@ const STORE_NAME = "attendance_queue";
 
 function openDB(): Promise<IDBDatabase> {
   const { promise, resolve, reject } = Promise.withResolvers<IDBDatabase>();
+
   if (typeof window === "undefined") {
     reject(new Error("IndexedDB is not available on the server."));
     return promise;
@@ -30,7 +33,7 @@ function openDB(): Promise<IDBDatabase> {
 
   request.onsuccess = () => resolve(request.result);
   request.onerror = () => reject(request.error);
-  
+
   return promise;
 }
 
@@ -39,16 +42,18 @@ export async function savePendingAttendance(record: PendingAttendance): Promise<
   const { promise, resolve, reject } = Promise.withResolvers<void>();
   const transaction = db.transaction(STORE_NAME, "readwrite");
   const store = transaction.objectStore(STORE_NAME);
-  const request = store.put(record);
+  store.put(record);
 
-  request.onsuccess = () => resolve();
-  request.onerror = () => reject(request.error);
+  // Resolve on transaction commit to disk to guarantee persistence
+  transaction.oncomplete = () => resolve();
+  transaction.onerror = () => reject(transaction.error);
+
   return promise;
 }
 
 export async function getPendingAttendances(): Promise<PendingAttendance[]> {
   if (typeof window === "undefined") return [];
-  
+
   try {
     const db = await openDB();
     const { promise, resolve, reject } = Promise.withResolvers<PendingAttendance[]>();
@@ -56,8 +61,9 @@ export async function getPendingAttendances(): Promise<PendingAttendance[]> {
     const store = transaction.objectStore(STORE_NAME);
     const request = store.getAll();
 
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => resolve(request.result || []);
     request.onerror = () => reject(request.error);
+
     return promise;
   } catch (error) {
     console.error("IndexedDB get error:", error);
@@ -76,5 +82,6 @@ export async function removePendingAttendances(ids: string[]): Promise<void> {
 
   transaction.oncomplete = () => resolve();
   transaction.onerror = () => reject(transaction.error);
+
   return promise;
 }
