@@ -168,7 +168,7 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
     };
   });
 
-  const activeVariantIds = variantsToUpsert.map((v) => v.id);
+  const activeVariantIds = variantsToUpsert.map((v: { id: string }) => v.id);
   const { error } = await updateProgramData(
     id,
     programDataToUpdate,

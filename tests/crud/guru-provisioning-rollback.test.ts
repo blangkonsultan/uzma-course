@@ -87,6 +87,7 @@ describe("Guru Provisioning & Junction Synchronization", () => {
       updateGuruProfile("guru-1", {
         fullName: "Pak Budi",
         branchIds: ["invalid-branch"],
+        isActive: true,
       })
     ).rejects.toThrow("Gagal menetapkan cabang penugasan guru");
   });

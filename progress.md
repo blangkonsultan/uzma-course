@@ -1,4 +1,14 @@
 # Progress Log
+## 2026-10-15 (Phase 2 Master Data CRUD Integrity Implementation Completed)
+- **Status**: Completed.
+- **Evidence**:
+  - Aligned student enrollment status vocabulary to canonical schema constraint (`active`, `cuti`, `lulus`, `keluar`) in `src/types/index.ts`, `src/components/admin/murid/student-form.tsx`, and `src/app/admin/murid/[id]/page.tsx` (`tests/crud/student-form-status.test.tsx` passing 2 tests).
+  - Made student enrollment updates atomic and non-destructive with pre-validation and memory backup/compensating restore in `src/lib/students.ts:updateStudentData` (`tests/crud/student-enrollment-sync.test.ts` passing 3 tests).
+  - Pre-allocated UUIDs upfront for new program variants in `src/app/admin/program/actions.ts:updateProgram` and safely retained all IDs in `src/lib/programs.ts:updateProgramData` with human-friendly FK restrict error reporting (`tests/crud/program-variant-sync.test.ts` passing 2 tests).
+  - Added compensating rollback deleting orphan Auth accounts on failed teacher provisioning in `src/lib/gurus.ts:insertGuruProfile` and verified `{ error }` inspection on `profile_branches` mutations (`tests/crud/guru-provisioning-rollback.test.ts` passing 2 tests).
+  - Removed obsolete destructive `seed-variants.mjs` script from repository root (`tests/crud/seed-script-quarantine.test.ts` passing 2 tests).
+  - Verified full test suite and build via `./init.sh`: 0 ESLint errors/warnings, 37 Vitest suites (274 tests passing, 62.05% statements, 58.59% branches, 65.02% functions, 63.07% lines exceeding all global coverage thresholds), and clean Webpack production build.
+
 ## 2026-10-15 (Phase 2 Master Data CRUD Integrity Spec Completed)
 - **Status**: Completed (Design & Specification Gate).
 - **Evidence**:
