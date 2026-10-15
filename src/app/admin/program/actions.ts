@@ -45,6 +45,16 @@ export async function createProgram(formData: FormData): Promise<ProgramActionRe
   }
   if (variants.length === 0) {
     fieldErrors.variants = "Minimal harus ada 1 varian program.";
+  } else {
+    const hasInvalidVariantNumbers = variants.some((v: Record<string, unknown>) => {
+      const dur = typeof v.duration === "number" ? v.duration : parseInt(String(v.duration), 10);
+      const freq = typeof v.frequency === "number" ? v.frequency : parseInt(String(v.frequency), 10);
+      const sys = typeof v.system === "number" ? v.system : parseInt(String(v.system), 10);
+      return isNaN(dur) || dur <= 0 || isNaN(freq) || freq <= 0 || isNaN(sys) || sys <= 0;
+    });
+    if (hasInvalidVariantNumbers) {
+      fieldErrors.variants = "Durasi, frekuensi, dan kapasitas murid (sistem) harus berupa angka positif (> 0).";
+    }
   }
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
@@ -127,6 +137,16 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
   }
   if (variants.length === 0) {
     fieldErrors.variants = "Minimal harus ada 1 varian program.";
+  } else {
+    const hasInvalidVariantNumbers = variants.some((v: Record<string, unknown>) => {
+      const dur = typeof v.duration === "number" ? v.duration : parseInt(String(v.duration), 10);
+      const freq = typeof v.frequency === "number" ? v.frequency : parseInt(String(v.frequency), 10);
+      const sys = typeof v.system === "number" ? v.system : parseInt(String(v.system), 10);
+      return isNaN(dur) || dur <= 0 || isNaN(freq) || freq <= 0 || isNaN(sys) || sys <= 0;
+    });
+    if (hasInvalidVariantNumbers) {
+      fieldErrors.variants = "Durasi, frekuensi, dan kapasitas murid (sistem) harus berupa angka positif (> 0).";
+    }
   }
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };

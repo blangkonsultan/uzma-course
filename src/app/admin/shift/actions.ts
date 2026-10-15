@@ -24,7 +24,9 @@ export async function createShift(formData: FormData): Promise<ShiftActionRespon
   if (!name) fieldErrors.name = "Nama shift wajib diisi.";
   if (!startTime) fieldErrors.start_time = "Jam mulai wajib diisi.";
   if (!endTime) fieldErrors.end_time = "Jam selesai wajib diisi.";
-
+  else if (startTime && startTime >= endTime) {
+    fieldErrors.end_time = "Jam selesai harus lebih akhir dari jam mulai.";
+  }
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
@@ -57,7 +59,9 @@ export async function updateShift(id: string, formData: FormData): Promise<Shift
   if (!name) fieldErrors.name = "Nama shift wajib diisi.";
   if (!startTime) fieldErrors.start_time = "Jam mulai wajib diisi.";
   if (!endTime) fieldErrors.end_time = "Jam selesai wajib diisi.";
-
+  else if (startTime && startTime >= endTime) {
+    fieldErrors.end_time = "Jam selesai harus lebih akhir dari jam mulai.";
+  }
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }

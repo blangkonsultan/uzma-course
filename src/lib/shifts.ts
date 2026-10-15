@@ -56,13 +56,31 @@ export async function insertBranchShift(data: {
   }
 }
 
-export async function updateBranchShift(id: string, data: {
-  name: string;
-  start_time: string;
-  end_time: string;
-  updated_at: string;
-}) {
+export async function updateBranchShift(
+  id: string,
+  data: {
+    name?: string;
+    start_time?: string;
+    end_time?: string;
+    updated_at?: string;
+  }
+) {
   const supabase = await createClient();
+
+  if (data.start_time || data.end_time) {
+    const { data: strandedClasses } = await supabase
+      .from("schedule_classes")
+      .select("id, start_time, end_time")
+      .eq("shift_id", id)
+      .or(`start_time.lt.${data.start_time},end_time.gt.${data.end_time}`);
+
+    if (strandedClasses && strandedClasses.length > 0) {
+      throw new Error(
+        "Jam shift tidak dapat dipersempit karena terdapat kelas yang sudah terjadwal di luar jam baru."
+      );
+    }
+  }
+
   const { error } = await supabase
     .from("branch_shifts")
     .update(data)
