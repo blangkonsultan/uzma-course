@@ -1,18 +1,47 @@
 "use server";
 
-export async function extractCoordinatesFromUrl(url: string) {
+import { requireAdminAction } from "@/lib/auth";
+
+const ALLOWED_MAP_HOSTS: Record<string, true> = {
+  "maps.google.com": true,
+  "www.google.com": true,
+  "google.com": true,
+  "maps.app.goo.gl": true,
+  "goo.gl": true,
+};
+
+export async function extractCoordinatesFromUrl(rawUrl: string) {
+  // Authorize caller - let auth errors throw cleanly to caller
+  await requireAdminAction();
+
+  if (!rawUrl || typeof rawUrl !== "string") {
+    return { error: "URL tidak valid." };
+  }
+
+  let parsed: URL;
   try {
-    let finalUrl = url;
+    parsed = new URL(rawUrl.trim());
+  } catch {
+    return { error: "Format URL tidak valid." };
+  }
+
+  if (parsed.protocol !== "https:") {
+    return { error: "Hanya tautan HTTPS yang diperbolehkan." };
+  }
+
+  if (!ALLOWED_MAP_HOSTS[parsed.hostname.toLowerCase()]) {
+    return { error: "Hanya tautan resmi Google Maps yang didukung." };
+  }
+
+  try {
+    let finalUrl = parsed.href;
 
     // Follow redirect if it's a short URL
-    if (url.includes('maps.app.goo.gl') || url.includes('goo.gl')) {
-      const response = await fetch(url, { method: 'HEAD', redirect: 'follow' });
-      finalUrl = response.url;
-      
-      // Fallback to GET if HEAD doesn't resolve fully (sometimes happens with JS redirects or certain setups)
-      if (finalUrl === url || finalUrl.includes('maps.app.goo.gl') || finalUrl.includes('goo.gl')) {
-          const getResponse = await fetch(url, { method: 'GET', redirect: 'follow' });
-          finalUrl = getResponse.url;
+    if (parsed.hostname.includes("goo.gl")) {
+      const response = await fetch(parsed.href, { method: "HEAD", redirect: "follow" });
+      const redirectedUrl = new URL(response.url || parsed.href);
+      if (ALLOWED_MAP_HOSTS[redirectedUrl.hostname.toLowerCase()]) {
+        finalUrl = redirectedUrl.href;
       }
     }
 
@@ -26,9 +55,9 @@ export async function extractCoordinatesFromUrl(url: string) {
       };
     }
 
-    return { error: 'Could not extract coordinates from the provided URL.' };
+    return { error: "Tidak dapat mengekstrak koordinat dari tautan tersebut." };
   } catch (error) {
-    console.error('Error extracting coordinates:', error);
-    return { error: 'Failed to extract coordinates due to an error.' };
+    console.error("Error extracting coordinates:", error);
+    return { error: "Gagal memproses tautan Google Maps." };
   }
 }
