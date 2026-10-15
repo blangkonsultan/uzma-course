@@ -1,4 +1,12 @@
 # Progress Log
+## 2026-10-15 (Phase 5 CMS Integrity & Landing Polish Spec Completed)
+- **Status**: Completed (Design & Specification Gate).
+- **Evidence**:
+  - Formulated full architectural specification for Phase 5: `docs/superpowers/specs/2026-10-15-phase5-cms-integrity-landing-polish-design.md`.
+  - Covers A20 (TikTok shortlink resolver SSRF hardening, HTTPS enforcement, and host allowlist), A21 (image normalizer scheme sanitization, protocol-relative normalization, and gallery preview fallback), A22 (`SortableItemList` collapse state stability on reorder and delete), and A24 (landing section anchor offsets `scroll-mt-20`, floating WhatsApp iOS safe area, and type annotation standard).
+  - Documented automated test suites across Vitest and clear Definition of Done.
+  - No implementation code touched yet; awaiting user review gate before implementation planning.
+
 ## 2026-10-15 (Phase 4 Scheduling Invariants, Multi-Branch Allocation & Modal Accessibility Implementation Completed)
 - **Status**: Completed.
 - **Evidence**:

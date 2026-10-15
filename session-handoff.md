@@ -1,25 +1,18 @@
 # Session Handoff
 
-Phase 4 (Scheduling Invariants, Multi-Branch Allocation & Modal Accessibility) has been fully implemented, verified, and committed to the repository.
+The Phase 5 Technical Specification for CMS Integrity, Shortlink Resolver Hardening & Public Landing Polish has been formulated and committed to the repository.
 
-- **Scope Covered & Remediated**:
-  - **A4 (P1)**: Included teachers assigned to secondary branches via `profile_branches` in `getBoardData`.
-  - **A5 & A14 (P1, P2)**: Enforced positive interval validation (`start_time < end_time`) and cross-branch teacher schedule overlap check across active drafts in `insertScheduleClass`.
-  - **A10 (P2)**: Implemented canonical 5-digit student number format (`01001` for Sumokembangsri, `02001` for Junwangi) and preserved existing numbers on edit in `src/app/admin/murid/actions.ts:updateStudent`.
-  - **A11 & A12 (P2)**: Filtered active program enrollments (`status = 'active'`) and enforced weekly frequency quotas (`variant.frequency`) in `AddStudentModal` and `src/lib/board.ts:insertSchedulePlacement`.
-  - **A13 & A23 (P2)**: Filtered inactive variants in `StudentForm` and validated positive operational numbers (`duration > 0, frequency > 0, system > 0`) in `src/app/admin/program/actions.ts`.
-  - **A15 & A16 (P2)**: Enforced `start_time < end_time` on shifts and prevented narrowing shift hours when existing classes are stranded in `src/lib/shifts.ts:updateBranchShift`.
-  - **A26 (P2)**: Added dialog accessibility semantics, Tab focus containment, Escape key handlers, and day locking across `AddClassModal`, `AddStudentModal`, and `ClassTimeModal`.
+- **Artifact Created**: `docs/superpowers/specs/2026-10-15-phase5-cms-integrity-landing-polish-design.md`
+- **Scope Covered**:
+  - **A20 (P1)**: Hardening `resolveTikTokShortlink()` against SSRF with HTTPS protocol enforcement, strict domain allowlist (`tiktok.com`, `vt.tiktok.com`, `vm.tiktok.com`), credential stripping, and redirect destination verification.
+  - **A21 (P2)**: Hardening `normalizeImageUrl()` against dangerous URI schemes (`javascript:`, `data:`, `vbscript:`), normalizing protocol-relative URLs (`//...`), and stabilizing gallery image fallback cards.
+  - **A22 (P2)**: Synchronizing `SortableItemList` collapse/expand state across item reordering (`handleMoveUp`, `handleMoveDown`) and deletions.
+  - **A24 (P2)**: Standardizing section anchor scroll offsets to `scroll-mt-20`, adding iOS safe area insets to `FloatingWhatsApp`, and refactoring inline type annotations in `src/lib/landing-content.ts` to top-level `import type`.
 
 ## Files Touched
-- `src/lib/board.ts` & `src/lib/students.ts` & `src/lib/shifts.ts`
-- `src/app/admin/murid/actions.ts`, `src/app/admin/shift/actions.ts`, `src/app/admin/program/actions.ts`
-- `src/components/admin/board/add-class-modal.tsx`, `add-student-modal.tsx`, `class-time-modal.tsx`, `kanban-board.tsx`, `kanban-board-props.ts`
-- `src/components/admin/murid/student-form.tsx`
-- `tests/crud/multi-branch-scheduling.test.ts`, `student-number-stability.test.ts`, `weekly-quota-placement.test.ts`, `shift-time-validation.test.ts`, `program-numbers-validation.test.ts`
-- `tests/components/board-modal-accessibility.test.tsx`, `tests/board.test.ts`
+- `docs/superpowers/specs/2026-10-15-phase5-cms-integrity-landing-polish-design.md`
 - `progress.md` & `session-handoff.md`
 
 ## Recommended Next Step
-- Review the implemented features and verification evidence.
-- Proceed to **Phase 5: CMS Integrity, Public Landing Page UI Polish & Visual Assets (A20, A21, A22, A24)**.
+- Review the written spec `docs/superpowers/specs/2026-10-15-phase5-cms-integrity-landing-polish-design.md`.
+- Upon user approval, invoke the `writing-plans` skill to construct a step-by-step TDD implementation plan for Phase 5.
