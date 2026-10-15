@@ -25,12 +25,27 @@ export async function getBoardData(draftId: string) {
     .order("start_time");
 
   // 3. Get teachers (profiles)
-  const { data: teachers } = await supabase
+  // 3. Get teachers (profiles): fetch all active gurus and junction assignments
+  const { data: allTeachers, error: teacherErr } = await supabase
     .from("profiles")
     .select("*, profile_programs(program_id)")
-    .eq("branch_id", branchId)
     .eq("role", "guru")
     .eq("is_active", true);
+
+  if (teacherErr) {
+    throw new Error("Gagal mengambil data guru.");
+  }
+
+  const { data: junctionAssignments } = await supabase
+    .from("profile_branches")
+    .select("profile_id, is_primary")
+    .eq("branch_id", branchId);
+
+  const junctionTeacherIds = new Set((junctionAssignments || []).map((j) => j.profile_id));
+
+  const teachers = (allTeachers || []).filter(
+    (t) => t.branch_id === branchId || junctionTeacherIds.has(t.id)
+  );
 
   // 4. Get program variants (for capacity and teacher assignment)
   const { data: variants } = await supabase
@@ -71,8 +86,12 @@ export async function insertScheduleClass(data: {
   end_time: string;
 }) {
   const supabase = await createClient();
-  
-  // 1. Validate Shift Bounds
+  // 1. Validate Positive Time Interval
+  if (!data.start_time || !data.end_time || data.start_time >= data.end_time) {
+    throw new Error("Jam selesai harus lebih akhir dari jam mulai.");
+  }
+
+  // 2. Validate Shift Bounds
   const { data: shift, error: shiftErr } = await supabase
     .from("branch_shifts")
     .select("start_time, end_time")
@@ -81,17 +100,20 @@ export async function insertScheduleClass(data: {
 
   if (shiftErr || !shift) throw new Error("Shift tidak ditemukan.");
   if (data.start_time < shift.start_time || data.end_time > shift.end_time) {
-    throw new Error(`Waktu sesi (${data.start_time.slice(0, 5)}-${data.end_time.slice(0, 5)}) keluar dari batas shift (${shift.start_time.slice(0, 5)}-${shift.end_time.slice(0, 5)}).`);
+    throw new Error(
+      `Waktu sesi (${data.start_time.slice(0, 5)}-${data.end_time.slice(0, 5)}) keluar dari batas shift (${shift.start_time.slice(0, 5)}-${shift.end_time.slice(0, 5)}).`
+    );
   }
 
-  // 2. Validate Teacher Overlap
+  // 3. Validate Teacher Overlap (within this draft AND across active drafts of other branches)
   const { data: overlaps, error: overlapErr } = await supabase
     .from("schedule_classes")
-    .select("id")
-    .eq("draft_id", data.draft_id)
-    .eq("day_of_week", data.day_of_week)
+    .select("id, start_time, end_time, schedule_drafts!inner(id, name, status, branch_id)")
     .eq("teacher_id", data.teacher_id)
-    .or(`and(start_time.lt.${data.end_time},end_time.gt.${data.start_time})`);
+    .eq("day_of_week", data.day_of_week)
+    .or(`draft_id.eq.${data.draft_id},schedule_drafts.status.eq.active`)
+    .lt("start_time", data.end_time)
+    .gt("end_time", data.start_time);
 
   if (overlapErr) throw new Error("Gagal memvalidasi jadwal.");
   if (overlaps && overlaps.length > 0) {
