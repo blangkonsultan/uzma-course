@@ -156,9 +156,27 @@ export async function updateStudentData(
   id: string,
   studentData: StudentUpdate,
   studentPrograms: Omit<StudentProgramInsert, "student_id">[]
-) {
+): Promise<{ success?: boolean; error?: string }> {
+  // 1. Pre-validation: ensure all program statuses match the constraint
+  const validStatuses: Record<string, true> = {
+    active: true,
+    cuti: true,
+    lulus: true,
+    keluar: true,
+  };
+
+  for (const sp of studentPrograms) {
+    if (sp.status && !validStatuses[sp.status]) {
+      return { error: `Status program '${sp.status}' tidak valid.` };
+    }
+    if (!sp.variant_id) {
+      return { error: "Varian program wajib dipilih untuk setiap program terdaftar." };
+    }
+  }
+
   const supabase = await createClient();
 
+  // 2. Update core student row
   const { error: updateError } = await supabase
     .from("students")
     .update({
@@ -168,7 +186,17 @@ export async function updateStudentData(
     .eq("id", id);
 
   if (updateError) {
-    return { error: updateError.message };
+    return { error: `Gagal memperbarui data murid: ${updateError.message}` };
+  }
+
+  // 3. Backup existing records in memory in case replacement fails
+  const { data: existingRecords, error: fetchError } = await supabase
+    .from("student_programs")
+    .select("*")
+    .eq("student_id", id);
+
+  if (fetchError) {
+    return { error: `Gagal membaca pendaftaran lama: ${fetchError.message}` };
   }
 
   const { error: deleteError } = await supabase
@@ -177,21 +205,26 @@ export async function updateStudentData(
     .eq("student_id", id);
 
   if (deleteError) {
-    return { error: deleteError.message };
+    return { error: `Gagal memperbarui pendaftaran program: ${deleteError.message}` };
   }
 
   if (studentPrograms.length > 0) {
-    const { error: insertJunctionError } = await supabase
+    const { error: insertError } = await supabase
       .from("student_programs")
       .insert(
         studentPrograms.map((sp) => ({
           ...sp,
           student_id: id,
+          status: sp.status || "active",
         }))
       );
 
-    if (insertJunctionError) {
-      return { error: insertJunctionError.message };
+    if (insertError) {
+      // Compensate: attempt restoring previous records to prevent permanent data loss
+      if (existingRecords && existingRecords.length > 0) {
+        await supabase.from("student_programs").insert(existingRecords);
+      }
+      return { error: `Gagal menyimpan pendaftaran program baru: ${insertError.message}` };
     }
   }
 
