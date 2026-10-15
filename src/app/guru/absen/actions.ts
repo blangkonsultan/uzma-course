@@ -2,6 +2,8 @@
 
 import { requireGuruAction } from "@/lib/auth";
 import { insertCheckIn, updateCheckOut, getTodayAttendance } from "@/lib/attendances";
+import { createClient } from "@/lib/supabase/server";
+import { calculateDistanceMeters } from "@/lib/pwa/haversine";
 import type { PendingAttendance } from "@/lib/pwa/db";
 
 export async function syncOfflineAttendances(records: PendingAttendance[]) {
@@ -49,34 +51,110 @@ export async function syncOfflineAttendances(records: PendingAttendance[]) {
   return results;
 }
 
-export async function processOnlineCheckIn(branchId: string, lat: number, lng: number, timestamp: string) {
+export async function processOnlineCheckIn(
+  sessionIdOrBranchId: string,
+  branchIdOrLat: string | number,
+  shiftIdOrLng?: string | number | null,
+  latOrTimestamp?: number | string,
+  lng?: number,
+  timestamp?: string
+) {
   const { profile } = await requireGuruAction();
-  
+
+  let sessionId: string;
+  let branchId: string;
+  let shiftId: string | null = null;
+  let latitude: number;
+  let longitude: number;
+  let timeStr: string;
+
+  if (
+    typeof branchIdOrLat === "string" &&
+    typeof lng === "number" &&
+    typeof timestamp === "string"
+  ) {
+    // 6-argument signature: (sessionId, branchId, shiftId, lat, lng, timestamp)
+    sessionId = sessionIdOrBranchId;
+    branchId = branchIdOrLat;
+    shiftId = (shiftIdOrLng as string | null) || null;
+    latitude = latOrTimestamp as number;
+    longitude = lng;
+    timeStr = timestamp;
+  } else {
+    // 4-argument signature: (branchId, lat, lng, timestamp)
+    sessionId = crypto.randomUUID();
+    branchId = sessionIdOrBranchId;
+    latitude = branchIdOrLat as number;
+    longitude = shiftIdOrLng as number;
+    timeStr = latOrTimestamp as string;
+  }
+
+  // 1. Fetch branch and validate geofence radius
+  const supabase = await createClient();
+  const { data: branch, error: branchErr } = await supabase
+    .from("branches")
+    .select("latitude, longitude, radius_meters, is_active")
+    .eq("id", branchId)
+    .single();
+
+  if (branchErr || !branch || !branch.is_active) {
+    return { success: false, error: "Cabang tidak valid atau tidak aktif." };
+  }
+
+  if (typeof branch.latitude === "number" && typeof branch.longitude === "number") {
+    const distanceMeters = calculateDistanceMeters(
+      latitude,
+      longitude,
+      branch.latitude,
+      branch.longitude
+    );
+    const maxRadius = branch.radius_meters || 100;
+    if (distanceMeters > maxRadius) {
+      return {
+        success: false,
+        error: `Posisi Anda (${Math.round(distanceMeters)}m) berada di luar radius cabang (${maxRadius}m).`,
+      };
+    }
+  }
+
   try {
-    const result = await insertCheckIn({
+    const record = await insertCheckIn({
+      id: sessionId,
       teacher_id: profile.id,
       branch_id: branchId,
-      check_in_time: timestamp,
-      check_in_lat: lat,
-      check_in_lng: lng,
+      shift_id: shiftId,
+      check_in_time: timeStr,
+      check_in_lat: latitude,
+      check_in_lng: longitude,
     });
-    return { success: true, data: result.data };
+    return { success: true, data: record };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : "Terjadi kesalahan" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Gagal mencatat presensi masuk.",
+    };
   }
 }
 
-export async function processOnlineCheckOut(attendanceId: string, lat: number, lng: number, timestamp: string) {
+export async function processOnlineCheckOut(
+  attendanceId: string,
+  lat: number,
+  lng: number,
+  timestamp: string
+) {
   await requireGuruAction();
-  
+
   try {
-    const result = await updateCheckOut(attendanceId, {
+    const record = await updateCheckOut(attendanceId, {
       check_out_time: timestamp,
       check_out_lat: lat,
       check_out_lng: lng,
     });
-    return { success: true, data: result.data };
+    return { success: true, data: record };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : "Terjadi kesalahan" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Gagal mencatat presensi pulang.",
+    };
   }
 }
