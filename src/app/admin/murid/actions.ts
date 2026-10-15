@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminAction } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { generateStudentNumber, createStudentData, updateStudentData, toggleStudentActiveStatus } from "@/lib/students";
 
 export interface StudentActionResponse {
@@ -57,7 +58,7 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
   }
 
   if (!studentNumber && branchId) {
-    studentNumber = await generateStudentNumber(branchId, joinedDate);
+    studentNumber = await generateStudentNumber(branchId);
   }
 
   const result = await createStudentData(
@@ -72,6 +73,7 @@ export async function createStudent(formData: FormData): Promise<StudentActionRe
       notes,
       is_active: true,
       student_number: studentNumber,
+      joined_date: joinedDate,
     },
     studentPrograms.map((sp) => ({
       program_id: sp.program_id,
@@ -140,8 +142,20 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
     return { fieldErrors };
   }
 
+  // Preserve existing student_number unless explicitly provided
+  if (!studentNumber) {
+    const supabase = await createClient();
+    const { data: existingStudent } = await supabase
+      .from("students")
+      .select("student_number")
+      .eq("id", id)
+      .single();
+
+    studentNumber = existingStudent?.student_number || null;
+  }
+
   if (!studentNumber && branchId) {
-    studentNumber = await generateStudentNumber(branchId, joinedDate);
+    studentNumber = await generateStudentNumber(branchId);
   }
 
   const result = await updateStudentData(
@@ -157,6 +171,7 @@ export async function updateStudent(id: string, formData: FormData): Promise<Stu
       notes,
       is_active: isActive,
       student_number: studentNumber,
+      joined_date: joinedDate,
     },
     studentPrograms.map((sp) => ({
       program_id: sp.program_id,

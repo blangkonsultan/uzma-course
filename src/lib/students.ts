@@ -86,8 +86,7 @@ export async function getStudentByIdForEdit(id: string) {
 }
 
 export async function generateStudentNumber(
-  branchId: string,
-  joinedDate: string
+  branchId: string
 ): Promise<string> {
   const supabase = await createClient();
   const { data: branchData } = await supabase
@@ -95,28 +94,34 @@ export async function generateStudentNumber(
     .select("code")
     .eq("id", branchId)
     .single();
-  const branchCode = branchData?.code || "00";
 
-  const jd = new Date(joinedDate);
-  const yy = jd.getFullYear().toString().slice(-2);
-  const mm = (jd.getMonth() + 1).toString().padStart(2, "0");
-  const prefix = `${yy}${mm}.${branchCode}.`;
+  let branchCode = branchData?.code;
+  if (!branchCode) {
+    branchCode = branchId === "sumokembangsri" || branchId === "balongbendo" ? "01" : "02";
+  }
 
-  const { data: maxStudent } = await supabase
+  const { data: students } = await supabase
     .from("students")
     .select("student_number")
-    .like("student_number", `${prefix}%`)
-    .order("student_number", { ascending: false })
-    .limit(1)
-    .single();
+    .eq("branch_id", branchId)
+    .not("student_number", "is", null);
 
   let nextNum = 1;
-  if (maxStudent && maxStudent.student_number) {
-    const parts = maxStudent.student_number.split(".");
-    const lastStr = parts[parts.length - 1];
-    if (lastStr) nextNum = parseInt(lastStr, 10) + 1;
+  if (students && students.length > 0) {
+    for (const s of students) {
+      if (!s.student_number) continue;
+      const regex = new RegExp(`^${branchCode}(\\d{3,})$`);
+      const match = s.student_number.match(regex);
+      if (match && match[1]) {
+        const parsed = parseInt(match[1], 10);
+        if (parsed >= nextNum) {
+          nextNum = parsed + 1;
+        }
+      }
+    }
   }
-  return `${prefix}${nextNum.toString().padStart(3, "0")}`;
+
+  return `${branchCode}${nextNum.toString().padStart(3, "0")}`;
 }
 
 export async function createStudentData(
