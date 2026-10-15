@@ -105,15 +105,41 @@ export async function updateProgramData(
   }
 
   if (activeVariantIds.length > 0) {
-    await supabase
+    const { error: deleteError } = await supabase
       .from("program_variants")
       .delete()
       .eq("program_id", id)
       .not("id", "in", `(${activeVariantIds.join(",")})`);
-  } else {
-    await supabase.from("program_variants").delete().eq("program_id", id);
-  }
 
+    if (deleteError) {
+      if (deleteError.message.includes("foreign key") || deleteError.code === "23503") {
+        return {
+          error: {
+            message:
+              "Varian tidak dapat dihapus karena masih digunakan oleh murid aktif atau jadwal kelas. Nonaktifkan status varian jika tidak ingin digunakan.",
+          },
+        };
+      }
+      return { error: deleteError };
+    }
+  } else {
+    const { error: deleteAllError } = await supabase
+      .from("program_variants")
+      .delete()
+      .eq("program_id", id);
+
+    if (deleteAllError) {
+      if (deleteAllError.message.includes("foreign key") || deleteAllError.code === "23503") {
+        return {
+          error: {
+            message:
+              "Varian tidak dapat dihapus karena masih digunakan oleh murid aktif atau jadwal kelas. Nonaktifkan status varian jika tidak ingin digunakan.",
+          },
+        };
+      }
+      return { error: deleteAllError };
+    }
+  }
   return { success: true };
 }
 

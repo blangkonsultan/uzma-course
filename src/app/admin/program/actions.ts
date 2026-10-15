@@ -150,9 +150,11 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
   };
 
   const variantsToUpsert = variants.map((v: Record<string, unknown>, idx: number) => {
-    const isNew = typeof v.id === "string" && v.id.startsWith("new-");
+    const isNew = !v.id || (typeof v.id === "string" && v.id.startsWith("new-"));
+    const assignedId = isNew ? crypto.randomUUID() : (v.id as string);
+
     return {
-      ...(isNew ? {} : { id: v.id }),
+      id: assignedId,
       program_id: id,
       name: typeof v.name === "string" ? v.name : "",
       duration: typeof v.duration === "number" ? v.duration : 30,
@@ -166,10 +168,7 @@ export async function updateProgram(id: string, formData: FormData): Promise<Pro
     };
   });
 
-  const activeVariantIds = variantsToUpsert
-    .filter((v: Record<string, unknown>) => typeof v.id === "string")
-    .map((v: Record<string, unknown>) => v.id as string);
-
+  const activeVariantIds = variantsToUpsert.map((v) => v.id);
   const { error } = await updateProgramData(
     id,
     programDataToUpdate,
