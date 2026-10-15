@@ -174,61 +174,71 @@ export async function insertGuruProfile(data: CreateGuruProfileData) {
 
   const newUserId = userData.user.id;
 
-  // 2. Update the profile row
-  const { error: profileError } = await adminClient.from("profiles").upsert({
-    id: newUserId,
-    full_name: fullName,
-    phone,
-    birth_date: birthDate,
-    role: "guru",
-    branch_id: effectivePrimaryBranch,
-    is_active: true,
-    bank_name: bankName,
-    bank_account_number: bankAccountNumber,
-    bank_account_holder: bankAccountHolder,
-    allowances: allowances as Json[] | undefined,
-    minimum_income: minimumIncome,
-    updated_at: new Date().toISOString(),
-  });
+  try {
+    // 2. Update the profile row
+    const { error: profileError } = await adminClient.from("profiles").upsert({
+      id: newUserId,
+      full_name: fullName,
+      phone,
+      birth_date: birthDate,
+      role: "guru",
+      branch_id: effectivePrimaryBranch,
+      is_active: true,
+      bank_name: bankName,
+      bank_account_number: bankAccountNumber,
+      bank_account_holder: bankAccountHolder,
+      allowances: allowances as Json[] | undefined,
+      minimum_income: minimumIncome,
+      updated_at: new Date().toISOString(),
+    });
 
-  if (profileError) {
-    throw new Error(`Akun dibuat tetapi gagal mengisi data profil: ${profileError.message}`);
-  }
-
-  // 3. Assign profile_branches junction
-  if (effectiveBranchIds.length > 0) {
-    const { error: branchJunctionError } = await adminClient
-      .from("profile_branches")
-      .insert(
-        effectiveBranchIds.map((bId) => ({
-          profile_id: newUserId,
-          branch_id: bId,
-          is_primary: bId === effectivePrimaryBranch,
-        }))
-      );
-
-    if (branchJunctionError) {
-      console.error("Notice: profile_branches insert error:", branchJunctionError);
+    if (profileError) {
+      throw new Error(`Gagal mengisi data profil: ${profileError.message}`);
     }
-  }
 
-  // 4. Assign profile_programs junction
-  if (programs && programs.length > 0) {
-    const { error: junctionError } = await adminClient
-      .from("profile_programs")
-      .insert(
-        programs.map((pid: string) => ({
-          profile_id: newUserId,
-          program_id: pid,
-        }))
-      );
+    // 3. Assign profile_branches junction
+    if (effectiveBranchIds.length > 0) {
+      const { error: branchJunctionError } = await adminClient
+        .from("profile_branches")
+        .insert(
+          effectiveBranchIds.map((bId) => ({
+            profile_id: newUserId,
+            branch_id: bId,
+            is_primary: bId === effectivePrimaryBranch,
+          }))
+        );
 
-    if (junctionError) {
-      throw new Error(`Akun dibuat tetapi gagal menugaskan program: ${junctionError.message}`);
+      if (branchJunctionError) {
+        throw new Error(`Gagal menetapkan cabang penugasan: ${branchJunctionError.message}`);
+      }
     }
-  }
 
-  return newUserId;
+    // 4. Assign profile_programs junction
+    if (programs && programs.length > 0) {
+      const { error: junctionError } = await adminClient
+        .from("profile_programs")
+        .insert(
+          programs.map((pid: string) => ({
+            profile_id: newUserId,
+            program_id: pid,
+          }))
+        );
+
+      if (junctionError) {
+        throw new Error(`Gagal menugaskan program: ${junctionError.message}`);
+      }
+    }
+
+    return newUserId;
+  } catch (error) {
+    // Compensating rollback: delete orphan auth user so email is freed for retry
+    try {
+      await adminClient.auth.admin.deleteUser(newUserId);
+    } catch (delErr) {
+      console.error("Gagal menghapus orphan auth user:", delErr);
+    }
+    throw error;
+  }
 }
 
 export interface UpdateGuruProfileData {
@@ -288,21 +298,30 @@ export async function updateGuruProfile(id: string, data: UpdateGuruProfileData)
     throw new Error(error.message);
   }
 
-  // Update profile_branches junction with graceful fallback
-  try {
-    await supabase.from("profile_branches").delete().eq("profile_id", id);
+  // Update profile_branches junction with explicit error checking
+  const { error: branchDeleteError } = await supabase
+    .from("profile_branches")
+    .delete()
+    .eq("profile_id", id);
 
-    if (effectiveBranchIds.length > 0) {
-      await supabase.from("profile_branches").insert(
+  if (branchDeleteError) {
+    throw new Error(`Gagal menghapus cabang penugasan lama: ${branchDeleteError.message}`);
+  }
+
+  if (effectiveBranchIds.length > 0) {
+    const { error: branchInsertError } = await supabase
+      .from("profile_branches")
+      .insert(
         effectiveBranchIds.map((bId) => ({
           profile_id: id,
           branch_id: bId,
           is_primary: bId === effectivePrimaryBranch,
         }))
       );
+
+    if (branchInsertError) {
+      throw new Error(`Gagal menetapkan cabang penugasan guru: ${branchInsertError.message}`);
     }
-  } catch (pbErr) {
-    console.error("Notice: profile_branches update error:", pbErr);
   }
 
   // Delete existing profile_programs and re-insert
