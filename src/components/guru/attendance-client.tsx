@@ -103,6 +103,15 @@ export function AttendanceClient({
   });
   const [isSyncing, setIsSyncing] = useState(false);
   const [queueCount, setQueueCount] = useState(0);
+  const isSyncingRef = useRef(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const [isLoadingGPS, setIsLoadingGPS] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -176,10 +185,13 @@ export function AttendanceClient({
   const shiftStatusResult = calculateShiftStatus(activeBranchShifts);
 
   const attemptSync = useCallback(async () => {
-    if (isSyncing) return;
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    setIsSyncing(true);
     try {
-      setIsSyncing(true);
-      const records = await getPendingAttendances();
+      const allRecords = await getPendingAttendances();
+      // Filter to current teacher only
+      const records = allRecords.filter((r) => r.teacher_id === teacherId);
       if (records.length === 0) return;
 
       const result = await syncOfflineAttendances(records);
@@ -190,16 +202,18 @@ export function AttendanceClient({
       }
 
       const remaining = await getPendingAttendances();
-      setQueueCount(remaining.length);
-    } catch {
-      // Sync failed, stay in queue
+      setQueueCount(remaining.filter((r) => r.teacher_id === teacherId).length);
+    } catch (error) {
+      console.error("Sync error:", error);
     } finally {
+      isSyncingRef.current = false;
       setIsSyncing(false);
     }
-  }, [isSyncing]);
+  }, [teacherId]);
 
   const checkQueue = useCallback(async () => {
-    const records = await getPendingAttendances();
+    const allRecords = await getPendingAttendances();
+    const records = allRecords.filter((r) => r.teacher_id === teacherId);
     setQueueCount(records.length);
 
     // Pulihkan status UI secara optimistik jika halaman dimuat ulang sementara data masih ngantre
@@ -216,8 +230,7 @@ export function AttendanceClient({
     if (typeof window !== "undefined" && navigator.onLine && records.length > 0) {
       await attemptSync();
     }
-  }, [attemptSync, attendanceId]);
-
+  }, [attemptSync, attendanceId, teacherId]);
   // Online / Offline listeners
   useEffect(() => {
     const handleOnline = () => {
@@ -265,6 +278,7 @@ export function AttendanceClient({
     };
 
     const errorHandler = (err: GeolocationPositionError) => {
+      setCurrentCoords(null);
       if (err.code === err.PERMISSION_DENIED) {
         setGpsStatus("denied");
       } else {
@@ -297,6 +311,7 @@ export function AttendanceClient({
     setGpsStatus("locating");
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        if (!isMountedRef.current) return;
         const { latitude, longitude } = position.coords;
         setCurrentCoords({ lat: latitude, lng: longitude });
         setGpsStatus("active");
@@ -316,11 +331,20 @@ export function AttendanceClient({
     );
   }
 
-  async function queueAttendanceOffline(type: "check_in" | "check_out", lat: number, lng: number, timestamp: string) {
+  async function queueAttendanceOffline(
+    type: "check_in" | "check_out",
+    lat: number,
+    lng: number,
+    timestamp: string,
+    sessionId?: string
+  ) {
+    const assignedId = type === "check_in" ? (sessionId || crypto.randomUUID()) : crypto.randomUUID();
     const record: PendingAttendance = {
-      id: crypto.randomUUID(),
+      id: assignedId,
+      attendance_id: type === "check_out" ? attendanceId : null,
       teacher_id: teacherId,
       branch_id: activeBranch.id,
+      shift_id: activeBranchShifts[0]?.id || null,
       type,
       lat,
       lng,
@@ -332,6 +356,7 @@ export function AttendanceClient({
 
     if (type === "check_in") {
       setIsCheckedIn(true);
+      setAttendanceId(assignedId);
       showToast("Koneksi terputus. Presensi masuk antrean offline.", "error");
     } else {
       setIsCheckedOut(true);
@@ -360,39 +385,50 @@ export function AttendanceClient({
       }
 
       const timestamp = new Date().toISOString();
+      const sessionId = crypto.randomUUID();
 
-      if (isOnline) {
-        try {
-          if (type === "check_in") {
-            const res = await processOnlineCheckIn(activeBranch.id, latitude, longitude, timestamp);
-            if (res.success && res.data) {
-              setIsCheckedIn(true);
-              setAttendanceId(res.data.id);
-              showToast("Berhasil absen masuk!", "success");
+      try {
+        if (isOnline) {
+          try {
+            if (type === "check_in") {
+              const res = await processOnlineCheckIn(
+                sessionId,
+                activeBranch.id,
+                activeBranchShifts[0]?.id || null,
+                latitude,
+                longitude,
+                timestamp
+              );
+              if (res.success && res.data) {
+                setIsCheckedIn(true);
+                setAttendanceId(res.data.id || sessionId);
+                showToast("Berhasil absen masuk!", "success");
+              } else {
+                throw new Error(res.error || "Gagal mencatat presensi online");
+              }
             } else {
-              throw new Error(res.error || "Gagal mencatat presensi online");
+              const targetId = attendanceId;
+              if (!targetId) {
+                throw new Error("Menunggu sinkronisasi Check-in sebelum bisa Check-out online.");
+              }
+              const res = await processOnlineCheckOut(targetId, latitude, longitude, timestamp);
+              if (res.success) {
+                setIsCheckedOut(true);
+                showToast("Berhasil absen pulang!", "success");
+              } else {
+                throw new Error(res.error || "Gagal mencatat presensi online");
+              }
             }
-          } else {
-            if (!attendanceId) {
-              throw new Error("Menunggu sinkronisasi Check-in sebelum bisa Check-out online.");
-            }
-            const res = await processOnlineCheckOut(attendanceId, latitude, longitude, timestamp);
-            if (res.success) {
-              setIsCheckedOut(true);
-              showToast("Berhasil absen pulang!", "success");
-            } else {
-              throw new Error(res.error || "Gagal mencatat presensi online");
-            }
+          } catch (err: unknown) {
+            if (err instanceof Error) setLocationError(err.message);
+            await queueAttendanceOffline(type, latitude, longitude, timestamp, sessionId);
           }
-        } catch (err: unknown) {
-          if (err instanceof Error) setLocationError(err.message);
-          await queueAttendanceOffline(type, latitude, longitude, timestamp);
+        } else {
+          await queueAttendanceOffline(type, latitude, longitude, timestamp, sessionId);
         }
-      } else {
-        await queueAttendanceOffline(type, latitude, longitude, timestamp);
+      } finally {
+        setIsLoadingGPS(false);
       }
-
-      setIsLoadingGPS(false);
     };
 
     if (currentCoords) {

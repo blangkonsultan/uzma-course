@@ -82,7 +82,7 @@ function ToastContent() {
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-5 right-5 z-50 max-w-sm w-full bg-white rounded-2xl shadow-xl border border-slate-100 p-4 flex items-start gap-3 animate-in slide-in-from-bottom-5 duration-300"
+      className="fixed bottom-20 sm:bottom-5 left-4 right-4 sm:left-auto sm:right-5 z-50 max-w-sm sm:w-full bg-white rounded-2xl shadow-xl border border-slate-100 p-4 flex items-start gap-3 animate-in slide-in-from-bottom-5 duration-300"
     >
       <div
         className={`p-2 rounded-xl shrink-0 ${

@@ -1,6 +1,6 @@
 import { requireGuruPage } from "@/lib/auth";
 import { getTeacherAssignedBranches, getBranchShiftsMap } from "@/lib/teacher-branches";
-import { getTodayAttendance } from "@/lib/attendances";
+import { getTodayAttendance, getWIBDateBounds } from "@/lib/attendances";
 import { AttendanceClient } from "@/components/guru/attendance-client";
 import { MapPin, Navigation, CalendarOff } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -29,21 +29,34 @@ export default async function AbsenPage() {
     );
   }
 
-  // 2. Cek apakah guru memiliki jadwal mengajar HARI INI
+  // 2. Cek apakah guru memiliki jadwal mengajar HARI INI (WIB)
   const adminSupabase = createAdminClient();
-  const d = new Date();
-  // Set zona waktu agar aman, tapi untuk now kita pakai waktu server (idealnya WIB)
-  const dayOfWeek = d.getDay() === 0 ? 7 : d.getDay();
+  const { dayOfWeek } = getWIBDateBounds();
 
-  const { data: todayClasses } = await adminSupabase
+  const { data: todayClasses, error: scheduleError } = await adminSupabase
     .from("schedule_classes")
     .select("id, shift_id, start_time, end_time, schedule_drafts!inner(branch_id, status)")
     .eq("teacher_id", profile.id)
     .eq("day_of_week", dayOfWeek)
     .eq("schedule_drafts.status", "active");
 
-  const hasScheduleToday = todayClasses && todayClasses.length > 0;
+  if (scheduleError) {
+    return (
+      <div className="p-6 flex flex-col items-center justify-center min-h-[50vh] text-center max-w-sm mx-auto space-y-4">
+        <div className="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-2 border border-rose-200">
+          <CalendarOff className="w-7 h-7" />
+        </div>
+        <div className="space-y-1.5">
+          <h2 className="text-lg font-bold text-slate-800 tracking-tight">Gagal Memuat Jadwal</h2>
+          <p className="text-slate-500 text-xs leading-relaxed">
+            Terjadi kendala saat memeriksa jadwal mengajar Anda. Silakan muat ulang halaman.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
+  const hasScheduleToday = todayClasses && todayClasses.length > 0;
   if (!hasScheduleToday) {
     return (
       <div className="p-6 flex flex-col items-center justify-center min-h-[50vh] text-center max-w-sm mx-auto space-y-4">
@@ -64,6 +77,21 @@ export default async function AbsenPage() {
   const branchIdsWithClassesToday = new Set(todayClasses.map(c => c.schedule_drafts.branch_id));
   const activeAssignedBranches = assignedBranches.filter(b => branchIdsWithClassesToday.has(b.id));
 
+  if (activeAssignedBranches.length === 0) {
+    return (
+      <div className="p-6 flex flex-col items-center justify-center min-h-[50vh] text-center max-w-sm mx-auto space-y-4">
+        <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-2 border border-amber-200">
+          <MapPin className="w-7 h-7" />
+        </div>
+        <div className="space-y-1.5">
+          <h2 className="text-lg font-bold text-slate-800 tracking-tight">Cabang Penugasan Berbeda</h2>
+          <p className="text-slate-500 text-xs leading-relaxed">
+            Anda memiliki jadwal mengajar hari ini, namun cabang tempat kelas diselenggarakan belum terhubung dengan penugasan resmi akun Anda. Silakan hubungi admin.
+          </p>
+        </div>
+      </div>
+    );
+  }
   // 3. Ambil map shift aktif untuk cabang-cabang yang memiliki jadwal hari ini
   const branchIds = activeAssignedBranches.map((b) => b.id);
   const shiftsMap = await getBranchShiftsMap(branchIds);
@@ -95,7 +123,8 @@ export default async function AbsenPage() {
           ...s,
           start_time: shiftBounds[s.id].start_time,
           end_time: shiftBounds[s.id].end_time,
-        }));
+        }))
+        .sort((a, b) => a.start_time.localeCompare(b.start_time));
     }
   }
 
