@@ -1,4 +1,12 @@
 # Progress Log
+## 2026-10-15 (Phase 4 Scheduling Invariants & Modal Accessibility Spec Completed)
+- **Status**: Completed (Design & Specification Gate).
+- **Evidence**:
+  - Formulated full architectural specification for Phase 4: `docs/superpowers/specs/2026-10-15-phase4-scheduling-class-allocation-design.md`.
+  - Covers A4 (secondary branch teacher inclusion in scheduling pool via `profile_branches`), A5 (cross-branch teacher schedule conflict validation across active drafts), A10 (preserving student numbers during ordinary edits), A11 & A12 (filtering active enrollments and enforcing weekly variant frequency quotas on placement), A14, A15, A16 (positive ordered time intervals and protecting existing classes before narrowing shift hours), A13 & A23 (filtering inactive variants on registration and validating positive operational numbers), and A26 (modal focus traps and Escape key dismissal on board dialogs).
+  - Documented automated test suites across Vitest and clear Definition of Done.
+  - No implementation code touched yet; awaiting user review gate before implementation planning.
+
 ## 2026-10-15 (Phase 3 Teacher Attendance Lifecycle & PWA Offline Model Implementation Completed)
 - **Status**: Completed.
 - **Evidence**:
