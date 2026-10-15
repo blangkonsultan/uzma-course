@@ -8,6 +8,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { InputField } from "@/components/admin/form-field";
 import { AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { sanitizeNextUrl } from "@/lib/security";
 
 export function LoginForm() {
   const searchParams = useSearchParams();
@@ -50,7 +51,7 @@ export function LoginForm() {
         .eq("id", user.id)
         .single();
 
-      const destination = profile?.role === "guru" ? "/guru/absen" : (nextUrl === "/admin" ? "/admin" : nextUrl);
+      const destination = profile?.role === "guru" ? "/guru/absen" : sanitizeNextUrl(nextUrl, "/admin");
       window.location.href = destination;
     } catch (err: unknown) {
       setError(
