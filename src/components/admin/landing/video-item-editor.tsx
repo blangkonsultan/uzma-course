@@ -15,6 +15,9 @@ const SOURCE_OPTIONS = [
   { value: "youtube", label: "YouTube (Embed 16:9 Landscape)" },
   { value: "tiktok", label: "TikTok (Player 9:16 Vertikal)" },
 ];
+const TIKTOK_SHORTLINK_PATTERN =
+  /^https:\/\/(?:vt|vm)\.tiktok\.com(?:[/?#]|$)/i;
+
 
 export interface VideoItemEditorProps {
   item: VideoItem;
@@ -47,8 +50,8 @@ export function VideoItemEditor({
   const handleIdChange = (val: string) => {
     setResolveError(null);
 
-    // If it's a TikTok shortlink (vt.tiktok.com), keep the raw URL so user can trigger extract
-    if (val.includes("vt.tiktok.com")) {
+    // If it's a TikTok shortlink (vt.tiktok.com or vm.tiktok.com), keep the raw URL so user can trigger extract
+    if (TIKTOK_SHORTLINK_PATTERN.test(val.trim())) {
       setRawInput(val);
       return;
     }
@@ -89,9 +92,10 @@ export function VideoItemEditor({
     }
   };
 
-  const isShortlink = rawInput.includes("vt.tiktok.com");
+  const isShortlink = TIKTOK_SHORTLINK_PATTERN.test(rawInput.trim());
   const cleanId = extractVideoId(rawInput, item.source);
   const hasValidVideo = Boolean(cleanId && cleanId.length >= 5 && !isShortlink);
+
 
   return (
     <div className="space-y-4 pt-2">
@@ -163,7 +167,7 @@ export function VideoItemEditor({
             <div className="flex items-start gap-2">
               <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold">Terdeteksi Shortlink TikTok (vt.tiktok.com)</p>
+                <p className="font-semibold">Terdeteksi Shortlink TikTok (vt.tiktok.com atau vm.tiktok.com)</p>
                 <p className="text-amber-800 mt-0.5">
                   Link pendek perlu diekstrak ke ID video asli agar pemutar player dapat berjalan di website.
                 </p>

@@ -80,17 +80,47 @@ export async function updateLandingSection(
   redirect("/admin/landing?success=updated");
 }
 
+const ALLOWED_TIKTOK_HOSTS: Record<string, true> = {
+  "tiktok.com": true,
+  "www.tiktok.com": true,
+  "vt.tiktok.com": true,
+  "vm.tiktok.com": true,
+  "m.tiktok.com": true,
+};
+
 export async function resolveTikTokShortlink(
   shortUrl: string
 ): Promise<{ videoId?: string; error?: string }> {
   await requireAdminAction();
 
-  if (!shortUrl || !shortUrl.includes("tiktok.com")) {
-    return { error: "Link TikTok tidak valid." };
+  if (!shortUrl || typeof shortUrl !== "string") {
+    return { error: "Tautan TikTok tidak boleh kosong." };
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(shortUrl.trim());
+  } catch {
+    return { error: "Format URL tidak valid." };
+  }
+
+  if (parsed.protocol !== "https:") {
+    return { error: "Protokol tautan harus menggunakan HTTPS." };
+  }
+
+  if (ALLOWED_TIKTOK_HOSTS[parsed.hostname.toLowerCase()] !== true) {
+    return {
+      error:
+        "Tautan harus berasal dari domain resmi TikTok (tiktok.com, vt.tiktok.com, vm.tiktok.com).",
+    };
+  }
+
+  if (parsed.username || parsed.password) {
+    return { error: "Tautan tidak boleh memuat kredensial pengguna." };
   }
 
   try {
-    const res = await fetch(shortUrl.trim(), {
+    const res = await fetch(parsed.toString(), {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -98,8 +128,17 @@ export async function resolveTikTokShortlink(
       redirect: "follow",
     });
 
-    const finalUrl = res.url;
-    const match = finalUrl.match(/\/video\/(\d{15,22})/);
+    const finalParsed = new URL(res.url);
+    if (
+      finalParsed.protocol !== "https:" ||
+      finalParsed.username ||
+      finalParsed.password ||
+      ALLOWED_TIKTOK_HOSTS[finalParsed.hostname.toLowerCase()] !== true
+    ) {
+      return { error: "Pengalihan tautan mengarah ke domain di luar TikTok." };
+    }
+
+    const match = finalParsed.pathname.match(/\/video\/(\d{15,22})/);
     if (match && match[1]) {
       return { videoId: match[1] };
     }
