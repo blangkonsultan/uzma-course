@@ -32,7 +32,7 @@ export function TeamSection({ data }: TeamSectionProps) {
   const content = data || DEFAULT_LANDING_CONTENT.team;
 
   return (
-    <section id="pengelola" className="py-20 bg-white scroll-mt-16">
+    <section id="pengelola" className="py-20 bg-white scroll-mt-20">
       <Container>
         <SectionHeading
           title={content.title}

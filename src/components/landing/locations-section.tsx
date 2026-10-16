@@ -14,7 +14,7 @@ export function LocationsSection({ data }: LocationsSectionProps) {
   const content = data || DEFAULT_LANDING_CONTENT.locations;
 
   return (
-    <section id="lokasi" className="py-20 bg-slate-50 scroll-mt-16">
+    <section id="lokasi" className="py-20 bg-slate-50 scroll-mt-20">
       <Container className="max-w-5xl">
         <SectionHeading
           title={content.title}

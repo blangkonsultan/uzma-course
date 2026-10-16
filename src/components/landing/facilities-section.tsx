@@ -38,7 +38,7 @@ export function FacilitiesSection({ data }: FacilitiesSectionProps) {
   const content = data || DEFAULT_LANDING_CONTENT.facilities;
 
   return (
-    <section id="fasilitas" className="py-20 bg-slate-50 scroll-mt-16">
+    <section id="fasilitas" className="py-20 bg-slate-50 scroll-mt-20">
       <Container>
         <SectionHeading
           title={content.title}

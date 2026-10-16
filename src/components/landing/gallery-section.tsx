@@ -75,7 +75,7 @@ export function GallerySection({ data }: GallerySectionProps) {
   };
 
   return (
-    <section id="galeri" className="py-20 bg-slate-50 scroll-mt-16">
+    <section id="galeri" className="py-20 bg-slate-50 scroll-mt-20">
       <Container>
         <SectionHeading
           title={content.title}

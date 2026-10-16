@@ -34,7 +34,7 @@ export function WhyUsSection({ data }: WhyUsSectionProps) {
   const content = data || DEFAULT_LANDING_CONTENT.why_us;
 
   return (
-    <section id="keunggulan" className="py-20 bg-slate-50 scroll-mt-16">
+    <section id="keunggulan" className="py-20 bg-slate-50 scroll-mt-20">
       <Container>
         <SectionHeading
           title={content.title}

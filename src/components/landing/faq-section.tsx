@@ -21,7 +21,7 @@ export function FAQSection({ data }: FAQSectionProps) {
   };
 
   return (
-    <section id="faq" className="py-20 bg-slate-50 scroll-mt-16">
+    <section id="faq" className="py-20 bg-slate-50 scroll-mt-20">
       <Container className="max-w-3xl">
         <SectionHeading
           title={content.title}

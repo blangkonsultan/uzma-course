@@ -23,7 +23,7 @@ export function ProgramsSection({ data }: ProgramsSectionProps) {
   const content = data || DEFAULT_LANDING_CONTENT.programs;
 
   return (
-    <section id="programs" className="py-20 bg-white scroll-mt-16">
+    <section id="programs" className="py-20 bg-white scroll-mt-20">
       <Container>
         <SectionHeading
           title={content.title}

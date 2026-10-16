@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
+import type { Program } from "@/types";
 import type {
   AllLandingContent,
   LandingSectionKey,
@@ -347,7 +348,7 @@ function getSupabaseAnonClient() {
     },
   });
 }
-function mapProgramRowToItem(p: import("@/types").Program): ProgramItem {
+function mapProgramRowToItem(p: Program): ProgramItem {
   return {
     id: p.initials.toLowerCase(),
     initials: p.initials,

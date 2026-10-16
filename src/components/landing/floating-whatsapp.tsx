@@ -30,7 +30,7 @@ export function FloatingWhatsApp({ data }: FloatingWhatsAppProps) {
   return (
     <aside
       aria-label="Kontak WhatsApp Cepat"
-      className="fixed bottom-6 right-6 z-50"
+      className="fixed bottom-6 right-6 z-50 [bottom:calc(1.5rem+env(safe-area-inset-bottom,0px))] [right:calc(1.5rem+env(safe-area-inset-right,0px))]"
     >
       <a
         href={buildWaLink()}

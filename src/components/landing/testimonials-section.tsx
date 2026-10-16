@@ -13,7 +13,7 @@ export function TestimonialsSection({ data }: TestimonialsSectionProps) {
   const content = data || DEFAULT_LANDING_CONTENT.testimonials;
 
   return (
-    <section id="testimoni" className="py-20 bg-white scroll-mt-16">
+    <section id="testimoni" className="py-20 bg-white scroll-mt-20">
       <Container>
         <SectionHeading
           title={content.title}

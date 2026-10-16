@@ -150,6 +150,38 @@ describe("Landing Components (src/components/landing/)", () => {
       render(<FloatingWhatsApp data={DEFAULT_LANDING_CONTENT.floating_wa} />);
       expect(screen.getByLabelText(/Chat via WhatsApp/i)).toBeDefined();
     });
+    it("uses consistent scroll offsets and safe-area positioning", () => {
+      const sectionRenders = [
+        render(<ProgramsSection data={DEFAULT_LANDING_CONTENT.programs} />),
+        render(<WhyUsSection data={DEFAULT_LANDING_CONTENT.why_us} />),
+        render(<FacilitiesSection data={DEFAULT_LANDING_CONTENT.facilities} />),
+        render(<TeamSection data={DEFAULT_LANDING_CONTENT.team} />),
+        render(<GallerySection data={DEFAULT_LANDING_CONTENT.gallery} />),
+        render(
+          <TestimonialsSection data={DEFAULT_LANDING_CONTENT.testimonials} />
+        ),
+        render(<VideoSection data={DEFAULT_LANDING_CONTENT.videos} />),
+        render(<LocationsSection data={DEFAULT_LANDING_CONTENT.locations} />),
+        render(<FAQSection data={DEFAULT_LANDING_CONTENT.faq} />),
+      ];
+
+      for (const { container } of sectionRenders) {
+        expect(
+          container.querySelector("section")?.classList.contains("scroll-mt-20")
+        ).toBe(true);
+      }
+
+      const { container } = render(
+        <FloatingWhatsApp data={DEFAULT_LANDING_CONTENT.floating_wa} />
+      );
+      const wrapper = container.querySelector("aside");
+      expect(wrapper?.getAttribute("class")).toContain(
+        "[bottom:calc(1.5rem+env(safe-area-inset-bottom,0px))]"
+      );
+      expect(wrapper?.getAttribute("class")).toContain(
+        "[right:calc(1.5rem+env(safe-area-inset-right,0px))]"
+      );
+    });
   });
 
   describe("Programs & Gallery", () => {

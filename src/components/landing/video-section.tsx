@@ -15,7 +15,7 @@ export function VideoSection({ data }: VideoSectionProps) {
   }
 
   return (
-    <section id="videos" className="py-20 bg-slate-50 scroll-mt-16">
+    <section id="videos" className="py-20 bg-slate-50 scroll-mt-20">
       <Container className="max-w-4xl">
         <SectionHeading
           title={content.title}
