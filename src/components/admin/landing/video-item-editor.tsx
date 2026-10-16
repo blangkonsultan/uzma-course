@@ -139,7 +139,7 @@ export function VideoItemEditor({
           </span>
         </div>
 
-        <div className="flex rounded-xl overflow-hidden border border-slate-300 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-100 bg-white transition-all">
+        <div className="flex rounded-xl overflow-hidden border border-slate-300 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 bg-white transition-all">
           <span
             className="inline-flex items-center px-3 sm:px-3.5 bg-slate-100 border-r border-slate-300 text-xs sm:text-sm font-mono text-slate-600 select-none shrink-0 truncate max-w-[150px] sm:max-w-none"
             title={prefix}
@@ -250,7 +250,7 @@ export function VideoItemEditor({
             </div>
           </div>
         ) : (
-          <div className="p-6 text-center rounded-lg border border-dashed border-slate-200 bg-white/60 text-slate-400 text-xs">
+          <div className="p-6 text-center rounded-lg border border-dashed border-slate-200 bg-white/60 text-slate-500 text-xs">
             Masukkan ID video di atas untuk melihat preview player langsung di sini.
           </div>
         )}

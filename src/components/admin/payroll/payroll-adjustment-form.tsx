@@ -90,7 +90,8 @@ export function PayrollAdjustmentForm({
         <button
           type="button"
           onClick={() => setIsOpen(false)}
-          className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+          className="p-2 sm:p-1 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          aria-label="Tutup form penyesuaian"
         >
           <X className="w-4 h-4" />
         </button>

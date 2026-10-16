@@ -31,7 +31,7 @@ export function DataTable<T>({
           <FolderOpen className="w-6 h-6" />
         </div>
         <p className="text-sm font-medium text-slate-700">{emptyStateMessage}</p>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-slate-500 mt-1">
           Gunakan filter yang berbeda atau tambahkan data baru.
         </p>
       </div>

@@ -426,7 +426,12 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                                 <span className={`text-[11px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap ${isFull ? 'bg-red-200 text-red-800' : 'bg-green-100 text-green-700'}`}>
                                   {currentCount} / {capacity}
                                 </span>
-                                <button type="button" aria-label="Hapus kelas" onClick={() => deleteClass(cls.id)} className="text-slate-400 hover:text-red-500 p-1 -mr-1">
+                                <button
+                                  type="button"
+                                  aria-label="Hapus kelas"
+                                  onClick={() => deleteClass(cls.id)}
+                                  className="text-slate-400 hover:text-red-500 p-2 sm:p-1 -mr-1.5 sm:-mr-1 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                                >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
@@ -447,7 +452,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                               <button
                                 type="button"
                                 onClick={() => setStudentModal({ isOpen: true, classId: cls.id, variantId: cls.variant_id })}
-                                className="w-full text-xs text-center text-primary-600 hover:text-primary-700 py-2 border border-dashed border-primary-200 hover:border-primary-300 hover:bg-primary-50 rounded transition-colors flex items-center justify-center gap-1"
+                                className="w-full text-xs text-center text-primary-600 hover:text-primary-700 py-2 min-h-[40px] sm:min-h-[36px] border border-dashed border-primary-200 hover:border-primary-300 hover:bg-primary-50 rounded-xl transition-colors flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                               >
                                 <Plus className="w-3 h-3" /> Tambah Murid
                               </button>
@@ -514,7 +519,7 @@ export function KanbanBoard({ draft, shifts, teachers, variants, students, initi
                   <button
                     type="button"
                     onClick={() => setSearch("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-2 sm:p-0.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     aria-label="Hapus teks pencarian"
                   >
                     <X className="w-3.5 h-3.5" />

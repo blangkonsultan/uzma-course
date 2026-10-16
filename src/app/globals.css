@@ -61,4 +61,19 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  /* Preserve non-jarring feedback indicators for user state awareness */
+  .animate-spin,
+  .animate-pulse,
+  .animate-indeterminate {
+    animation-duration: 1.5s !important;
+    animation-iteration-count: infinite !important;
+  }
+  /* Preserve opacity-based state changes without disorienting translation */
+  [class*="animate-in"],
+  [class*="transition-all"],
+  [class*="transition-colors"],
+  [class*="transition-opacity"] {
+    transition-duration: 150ms !important;
+    transform: none !important;
+  }
 }

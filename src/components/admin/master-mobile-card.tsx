@@ -113,7 +113,7 @@ export function MasterMobileCard({
       {specs && (
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 grid grid-cols-2 gap-2 text-xs">
           <div className="min-w-0">
-            <span className="text-slate-400 block text-[10px] uppercase font-semibold tracking-wider">
+            <span className="text-slate-500 block text-[10px] uppercase font-semibold tracking-wider">
               {specs.left.label}
             </span>
             <div className="mt-1 font-semibold text-slate-800 break-words">
@@ -121,7 +121,7 @@ export function MasterMobileCard({
             </div>
           </div>
           <div className="text-right min-w-0">
-            <span className="text-slate-400 block text-[10px] uppercase font-semibold tracking-wider">
+            <span className="text-slate-500 block text-[10px] uppercase font-semibold tracking-wider">
               {specs.right.label}
             </span>
             <div className="mt-1 font-semibold text-slate-800 break-words flex justify-end">

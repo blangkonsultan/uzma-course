@@ -157,7 +157,7 @@ export function LogoUploadField({
             <p className="text-xs font-medium text-slate-700">
               {isPending ? "Mengunggah logo..." : "Klik untuk memilih file logo"}
             </p>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500">
               Transparan (PNG/SVG) disarankan
             </p>
           </button>

@@ -346,7 +346,7 @@ export function PayrollPeriodClient({
               <button
                 type="button"
                 onClick={() => setConfirmClose(false)}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-amber-100 rounded-xl transition-colors"
+                className="px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100/80 rounded-xl transition-colors"
               >
                 Batal
               </button>
@@ -389,7 +389,7 @@ export function PayrollPeriodClient({
               <button
                 type="button"
                 onClick={() => setShowNewMonthModal(false)}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-primary-100 rounded-xl transition-colors"
+                className="px-3 py-1.5 text-xs font-semibold text-primary-900 hover:bg-primary-100/80 rounded-xl transition-colors"
               >
                 Batal
               </button>
@@ -421,7 +421,7 @@ export function PayrollPeriodClient({
         </div>
 
         {detail.entries.length === 0 ? (
-          <div className="p-8 text-center text-xs text-slate-400">
+          <div className="p-8 text-center text-xs text-slate-500">
             Belum ada data guru pada periode ini.
           </div>
         ) : (
@@ -444,7 +444,7 @@ export function PayrollPeriodClient({
                         {entry.teacher.full_name}
                       </span>
                       {entry.teacher.phone && (
-                        <span className="text-[11px] text-slate-400">
+                        <span className="text-[11px] text-slate-500">
                           {entry.teacher.phone}
                         </span>
                       )}

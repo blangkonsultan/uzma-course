@@ -110,7 +110,7 @@ export function HeroForm({ initialData }: HeroFormProps) {
                 <button
                   type="button"
                   onClick={() => handleRemovePill(idx)}
-                  className="text-primary-500 hover:text-rose-600 transition-colors"
+                  className="p-1 -mr-1 rounded-full text-primary-500 hover:text-rose-600 transition-colors inline-flex items-center justify-center min-h-[28px] min-w-[28px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-500"
                   aria-label="Hapus poin keunggulan"
                 >
                   <X className="w-3.5 h-3.5" />

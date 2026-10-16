@@ -138,7 +138,7 @@ export function LoginForm() {
         </form>
 
         <div className="mt-6 pt-6 border-t border-slate-100 text-center">
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Akun guru dan staf didaftarkan secara terpusat oleh Admin.
           </p>
           <div className="mt-3">
