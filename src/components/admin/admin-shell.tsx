@@ -105,6 +105,17 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
       ],
     },
     {
+      title: "Operasional & Keuangan",
+      items: [
+        {
+          label: "Penggajian Guru",
+          href: "/admin/payroll",
+          icon: Banknote,
+          roles: ["admin"],
+        },
+      ],
+    },
+    {
       title: "Konten & Website",
       items: [
         {
@@ -120,9 +131,9 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
   const upcomingItems = [
     { label: "Jadwal Belajar", icon: Calendar },
     { label: "Kehadiran", icon: Clock },
-    { label: "Penggajian", icon: Banknote },
     { label: "Laporan", icon: FileBarChart },
   ];
+
 
   const allowedGroups = navGroups
     .map((group) => ({
