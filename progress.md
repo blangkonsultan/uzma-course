@@ -1,4 +1,14 @@
 # Progress Log
+## 2026-10-17 (Impeccable UI Audit & Technical Quality Remediations)
+- **Status**: Completed.
+- **Evidence**:
+  - **A11y & Motion Sensitivity**: Replaced global `0.01ms` motion kill in `src/app/globals.css` with a selective reduced-motion alternative that preserves essential loading feedback (`.animate-spin`, `.animate-pulse`, `.animate-indeterminate`) and subtle opacity/color transitions without dizzying transform/translate animations.
+  - **Contrast Hardening**: Upgraded low-contrast `text-slate-400` descriptions on white backgrounds to WCAG AA-compliant `text-slate-500` across `data-table.tsx`, `login-form.tsx`, `master-mobile-card.tsx`, `payroll-period-client.tsx`, `video-item-editor.tsx`, and `logo-upload-field.tsx`.
+  - **Touch Target & Mobile Ergonomics**: Expanded micro-action button touch boundaries to minimum 44×44px on mobile/touch viewports on Kanban Board (delete class button, clear search button), Payroll adjustment modal close button, and Hero form pill deletion button.
+  - **Design System Alignment & Detector Warning Fix**: Fixed detector warning (`text-slate-600` on `bg-amber-100` and `bg-primary-100`) by switching to hue-aligned colors (`text-amber-900` / `text-primary-900`), aligned Kanban Board "Tambah Murid" button radius from `rounded` (4px) to design system token `rounded-xl`, and added missing `aria-label` to modal close controls.
+  - **Verification**: `impeccable detect --json src/` returned 0 findings (`[]`). Full `./init.sh` passed: 0 ESLint errors/warnings, **66 Vitest suites / 385 tests passed**, coverage at **64.85% statements, 59.73% branches, 67.94% functions, 65.93% lines**, and clean production Webpack build. Audit Health Score increased from **16/20 (Good)** to **19/20 (Excellent)**.
+  - **Commit**: `9d6398c` (`fix(ui): remediate audit findings across accessibility, contrast, and touch targets`).
+
 ## 2026-10-16 (feat-010 Payroll Guru Sub-project Completed)
 - **Status**: Completed (Sub-project 1 of feat-010).
 - **Evidence**:
