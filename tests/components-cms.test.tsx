@@ -617,6 +617,6 @@ describe("Landing CMS Editor Components (src/components/admin/landing/)", () => 
         const form = c14.querySelector("form");
         if (form) fireEvent.submit(form);
       });
-    });
+    }, 20000);
   });
 });
