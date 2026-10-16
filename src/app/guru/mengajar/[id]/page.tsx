@@ -28,7 +28,10 @@ export default async function TeachingLogPage({
 
   if (!classInfo) notFound();
 
-  const sessionDate = query.date || getTodayTeachingLogDate();
+  const sessionDate =
+    query.date && /^\d{4}-\d{2}-\d{2}$/.test(query.date)
+      ? query.date
+      : getTodayTeachingLogDate();
   const session = await getTeacherTeachingSession(profile.id, id, sessionDate);
 
   return (

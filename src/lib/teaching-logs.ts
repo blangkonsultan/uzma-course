@@ -120,7 +120,6 @@ export async function getTeacherScheduleClassForLog(
     )
     .eq("id", scheduleClassId)
     .eq("teacher_id", teacherId)
-    .eq("schedule_drafts.status", "active")
     .maybeSingle();
 
   if (error) {

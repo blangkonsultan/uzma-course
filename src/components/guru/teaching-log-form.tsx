@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { CalendarDays, CheckCircle2, Clock, MapPin, Send, Save } from "lucide-react";
 import { saveTeachingSession, submitTeachingSession } from "@/app/guru/mengajar/actions";
@@ -38,6 +39,10 @@ export function TeachingLogForm({
   sessionDate,
   session,
 }: TeachingLogFormProps) {
+  const router = useRouter();
+  const todayWib = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jakarta",
+  }).format(new Date());
   const [students, setStudents] = useState<StudentDraft[]>(() =>
     classInfo.students.map((student) => {
       const saved = session?.students.find((row) => row.student_id === student.id);
@@ -98,19 +103,28 @@ export function TeachingLogForm({
   };
 
   const handleSubmit = () => {
-    if (!sessionId) {
-      setError("Simpan draft terlebih dahulu sebelum mengirim kartu.");
-      return;
-    }
-
     setError(null);
     setSuccess(null);
     startTransition(async () => {
-      const result = await submitTeachingSession(sessionId);
-      if (result.error) {
-        setError(result.error);
+      const saveResult = await saveTeachingSession(buildInput());
+      if (saveResult.error) {
+        setError(saveResult.error);
         return;
       }
+
+      const targetId = saveResult.data?.id || sessionId;
+      if (!targetId) {
+        setError("Gagal mendapatkan ID sesi untuk dikirim.");
+        return;
+      }
+
+      setSessionId(targetId);
+      const submitResult = await submitTeachingSession(targetId);
+      if (submitResult.error) {
+        setError(submitResult.error);
+        return;
+      }
+
       setIsSubmitted(true);
       setSuccess("Kartu mengajar berhasil dikirim.");
     });
@@ -155,8 +169,15 @@ export function TeachingLogForm({
               className="mt-1 w-full bg-transparent text-base font-bold text-white outline-none sm:text-sm"
               type="date"
               value={sessionDate}
-              readOnly
+              max={todayWib}
               disabled={isSubmitted}
+              onChange={(event) => {
+                if (event.target.value) {
+                  router.push(
+                    `/guru/mengajar/${classInfo.id}?date=${event.target.value}`
+                  );
+                }
+              }}
             />
           </div>
           <div className="rounded-xl bg-white/10 p-2.5">
@@ -289,7 +310,7 @@ export function TeachingLogForm({
           </button>
           <button
             type="button"
-            disabled={isPending || !sessionId}
+            disabled={isPending}
             onClick={handleSubmit}
             className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-primary-200 bg-white px-4 py-3 text-sm font-bold text-primary-700 shadow-sm transition-colors hover:bg-primary-50 disabled:cursor-not-allowed disabled:opacity-60"
           >

@@ -6,6 +6,12 @@ import type {
   TeachingSessionWithStudents,
 } from "@/lib/teaching-logs";
 
+const routerMock = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => routerMock,
+}));
+
 vi.mock("@/app/guru/mengajar/actions", () => ({
   saveTeachingSession: vi.fn(),
   submitTeachingSession: vi.fn(),
@@ -88,6 +94,25 @@ describe("TeachingLogForm", () => {
     expect(screen.getAllByRole("textbox")).toHaveLength(4);
   });
 
+  it("allows selecting a historical session date", () => {
+    routerMock.push.mockClear();
+    render(
+      <TeachingLogForm
+        classInfo={classInfo}
+        sessionDate="2026-10-14"
+        session={null}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("Tanggal sesi"), {
+      target: { value: "2026-10-07" },
+    });
+
+    expect(routerMock.push).toHaveBeenCalledWith(
+      "/guru/mengajar/class-1?date=2026-10-07"
+    );
+  });
+
   it("keeps entered notes when draft save returns an error", async () => {
     vi.mocked(saveTeachingSession).mockResolvedValueOnce({
       error: "Gagal menyimpan kartu mengajar: jaringan bermasalah",
@@ -127,7 +152,7 @@ describe("TeachingLogForm", () => {
   });
 
   it("submits a saved draft and locks the form", async () => {
-    vi.mocked(saveTeachingSession).mockResolvedValueOnce({
+    vi.mocked(saveTeachingSession).mockResolvedValue({
       data: { ...submittedSession, status: "draft", submitted_at: null },
     });
     vi.mocked(submitTeachingSession).mockResolvedValueOnce({
@@ -156,5 +181,72 @@ describe("TeachingLogForm", () => {
     expect(submitTeachingSession).toHaveBeenCalledWith("session-1");
     expect(screen.getByText("Submitted")).toBeDefined();
     expect(screen.queryByRole("button", { name: "Kirim Kartu" })).toBeNull();
+  });
+  it("saves in-memory edits before submitting an existing draft", async () => {
+    const draftSession = {
+      ...submittedSession,
+      status: "draft" as const,
+      submitted_at: null,
+    };
+    vi.mocked(saveTeachingSession).mockResolvedValueOnce({
+      data: draftSession,
+    });
+    vi.mocked(submitTeachingSession).mockResolvedValueOnce({
+      data: submittedSession,
+    });
+
+    render(
+      <TeachingLogForm
+        classInfo={classInfo}
+        sessionDate="2026-10-14"
+        session={draftSession}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("Catatan guru - Murid Satu"), {
+      target: { value: "Catatan terbaru sebelum submit" },
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Kirim Kartu" }));
+    });
+
+    expect(saveTeachingSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        students: expect.arrayContaining([
+          expect.objectContaining({
+            student_id: "student-1",
+            teacher_note: "Catatan terbaru sebelum submit",
+          }),
+        ]),
+      })
+    );
+    expect(submitTeachingSession).toHaveBeenCalledWith("session-1");
+  });
+  it("can save and submit a new card from the submit action", async () => {
+    vi.mocked(saveTeachingSession).mockResolvedValueOnce({
+      data: { ...submittedSession, status: "draft", submitted_at: null },
+    });
+    vi.mocked(submitTeachingSession).mockResolvedValueOnce({
+      data: submittedSession,
+    });
+
+    render(
+      <TeachingLogForm
+        classInfo={classInfo}
+        sessionDate="2026-10-14"
+        session={null}
+      />
+    );
+
+    const statuses = screen.getAllByRole("combobox");
+    fireEvent.change(statuses[0], { target: { value: "present" } });
+    fireEvent.change(statuses[1], { target: { value: "absent" } });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Kirim Kartu" }));
+    });
+
+    expect(saveTeachingSession).toHaveBeenCalled();
+    expect(submitTeachingSession).toHaveBeenCalledWith("session-1");
+    expect(screen.getByText("Submitted")).toBeDefined();
   });
 });

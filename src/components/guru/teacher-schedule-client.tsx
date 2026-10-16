@@ -15,6 +15,16 @@ const DAYS = [
   { id: 6, label: "Sabtu" },
   { id: 7, label: "Minggu" },
 ];
+function getPreviousSessionDate(dayOfWeek: number) {
+  const todayWib = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jakarta",
+  }).format(new Date());
+  const date = new Date(`${todayWib}T00:00:00Z`);
+  const todayDay = date.getUTCDay() === 0 ? 7 : date.getUTCDay();
+  const daysBack = (todayDay - dayOfWeek + 7) % 7;
+  date.setUTCDate(date.getUTCDate() - daysBack);
+  return date.toISOString().slice(0, 10);
+}
 
 export function TeacherScheduleClient({
   classes,
@@ -232,7 +242,7 @@ export function TeacherScheduleClient({
                 )}
                 <div className="border-t border-slate-100 p-3">
                   <Link
-                    href={`/guru/mengajar/${cls.id}`}
+                    href={`/guru/mengajar/${cls.id}?date=${getPreviousSessionDate(cls.day_of_week)}`}
                     className="flex min-h-11 w-full items-center justify-center rounded-full bg-primary-50 px-3 py-2.5 text-xs font-bold text-primary-700 transition-colors hover:bg-primary-100"
                   >
                     Isi Kartu Mengajar
