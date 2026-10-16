@@ -138,7 +138,7 @@ export async function resolveTikTokShortlink(
       return { error: "Pengalihan tautan mengarah ke domain di luar TikTok." };
     }
 
-    const match = finalParsed.pathname.match(/\/video\/(\d{15,22})/);
+    const match = finalParsed.pathname.match(/\/video\/(\d{15,22})(?:\/|$)/);
     if (match && match[1]) {
       return { videoId: match[1] };
     }

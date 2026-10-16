@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { InputField } from "@/components/admin/form-field";
 import { SortableItemList } from "@/components/admin/landing/sortable-item-list";
 import { FormActions } from "@/components/admin/landing/form-actions";
@@ -27,6 +27,10 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
   });
   const [error, setError] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [imageIdentityMap] = useState(
+    () => new WeakMap<GalleryImage, string>()
+  );
+  const nextImageIdentityRef = useRef(0);
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -109,6 +113,10 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
               updatedImg: GalleryImage
             ) => {
               const newImages = [...group.images];
+              const imageId = imageIdentityMap.get(group.images[imgIndex]);
+              if (imageId) {
+                imageIdentityMap.set(updatedImg, imageId);
+              }
               newImages[imgIndex] = updatedImg;
               updateGroup({ ...group, images: newImages });
             };
@@ -166,15 +174,18 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                     <div className="space-y-3">
                       {group.images.map((img, imgIndex) => {
                         const previewUrl = normalizeImageUrl(img.url);
-                        const imageErrorKey = `${groupIndex}-${imgIndex}`;
+                        const imageId =
+                          imageIdentityMap.get(img) ??
+                          `gallery-image-${nextImageIdentityRef.current++}`;
+                        imageIdentityMap.set(img, imageId);
                         return (
                           <div
-                            key={imgIndex}
+                            key={imageId}
                             className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center gap-3"
                           >
                             {/* Thumbnail preview */}
                             <div className="w-16 h-16 min-w-16 rounded-lg border border-slate-200 bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
-                              {previewUrl && !imageErrors[imageErrorKey] ? (
+                              {previewUrl && !imageErrors[imageId] ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                   src={previewUrl}
@@ -184,7 +195,7 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                                   onError={() =>
                                     setImageErrors((prev) => ({
                                       ...prev,
-                                      [imageErrorKey]: true,
+                                      [imageId]: true,
                                     }))
                                   }
                                 />
@@ -204,9 +215,9 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                                   value={img.url}
                                   onChange={(e) => {
                                     setImageErrors((prev) => {
-                                      if (!prev[imageErrorKey]) return prev;
+                                      if (!prev[imageId]) return prev;
                                       const next = { ...prev };
-                                      delete next[imageErrorKey];
+                                      delete next[imageId];
                                       return next;
                                     });
                                     handleUpdateImage(imgIndex, {

@@ -216,7 +216,7 @@ describe("Landing CMS Editor Components (src/components/admin/landing/)", () => 
       };
       render(<VideoItemEditor item={item} index={0} updateItem={updateItem} />);
       const idInput = screen.getByDisplayValue("7683120078589611285");
-      fireEvent.change(idInput, { target: { value: "https://vm.tiktok.com/ZS12345" } });
+      fireEvent.change(idInput, { target: { value: "HTTPS://VM.TIKTOK.COM/ZS12345" } });
       const extractBtn = screen.getByRole("button", { name: /Ekstrak/i });
       await act(async () => {
         fireEvent.click(extractBtn);

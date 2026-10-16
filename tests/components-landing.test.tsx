@@ -181,6 +181,8 @@ describe("Landing Components (src/components/landing/)", () => {
       expect(wrapper?.getAttribute("class")).toContain(
         "[right:calc(1.5rem+env(safe-area-inset-right,0px))]"
       );
+      expect(wrapper?.getAttribute("class")).not.toContain("bottom-6");
+      expect(wrapper?.getAttribute("class")).not.toContain("right-6");
     });
   });
 
