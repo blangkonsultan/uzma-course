@@ -1,14 +1,17 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { requireAdminAction } from "@/lib/auth";
 import {
   closePayrollPeriod,
   createPayrollPeriod,
   markPayrollPeriodPaid,
   addPayrollAdjustment,
+  getPayrollPeriodForAdmin,
   type AddPayrollAdjustmentInput,
   type PayrollPeriodRow,
   type PayrollAdjustmentRow,
+  type AdminPayrollPeriodDetail,
 } from "@/lib/payroll";
 
 export async function createPeriodAction(
@@ -22,6 +25,8 @@ export async function createPeriodAction(
 
   try {
     const data = await createPayrollPeriod(user.id, periodMonth);
+    revalidatePath("/admin/payroll");
+    revalidatePath("/guru/honor");
     return { data };
   } catch (error: unknown) {
     return {
@@ -35,7 +40,7 @@ export async function createPeriodAction(
 
 export async function closePeriodAction(
   periodId: string
-): Promise<{ data?: PayrollPeriodRow; error?: string }> {
+): Promise<{ data?: AdminPayrollPeriodDetail; error?: string }> {
   const { user } = await requireAdminAction();
 
   if (!periodId || typeof periodId !== "string") {
@@ -43,8 +48,11 @@ export async function closePeriodAction(
   }
 
   try {
-    const data = await closePayrollPeriod(user.id, periodId);
-    return { data };
+    await closePayrollPeriod(user.id, periodId);
+    revalidatePath("/admin/payroll");
+    revalidatePath("/guru/honor");
+    const data = await getPayrollPeriodForAdmin(periodId);
+    return { data: data || undefined };
   } catch (error: unknown) {
     return {
       error:
@@ -57,7 +65,7 @@ export async function closePeriodAction(
 
 export async function markPeriodPaidAction(
   periodId: string
-): Promise<{ data?: PayrollPeriodRow; error?: string }> {
+): Promise<{ data?: AdminPayrollPeriodDetail; error?: string }> {
   const { user } = await requireAdminAction();
 
   if (!periodId || typeof periodId !== "string") {
@@ -65,8 +73,11 @@ export async function markPeriodPaidAction(
   }
 
   try {
-    const data = await markPayrollPeriodPaid(user.id, periodId);
-    return { data };
+    await markPayrollPeriodPaid(user.id, periodId);
+    revalidatePath("/admin/payroll");
+    revalidatePath("/guru/honor");
+    const data = await getPayrollPeriodForAdmin(periodId);
+    return { data: data || undefined };
   } catch (error: unknown) {
     return {
       error:
@@ -99,6 +110,8 @@ export async function addAdjustmentAction(
       amount: Number(input.amount),
       reason: input.reason.trim(),
     });
+    revalidatePath("/admin/payroll");
+    revalidatePath("/guru/honor");
     return { data };
   } catch (error: unknown) {
     return {

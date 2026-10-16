@@ -4,6 +4,7 @@ import {
   getPayrollPeriodForAdmin,
   getOpenPayrollPeriod,
   createPayrollPeriod,
+  getWIBMonthFirstDay,
 } from "@/lib/payroll";
 import { PayrollPeriodClient } from "@/components/admin/payroll/payroll-period-client";
 import { createClient } from "@/lib/supabase/server";
@@ -18,12 +19,6 @@ interface AdminPayrollPageProps {
   }>;
 }
 
-function getCurrentMonthFirstDay(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  return `${year}-${month}-01`;
-}
 
 export default async function AdminPayrollPage({
   searchParams,
@@ -31,7 +26,7 @@ export default async function AdminPayrollPage({
   const { user } = await requireAdminPage();
   const { period: requestedPeriodId } = await searchParams;
 
-  const currentMonthDate = getCurrentMonthFirstDay();
+  const currentMonthDate = getWIBMonthFirstDay();
   let targetPeriodId = requestedPeriodId;
 
   if (!targetPeriodId) {
@@ -58,9 +53,15 @@ export default async function AdminPayrollPage({
     }
   }
 
-  const detail = targetPeriodId
-    ? await getPayrollPeriodForAdmin(targetPeriodId)
-    : null;
+  const supabase = await createClient();
+  const [detail, allPeriodsRes] = await Promise.all([
+    targetPeriodId ? getPayrollPeriodForAdmin(targetPeriodId) : null,
+    supabase
+      .from("payroll_periods")
+      .select("id, period_month, status")
+      .order("period_month", { ascending: false }),
+  ]);
+  const allPeriods = allPeriodsRes.data || [];
 
   return (
     <div className="space-y-6">
@@ -74,7 +75,7 @@ export default async function AdminPayrollPage({
       />
 
       {detail ? (
-        <PayrollPeriodClient initialDetail={detail} />
+        <PayrollPeriodClient initialDetail={detail} allPeriods={allPeriods} />
       ) : (
         <div className="p-8 bg-white rounded-2xl border border-slate-200 text-center text-sm text-slate-500">
           Tidak ada data periode payroll yang ditemukan.

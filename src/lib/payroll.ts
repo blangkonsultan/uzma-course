@@ -91,6 +91,24 @@ export function calculatePayrollTotals(
     total_amount,
   };
 }
+export function getWIBMonthFirstDay(targetDate: Date = new Date()): string {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+  });
+  return `${formatter.format(targetDate)}-01`;
+}
+
+export function getWIBNextMonthFirstDay(periodMonth: string): string {
+  const parts = periodMonth.split("-").map(Number);
+  const y = parts[0] || new Date().getFullYear();
+  const m = parts[1] || 1;
+  const nextY = m === 12 ? y + 1 : y;
+  const nextM = m === 12 ? 1 : m + 1;
+  return `${nextY}-${String(nextM).padStart(2, "0")}-01`;
+}
+
 
 export async function getOpenPayrollPeriod(
   periodMonth: string

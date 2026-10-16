@@ -12,8 +12,11 @@ import {
   getTeacherPayrollStatement,
   getOpenPayrollPeriod,
   calculatePayrollTotals,
+  getWIBMonthFirstDay,
+  getWIBNextMonthFirstDay,
   type ProfileAllowanceItem,
 } from "@/lib/payroll";
+import { HonorPeriodSelect } from "@/components/guru/honor-period-select";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
@@ -39,12 +42,6 @@ function formatMonth(dateStr: string) {
   }
 }
 
-function getCurrentMonthFirstDay(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  return `${year}-${month}-01`;
-}
 
 export default async function HonorGuruPage({
   searchParams,
@@ -52,47 +49,43 @@ export default async function HonorGuruPage({
   const { profile } = await requireGuruPage();
   const { period: requestedPeriodId } = await searchParams;
 
-  const currentMonthDate = getCurrentMonthFirstDay();
+  const currentMonthDate = getWIBMonthFirstDay();
+  const nextMonthDate = getWIBNextMonthFirstDay(currentMonthDate);
   const currentMonthLabel = new Intl.DateTimeFormat("id-ID", {
     month: "long",
     year: "numeric",
+    timeZone: "Asia/Jakarta",
   }).format(new Date());
 
-  let statement = requestedPeriodId
-    ? await getTeacherPayrollStatement(profile.id, requestedPeriodId)
-    : null;
+  const supabase = await createClient();
+  const { data: availablePeriods } = await supabase
+    .from("payroll_periods")
+    .select("id, period_month, status")
+    .order("period_month", { ascending: false });
 
-  // Fallback: load recent closed/paid period statement or open period
-  if (!statement) {
-    const supabase = await createClient();
-    const { data: recentEntry } = await supabase
-      .from("payroll_entries")
-      .select("period_id")
-      .eq("teacher_id", profile.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (recentEntry) {
-      statement = await getTeacherPayrollStatement(
-        profile.id,
-        recentEntry.period_id
-      );
+  let statement = null;
+  if (requestedPeriodId) {
+    statement = await getTeacherPayrollStatement(profile.id, requestedPeriodId);
+  } else {
+    const currentPeriod = (availablePeriods || []).find(
+      (p) => p.period_month === currentMonthDate
+    );
+    if (currentPeriod && currentPeriod.status !== "open") {
+      statement = await getTeacherPayrollStatement(profile.id, currentPeriod.id);
     }
   }
-
   // If still no closed statement, calculate live open-period estimate
   let liveOpenTotals = null;
   if (!statement) {
     const openPeriod = await getOpenPayrollPeriod(currentMonthDate);
-    const supabase = await createClient();
 
     const { data: submittedSessions } = await supabase
       .from("teaching_sessions")
       .select("id, teaching_session_students(attendance_status, teacher_fee_snapshot)")
       .eq("teacher_id", profile.id)
       .eq("status", "submitted")
-      .gte("session_date", currentMonthDate);
+      .gte("session_date", currentMonthDate)
+      .lt("session_date", nextMonthDate);
 
     interface SubmittedStudentItem {
       attendance_status: string;
@@ -163,6 +156,13 @@ export default async function HonorGuruPage({
           </p>
         </div>
       </div>
+
+      {/* Period Selection Dropdown */}
+      <HonorPeriodSelect
+        periods={availablePeriods || []}
+        currentPeriodId={statement?.period?.id}
+        formatMonth={formatMonth}
+      />
 
       {/* Main Income Statement Card */}
       <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-5 text-white shadow-md space-y-3">

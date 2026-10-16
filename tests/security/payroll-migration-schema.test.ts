@@ -46,8 +46,9 @@ describe("Payroll Guru migration contract", () => {
     expect(sql).toContain("public.is_admin()");
     expect(sql).toContain("teacher_id = auth.uid()");
     expect(sql).toContain("Guru reads own payroll entries");
+    expect(sql).toContain("status = 'open'");
+    expect(sql).not.toContain("TO anon;");
   });
-
   it("defines guarded close, paid, and adjustment RPCs", () => {
     const sql = readFileSync(migrationPath, "utf8");
 
@@ -58,6 +59,7 @@ describe("Payroll Guru migration contract", () => {
     expect(sql).toContain("closed_at = now()");
     expect(sql).toContain("paid_at = now()");
     expect(sql).toContain("public.is_admin()");
+    expect(sql).toContain("fees.total_fee > 0");
   });
 
   it("exposes payroll tables and RPC contracts in database types", () => {

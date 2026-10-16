@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { revalidatePath } from "next/cache";
 import { requireAdminAction } from "@/lib/auth";
 import {
   closePeriodAction,
@@ -13,6 +14,10 @@ import {
   addPayrollAdjustment,
 } from "@/lib/payroll";
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 vi.mock("@/lib/auth", () => ({
   requireAdminAction: vi.fn(),
 }));
@@ -22,6 +27,7 @@ vi.mock("@/lib/payroll", () => ({
   createPayrollPeriod: vi.fn(),
   markPayrollPeriodPaid: vi.fn(),
   addPayrollAdjustment: vi.fn(),
+  getPayrollPeriodForAdmin: vi.fn().mockResolvedValue({ id: "period-1" }),
 }));
 
 describe("Payroll admin actions", () => {
@@ -75,5 +81,7 @@ describe("Payroll admin actions", () => {
     await expect(markPeriodPaidAction("period-1")).resolves.toEqual({
       data: { id: "period-1" },
     });
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/payroll");
+    expect(revalidatePath).toHaveBeenCalledWith("/guru/honor");
   });
 });

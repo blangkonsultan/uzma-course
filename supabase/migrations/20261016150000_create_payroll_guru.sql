@@ -88,7 +88,8 @@ CREATE POLICY "Admin manages payroll periods"
 CREATE POLICY "Guru reads payroll periods"
     ON public.payroll_periods FOR SELECT
     USING (
-        EXISTS (
+        status = 'open'
+        OR EXISTS (
             SELECT 1
             FROM public.payroll_entries pe
             WHERE pe.period_id = id
@@ -222,7 +223,7 @@ BEGIN
           AND pa.teacher_id = p.id
     ) adjustments ON TRUE
     WHERE p.role = 'guru'
-      AND p.is_active = TRUE
+      AND (p.is_active = TRUE OR fees.total_fee > 0)
     ON CONFLICT (period_id, teacher_id) DO UPDATE
     SET fee_sessions_total = EXCLUDED.fee_sessions_total,
         fixed_allowances_total = EXCLUDED.fixed_allowances_total,
@@ -341,10 +342,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.payroll_periods TO authenticated,
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.payroll_session_lines TO authenticated, service_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.payroll_entries TO authenticated, service_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.payroll_adjustments TO authenticated, service_role;
-GRANT SELECT ON public.payroll_periods TO anon;
-GRANT SELECT ON public.payroll_session_lines TO anon;
-GRANT SELECT ON public.payroll_entries TO anon;
-GRANT SELECT ON public.payroll_adjustments TO anon;
 GRANT EXECUTE ON FUNCTION public.close_payroll_period(UUID) TO authenticated, service_role;
 GRANT EXECUTE ON FUNCTION public.mark_payroll_period_paid(UUID) TO authenticated, service_role;
 GRANT EXECUTE ON FUNCTION public.add_payroll_adjustment(UUID, UUID, INTEGER, TEXT) TO authenticated, service_role;

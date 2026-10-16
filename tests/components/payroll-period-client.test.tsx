@@ -3,6 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 import { PayrollPeriodClient } from "@/components/admin/payroll/payroll-period-client";
 import type { AdminPayrollPeriodDetail } from "@/lib/payroll";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
 vi.mock("@/app/admin/payroll/actions", () => ({
   createPeriodAction: vi.fn(),
   closePeriodAction: vi.fn(),
@@ -81,7 +87,7 @@ const paidPeriodDetail: AdminPayrollPeriodDetail = {
 describe("PayrollPeriodClient", () => {
   it("renders open period and handles close confirmation flow", async () => {
     vi.mocked(closePeriodAction).mockResolvedValueOnce({
-      data: closedPeriodDetail.period,
+      data: closedPeriodDetail,
     });
 
     render(<PayrollPeriodClient initialDetail={openPeriodDetail} />);
@@ -103,7 +109,7 @@ describe("PayrollPeriodClient", () => {
 
   it("handles mark paid in closed period", async () => {
     vi.mocked(markPeriodPaidAction).mockResolvedValueOnce({
-      data: paidPeriodDetail.period,
+      data: paidPeriodDetail,
     });
 
     render(<PayrollPeriodClient initialDetail={closedPeriodDetail} />);

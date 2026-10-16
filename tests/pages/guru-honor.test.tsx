@@ -1,8 +1,15 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import HonorGuruPage from "@/app/guru/honor/page";
 import { requireGuruPage } from "@/lib/auth";
-import { getTeacherPayrollStatement } from "@/lib/payroll";
+import { getTeacherPayrollStatement, getOpenPayrollPeriod } from "@/lib/payroll";
+import { createClient } from "@/lib/supabase/server";
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
 
 vi.mock("@/lib/auth", () => ({
   requireGuruPage: vi.fn(),
@@ -10,6 +17,19 @@ vi.mock("@/lib/auth", () => ({
 
 vi.mock("@/lib/payroll", () => ({
   getTeacherPayrollStatement: vi.fn(),
+  getOpenPayrollPeriod: vi.fn(),
+  calculatePayrollTotals: vi.fn().mockReturnValue({
+    fee_sessions_total: 6000,
+    fixed_allowances_total: 110000,
+    adjustments_total: 0,
+    total_amount: 116000,
+  }),
+  getWIBMonthFirstDay: vi.fn().mockReturnValue("2026-10-01"),
+  getWIBNextMonthFirstDay: vi.fn().mockReturnValue("2026-11-01"),
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: vi.fn(),
 }));
 
 const guruProfile = {
@@ -26,6 +46,19 @@ const guruProfile = {
 };
 
 describe("HonorGuruPage (Guru Honor Statement)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(createClient).mockResolvedValue({
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        gte: vi.fn().mockReturnThis(),
+        lt: vi.fn().mockResolvedValue({ data: [] }),
+        order: vi.fn().mockResolvedValue({ data: [] }),
+      }),
+    } as never);
+  });
+
   it("renders statement details for a closed/paid period", async () => {
     vi.mocked(requireGuruPage).mockResolvedValue({
       profile: guruProfile,
@@ -104,5 +137,63 @@ describe("HonorGuruPage (Guru Honor Statement)", () => {
     // Verify absence of mutation controls
     expect(screen.queryByRole("button", { name: /Tutup Periode/i })).toBeNull();
     expect(screen.queryByRole("button", { name: /Tandai Sudah Dibayar/i })).toBeNull();
+  });
+
+  it("renders live open estimate with date bounds and period selector when no period requested", async () => {
+    vi.mocked(requireGuruPage).mockResolvedValue({
+      profile: guruProfile,
+    } as never);
+    vi.mocked(getOpenPayrollPeriod).mockResolvedValue(null);
+
+    const gteFn = vi.fn().mockReturnThis();
+    const ltFn = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: "ts-1",
+          teaching_session_students: [
+            { attendance_status: "present", teacher_fee_snapshot: 3000 },
+            { attendance_status: "present", teacher_fee_snapshot: 3000 },
+          ],
+        },
+      ],
+    });
+
+    const mockSupabase = {
+      from: vi.fn((table: string) => {
+        if (table === "payroll_periods") {
+          return {
+            select: vi.fn().mockReturnThis(),
+            order: vi.fn().mockResolvedValue({
+              data: [
+                { id: "period-old", period_month: "2026-09-01", status: "paid" },
+              ],
+            }),
+          };
+        }
+        if (table === "teaching_sessions") {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            gte: gteFn.mockReturnValue({
+              lt: ltFn,
+            }),
+          };
+        }
+        return { select: vi.fn().mockReturnThis() };
+      }),
+    };
+
+    vi.mocked(createClient).mockResolvedValue(mockSupabase as never);
+
+    const page = await HonorGuruPage({
+      searchParams: Promise.resolve({}),
+    });
+    render(page);
+
+    expect(screen.getByText("Estimasi Berjalan")).toBeDefined();
+    expect(screen.getByText("Rp 116.000")).toBeDefined();
+    expect(gteFn).toHaveBeenCalledWith("session_date", "2026-10-01");
+    expect(ltFn).toHaveBeenCalledWith("session_date", "2026-11-01");
+    expect(screen.getByLabelText("Pilih Periode Honor")).toBeDefined();
   });
 });
