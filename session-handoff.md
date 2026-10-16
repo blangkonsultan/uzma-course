@@ -33,8 +33,9 @@ Phase 5 CMS Integrity, TikTok Shortlink Hardening & Public Landing Polish is imp
 - **Verification**: 59 suites / 363 tests, 65.38% statements, 60.40% branches, 68.18% functions, 66.50% lines, lint clean, production build clean, and unauthenticated route smoke at 360/375/1280px with zero overflow.
 - **Commits**: `8a0b831`, `e6bd138`, `b824dc0`, `c8aa975`, `b536d87`, `cc08a84`, `be85f86`.
 
-## Current Blocker
-- Authenticated Guru draft/save/submit browser smoke is pending because the repository context provides only the Admin test account. The route correctly redirects unauthenticated requests to `/login`; no dummy external account was created.
+## Verification Result
+- Authenticated local Guru smoke passed end-to-end: login, schedule entry, draft save, reload persistence, direct submit that saves in-memory edits, submitted read-only reload, and zero overflow at 360px/375px/1280px.
+- Local smoke accounts, schedule data, and Teaching Log rows were reset after verification.
 
 ## Recommended Next Step
-- Provide or configure a non-production Guru test account, run the authenticated smoke flow, then mark `feat-009` completed. Leave `feat-010` not started.
+- Select `feat-010` Payroll & Student Billing. `feat-009` is completed.

@@ -69,8 +69,8 @@
       "name": "Phase 2b ERP - Teaching Log & Student Session Cards",
       "description": "Digital learning progress card (kartu kendali les) recording student lesson achievements and teacher notes per session",
       "dependencies": ["feat-005", "feat-008"],
-      "status": "in-progress",
-      "evidence": "Implementation complete: normalized teaching_sessions and teaching_session_students migration with RLS and transactional save/submit RPCs; guru DAL/actions and /guru/mengajar/[id] workflow provide weekday-aware date selection, per-student attendance/achievement/notes, server fee snapshots, draft save, submit-that-saves-edits, submitted locking, archived history readback, and invalid-date fallback. Verified via 59 Vitest suites / 363 tests, 65.38% statements, 60.40% branches, 68.18% functions, 66.50% lines, clean build, and unauthenticated mobile route smoke; authenticated Guru smoke remains pending because only the configured Admin test account is available"
+      "status": "completed",
+      "evidence": "Teaching Log feature completed: normalized teaching_sessions and teaching_session_students migration with RLS and transactional save/submit RPCs; guru DAL/actions and /guru/mengajar/[id] workflow provide weekday-aware date selection, per-student attendance/achievement/notes, server fee snapshots, draft save, submit-that-saves-edits, submitted locking, archived history readback, and invalid-date fallback. Verified via 59 Vitest suites / 363 tests, 65.38% statements, 60.40% branches, 68.18% functions, 66.50% lines, clean build, and authenticated local Guru smoke with draft save, reload, submit, read-only reload at 360px, 375px, and 1280px with zero overflow"
     },
     {
       "id": "feat-010",
