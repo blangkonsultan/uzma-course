@@ -74,7 +74,7 @@ CREATE POLICY "Guru inserts own teaching sessions"
 CREATE POLICY "Guru updates own draft teaching sessions"
     ON public.teaching_sessions FOR UPDATE
     USING (teacher_id = auth.uid() AND status = 'draft')
-    WITH CHECK (teacher_id = auth.uid() AND status = 'draft');
+    WITH CHECK (teacher_id = auth.uid() AND status IN ('draft', 'submitted'));
 
 CREATE POLICY "Admin manages teaching session students"
     ON public.teaching_session_students FOR ALL

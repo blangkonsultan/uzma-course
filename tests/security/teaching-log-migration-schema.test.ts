@@ -47,7 +47,9 @@ describe("Teaching Log migration contract", () => {
     );
     expect(sql).toContain("teacher_id = auth.uid()");
     expect(sql).toContain("public.is_admin()");
-    expect(sql).toContain("status = 'draft'");
+    expect(sql).toContain(
+      "WITH CHECK (teacher_id = auth.uid() AND status IN ('draft', 'submitted'))"
+    );
     expect(sql).toContain('DROP POLICY IF EXISTS "Guru reads active drafts"');
     expect(sql).toContain("profile_branches");
   });
