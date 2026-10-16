@@ -61,8 +61,8 @@
       "name": "Phase 2b ERP - Teacher Presence & Geolocation",
       "description": "Teacher mobile attendance check-in and check-out verified against branch coordinates with radius validation",
       "dependencies": ["feat-004"],
-      "status": "in-progress",
-      "evidence": "Schedule-based attendance check-in, geofencing coordinates validation, offline IndexedDB sync, and PWA notification support implemented on /guru/absen and /guru/profil"
+      "status": "completed",
+      "evidence": "Teacher mobile attendance check-in/out, schedule validation, geofencing, deterministic offline IndexedDB sync, teacher-scoped queues, and PWA notification support implemented on /guru/absen and /guru/profil; Phase 3/Phase 5 verification completed via ./init.sh with 52 suites and 334 tests passing"
     },
     {
       "id": "feat-009",
