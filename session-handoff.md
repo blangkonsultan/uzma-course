@@ -37,5 +37,12 @@ Phase 5 CMS Integrity, TikTok Shortlink Hardening & Public Landing Polish is imp
 - Authenticated local Guru smoke passed end-to-end: login, schedule entry, draft save, reload persistence, direct submit that saves in-memory edits, submitted read-only reload, and zero overflow at 360px/375px/1280px.
 - Local smoke accounts, schedule data, and Teaching Log rows were reset after verification.
 
+## feat-010 Payroll Guru (Sub-project 1 of feat-010)
+- **Spec**: `docs/superpowers/specs/2026-10-16-payroll-guru-design.md`
+- **Plan**: `docs/superpowers/plans/2026-10-16-payroll-guru.md`
+- **Implementation**: 4-table financial ledger (`payroll_periods`, `payroll_session_lines`, `payroll_entries`, `payroll_adjustments`), guarded RPCs (`close_payroll_period`, `mark_payroll_period_paid`, `add_payroll_adjustment`), typed DAL/actions (`src/lib/payroll.ts`, `src/app/admin/payroll/actions.ts`), Admin controls at `/admin/payroll` (KPI overview, period dropdown, "+ Bulan Baru" creation modal, signed adjustment modal, close confirmation, paid state), and Guru read-only statement at `/guru/honor` (live open estimate bounded by WIB dates, fixed allowances, minimum income guarantee, and period dropdown selector `HonorPeriodSelect`).
+- **Verification**: 66 Vitest suites / 385 tests passed, 64.85% statements, 59.73% branches, 67.94% functions, 65.93% lines, ESLint clean, production build clean, authenticated local smoke at 360px, 375px, and 1280px with zero overflow. Local Supabase test accounts/rows reset after verification.
+- **Commits**: `7be41e7`, `79c4b7b`, `e882644`, `24979dd`, `cb21734`, `ef28b6b`, `e9f5cb9`.
+
 ## Recommended Next Step
-- Select `feat-010` Payroll & Student Billing. `feat-009` is completed.
+- Proceed with Sub-project 2 of `feat-010`: **Student Billing / SPP Tuition Invoicing** (monthly student tuition invoice generation, payment status tracking, and receipt/slip generation).

@@ -1,4 +1,15 @@
 # Progress Log
+## 2026-10-16 (feat-010 Payroll Guru Sub-project Completed)
+- **Status**: Completed (Sub-project 1 of feat-010).
+- **Evidence**:
+  - **Schema & Ledger (`supabase/migrations/20261016150000_create_payroll_guru.sql`)**: 4-table financial double-entry ledger (`payroll_periods`, `payroll_session_lines`, `payroll_entries`, `payroll_adjustments`) with strict check constraints, status invariants (`open` -> `closed` -> `paid`), RLS policies for Admin management and Guru read-only isolation, and three atomic invoker-safe RPCs (`close_payroll_period`, `mark_payroll_period_paid`, `add_payroll_adjustment`). Inactive teachers with taught sessions are preserved and compensated.
+  - **DAL & Actions (`src/lib/payroll.ts`, `src/app/admin/payroll/actions.ts`)**: Pure financial calculation functions (`calculatePayrollTotals`), typed data access layer, server actions with `revalidatePath("/admin/payroll")` and `revalidatePath("/guru/honor")`, and canonical WIB (`Asia/Jakarta`) date bounding.
+  - **Admin Workflow (`src/app/admin/payroll/page.tsx`, `src/components/admin/payroll/payroll-period-client.tsx`, `payroll-adjustment-form.tsx`)**: Monthly overview card, KPI totals, period selector dropdown, "+ Bulan Baru" creation modal, inline positive/negative adjustment modal with signed math, confirmation dialog for period closing, and paid transition disabling mutations.
+  - **Guru Workflow (`src/app/guru/honor/page.tsx`, `src/components/guru/honor-period-select.tsx`)**: Read-only mobile-responsive statement, live open estimate query bounded by `[currentMonth, nextMonth)`, fixed allowance breakdowns, registered minimum income guarantee display, and period selector dropdown to view past closed/paid statements.
+  - **Automated Verification**: Full `./init.sh` passed: 0 ESLint errors/warnings, **66 Vitest suites / 385 tests passed**, coverage at **64.85% statements, 59.73% branches, 67.94% functions, 65.93% lines**, and clean production Webpack build.
+  - **Browser Smoke Test**: Authenticated Admin and Guru workflows verified via headless browser at **360px, 375px, and 1280px** with zero horizontal overflow: Open period -> Close period -> Add adjustment -> Mark paid -> Guru statement statement verification. Local Supabase test data was cleanly reset afterward.
+  - **Commits**: `7be41e7` (spec), `79c4b7b` (plan), `e882644` (schema/RPC), `24979dd` (DAL/actions), `cb21734` (UI controls & statement), `ef28b6b` (grants), `e9f5cb9` (review fixes).
+
 ## 2026-10-16 (Phase 5 CMS Integrity & Landing Polish Implementation Completed)
 - **Status**: Completed.
 - **Evidence**:

@@ -75,10 +75,10 @@
     {
       "id": "feat-010",
       "name": "Phase 2b ERP - Payroll & Student Billing",
-      "description": "Automated monthly teacher payout calculations based on session attendance and student SPP tuition invoicing",
+      "description": "Automated monthly teacher payout calculations based on session attendance and student SPP tuition invoicing (Sub-project 1: Payroll Guru completed; Sub-project 2: Student Billing pending)",
       "dependencies": ["feat-008", "feat-009"],
-      "status": "not-started",
-      "evidence": ""
+      "status": "in-progress",
+      "evidence": "Sub-project 1 (Payroll Guru) completed: 4-table accounting ledger (payroll_periods, payroll_session_lines, payroll_entries, payroll_adjustments) with guarded RPCs close_payroll_period, mark_payroll_period_paid, and add_payroll_adjustment; Admin controls at /admin/payroll with monthly overview, period selector, new month creation, adjustment modal, and paid locking; Guru read-only statement at /guru/honor with live open estimate, WIB bounds, fixed allowance snapshots, minimum income guarantee display, and period selector. Verified via 66 Vitest suites / 385 tests, 64.85% statements, 59.73% branches, 67.94% functions, 65.93% lines, clean production build, and authenticated local smoke tests across 360px, 375px, and 1280px with zero horizontal overflow"
     },
     {
       "id": "feat-011",
