@@ -14,7 +14,7 @@
       "description": "Dynamic landing page content management system powered by Supabase landing_content table, server actions, and sortable item list forms with live image normalizer",
       "dependencies": ["feat-001"],
       "status": "completed",
-      "evidence": "All 14 sections (hero, programs, why_us, facilities, team, gallery, testimonials, videos, locations, faq, cta, footer, navbar, floating_wa) editable with revalidatePath"
+      "evidence": "All 14 sections (hero, programs, why_us, facilities, team, gallery, testimonials, videos, locations, faq, cta, footer, navbar, floating_wa) editable with revalidatePath; Phase 5 A20-A24 hardening covers TikTok SSRF validation, safe image normalization and gallery fallback, sortable collapse-state preservation, and landing anchor/safe-area polish"
     },
     {
       "id": "feat-003",

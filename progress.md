@@ -1,4 +1,16 @@
 # Progress Log
+## 2026-10-16 (Phase 5 CMS Integrity & Landing Polish Implementation Completed)
+- **Status**: Completed.
+- **Evidence**:
+  - **A20 — TikTok resolver hardening**: `resolveTikTokShortlink()` now requires admin authorization, parses HTTPS URLs, enforces the exact TikTok host allowlist, rejects credentials, validates the final redirect, and extracts only valid 15–22 digit video IDs with a path boundary that prevents truncation or suffix acceptance. The CMS editor recognizes both `vt.tiktok.com` and `vm.tiktok.com`, including case-insensitive input.
+  - **A21 — Image normalization and gallery fallback**: `normalizeImageUrl()` rejects `javascript:`, `data:`, and `vbscript:` schemes, converts protocol-relative URLs to HTTPS, and preserves local/Google Drive conversions. Gallery previews now render a placeholder after load failure, reset when the URL changes, and retain failure state by image identity through image/group reorder and deletion.
+  - **A22 — Sortable CMS state**: `SortableItemList` swaps collapse state on moves and shifts surviving indices after deletion.
+  - **A24 — Public landing polish**: all landing section anchors use `scroll-mt-20`, the floating WhatsApp control uses only safe-area-aware bottom/right positioning, and `landing-content.ts` uses a top-level `Program` type import.
+  - Added regression suites: `tests/security/tiktok-resolver.test.ts`, `tests/utils/image-normalizer.test.ts`, `tests/components/gallery-form.test.tsx`, and `tests/components/sortable-item-list.test.tsx`; extended CMS and landing component coverage.
+  - Full `./init.sh` passed: 0 ESLint errors/warnings, **52 Vitest suites / 334 tests passed**, coverage at **63.74% statements, 59.03% branches, 66.45% functions, 64.88% lines**, and clean production Webpack build.
+  - Final browser smoke passed at **360px, 375px, and 1280px** with zero horizontal overflow. The desktop `#programs` anchor settled at `80px` below the viewport top; safe-area-aware WhatsApp positioning stayed inside the viewport at all tested widths.
+  - **Commits**: `1dd30c4` (plan), `d915383` (A20), `7f9fd0b` (A21), `1457a39` (A22), `ce3da03` (A24), `2f1d44c` (review fixes).
+
 ## 2026-10-15 (Phase 5 CMS Integrity & Landing Polish Spec Completed)
 - **Status**: Completed (Design & Specification Gate).
 - **Evidence**:
