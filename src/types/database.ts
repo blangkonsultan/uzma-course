@@ -250,6 +250,28 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"teaching_sessions": {
+                  Row: {
+                    "branch_id": string,"created_at": string,"id": string,"scheduled_end_time": string,"scheduled_start_time": string,"schedule_class_id": string,"session_date": string,"shift_id": string,"status": string,"submitted_at": string | null,"teacher_id": string,"updated_at": string,"variant_id": string
+                  }
+                  Insert: {
+                    "branch_id": string,"created_at"?: string,"id"?: string,"scheduled_end_time": string,"scheduled_start_time": string,"schedule_class_id": string,"session_date": string,"shift_id": string,"status"?: string,"submitted_at"?: string | null,"teacher_id": string,"updated_at"?: string,"variant_id": string
+                  }
+                  Update: {
+                    "branch_id"?: string,"created_at"?: string,"id"?: string,"scheduled_end_time"?: string,"scheduled_start_time"?: string,"schedule_class_id"?: string,"session_date"?: string,"shift_id"?: string,"status"?: string,"submitted_at"?: string | null,"teacher_id"?: string,"updated_at"?: string,"variant_id"?: string
+                  }
+                  Relationships: []
+                },"teaching_session_students": {
+                  Row: {
+                    "achievement": string | null,"attendance_status": string | null,"created_at": string,"id": string,"session_id": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_note": string | null,"updated_at": string
+                  }
+                  Insert: {
+                    "achievement"?: string | null,"attendance_status"?: string | null,"created_at"?: string,"id"?: string,"session_id": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_note"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "achievement"?: string | null,"attendance_status"?: string | null,"created_at"?: string,"id"?: string,"session_id"?: string,"student_id"?: string,"teacher_fee_snapshot"?: number,"teacher_note"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: []
                 },"student_programs": {
                   Row: {
                     "created_at": string,"cycle_days": number,"cycle_start_date": string,"enrolled_at": string,"on_time_discount_type": string | null,"on_time_discount_value": number,"program_id": string,"spp_amount": number,"status": string,"student_id": string,"variant_id": string
@@ -335,6 +357,10 @@ isOneToOne: false
           Functions: {
             "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },"save_teaching_session":
+{ Args: { "p_schedule_class_id": string,"p_session_date": string,"p_students": Json }; Returns: Database["public"]["Tables"]["teaching_sessions"]["Row"]
+                           },"submit_teaching_session":
+{ Args: { "p_session_id": string }; Returns: Database["public"]["Tables"]["teaching_sessions"]["Row"]
                            }
           }
           Enums: {
