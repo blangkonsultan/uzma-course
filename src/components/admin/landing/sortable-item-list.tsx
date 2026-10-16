@@ -49,6 +49,16 @@ export function SortableItemList<T>({
     const next = [...items];
     const [moved] = next.splice(idx, 1);
     next.splice(idx - 1, 0, moved);
+
+    setCollapsedIndices((prev) => {
+      const nextCollapsed = { ...prev };
+      const currentVal = Boolean(prev[idx]);
+      const targetVal = Boolean(prev[idx - 1]);
+      nextCollapsed[idx - 1] = currentVal;
+      nextCollapsed[idx] = targetVal;
+      return nextCollapsed;
+    });
+
     onItemsChange(next);
   };
 
@@ -57,11 +67,35 @@ export function SortableItemList<T>({
     const next = [...items];
     const [moved] = next.splice(idx, 1);
     next.splice(idx + 1, 0, moved);
+
+    setCollapsedIndices((prev) => {
+      const nextCollapsed = { ...prev };
+      const currentVal = Boolean(prev[idx]);
+      const targetVal = Boolean(prev[idx + 1]);
+      nextCollapsed[idx + 1] = currentVal;
+      nextCollapsed[idx] = targetVal;
+      return nextCollapsed;
+    });
+
     onItemsChange(next);
   };
 
   const handleDelete = (idx: number) => {
     const next = items.filter((_, i) => i !== idx);
+
+    setCollapsedIndices((prev) => {
+      const nextCollapsed: Record<number, boolean> = {};
+      Object.entries(prev).forEach(([keyStr, val]) => {
+        const key = Number(keyStr);
+        if (key < idx) {
+          nextCollapsed[key] = val;
+        } else if (key > idx) {
+          nextCollapsed[key - 1] = val;
+        }
+      });
+      return nextCollapsed;
+    });
+
     onItemsChange(next);
   };
 
