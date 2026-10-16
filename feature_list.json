@@ -69,8 +69,8 @@
       "name": "Phase 2b ERP - Teaching Log & Student Session Cards",
       "description": "Digital learning progress card (kartu kendali les) recording student lesson achievements and teacher notes per session",
       "dependencies": ["feat-005", "feat-008"],
-      "status": "not-started",
-      "evidence": ""
+      "status": "in-progress",
+      "evidence": "Implementation complete: normalized teaching_sessions and teaching_session_students migration with RLS and transactional save/submit RPCs; guru DAL/actions and /guru/mengajar/[id] workflow record per-student attendance, achievement, notes, and fee snapshots with submitted locking. Verified via 59 Vitest suites / 357 tests, 65.13% statements, 60.09% branches, 67.81% functions, 66.24% lines, and clean build. Authenticated Guru browser smoke remains pending because only the configured Admin test account is available; unauthenticated route smoke correctly redirects to /login without overflow"
     },
     {
       "id": "feat-010",

@@ -26,5 +26,15 @@ Phase 5 CMS Integrity, TikTok Shortlink Hardening & Public Landing Polish is imp
 ## Working-Tree Note
 - The generated `public/sw.js` build diff is restored; no unrelated generated changes are retained.
 
+## feat-009 Teaching Log
+- **Spec**: `docs/superpowers/specs/2026-10-16-teaching-log-student-session-cards-design.md`
+- **Plan**: `docs/superpowers/plans/2026-10-16-teaching-log-student-session-cards.md`
+- **Implementation**: schema/RPC migration, RLS, typed DAL/actions, `/guru/mengajar/[id]`, mobile form, per-student status/capaian/catatan, fee snapshots, draft save, and submitted locking.
+- **Verification**: 59 suites / 357 tests, coverage above thresholds, lint clean, production build clean, and unauthenticated route smoke at 360/375/1280px with zero overflow.
+- **Commits**: `8a0b831`, `e6bd138`, `b824dc0`, `c8aa975`, `b536d87`.
+
+## Current Blocker
+- Authenticated Guru draft/save/submit browser smoke is pending because the repository context provides only the Admin test account. The route correctly redirects unauthenticated requests to `/login`; no dummy external account was created.
+
 ## Recommended Next Step
-- Select the next unfinished feature from `feature_list.json`.
+- Provide or configure a non-production Guru test account, run the authenticated smoke flow, then mark `feat-009` completed. Leave `feat-010` not started.

@@ -11,6 +11,17 @@
   - Final browser smoke passed at **360px, 375px, and 1280px** with zero horizontal overflow. The desktop `#programs` anchor settled at `80px` below the viewport top; safe-area-aware WhatsApp positioning stayed inside the viewport at all tested widths.
   - **Commits**: `1dd30c4` (plan), `d915383` (A20), `7f9fd0b` (A21), `1457a39` (A22), `ce3da03` (A24), `2f1d44c` (review fixes).
 
+## 2026-10-16 (feat-009 Teaching Log Implementation Complete; Authenticated Smoke Pending)
+- **Status**: Implementation complete; final authenticated Guru smoke is blocked by missing Guru test credentials.
+- **Evidence**:
+  - Added `supabase/migrations/20261016120000_create_teaching_logs.sql` with normalized session/student tables, RLS, teacher-owned draft rules, fee snapshots, and transactional save/submit RPCs.
+  - Added typed DAL/actions in `src/lib/teaching-logs.ts` and `src/app/guru/mengajar/actions.ts`.
+  - Added `/guru/mengajar/[id]`, `TeachingLogForm`, schedule entry links, per-student attendance/capaian/catatan fields, draft save, submit locking, and explicit error preservation.
+  - Added migration, validation, DAL/action, route-security, form, and schedule-link regression tests.
+  - Full `./init.sh` passed: **59 Vitest suites / 357 tests**, 65.13% statements, 60.09% branches, 67.81% functions, 66.24% lines, 0 lint errors/warnings, and clean Webpack build.
+  - Unauthenticated browser route smoke at 360px, 375px, and 1280px correctly redirected `/guru/mengajar/class-1` to `/login` with zero horizontal overflow. Authenticated Guru draft/save/submit smoke remains pending because only the configured Admin test account is available.
+- **Commits**: `8a0b831` (schema/RPC), `e6bd138` (plan/test alignment), `b824dc0` (DAL/actions), `c8aa975` (workflow plan alignment), `b536d87` (teacher workflow).
+
 ## 2026-10-15 (Phase 5 CMS Integrity & Landing Polish Spec Completed)
 - **Status**: Completed (Design & Specification Gate).
 - **Evidence**:
