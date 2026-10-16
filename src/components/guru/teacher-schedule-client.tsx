@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import type { TeacherClassItem } from "@/lib/teacher-schedule";
+import Link from "next/link";
 import { formatTimeString, formatBranchName } from "@/lib/utils";
 import { Clock, Users, Calendar, BookOpen, ChevronDown, ChevronUp, MapPin } from "lucide-react";
 
@@ -229,6 +230,14 @@ export function TeacherScheduleClient({
                     )}
                   </div>
                 )}
+                <div className="border-t border-slate-100 p-3">
+                  <Link
+                    href={`/guru/mengajar/${cls.id}`}
+                    className="flex min-h-11 w-full items-center justify-center rounded-full bg-primary-50 px-3 py-2.5 text-xs font-bold text-primary-700 transition-colors hover:bg-primary-100"
+                  >
+                    Isi Kartu Mengajar
+                  </Link>
+                </div>
               </div>
             );
           })
