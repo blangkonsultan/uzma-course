@@ -26,6 +26,7 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
     ],
   });
   const [error, setError] = useState<string | null>(null);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -165,6 +166,7 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                     <div className="space-y-3">
                       {group.images.map((img, imgIndex) => {
                         const previewUrl = normalizeImageUrl(img.url);
+                        const imageErrorKey = `${groupIndex}-${imgIndex}`;
                         return (
                           <div
                             key={imgIndex}
@@ -172,17 +174,19 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                           >
                             {/* Thumbnail preview */}
                             <div className="w-16 h-16 min-w-16 rounded-lg border border-slate-200 bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
-                              {previewUrl ? (
+                              {previewUrl && !imageErrors[imageErrorKey] ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                   src={previewUrl}
                                   alt={img.alt || "Preview foto"}
                                   referrerPolicy="no-referrer"
                                   className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    (e.currentTarget as HTMLElement).style.display =
-                                      "none";
-                                  }}
+                                  onError={() =>
+                                    setImageErrors((prev) => ({
+                                      ...prev,
+                                      [imageErrorKey]: true,
+                                    }))
+                                  }
                                 />
                               ) : (
                                 <ImageIcon className="w-6 h-6 text-slate-300" />
@@ -198,12 +202,18 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                                 <input
                                   type="text"
                                   value={img.url}
-                                  onChange={(e) =>
+                                  onChange={(e) => {
+                                    setImageErrors((prev) => {
+                                      if (!prev[imageErrorKey]) return prev;
+                                      const next = { ...prev };
+                                      delete next[imageErrorKey];
+                                      return next;
+                                    });
                                     handleUpdateImage(imgIndex, {
                                       ...img,
                                       url: e.target.value,
-                                    })
-                                  }
+                                    });
+                                  }}
                                   onBlur={(e) =>
                                     handleUpdateImage(imgIndex, {
                                       ...img,

@@ -5,9 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const DANGEROUS_SCHEME_REGEX = /^(?:javascript|data|vbscript):/i;
+
 export function normalizeImageUrl(url: string): string {
   if (!url) return "";
   const trimmed = url.trim();
+
+  if (DANGEROUS_SCHEME_REGEX.test(trimmed)) {
+    return "";
+  }
+
+  if (trimmed.startsWith("//")) {
+    return `https:${trimmed}`;
+  }
 
   // Normalize existing Google Drive CDN links with trailing paths/params
   const lh3Match = trimmed.match(
