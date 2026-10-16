@@ -131,19 +131,27 @@ DROP POLICY IF EXISTS "Guru reads active drafts" ON public.schedule_drafts;
 CREATE POLICY "Guru reads active drafts"
     ON public.schedule_drafts FOR SELECT
     USING (
-        status = 'active'
-        AND (
-            branch_id IN (
-                SELECT p.branch_id
-                FROM public.profiles p
-                WHERE p.id = auth.uid()
-                  AND p.branch_id IS NOT NULL
+        (
+            status = 'active'
+            AND (
+                branch_id IN (
+                    SELECT p.branch_id
+                    FROM public.profiles p
+                    WHERE p.id = auth.uid()
+                      AND p.branch_id IS NOT NULL
+                )
+                OR branch_id IN (
+                    SELECT pb.branch_id
+                    FROM public.profile_branches pb
+                    WHERE pb.profile_id = auth.uid()
+                )
             )
-            OR branch_id IN (
-                SELECT pb.branch_id
-                FROM public.profile_branches pb
-                WHERE pb.profile_id = auth.uid()
-            )
+        )
+        OR EXISTS (
+            SELECT 1
+            FROM public.schedule_classes sc
+            WHERE sc.draft_id = public.schedule_drafts.id
+              AND sc.teacher_id = auth.uid()
         )
     );
 

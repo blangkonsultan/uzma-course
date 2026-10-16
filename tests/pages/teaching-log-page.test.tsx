@@ -38,7 +38,7 @@ describe("Teaching Log route access", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
     expect(getTeacherTeachingSession).not.toHaveBeenCalled();
   });
-  it("falls back to a safe date for an invalid query date", async () => {
+  it("falls back to a safe date for an impossible query date", async () => {
     const classInfo: TeacherScheduleClassForLog = {
       id: "class-1",
       day_of_week: 3,
@@ -60,13 +60,13 @@ describe("Teaching Log route access", () => {
     await expect(
       TeachingLogPage({
         params: Promise.resolve({ id: "class-1" }),
-        searchParams: Promise.resolve({ date: "invalid" }),
+        searchParams: Promise.resolve({ date: "2026-02-31" }),
       })
     ).resolves.toBeDefined();
     expect(getTeacherTeachingSession).toHaveBeenCalledWith(
       "teacher-1",
       "class-1",
-      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
+      "2026-10-15"
     );
   });
 });

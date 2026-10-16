@@ -62,6 +62,14 @@ describe("Teaching Log migration contract", () => {
     expect(sql).toContain("submitted_at = now()");
   });
 
+  it("allows teacher-owned archived class history to pass schedule-draft RLS", () => {
+    const sql = readFileSync(migrationPath, "utf8");
+
+    expect(sql).toContain("OR EXISTS");
+    expect(sql).toContain("FROM public.schedule_classes sc");
+    expect(sql).toContain("sc.draft_id = public.schedule_drafts.id");
+    expect(sql).toContain("sc.teacher_id = auth.uid()");
+  });
   it("exposes generated database table and RPC contracts", () => {
     const types = readFileSync(databaseTypesPath, "utf8");
 

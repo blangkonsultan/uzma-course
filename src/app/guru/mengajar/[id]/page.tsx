@@ -28,10 +28,20 @@ export default async function TeachingLogPage({
 
   if (!classInfo) notFound();
 
-  const sessionDate =
-    query.date && /^\d{4}-\d{2}-\d{2}$/.test(query.date)
-      ? query.date
-      : getTodayTeachingLogDate();
+  const requestedDate = query.date;
+  const parsedDate = requestedDate
+    ? new Date(`${requestedDate}T00:00:00Z`)
+    : null;
+  const isValidCalendarDate =
+    Boolean(requestedDate) &&
+    /^\d{4}-\d{2}-\d{2}$/.test(requestedDate || "") &&
+    Number(requestedDate?.slice(0, 4)) > 0 &&
+    parsedDate !== null &&
+    !Number.isNaN(parsedDate.getTime()) &&
+    parsedDate.toISOString().slice(0, 10) === requestedDate;
+  const sessionDate = isValidCalendarDate
+    ? requestedDate!
+    : getTodayTeachingLogDate();
   const session = await getTeacherTeachingSession(profile.id, id, sessionDate);
 
   return (
