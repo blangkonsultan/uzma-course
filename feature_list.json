@@ -70,7 +70,7 @@
       "description": "Digital learning progress card (kartu kendali les) recording student lesson achievements and teacher notes per session",
       "dependencies": ["feat-005", "feat-008"],
       "status": "in-progress",
-      "evidence": "Implementation complete: normalized teaching_sessions and teaching_session_students migration with RLS and transactional save/submit RPCs; guru DAL/actions and /guru/mengajar/[id] workflow record per-student attendance, achievement, notes, and fee snapshots with submitted locking. Verified via 59 Vitest suites / 357 tests, 65.13% statements, 60.09% branches, 67.81% functions, 66.24% lines, and clean build. Authenticated Guru browser smoke remains pending because only the configured Admin test account is available; unauthenticated route smoke correctly redirects to /login without overflow"
+      "evidence": "Implementation complete: normalized teaching_sessions and teaching_session_students migration with RLS and transactional save/submit RPCs; guru DAL/actions and /guru/mengajar/[id] workflow provide weekday-aware date selection, per-student attendance/achievement/notes, server fee snapshots, draft save, submit-that-saves-edits, submitted locking, archived history readback, and invalid-date fallback. Verified via 59 Vitest suites / 362 tests, 65.38% statements, 60.40% branches, 68.18% functions, 66.50% lines, clean build, and unauthenticated mobile route smoke; authenticated Guru smoke remains pending because only the configured Admin test account is available"
     },
     {
       "id": "feat-010",

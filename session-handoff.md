@@ -29,9 +29,9 @@ Phase 5 CMS Integrity, TikTok Shortlink Hardening & Public Landing Polish is imp
 ## feat-009 Teaching Log
 - **Spec**: `docs/superpowers/specs/2026-10-16-teaching-log-student-session-cards-design.md`
 - **Plan**: `docs/superpowers/plans/2026-10-16-teaching-log-student-session-cards.md`
-- **Implementation**: schema/RPC migration, RLS, typed DAL/actions, `/guru/mengajar/[id]`, mobile form, per-student status/capaian/catatan, fee snapshots, draft save, and submitted locking.
-- **Verification**: 59 suites / 357 tests, coverage above thresholds, lint clean, production build clean, and unauthenticated route smoke at 360/375/1280px with zero overflow.
-- **Commits**: `8a0b831`, `e6bd138`, `b824dc0`, `c8aa975`, `b536d87`.
+- **Implementation**: schema/RPC migration, RLS, typed DAL/actions, `/guru/mengajar/[id]`, mobile form, weekday-aware date links, editable historical dates, per-student status/capaian/catatan, fee snapshots, draft save, submit-that-saves-edits, submitted locking, archived history readback, and invalid-date fallback.
+- **Verification**: 59 suites / 362 tests, 65.38% statements, 60.40% branches, 68.18% functions, 66.50% lines, lint clean, production build clean, and unauthenticated route smoke at 360/375/1280px with zero overflow.
+- **Commits**: `8a0b831`, `e6bd138`, `b824dc0`, `c8aa975`, `b536d87`, `cc08a84`.
 
 ## Current Blocker
 - Authenticated Guru draft/save/submit browser smoke is pending because the repository context provides only the Admin test account. The route correctly redirects unauthenticated requests to `/login`; no dummy external account was created.

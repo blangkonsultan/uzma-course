@@ -16,11 +16,11 @@
 - **Evidence**:
   - Added `supabase/migrations/20261016120000_create_teaching_logs.sql` with normalized session/student tables, RLS, teacher-owned draft rules, fee snapshots, and transactional save/submit RPCs.
   - Added typed DAL/actions in `src/lib/teaching-logs.ts` and `src/app/guru/mengajar/actions.ts`.
-  - Added `/guru/mengajar/[id]`, `TeachingLogForm`, schedule entry links, per-student attendance/capaian/catatan fields, draft save, submit locking, and explicit error preservation.
+  - Added `/guru/mengajar/[id]`, `TeachingLogForm`, weekday-aware schedule links, editable historical date selection, per-student attendance/capaian/catatan fields, draft save, submit-that-saves-in-memory-edits, submitted locking, archived-draft history readback, and invalid-date fallback.
   - Added migration, validation, DAL/action, route-security, form, and schedule-link regression tests.
-  - Full `./init.sh` passed: **59 Vitest suites / 357 tests**, 65.13% statements, 60.09% branches, 67.81% functions, 66.24% lines, 0 lint errors/warnings, and clean Webpack build.
+  - Full `./init.sh` passed: **59 Vitest suites / 362 tests**, 65.38% statements, 60.40% branches, 68.18% functions, 66.50% lines, 0 lint errors/warnings, and clean Webpack build.
   - Unauthenticated browser route smoke at 360px, 375px, and 1280px correctly redirected `/guru/mengajar/class-1` to `/login` with zero horizontal overflow. Authenticated Guru draft/save/submit smoke remains pending because only the configured Admin test account is available.
-- **Commits**: `8a0b831` (schema/RPC), `e6bd138` (plan/test alignment), `b824dc0` (DAL/actions), `c8aa975` (workflow plan alignment), `b536d87` (teacher workflow).
+- **Commits**: `8a0b831` (schema/RPC), `e6bd138` (plan/test alignment), `b824dc0` (DAL/actions), `c8aa975` (workflow plan alignment), `b536d87` (teacher workflow), `cc08a84` (review fixes).
 
 ## 2026-10-15 (Phase 5 CMS Integrity & Landing Polish Spec Completed)
 - **Status**: Completed (Design & Specification Gate).
