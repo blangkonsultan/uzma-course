@@ -272,6 +272,50 @@ isOneToOne: false
                     "achievement"?: string | null,"attendance_status"?: string | null,"created_at"?: string,"id"?: string,"session_id"?: string,"student_id"?: string,"teacher_fee_snapshot"?: number,"teacher_note"?: string | null,"updated_at"?: string
                   }
                   Relationships: []
+                },"payroll_periods": {
+                  Row: {
+                    "closed_at": string | null,"closed_by": string | null,"created_at": string,"id": string,"paid_at": string | null,"paid_by": string | null,"period_month": string,"status": string,"updated_at": string
+                  }
+                  Insert: {
+                    "closed_at"?: string | null,"closed_by"?: string | null,"created_at"?: string,"id"?: string,"paid_at"?: string | null,"paid_by"?: string | null,"period_month": string,"status"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "closed_at"?: string | null,"closed_by"?: string | null,"created_at"?: string,"id"?: string,"paid_at"?: string | null,"paid_by"?: string | null,"period_month"?: string,"status"?: string,"updated_at"?: string
+                  }
+                  Relationships: []
+                },"payroll_session_lines": {
+                  Row: {
+                    "attendance_status": string,"created_at": string,"id": string,"payable_amount": number,"period_id": string,"session_date": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_id": string,"teaching_session_id": string,"teaching_session_student_id": string
+                  }
+                  Insert: {
+                    "attendance_status": string,"created_at"?: string,"id"?: string,"payable_amount": number,"period_id": string,"session_date": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_id": string,"teaching_session_id": string,"teaching_session_student_id": string
+                  }
+                  Update: {
+                    "attendance_status"?: string,"created_at"?: string,"id"?: string,"payable_amount"?: number,"period_id"?: string,"session_date"?: string,"student_id"?: string,"teacher_fee_snapshot"?: number,"teacher_id"?: string,"teaching_session_id"?: string,"teaching_session_student_id"?: string
+                  }
+                  Relationships: []
+                },"payroll_entries": {
+                  Row: {
+                    "adjustments_total": number,"allowances_snapshot": Json,"created_at": string,"fee_sessions_total": number,"fixed_allowances_total": number,"id": string,"minimum_income_snapshot": number,"period_id": string,"teacher_id": string,"total_amount": number,"updated_at": string
+                  }
+                  Insert: {
+                    "adjustments_total"?: number,"allowances_snapshot"?: Json,"created_at"?: string,"fee_sessions_total"?: number,"fixed_allowances_total"?: number,"id"?: string,"minimum_income_snapshot"?: number,"period_id": string,"teacher_id": string,"total_amount"?: number,"updated_at"?: string
+                  }
+                  Update: {
+                    "adjustments_total"?: number,"allowances_snapshot"?: Json,"created_at"?: string,"fee_sessions_total"?: number,"fixed_allowances_total"?: number,"id"?: string,"minimum_income_snapshot"?: number,"period_id"?: string,"teacher_id"?: string,"total_amount"?: number,"updated_at"?: string
+                  }
+                  Relationships: []
+                },"payroll_adjustments": {
+                  Row: {
+                    "amount": number,"created_at": string,"created_by": string,"id": string,"period_id": string,"reason": string,"teacher_id": string
+                  }
+                  Insert: {
+                    "amount": number,"created_at"?: string,"created_by": string,"id"?: string,"period_id": string,"reason": string,"teacher_id": string
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"created_by"?: string,"id"?: string,"period_id"?: string,"reason"?: string,"teacher_id"?: string
+                  }
+                  Relationships: []
                 },"student_programs": {
                   Row: {
                     "created_at": string,"cycle_days": number,"cycle_start_date": string,"enrolled_at": string,"on_time_discount_type": string | null,"on_time_discount_value": number,"program_id": string,"spp_amount": number,"status": string,"student_id": string,"variant_id": string
@@ -361,6 +405,12 @@ isOneToOne: false
 { Args: { "p_schedule_class_id": string,"p_session_date": string,"p_students": Json }; Returns: Database["public"]["Tables"]["teaching_sessions"]["Row"]
                            },"submit_teaching_session":
 { Args: { "p_session_id": string }; Returns: Database["public"]["Tables"]["teaching_sessions"]["Row"]
+                           },"close_payroll_period":
+{ Args: { "p_period_id": string }; Returns: Database["public"]["Tables"]["payroll_periods"]["Row"]
+                           },"mark_payroll_period_paid":
+{ Args: { "p_period_id": string }; Returns: Database["public"]["Tables"]["payroll_periods"]["Row"]
+                           },"add_payroll_adjustment":
+{ Args: { "p_period_id": string,"p_teacher_id": string,"p_amount": number,"p_reason": string }; Returns: Database["public"]["Tables"]["payroll_adjustments"]["Row"]
                            }
           }
           Enums: {
