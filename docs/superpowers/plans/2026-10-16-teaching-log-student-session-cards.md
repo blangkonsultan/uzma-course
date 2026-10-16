@@ -73,6 +73,7 @@
 - Create: `src/app/guru/mengajar/actions.ts`
 - Create: `tests/crud/teaching-log-validation.test.ts`
 - Create: `tests/crud/teaching-log-dal.test.ts`
+- Create: `tests/crud/teaching-log-actions.test.ts`
 
 **Interfaces:**
 - `TeachingAttendanceStatus = "present" | "absent" | "excused" | "cancelled"`.
@@ -92,8 +93,7 @@
   - Mock only unavoidable auth/Supabase boundaries; assert consumer-visible errors and returned data, not mock call forwarding.
 
 - [ ] **Step 2: Run focused tests to verify failure**
-  - Run: `npx vitest run tests/crud/teaching-log-validation.test.ts tests/crud/teaching-log-dal.test.ts --coverage.enabled=false`
-  - Expected: FAIL because the DAL, validation contract, and actions do not exist.
+  - Run: `npx vitest run tests/crud/teaching-log-validation.test.ts tests/crud/teaching-log-dal.test.ts tests/crud/teaching-log-actions.test.ts --coverage.enabled=false`
 
 - [ ] **Step 3: Implement validation and DAL**
   - Implement pure input/date validation with injected `todayWib` for deterministic tests.
