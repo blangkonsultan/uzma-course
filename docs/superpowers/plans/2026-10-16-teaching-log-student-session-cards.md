@@ -118,7 +118,7 @@
 - Create: `src/components/guru/teaching-log-form.tsx`
 - Modify: `src/components/guru/teacher-schedule-client.tsx` to add the entry link
 - Create: `tests/components/teaching-log-form.test.tsx`
-- Create: `tests/components/teacher-schedule-client.test.tsx`
+- Create: `tests/pages/teaching-log-page.test.tsx`
 
 **Interfaces:**
 - Route params: `params: Promise<{ id: string }>` and `searchParams: Promise<{ date?: string }>`.
@@ -133,7 +133,7 @@
   - Assert every schedule class card renders an accessible `Isi Kartu Mengajar` link.
 
 - [ ] **Step 2: Run focused component tests to verify failure**
-  - Run: `npx vitest run tests/components/teaching-log-form.test.tsx tests/components/teacher-schedule-client.test.tsx --coverage.enabled=false`
+  - Run: `npx vitest run tests/components/teaching-log-form.test.tsx tests/components/teacher-schedule-client.test.tsx tests/pages/teaching-log-page.test.tsx --coverage.enabled=false`
   - Expected: FAIL because the route/form/link do not exist.
 
 - [ ] **Step 3: Implement the route and loader**
@@ -149,11 +149,11 @@
   - Add a mobile-sized link/button on each existing class card without changing schedule filtering or student accordion behavior.
 
 - [ ] **Step 6: Run focused component tests to verify green**
-  - Run: `npx vitest run tests/components/teaching-log-form.test.tsx tests/components/teacher-schedule-client.test.tsx --coverage.enabled=false`
+  - Run: `npx vitest run tests/components/teaching-log-form.test.tsx tests/components/teacher-schedule-client.test.tsx tests/pages/teaching-log-page.test.tsx --coverage.enabled=false`
   - Expected: PASS.
 
 - [ ] **Step 7: Commit the teacher workflow task**
-  - Run: `git add src/app/guru/mengajar/[id]/page.tsx src/components/guru/teaching-log-form.tsx src/components/guru/teacher-schedule-client.tsx tests/components/teaching-log-form.test.tsx tests/components/teacher-schedule-client.test.tsx && git commit -m "feat: add teacher Teaching Log workflow"`
+  - Run: `git add src/app/guru/mengajar/[id]/page.tsx src/components/guru/teaching-log-form.tsx src/components/guru/teacher-schedule-client.tsx tests/components/teaching-log-form.test.tsx tests/components/teacher-schedule-client.test.tsx tests/pages/teaching-log-page.test.tsx && git commit -m "feat: add teacher Teaching Log workflow"`
 
 ### Task 4: Full verification, smoke checks, and feature artifacts
 
