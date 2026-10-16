@@ -337,3 +337,14 @@ BEGIN
     RETURN v_adjustment;
 END;
 $$;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.payroll_periods TO authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.payroll_session_lines TO authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.payroll_entries TO authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.payroll_adjustments TO authenticated, service_role;
+GRANT SELECT ON public.payroll_periods TO anon;
+GRANT SELECT ON public.payroll_session_lines TO anon;
+GRANT SELECT ON public.payroll_entries TO anon;
+GRANT SELECT ON public.payroll_adjustments TO anon;
+GRANT EXECUTE ON FUNCTION public.close_payroll_period(UUID) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.mark_payroll_period_paid(UUID) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.add_payroll_adjustment(UUID, UUID, INTEGER, TEXT) TO authenticated, service_role;
