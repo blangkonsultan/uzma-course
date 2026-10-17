@@ -394,6 +394,29 @@ isOneToOne: false
     }
                   ]
                 }
+                ,"student_invoices": {
+                  Row: {
+                    "amount": number,"branch_id": string,"created_at": string,"created_by": string | null,"cycle_number": number,"discount_amount": number,"due_date": string,"id": string,"invoice_number": string,"notes": string | null,"period_end": string,"period_start": string,"program_id": string,"status": "unpaid" | "paid" | "cancelled","student_id": string,"total_amount": number,"updated_at": string,"variant_id": string
+                  }
+                  Insert: {
+                    "amount": number,"branch_id": string,"created_at"?: string,"created_by"?: string | null,"cycle_number"?: number,"discount_amount"?: number,"due_date": string,"id"?: string,"invoice_number": string,"notes"?: string | null,"period_end": string,"period_start": string,"program_id": string,"status"?: "unpaid" | "paid" | "cancelled","student_id": string,"total_amount": number,"updated_at"?: string,"variant_id": string
+                  }
+                  Update: {
+                    "amount"?: number,"branch_id"?: string,"created_at"?: string,"created_by"?: string | null,"cycle_number"?: number,"discount_amount"?: number,"due_date"?: string,"id"?: string,"invoice_number"?: string,"notes"?: string | null,"period_end"?: string,"period_start"?: string,"program_id"?: string,"status"?: "unpaid" | "paid" | "cancelled","student_id"?: string,"total_amount"?: number,"updated_at"?: string,"variant_id"?: string
+                  }
+                  Relationships: []
+                },"student_payments": {
+                  Row: {
+                    "amount_paid": number,"created_at": string,"id": string,"invoice_id": string,"notes": string | null,"payment_date": string,"payment_method": "cash" | "transfer_bca" | "transfer_bri" | "transfer_mandiri" | "qris" | "other","payment_reference": string | null,"receipt_number": string,"received_by": string,"student_id": string
+                  }
+                  Insert: {
+                    "amount_paid": number,"created_at"?: string,"id"?: string,"invoice_id": string,"notes"?: string | null,"payment_date"?: string,"payment_method": "cash" | "transfer_bca" | "transfer_bri" | "transfer_mandiri" | "qris" | "other","payment_reference"?: string | null,"receipt_number": string,"received_by": string,"student_id": string
+                  }
+                  Update: {
+                    "amount_paid"?: number,"created_at"?: string,"id"?: string,"invoice_id"?: string,"notes"?: string | null,"payment_date"?: string,"payment_method"?: "cash" | "transfer_bca" | "transfer_bri" | "transfer_mandiri" | "qris" | "other","payment_reference"?: string | null,"receipt_number"?: string,"received_by"?: string,"student_id"?: string
+                  }
+                  Relationships: []
+                }
           }
           Views: {
             [_ in never]: never
@@ -411,6 +434,10 @@ isOneToOne: false
 { Args: { "p_period_id": string }; Returns: Database["public"]["Tables"]["payroll_periods"]["Row"]
                            },"add_payroll_adjustment":
 { Args: { "p_period_id": string,"p_teacher_id": string,"p_amount": number,"p_reason": string }; Returns: Database["public"]["Tables"]["payroll_adjustments"]["Row"]
+                           },"generate_due_student_invoices":
+{ Args: { "p_branch_id"?: string }; Returns: Database["public"]["Tables"]["student_invoices"]["Row"][]
+                           },"record_student_payment":
+{ Args: { "p_invoice_id": string,"p_payment_method": string,"p_payment_date"?: string,"p_payment_reference"?: string,"p_notes"?: string }; Returns: Database["public"]["Tables"]["student_payments"]["Row"]
                            }
           }
           Enums: {
