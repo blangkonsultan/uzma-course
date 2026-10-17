@@ -1,0 +1,254 @@
+# Buku Panduan Pengguna (User Manual Guide) — Uzma Course
+
+Selamat datang di **Buku Panduan Pengguna Sistem Informasi Terpadu Uzma Course**. Dokumen ini dirancang sebagai rujukan operasional resmi bagi **Admin (Pengelola Pusat/Cabang)** dan **Guru (Pendidik)** dalam mengoperasikan seluruh modul aplikasi, mulai dari pendaftaran murid, penjadwalan kelas bebas bentrok, presensi geofence, pengisian kartu kendali mengajar, penggajian guru, hingga penagihan SPP berkala dan kwitansi resmi.
+
+---
+
+## DAFTAR ISI
+1. [Gambaran Umum Sistem & Hak Akses](#1-gambaran-umum-sistem--hak-akses)
+2. [Panduan Operasional Portal Admin](#2-panduan-operasional-portal-admin)
+   - [2.1 Login & Navigasi Utama](#21-login--navigasi-utama)
+   - [2.2 Kelola Data Master](#22-kelola-data-master)
+   - [2.3 Penyusunan Jadwal Kelas (Kanban Board)](#23-penyusunan-jadwal-kelas-kanban-board)
+   - [2.4 Modul Penggajian Guru (Payroll)](#24-modul-penggajian-guru-payroll)
+   - [2.5 Modul Tagihan SPP Murid & Kwitansi Resmi](#25-modul-tagihan-spp-murid--kwitansi-resmi)
+   - [2.6 Pengelolaan Konten Website (Landing Page CMS)](#26-pengelolaan-konten-website-landing-page-cms)
+3. [Panduan Operasional Portal Guru (PWA Mobile)](#3-panduan-operasional-portal-guru-pwa-mobile)
+   - [3.1 Pemasangan Aplikasi PWA di Smartphone](#31-pemasangan-aplikasi-pwa-di-smartphone)
+   - [3.2 Presensi Kehadiran Berbasis Geofence GPS](#32-presensi-kehadiran-berbasis-geofence-gps)
+   - [3.3 Jadwal Mengajar Harian](#33-jadwal-mengajar-harian)
+   - [3.4 Pengisian Kartu Kendali Mengajar (Teaching Log)](#34-pengisian-kartu-kendali-mengajar-teaching-log)
+   - [3.5 Slip & Estimasi Honor Guru](#35-slip--estimasi-honor-guru)
+4. [Tanya Jawab & Pemecahan Masalah (FAQ)](#4-tanya-jawab--pemecahan-masalah-faq)
+
+---
+
+## 1. Gambaran Umum Sistem & Hak Akses
+
+Sistem Uzma Course membagi akses operasional menjadi dua antarmuka khusus:
+- **Portal Admin (`/admin`)**: Dioptimalkan untuk perangkat layar lebar (Desktop/Laptop/Tablet) guna mengelola basis data terpusat, menyusun jadwal visual, mengawasi kas masuk SPP murid, dan memproses penggajian guru.
+- **Portal Guru (`/guru`)**: Dirancang khusus untuk smartphone dengan teknologi *Progressive Web App* (PWA) yang ringan, cepat, dan mendukung sinkronisasi presensi saat koneksi seluler kurang stabil.
+
+### Akun & Keamanan
+- Halaman login tunggal: `https://uzmacourse.com/login` (atau `http://localhost:3000/login`).
+- Sistem secara otomatis mengarahkan peran pengguna setelah login:
+  - Akun **Admin** langsung diarahkan ke Dashboard `/admin`.
+  - Akun **Guru** langsung diarahkan ke Beranda Guru `/guru`.
+
+---
+
+## 2. Panduan Operasional Portal Admin
+
+### 2.1 Login & Navigasi Utama
+1. Buka tautan login di browser.
+2. Masukkan alamat email admin (misal: `admin@uzmacourse.com`) dan kata sandi.
+3. Klik **"Masuk ke Portal"**.
+4. Menu samping (*Sidebar*) memuat 4 kelompok kerja:
+   - **Menu Utama**: Dashboard statistik ringkas.
+   - **Data Master**: Cabang, Shift Belajar, Draf Jadwal, Program Belajar, Guru, Murid.
+   - **Operasional & Keuangan**: Penggajian Guru, Tagihan SPP Murid.
+   - **Konten & Website**: Landing Page CMS (14 Seksi).
+
+---
+
+### 2.2 Kelola Data Master
+
+#### A. Data Cabang (`/admin/cabang`)
+- Menampung lokasi fisik operasional (misal: *Sumokembangsri*, *Junwangi*).
+- Setiap cabang memiliki titik koordinat GPS (Latitude & Longitude) dan batas radius toleransi presensi (meter) yang digunakan untuk validasi absensi guru.
+- Terdapat tombol status aktif/non-aktif cepat (*BranchStatusButton*).
+
+#### B. Data Shift Belajar (`/admin/shift`)
+- Mengatur jendela jam operasional mengajar (misal: *Shift Pagi: 08:00 - 11:00*, *Shift Siang: 13:00 - 16:00*).
+- Jam shift menjadi batas mutlak pembuatan kelas di papan jadwal.
+
+#### C. Program Belajar & Varian (`/admin/program`)
+- Mengatur paket edukasi (AHE Baca, ASE Hitung, BEE English, dll).
+- Di dalam setiap program, tentukan **Varian**:
+  - `Durasi (menit)`: misal 30 menit atau 60 menit.
+  - `Sistem (Rasio)`: rasio murid per kelas (1 = privat, 2 = semi-privat, 4+ = reguler).
+  - `Frekuensi`: jumlah pertemuan per minggu (misal: 2x seminggu, 3x seminggu).
+  - `Fee Guru per Sesi`: honor yang diterima guru saat mengajar sesi varian tersebut.
+  - `Default SPP`: biaya paket standar bulanan per murid.
+
+#### D. Data Guru / Pendidik (`/admin/guru`)
+- Mendaftarkan profil guru baru, cabang penempatan utama, cabang sekunder (multi-cabang), dan kontak WhatsApp.
+- **Pengaturan Tunjangan & Garansi**:
+  - Tunjangan Tetap: Tambahkan komponen tunjangan bulanan (Transport, Kreativitas, dll).
+  - Garansi Honor Minimum: Batas bawah penerimaan honor bulanan yang dijamin lembaga (misal: Rp 250.000).
+
+#### E. Data Murid (`/admin/murid`)
+- Mendaftarkan murid baru beserta data wali/orang tua dan nomor WhatsApp aktif.
+- **Penomoran Otomatis**: Sistem secara otomatis menerbitkan Nomor Induk Siswa (NIS) 5 digit berformat baku (misal: `01001` untuk Sumokembangsri, `02001` untuk Junwangi).
+- Hubungkan murid ke program belajar yang diambil, tentukan nominal SPP khusus jika berbeda dari standar, serta tanggal awal siklus belajar (`cycle_start_date`).
+
+---
+
+### 2.3 Penyusunan Jadwal Kelas (Kanban Board)
+Rute: `/admin/draft` $\rightarrow$ `/admin/draft/[id]/board`
+
+1. **Membuat Draf Jadwal**:
+   - Buat draf baru untuk cabang tertentu, tentukan nama (misal: *"Draf Semester Genap"*).
+   - Klik **"Buka Papan Jadwal"**.
+2. **Menempatkan Kelas ke Kolom Shift**:
+   - Klik tombol **"+ Tambah Kelas"** pada kolom shift yang diinginkan.
+   - Pilih Guru dan Varian Program.
+   - Tentukan jam mulai dan jam selesai kelas. Sistem memvalidasi jam harus berada di dalam jam kerja shift.
+3. **Menambahkan Murid ke Kelas**:
+   - Pada kartu kelas yang terpasang, klik **"+ Tambah Murid"**.
+   - Pilih murid yang terdaftar. Sistem memeriksa:
+     - Murid belum melebihi frekuensi mingguan paketnya.
+     - Kelas belum melebihi kapasitas rasio sistem.
+4. **Pencegahan Bentrok Multi-Cabang**:
+   - Sistem secara otomatis menolak alokasi bila guru yang sama telah dijadwalkan di cabang lain pada jam yang beririsan (*overlap*).
+
+---
+
+### 2.4 Modul Penggajian Guru (Payroll)
+Rute: `/admin/payroll`
+
+1. **Siklus Periode Penggajian**:
+   - Periode berstatus **Terbuka (`open`)**: Guru dapat mengisi kartu kendali mengajar. Fee sesi terakumulasi secara *real-time*.
+   - **Tutup Periode Payroll**:
+     - Di akhir bulan kalender, klik tombol **"Tutup Periode Payroll"**.
+     - Sistem secara atomik menarik seluruh sesi mengajar tersubmit, membekukan *snapshot* tunjangan tetap dan garansi minimum, serta mengubah status menjadi **Ditutup (`closed`)**.
+2. **Penambahan Penyesuaian (Adjustment)**:
+   - Pada status `closed`, klik **"+ Tambah Adjustment"**.
+   - Masukkan nominal positif (bonus/lembur) atau negatif (potongan/denda) beserta alasan tertulis.
+   - Total honor guru dan grand total payroll terhitung bersih secara otomatis.
+3. **Pencairan Honor (*Mark Paid*)**:
+   - Setelah transfer honor dilakukan, klik tombol **"Tandai Sudah Dibayar"**.
+   - Periode terkunci permanen (**`paid`**), tombol mutasi dinonaktifkan, dan slip resmi guru terarsip secara permanen.
+
+---
+
+### 2.5 Modul Tagihan SPP Murid & Kwitansi Resmi
+Rute: `/admin/spp`
+
+#### A. Konsep Siklus Belajar 28 Hari (*Rolling 28-Day Cycle*)
+- Pendaftaran murid di Uzma Course berlangsung fleksibel (*rolling*). Sistem tidak memaksakan penagihan harus tanggal 1 kalender, melainkan menghitung periode belajar per 28 hari sejak tanggal aktif murid (`cycle_start_date`).
+- Contoh: Murid aktif per tanggal 5 Oktober, maka Siklus 1 berlaku 5 Okt – 1 Nov, dan Siklus 2 berlaku 2 Nov – 29 Nov.
+
+#### B. Menerbitkan Tagihan Siklus
+1. Di halaman `/admin/spp`, klik tombol **"+ Terbitkan Tagihan Siklus"**.
+2. Sistem secara otomatis mengevaluasi seluruh murid aktif dan menerbitkan faktur tagihan piutang dengan format sekuensial resmi: `INV-YYMM-NNNN` (misal: `INV-2610-0001`).
+3. Sistem bersifat *idempotent*: klik berulang tidak akan menggandakan tagihan pada siklus yang sama.
+
+#### C. Mencatat Pembayaran Kas Masuk (*Record Payment*)
+1. Pada baris murid berstatus **Belum Bayar**, klik tombol **"Catat Bayar"**.
+2. Pilih metode pembayaran:
+   - Tunai (Cash di Cabang)
+   - Transfer Bank (BCA, BRI, Mandiri)
+   - QRIS
+3. Masukkan tanggal penerimaan kas dan nomor referensi mutasi bank (opsional).
+4. Klik **"Simpan Pembayaran & Terbitkan Kwitansi"**.
+5. Sistem secara otomatis:
+   - Mengubah status tagihan menjadi **Lunas**.
+   - Mengurangi piutang tertunggak dan menambah kas diterima pada kartu KPI.
+   - Menerbitkan dokumen resmi kas masuk dengan nomor kwitansi: `RCT-YYMM-NNNN` (misal: `RCT-2610-0001`).
+
+#### D. Melihat & Mencetak Kwitansi Resmi Digital
+1. Pada tagihan yang telah lunas, klik tombol **"Lihat Kwitansi"**.
+2. Muncul dokumen resmi kwitansi kas masuk dengan stempel **LUNAS**, rincian program, periode siklus 28 hari, dan penerima kas.
+3. Klik tombol **"Cetak Kwitansi"** untuk mencetak fisik atau menyimpan sebagai file PDF rapi tanpa elemen navigasi website.
+
+#### E. Mengirim Pengingat Tagihan WhatsApp ke Orang Tua
+1. Pada baris tagihan murid yang belum lunas, klik ikon **WhatsApp**.
+2. Browser akan otomatis membuka chat WhatsApp ke nomor orang tua (`parent_phone`) dengan draf pesan sopan yang memuat rincian nama ananda, nomor tagihan, nominal, dan batas jatuh tempo.
+
+---
+
+### 2.6 Pengelolaan Konten Website (Landing Page CMS)
+Rute: `/admin/landing`
+
+- Mengelola 14 seksi tampilan website publik (`https://uzmacourse.com`):
+  - Hero Banner, Program Belajar, Keunggulan (Why Us), Fasilitas, Tim Pengajar, Galeri Foto Autentik, Testimoni Orang Tua, Video Pembelajaran (YouTube & TikTok Player), Lokasi Cabang & Peta, FAQ, CTA Pendaftaran, Footer, Navbar, dan Floating WhatsApp.
+- Mengunggah foto langsung menormalkan URL dan memvalidasi keamanan tautan video shortlink secara otomatis.
+
+---
+
+## 3. Panduan Operasional Portal Guru (PWA Mobile)
+
+### 3.1 Pemasangan Aplikasi PWA di Smartphone
+1. Buka browser ponsel (Safari di iPhone, Chrome di Android).
+2. Kunjungi alamat: `https://uzmacourse.com/guru` (atau login terlebih dahulu).
+3. **Pengguna Android (Chrome)**:
+   - Ketuk menu titik tiga di kanan atas $\rightarrow$ pilih **"Instal Aplikasi"** atau **"Tambahkan ke Layar Utama"**.
+4. **Pengguna iPhone (Safari)**:
+   - Ketuk tombol **Share** (ikon kotak dengan panah ke atas) $\rightarrow$ gulir ke bawah $\rightarrow$ pilih **"Add to Home Screen" (Tambahkan ke Layar Utama)**.
+5. Ikon **Uzma Course** akan muncul di layar utama HP Anda dan dapat dibuka instan layaknya aplikasi native tanpa bilah alamat browser.
+
+---
+
+### 3.2 Presensi Kehadiran Berbasis Geofence GPS
+Rute: `/guru/absen`
+
+1. Masuk ke menu **Presensi** di navigasi bawah.
+2. Saat pertama kali membuka, browser akan meminta izin lokasi: pilih **"Izinkan Saat Menggunakan Aplikasi" (Allow)**.
+3. Sistem secara otomatis mendeteksi koordinat GPS dan memilih cabang mengajar terdekat.
+4. **Presensi Datang**:
+   - Jika posisi Anda berada di dalam radius cabang, indikator berwarna hijau *"Dalam radius"*.
+   - Ketuk tombol hijau besar **"Presensi Datang"**. Jam kedatangan WIB langsung tercatat.
+5. **Presensi Pulang**:
+   - Di akhir jam mengajar shift, buka kembali menu presensi dan ketuk **"Presensi Pulang"**.
+
+---
+
+### 3.3 Jadwal Mengajar Harian
+Rute: `/guru/jadwal`
+
+- Menampilkan daftar kelas yang ditugaskan kepada Anda sesuai hari yang dipilih (Senin s/d Minggu).
+- Setiap kartu kelas menampilkan: jam mengajar, nama varian program, cabang, jumlah murid terdaftar, dan tautan langsung ke kartu mengajar.
+
+---
+
+### 3.4 Pengisian Kartu Kendali Mengajar (Teaching Log)
+Rute: `/guru/jadwal` $\rightarrow$ Ketuk **"Isi Kartu Mengajar"**
+
+1. **Pemilihan Tanggal**:
+   - Tanggal otomatis terpilih hari ini (WIB). Anda juga dapat membuka tanggal sesi lampau yang sesuai dengan hari kelas tersebut.
+2. **Status Kehadiran Murid**:
+   - Pilih status kehadiran masing-masing murid: **Hadir (`present`)**, **Tidak Hadir (`absent`)**, atau **Izin (`excused`)**.
+3. **Capaian & Catatan Guru**:
+   - Ketikkan capaian belajar ananda pada sesi tersebut (misal: *"Membaca Modul 3 Halaman 12-14"*).
+   - Berikan catatan perkembangan atau evaluasi fokus belajar.
+4. **Simpan Draf vs Kirim Kartu**:
+   - **Simpan Draf**: Jika sesi belajar masih berlangsung atau ingin mengedit catatan nanti. Data tersimpan aman di server tanpa mengunci form.
+   - **Kirim Kartu (Submit)**: Jika sesi telah selesai sepenuhnya. Sistem akan membekukan *snapshot* honor sesi Anda dan mengunci kartu menjadi *read-only*.
+
+---
+
+### 3.5 Slip & Estimasi Honor Guru
+Rute: `/guru/honor`
+
+1. **Estimasi Berjalan (Bulan Aktif)**:
+   - Menampilkan total *Take-Home Pay* sementara yang terakumulasi dari seluruh kartu mengajar yang telah Anda kirim (*submitted*) di bulan berjalan.
+   - Menampilkan rincian tunjangan tetap aktif dan garansi honor minimum terdaftar.
+2. **Arsip Slip Resmi Periode Lampau**:
+   - Buka dropdown **"Periode"** di bagian atas slip.
+   - Pilih bulan sebelumnya yang berstatus **"Sudah Ditransfer / Paid"** untuk melihat bukti rincian slip gaji resmi yang telah dicairkan oleh Admin.
+
+---
+
+## 4. Tanya Jawab & Pemecahan Masalah (FAQ)
+
+### Q1: Mengapa tombol "Presensi Datang" berwarna abu-abu / terkunci?
+> **Jawaban:** Pastikan dua hal:
+> 1. GPS pada smartphone Anda telah aktif dan Anda telah memberikan izin akses lokasi pada browser.
+> 2. Jarak fisik Anda berada di dalam radius toleransi cabang (misal: maksimal 50 meter dari titik gedung cabang). Jika indikator menampilkan *"Di luar radius (+120m)"*, silakan mendekat ke lokasi cabang.
+
+### Q2: Saya terlanjur klik "Kirim Kartu" padahal ada catatan murid yang salah ketik. Apakah bisa diedit kembali?
+> **Jawaban:** Demi kepatuhan akuntansi dan integritas penghitungan honor otomatis, sesi yang berstatus `submitted` akan langsung terkunci permanen. Jika ada perbaikan darurat, hubungi Admin Pusat untuk melakukan pembukaan kunci dari database.
+
+### Q3: Saat mencetak Kwitansi SPP, bagaimana cara menghilangkan teks URL dan tanggal di header/footer kertas?
+> **Jawaban:** Pada jendela pratinjau cetak (*Print Preview*) browser:
+> 1. Klik menu **More Settings (Pengaturan Lainnya)**.
+> 2. Hilangkan centang pada opsi **"Headers and footers" (Header dan footer)**.
+> 3. Pastikan opsi **"Background graphics" (Grafik latar belakang)** tercentang agar warna dan logo tercetak sempurna.
+
+### Q4: Apakah data draf kartu mengajar akan hilang jika ponsel tiba-tiba mati atau kehabisan baterai?
+> **Jawaban:** Tidak, selama Anda telah menekan tombol "Simpan Draf", seluruh catatan telah tersimpan aman di basis data awan (*cloud database* Supabase) dan dapat dibuka kembali kapan pun dari perangkat mana pun.
+
+---
+
+*Dokumen ini diterbitkan oleh Tim Pengembang Uzma Course — Terakhir Diperbarui: 17 Oktober 2026.*

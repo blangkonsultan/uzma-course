@@ -67,17 +67,40 @@ Dokumen ini memuat panduan pengujian manual komprehensif untuk sistem **Uzma Cou
 
 ---
 
-## MODUL 3: Presensi Guru & PWA Offline
-- **Target URL**: Guru `/guru/absen`
-- **Tujuan**: Memverifikasi validasi radius lokasi geofence GPS, toleransi jarak cabang, dan integritas pencatatan waktu kehadiran.
+## MODUL 3: Tagihan SPP Murid & Kwitansi Resmi (Student Billing)
+- **Target URL**: Admin `/admin/spp`
+- **Tujuan**: Memverifikasi penerbitan tagihan berkala berbasis siklus belajar 28 hari, pencatatan kas masuk, penerbitan kwitansi resmi (`RCT-YYMM-NNNN`), cetak slip pembayaran, dan pengiriman pengingat WhatsApp.
 
 ### 3.1 Skenario Positif (Happy Path)
+| ID Skenario | Judul Uji | Langkah Pengujian | Data Input | Hasil yang Diharapkan |
+|---|---|---|---|---|
+| **TC-BIL-01** | Tinjauan Metrik KPI & Filter Tagihan SPP | 1. Login sebagai Admin.<br>2. Masuk ke menu **Tagihan SPP Murid** (`/admin/spp`).<br>3. Amati 4 kartu KPI ringkasan finansial di bagian atas.<br>4. Uji filter cabang (misal: "Cabang Sumokembangsri") dan filter status ("Belum Lunas"). | Filter cabang & status | Kartu KPI menampilkan angka Total Tagihan, Kas Diterima, Piutang Tertunggak, dan Murid Belum Lunas secara akurat. Tabel menyaring data sesuai kriteria tanpa delay. |
+| **TC-BIL-02** | Penerbitan Tagihan Siklus 28 Hari Otomatis | 1. Klik tombol **"+ Terbitkan Tagihan Siklus"**.<br>2. Amati animasi indikator proses.<br>3. Periksa notifikasi banner hasil. | Tombol aksi terbitkan | Sistem mengevaluasi seluruh program murid aktif. Tagihan baru dengan nomor `INV-YYMM-NNNN` diterbitkan untuk murid yang memasuki siklus 28 hari berikutnya. Muncul notifikasi sukses. |
+| **TC-BIL-03** | Pencatatan Pembayaran Kas Masuk (*Record Payment*) | 1. Pada baris murid berstatus `Belum Bayar`, klik tombol **"Catat Bayar"**.<br>2. Pilih metode bayar: "Transfer Bank BCA".<br>3. Isi nomor referensi mutasi `TRX-8821` dan tanggal bayar.<br>4. Klik tombol **"Simpan Pembayaran & Terbitkan Kwitansi"**. | Metode: `transfer_bca`<br>Ref: `TRX-8821` | Modal tertutup, muncul notifikasi sukses, status tagihan seketika berubah menjadi `Lunas` (badge hijau), dan tombol aksi berubah menjadi "Lihat Kwitansi". |
+| **TC-BIL-04** | Tampilan & Cetak Kwitansi Resmi Berstempel Lunas | 1. Pada tagihan berstatus `Lunas`, klik tombol **"Lihat Kwitansi"**.<br>2. Periksa kelengkapan nomor `RCT-YYMM-NNNN`, nomor tagihan `INV-%`, rincian program & siklus 28 hari, serta stempel LUNAS.<br>3. Klik tombol **"Cetak Kwitansi"**. | - | Jendela cetak browser (*print dialog*) muncul dengan tata letak dokumen resmi yang rapi tanpa tombol navigasi portal. |
+| **TC-BIL-05** | Kirim Pengingat Tagihan WhatsApp ke Orang Tua Murid | 1. Pada murid yang belum lunas dan memiliki kontak orang tua, klik tombol ikon WhatsApp.<br>2. Amati tab baru WhatsApp yang terbuka. | Nomor WhatsApp orang tua | Browser membuka `https://wa.me/62...` dengan pesan tagihan yang ramah, mencantumkan nama murid, nomor tagihan, rincian nominal, tanggal jatuh tempo, dan nomor rekening bimbel. |
+
+### 3.2 Skenario Negatif & Integritas Akuntansi (Negative Testing)
+| ID Skenario | Judul Uji | Langkah Pengujian | Data Input | Hasil yang Diharapkan |
+|---|---|---|---|---|
+| **TC-BIL-NEG-01** | Pencegahan Tagihan Ganda pada Siklus yang Sama | 1. Tagihan siklus 1 (`2026-10-05` s/d `2026-11-01`) sudah ada.<br>2. Klik kembali tombol "+ Terbitkan Tagihan Siklus". | Pemicu generasi berulang | Sistem bersifat *idempotent*: database tidak membuat baris invoice duplikat untuk `(student_id, program_id, period_start)` yang sama. Notifikasi menampilkan pesan bahwa seluruh tagihan telah terbit. |
+| **TC-BIL-NEG-02** | Pembayaran pada Tagihan yang Sudah Lunas | 1. Pada invoice yang sudah lunas, coba panggil Server Action `recordPaymentAction` melalui console browser. | Invoice ID berstatus `paid` | Server menolak eksekusi dengan pesan: *"Hanya tagihan berstatus belum lunas yang dapat dibayarkan"*. |
+| **TC-BIL-NEG-03** | Pembayaran Tanpa Metode Bayar Valid | 1. Buka modal pembayaran.<br>2. Coba kosongkan metode bayar atau bypass dropdown via console. | Metode bayar tidak valid | Sistem menolak di sisi client & server dengan pesan error: *"ID tagihan dan metode pembayaran wajib diisi"*. |
+| **TC-BIL-NEG-04** | Akses Menu SPP oleh Akun Non-Admin (Guru) | 1. Login sebagai Guru.<br>2. Ketikkan URL `/admin/spp` pada address bar browser. | Akun role `guru` | Sistem menolak akses dan mengalihkan pengguna ke `/login` atau `/guru` (dilindungi `requireAdminPage`). |
+| **TC-BIL-NEG-05** | Murid Cuti / Keluar Tidak Boleh Diterbitkan Tagihan | 1. Di Data Murid, ubah status program murid menjadi `cuti` atau `keluar`.<br>2. Klik "+ Terbitkan Tagihan Siklus". | Status program non-aktif | Murid tersebut dilewati oleh generator siklus dan tidak dibuatkan tagihan SPP baru. |
+
+---
+
+## MODUL 4: Presensi Guru & PWA Offline
+- **Target URL**: Guru `/guru/absen`
+- **Tujuan**: Memverifikasi validasi radius lokasi geofence GPS, toleransi jarak cabang, dan integritas pencatatan waktu kehadiran.
+### 4.1 Skenario Positif (Happy Path)
 | ID Skenario | Judul Uji | Langkah Pengujian | Data Input | Hasil yang Diharapkan |
 |---|---|---|---|---|
 | **TC-ATT-01** | Presensi Datang dalam Radius Cabang | 1. Login sebagai Guru.<br>2. Masuk ke menu **Presensi** (`/guru/absen`).<br>3. Beri izin akses GPS lokasi perangkat.<br>4. Berada dalam radius toleransi cabang.<br>5. Klik tombol **"Presensi Datang"**. | Posisi GPS valid ($\le$ radius cabang) | Indikator lokasi berwarna hijau *"Dalam radius"*, tombol presensi aktif, kehadiran tercatat dengan jam WIB, dan kartu shift berubah menjadi aktif. |
 | **TC-ATT-02** | Deteksi Otomatis Cabang Penugasan Terdekat | 1. Akun Guru ditugaskan di 2 cabang (*Sumokembangsri* dan *Junwangi*).<br>2. Pengguna berada di lokasi Junwangi.<br>3. Buka halaman `/guru/absen`. | Koordinat GPS lokasi Junwangi | Dropdown lokasi otomatis berpindah ke Cabang Junwangi dengan badge *"Terdekat (Auto)"*. |
 
-### 3.2 Skenario Negatif & Batas Sistem (Negative Testing)
+### 4.2 Skenario Negatif & Batas Sistem (Negative Testing)
 | ID Skenario | Judul Uji | Langkah Pengujian | Data Input | Hasil yang Diharapkan |
 |---|---|---|---|---|
 | **TC-ATT-NEG-01** | Presensi di Luar Radius Cabang (*Out of Geofence*) | 1. Buka halaman presensi saat berada di luar radius cabang (misal: jarak 200 meter dari titik koordinat cabang). | Jarak 200m (toleransi 50m) | Muncul peringatan merah *"Di luar radius presensi (+150m)"*, tombol presensi terkunci (*disabled*). |
@@ -86,17 +109,17 @@ Dokumen ini memuat panduan pengujian manual komprehensif untuk sistem **Uzma Cou
 
 ---
 
-## MODUL 4: Papan Penjadwalan (Kanban Board Invariants)
+## MODUL 5: Papan Penjadwalan (Kanban Board Invariants)
 - **Target URL**: Admin `/admin/draft/[id]/board`
 - **Tujuan**: Memastikan alokasi jadwal kelas, pencegahan bentrok multi-cabang, dan kuota frekuensi murid divalidasi secara konsisten.
 
-### 4.1 Skenario Positif (Happy Path)
+### 5.1 Skenario Positif (Happy Path)
 | ID Skenario | Judul Uji | Langkah Pengujian | Data Input | Hasil yang Diharapkan |
 |---|---|---|---|---|
 | **TC-BRD-01** | Penempatan Guru & Murid ke Papan Jadwal | 1. Buka papan jadwal draf aktif.<br>2. Buka modal **"Tambah Kelas"**.<br>3. Pilih Guru dan Varian Program Belajar.<br>4. Tambahkan murid yang memiliki sisa kuota frekuensi mingguan. | Guru A, Program AHE, Murid X | Kartu kelas berhasil dipasang pada kolom shift. Kuota frekuensi murid terpakai berkurang 1. |
 | **TC-BRD-02** | Aksesibilitas Keyboard Modal Penjadwalan | 1. Klik tombol "Tambah Kelas".<br>2. Tekan tombol `Tab` berulang-ulang.<br>3. Tekan tombol `Escape`. | Tombol keyboard `Tab`, `Escape` | Fokus keyboard terperangkap di dalam modal (*focus containment*). Menekan tombol `Escape` langsung menutup modal. |
 
-### 4.2 Skenario Negatif & Invariant Integritas (Negative Testing)
+### 5.2 Skenario Negatif & Invariant Integritas (Negative Testing)
 | ID Skenario | Judul Uji | Langkah Pengujian | Data Input | Hasil yang Diharapkan |
 |---|---|---|---|---|
 | **TC-BRD-NEG-01** | Bentrok Jadwal Guru Lintas Cabang di Jam Sama | 1. Guru A dijadwalkan di Cabang 1 pada hari Jumat pukul 09:00 - 10:00.<br>2. Pada Cabang 2, Admin mencoba menjadwalkan Guru A pada hari Jumat pukul 09:30 - 10:30. | Jam mengajar yang beririsan (*overlap*) | Sistem menolak penempatan dengan pesan: *"Guru [Nama] telah memiliki jadwal mengajar di Cabang [X] pada jam yang beririsan"*. |
@@ -106,7 +129,7 @@ Dokumen ini memuat panduan pengujian manual komprehensif untuk sistem **Uzma Cou
 
 ---
 
-## MODUL 5: Keamanan & Otorisasi Rute (Security & RLS)
+## MODUL 6: Keamanan & Otorisasi Rute (Security & RLS)
 - **Target**: Seluruh endpoint dan rute internal
 
 | ID Skenario | Peran Penguji | URL yang Dituju | Hasil yang Diharapkan | Status Lulus |
@@ -119,7 +142,7 @@ Dokumen ini memuat panduan pengujian manual komprehensif untuk sistem **Uzma Cou
 
 ---
 
-## MODUL 6: Pengujian Responsif & Aksesibilitas (Responsive & A11y)
+## MODUL 7: Pengujian Responsif & Aksesibilitas (Responsive & A11y)
 - **Target**: Viewport ponsel (360px, 375px) hingga desktop (1280px+)
 
 | ID Skenario | Parameter Uji | Metode & Target Layar | Kriteria Lulus (Pass Criteria) |
