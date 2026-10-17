@@ -161,7 +161,6 @@ export default async function HonorGuruPage({
       <HonorPeriodSelect
         periods={availablePeriods || []}
         currentPeriodId={statement?.period?.id}
-        formatMonth={formatMonth}
       />
 
       {/* Main Income Statement Card */}

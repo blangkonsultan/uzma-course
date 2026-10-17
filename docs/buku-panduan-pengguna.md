@@ -2,6 +2,8 @@
 
 Selamat datang di **Buku Panduan Pengguna Sistem Informasi Terpadu Uzma Course**. Dokumen ini dirancang sebagai rujukan operasional resmi bagi **Admin (Pengelola Pusat/Cabang)** dan **Guru (Pendidik)** dalam mengoperasikan seluruh modul aplikasi, mulai dari pendaftaran murid, penjadwalan kelas bebas bentrok, presensi geofence, pengisian kartu kendali mengajar, penggajian guru, hingga penagihan SPP berkala dan kwitansi resmi.
 
+> 📄 **Berkas PDF Resmi**: Dokumen panduan cetak beresolusi tinggi tersedia di [`docs/buku-panduan-pengguna.pdf`](buku-panduan-pengguna.pdf) (14 Halaman, Ukuran A4).
+
 ---
 
 ## DAFTAR ISI
@@ -49,8 +51,13 @@ Sistem Uzma Course membagi akses operasional menjadi dua antarmuka khusus:
    - **Operasional & Keuangan**: Penggajian Guru, Tagihan SPP Murid.
    - **Konten & Website**: Landing Page CMS (14 Seksi).
 
----
+![Halaman Login Portal](screenshots/01-login.png)
+*Gambar 1: Halaman Login Tunggal Portal Admin & Guru*
 
+![Dashboard Utama Admin](screenshots/02-admin-dashboard.png)
+*Gambar 2: Dashboard Overview Admin dengan Statistik Operasional Real-time*
+
+---
 ### 2.2 Kelola Data Master
 
 #### A. Data Cabang (`/admin/cabang`)
@@ -82,6 +89,9 @@ Sistem Uzma Course membagi akses operasional menjadi dua antarmuka khusus:
 - **Penomoran Otomatis**: Sistem secara otomatis menerbitkan Nomor Induk Siswa (NIS) 5 digit berformat baku (misal: `01001` untuk Sumokembangsri, `02001` untuk Junwangi).
 - Hubungkan murid ke program belajar yang diambil, tentukan nominal SPP khusus jika berbeda dari standar, serta tanggal awal siklus belajar (`cycle_start_date`).
 
+![Data Master Murid](screenshots/03-admin-murid.png)
+*Gambar 3: Pengelolaan Data Murid dengan Penomoran NIS 5 Digit Otomatis*
+
 ---
 
 ### 2.3 Penyusunan Jadwal Kelas (Kanban Board)
@@ -102,6 +112,9 @@ Rute: `/admin/draft` $\rightarrow$ `/admin/draft/[id]/board`
 4. **Pencegahan Bentrok Multi-Cabang**:
    - Sistem secara otomatis menolak alokasi bila guru yang sama telah dijadwalkan di cabang lain pada jam yang beririsan (*overlap*).
 
+![Papan Jadwal Kanban](screenshots/04-admin-kanban.png)
+*Gambar 4: Papan Penjadwalan Kanban Bebas Bentrok Lintas Cabang*
+
 ---
 
 ### 2.4 Modul Penggajian Guru (Payroll)
@@ -119,6 +132,9 @@ Rute: `/admin/payroll`
 3. **Pencairan Honor (*Mark Paid*)**:
    - Setelah transfer honor dilakukan, klik tombol **"Tandai Sudah Dibayar"**.
    - Periode terkunci permanen (**`paid`**), tombol mutasi dinonaktifkan, dan slip resmi guru terarsip secara permanen.
+
+![Modul Penggajian Guru](screenshots/05-admin-payroll.png)
+*Gambar 5: Rekapitulasi Penggajian Guru dan Penguncian Periode Otomatis*
 
 ---
 
@@ -156,14 +172,22 @@ Rute: `/admin/spp`
 1. Pada baris tagihan murid yang belum lunas, klik ikon **WhatsApp**.
 2. Browser akan otomatis membuka chat WhatsApp ke nomor orang tua (`parent_phone`) dengan draf pesan sopan yang memuat rincian nama ananda, nomor tagihan, nominal, dan batas jatuh tempo.
 
----
+![Tagihan SPP Murid](screenshots/06-admin-spp.png)
+*Gambar 6: Dashboard Tagihan SPP Murid Siklus 28 Hari dengan 4 Kartu KPI*
 
+![Kwitansi Resmi Digital LUNAS](screenshots/07-admin-receipt.png)
+*Gambar 7: Dokumen Kwitansi Resmi Digital Berstempel LUNAS Siap Cetak*
+
+---
 ### 2.6 Pengelolaan Konten Website (Landing Page CMS)
 Rute: `/admin/landing`
 
 - Mengelola 14 seksi tampilan website publik (`https://uzmacourse.com`):
   - Hero Banner, Program Belajar, Keunggulan (Why Us), Fasilitas, Tim Pengajar, Galeri Foto Autentik, Testimoni Orang Tua, Video Pembelajaran (YouTube & TikTok Player), Lokasi Cabang & Peta, FAQ, CTA Pendaftaran, Footer, Navbar, dan Floating WhatsApp.
 - Mengunggah foto langsung menormalkan URL dan memvalidasi keamanan tautan video shortlink secara otomatis.
+
+![CMS Landing Page](screenshots/08-admin-landing.png)
+*Gambar 8: Dasbor Pengelolaan Konten Website Publik (14 Seksi Dinamis)*
 
 ---
 
@@ -178,8 +202,12 @@ Rute: `/admin/landing`
    - Ketuk tombol **Share** (ikon kotak dengan panah ke atas) $\rightarrow$ gulir ke bawah $\rightarrow$ pilih **"Add to Home Screen" (Tambahkan ke Layar Utama)**.
 5. Ikon **Uzma Course** akan muncul di layar utama HP Anda dan dapat dibuka instan layaknya aplikasi native tanpa bilah alamat browser.
 
----
+<div align="center">
+  <img src="screenshots/09-guru-home.png" width="300" alt="Beranda Guru Mobile" />
+  <p><em>Gambar 9: Beranda Guru PWA Mobile</em></p>
+</div>
 
+---
 ### 3.2 Presensi Kehadiran Berbasis Geofence GPS
 Rute: `/guru/absen`
 
@@ -192,13 +220,22 @@ Rute: `/guru/absen`
 5. **Presensi Pulang**:
    - Di akhir jam mengajar shift, buka kembali menu presensi dan ketuk **"Presensi Pulang"**.
 
----
+<div align="center">
+  <img src="screenshots/10-guru-presensi.png" width="300" alt="Presensi Geofence GPS" />
+  <p><em>Gambar 10: Presensi GPS Geofence Cabang</em></p>
+</div>
 
+---
 ### 3.3 Jadwal Mengajar Harian
 Rute: `/guru/jadwal`
 
 - Menampilkan daftar kelas yang ditugaskan kepada Anda sesuai hari yang dipilih (Senin s/d Minggu).
 - Setiap kartu kelas menampilkan: jam mengajar, nama varian program, cabang, jumlah murid terdaftar, dan tautan langsung ke kartu mengajar.
+
+<div align="center">
+  <img src="screenshots/11-guru-jadwal.png" width="300" alt="Jadwal Mengajar Harian" />
+  <p><em>Gambar 11: Jadwal Mengajar Harian</em></p>
+</div>
 
 ---
 
@@ -216,6 +253,11 @@ Rute: `/guru/jadwal` $\rightarrow$ Ketuk **"Isi Kartu Mengajar"**
    - **Simpan Draf**: Jika sesi belajar masih berlangsung atau ingin mengedit catatan nanti. Data tersimpan aman di server tanpa mengunci form.
    - **Kirim Kartu (Submit)**: Jika sesi telah selesai sepenuhnya. Sistem akan membekukan *snapshot* honor sesi Anda dan mengunci kartu menjadi *read-only*.
 
+<div align="center">
+  <img src="screenshots/12-guru-teaching-log.png" width="300" alt="Kartu Kendali Mengajar" />
+  <p><em>Gambar 12: Kartu Kendali Mengajar Murid Digital</em></p>
+</div>
+
 ---
 
 ### 3.5 Slip & Estimasi Honor Guru
@@ -227,6 +269,11 @@ Rute: `/guru/honor`
 2. **Arsip Slip Resmi Periode Lampau**:
    - Buka dropdown **"Periode"** di bagian atas slip.
    - Pilih bulan sebelumnya yang berstatus **"Sudah Ditransfer / Paid"** untuk melihat bukti rincian slip gaji resmi yang telah dicairkan oleh Admin.
+
+<div align="center">
+  <img src="screenshots/13-guru-honor.png" width="300" alt="Slip Honor Guru" />
+  <p><em>Gambar 13: Slip Rekapitulasi Honor & Tunjangan Guru PWA</em></p>
+</div>
 
 ---
 

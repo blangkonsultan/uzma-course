@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS public.student_invoices (
     student_id UUID NOT NULL REFERENCES public.students(id) ON DELETE RESTRICT,
     program_id UUID NOT NULL REFERENCES public.programs(id) ON DELETE RESTRICT,
     variant_id UUID NOT NULL REFERENCES public.program_variants(id) ON DELETE RESTRICT,
-    branch_id UUID NOT NULL REFERENCES public.branches(id) ON DELETE RESTRICT,
+    branch_id TEXT NOT NULL REFERENCES public.branches(id) ON DELETE RESTRICT,
     period_start DATE NOT NULL,
     period_end DATE NOT NULL,
     due_date DATE NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS public.student_payments (
     payment_date DATE NOT NULL DEFAULT CURRENT_DATE,
     payment_method TEXT NOT NULL CHECK (payment_method IN ('cash', 'transfer_bca', 'transfer_bri', 'transfer_mandiri', 'qris', 'other')),
     payment_reference TEXT,
-    received_by UUID NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
+    received_by UUID REFERENCES public.profiles(id) ON DELETE RESTRICT,
     notes TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -87,7 +87,7 @@ CREATE POLICY "Guru reads branch student_payments"
     );
 
 -- 4. Stored Procedure: Generate Due Student Invoices (Idempotent Rolling 28-Day Cycle)
-CREATE OR REPLACE FUNCTION public.generate_due_student_invoices(p_branch_id UUID DEFAULT NULL)
+CREATE OR REPLACE FUNCTION public.generate_due_student_invoices(p_branch_id TEXT DEFAULT NULL)
 RETURNS SETOF public.student_invoices
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -130,7 +130,7 @@ BEGIN
         FROM public.student_programs sp
         JOIN public.students st ON st.id = sp.student_id
         WHERE sp.status = 'active'
-          AND st.status = 'active'
+          AND st.is_active = TRUE
           AND (p_branch_id IS NULL OR st.branch_id = p_branch_id)
         ORDER BY sp.student_id, sp.program_id
     LOOP
@@ -284,7 +284,7 @@ BEGIN
         COALESCE(p_payment_date, CURRENT_DATE),
         p_payment_method,
         p_payment_reference,
-        COALESCE(v_user_id, v_invoice.student_id),
+        COALESCE(v_user_id, (SELECT id FROM public.profiles WHERE role = 'admin' LIMIT 1)),
         p_notes
     )
     RETURNING * INTO v_payment;
@@ -302,5 +302,5 @@ $$;
 -- 6. Grants
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.student_invoices TO authenticated, service_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.student_payments TO authenticated, service_role;
-GRANT EXECUTE ON FUNCTION public.generate_due_student_invoices(UUID) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.generate_due_student_invoices(TEXT) TO authenticated, service_role;
 GRANT EXECUTE ON FUNCTION public.record_student_payment(UUID, TEXT, DATE, TEXT, TEXT) TO authenticated, service_role;

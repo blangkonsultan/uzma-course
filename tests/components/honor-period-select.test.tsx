@@ -17,10 +17,7 @@ const samplePeriods = [
 describe("HonorPeriodSelect", () => {
   it("renders null if periods array is empty", () => {
     const { container } = render(
-      <HonorPeriodSelect
-        periods={[]}
-        formatMonth={(s) => s}
-      />
+      <HonorPeriodSelect periods={[]} />
     );
     expect(container.firstChild).toBeNull();
   });
@@ -30,7 +27,6 @@ describe("HonorPeriodSelect", () => {
       <HonorPeriodSelect
         periods={samplePeriods}
         currentPeriodId="p-2"
-        formatMonth={(s) => `Bulan ${s}`}
       />
     );
 

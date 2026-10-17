@@ -11,13 +11,24 @@ interface PeriodOption {
 interface HonorPeriodSelectProps {
   periods: PeriodOption[];
   currentPeriodId?: string;
-  formatMonth: (dateStr: string) => string;
+}
+
+function formatMonthIndo(dateStr: string) {
+  try {
+    const d = new Date(`${dateStr}T00:00:00Z`);
+    return new Intl.DateTimeFormat("id-ID", {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(d);
+  } catch {
+    return dateStr;
+  }
 }
 
 export function HonorPeriodSelect({
   periods,
   currentPeriodId,
-  formatMonth,
 }: HonorPeriodSelectProps) {
   const router = useRouter();
 
@@ -48,7 +59,7 @@ export function HonorPeriodSelect({
         <option value="">Bulan Ini (Estimasi Berjalan)</option>
         {periods.map((p) => (
           <option key={p.id} value={p.id}>
-            {formatMonth(p.period_month)} (
+            {formatMonthIndo(p.period_month)} (
             {p.status === "open"
               ? "Berjalan"
               : p.status === "closed"
