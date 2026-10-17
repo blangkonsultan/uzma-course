@@ -53,5 +53,15 @@ Phase 5 CMS Integrity, TikTok Shortlink Hardening & Public Landing Polish is imp
 - **Verification**: Mechanical detector scan (`impeccable detect`) returned 0 warnings (`[]`), full `./init.sh` passed 100% (66 test suites, 385 tests, 0 lint errors, clean build). Health score increased to **19/20 (Excellent)**.
 - **Commit**: `9d6398c`.
 
+## feat-010 Student Billing & SPP Invoicing (Sub-project 2 of feat-010)
+- **Spec**: `docs/superpowers/specs/2026-10-17-student-billing-design.md`
+- **Plan**: `docs/superpowers/plans/2026-10-17-student-billing.md`
+- **Implementation**: Standard accounting ledger with `student_invoices` (INV-YYMM-NNNN) and `student_payments` (RCT-YYMM-NNNN), rolling 28-day cycle generator RPC `generate_due_student_invoices`, payment recording RPC `record_student_payment`, typed DAL `src/lib/billing.ts`, server actions in `src/app/admin/spp/actions.ts`, and full admin UI at `/admin/spp` with 4 KPI cards, `PaymentModal`, printable `OfficialReceiptModal` with LUNAS seal, and WhatsApp reminder generator.
+- **Verification**: 72 Vitest suites / 413 tests passed, 64.79% statements, 58.83% branches, 67.55% functions, 65.95% lines, ESLint clean, production build clean, mechanical detector clean (`[]`).
+- **Commits**: `b73188c`, `8511faf`, `05831ad`, `47335e5`, `d0ce744`, `1b1983e`.
+
+## Current Feature State
+- `feat-001` through `feat-011` are now **100% completed**. All features in `feature_list.json` have complete implementations, automated test suites, clean production builds, and documentation.
+
 ## Recommended Next Step
-- Proceed with Sub-project 2 of `feat-010`: **Student Billing / SPP Tuition Invoicing** (monthly student tuition invoice generation, payment status tracking, and receipt/slip generation).
+- Perform end-to-end smoke test or deploy database migrations to production Supabase via `npx supabase db push`.

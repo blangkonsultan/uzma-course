@@ -1,4 +1,15 @@
 # Progress Log
+## 2026-10-17 (feat-010 Student Billing & SPP Invoicing Completed)
+- **Status**: Completed (feat-010 100% Completed).
+- **Evidence**:
+  - **Schema & Ledger (`supabase/migrations/20261017120000_create_student_billing.sql`)**: Implemented standard accounting ledger with `student_invoices` (faktur tagihan piutang: `INV-YYMM-NNNN`) and `student_payments` (bukti kas masuk kwitansi: `RCT-YYMM-NNNN`). Unique constraint `(student_id, program_id, period_start)` guarantees zero duplicate billing per cycle. Single payment model (`invoice_id UNIQUE` on payments). RLS policies grant full management to Admin and branch-scoped read to Gurus.
+  - **28-Day Rolling Cycle & Pure Calculations (`src/lib/billing-helpers.ts`)**: Implemented `calculateCycleDates` (rolling 28-day boundaries and H+7 due dates), `formatInvoiceNumber`, `formatReceiptNumber`, and `calculateTuitionDiscount`.
+  - **Database Stored Procedures**: Created PostgreSQL RPC `generate_due_student_invoices` (self-healing, idempotent cycle billing generator across active enrollments) and `record_student_payment` (atomic payment recording, invoice locking, and receipt issuance).
+  - **DAL & Actions (`src/lib/billing.ts`, `src/app/admin/spp/actions.ts`)**: Typed queries with relation joins (`student`, `program`, `variant`, `branch`, `payment`), KPI aggregation, and server actions with `requireAdminAction()` and `revalidatePath("/admin/spp")`.
+  - **Admin Interface (`/admin/spp`)**: Added "Tagihan SPP Murid" under Operasional & Keuangan in admin-shell. Built `BillingClient` with 4 KPI summary cards (Total Tagihan, Kas Diterima, Piutang Tertunggak, Murid Belum Lunas), branch and status filters, search input, `PaymentModal` for recording payments, `OfficialReceiptModal` with printable receipt view and LUNAS seal, and WhatsApp reminder generator with pre-formatted polite messages.
+  - **Verification**: Full `./init.sh` passed: 0 ESLint errors/warnings, **72 Vitest suites / 413 tests passed**, coverage at **64.79% statements, 58.83% branches, 67.55% functions, 65.95% lines**, and clean production Webpack build. Mechanical detector `impeccable detect` returned 0 warnings (`[]`).
+  - **Commits**: `b73188c` (spec & plan), `8511faf` (helpers), `05831ad` (schema & RPCs), `47335e5` (DAL & actions), `d0ce744` (UI & receipt), `1b1983e` (type & lint fixes).
+
 ## 2026-10-17 (Impeccable UI Audit & Technical Quality Remediations)
 - **Status**: Completed.
 - **Evidence**:

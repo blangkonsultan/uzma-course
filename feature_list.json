@@ -75,10 +75,10 @@
     {
       "id": "feat-010",
       "name": "Phase 2b ERP - Payroll & Student Billing",
-      "description": "Automated monthly teacher payout calculations based on session attendance and student SPP tuition invoicing (Sub-project 1: Payroll Guru completed; Sub-project 2: Student Billing pending)",
+      "description": "Automated monthly teacher payout calculations based on session attendance and rolling 28-day student SPP tuition invoicing with official receipts and payment tracking",
       "dependencies": ["feat-008", "feat-009"],
-      "status": "in-progress",
-      "evidence": "Sub-project 1 (Payroll Guru) completed: 4-table accounting ledger (payroll_periods, payroll_session_lines, payroll_entries, payroll_adjustments) with guarded RPCs close_payroll_period, mark_payroll_period_paid, and add_payroll_adjustment; Admin controls at /admin/payroll with monthly overview, period selector, new month creation, adjustment modal, and paid locking; Guru read-only statement at /guru/honor with live open estimate, WIB bounds, fixed allowance snapshots, minimum income guarantee display, and period selector. Verified via 66 Vitest suites / 385 tests, 64.85% statements, 59.73% branches, 67.94% functions, 65.93% lines, clean production build, and authenticated local smoke tests across 360px, 375px, and 1280px with zero horizontal overflow"
+      "status": "completed",
+      "evidence": "Sub-project 1 (Payroll Guru) completed with 4-table accounting ledger, guarded RPCs, Admin controls, and Guru monthly statements. Sub-project 2 (Student Billing & SPP Invoicing) completed: student_invoices and student_payments tables with INV-YYMM-NNNN and RCT-YYMM-NNNN sequencers, rolling 28-day cycle generator RPC generate_due_student_invoices, record_student_payment RPC, typed DAL src/lib/billing.ts, admin actions at src/app/admin/spp/actions.ts, admin dashboard at /admin/spp with 4 KPI cards, PaymentModal, OfficialReceiptModal printable slip, and WhatsApp reminder generator. Verified via 72 Vitest suites / 413 tests passed, 64.79% statements, 58.83% branches, 67.55% functions, 65.95% lines, 0 ESLint errors/warnings, and clean production Webpack build"
     },
     {
       "id": "feat-011",
