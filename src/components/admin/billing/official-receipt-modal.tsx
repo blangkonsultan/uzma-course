@@ -235,7 +235,7 @@ export function OfficialReceiptModal({
               <p>
                 Kwitansi ini merupakan bukti pembayaran resmi yang sah diterbitkan oleh sistem manajemen Uzma Course.
               </p>
-              {payment?.notes && <p className="italic text-slate-600">"{payment.notes}"</p>}
+              {payment?.notes && <p className="italic text-slate-600">&ldquo;{payment.notes}&rdquo;</p>}
             </div>
 
             <div className="text-center w-44 space-y-12">

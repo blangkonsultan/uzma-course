@@ -14,7 +14,6 @@ import {
   MessageCircle,
   Receipt,
   Check,
-  Calendar,
 } from "lucide-react";
 import { generateCycleInvoicesAction } from "@/app/admin/spp/actions";
 import { PaymentModal } from "./payment-modal";
@@ -303,7 +302,7 @@ export function BillingClient({
               Tidak ada data tagihan SPP yang ditemukan
             </p>
             <p>
-              Klik "+ Terbitkan Tagihan Siklus" di atas untuk memeriksa dan
+              Klik &quot;+ Terbitkan Tagihan Siklus&quot; di atas untuk memeriksa dan
               menerbitkan tagihan murid yang jatuh tempo.
             </p>
           </div>

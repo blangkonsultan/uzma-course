@@ -34,6 +34,7 @@ const sampleInvoices: StudentInvoiceItem[] = [
     total_amount: 135000,
     status: "unpaid",
     notes: null,
+    created_by: null,
     created_at: "2026-10-05T00:00:00Z",
     updated_at: "2026-10-05T00:00:00Z",
     student: {
@@ -64,6 +65,7 @@ const sampleInvoices: StudentInvoiceItem[] = [
     total_amount: 150000,
     status: "paid",
     notes: null,
+    created_by: null,
     created_at: "2026-10-05T00:00:00Z",
     updated_at: "2026-10-08T00:00:00Z",
     student: {

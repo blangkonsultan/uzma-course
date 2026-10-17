@@ -95,4 +95,21 @@ describe("Billing admin actions", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/admin/spp");
     expect(result.count).toBe(1);
   });
+
+  it("invokes DAL and revalidates path on cancelInvoiceAction", async () => {
+    vi.mocked(requireAdminAction).mockResolvedValue({
+      user: { id: "admin-1" },
+      profile: { id: "admin-1", role: "admin" },
+    } as never);
+    vi.mocked(cancelInvoice).mockResolvedValue({
+      id: "inv-1",
+      status: "cancelled",
+    } as never);
+
+    const result = await cancelInvoiceAction("inv-1", "Murid cuti");
+
+    expect(cancelInvoice).toHaveBeenCalledWith("inv-1", "Murid cuti");
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/spp");
+    expect(result.success).toBe(true);
+  });
 });

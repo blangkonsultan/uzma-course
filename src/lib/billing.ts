@@ -84,7 +84,10 @@ export async function getBillingSummary(filters: {
   }
 
   if (filters.status && filters.status !== "all") {
-    query = query.eq("status", filters.status);
+    query = query.eq(
+      "status",
+      filters.status as "unpaid" | "paid" | "cancelled"
+    );
   }
 
   const { data, error } = await query;
