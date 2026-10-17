@@ -23,6 +23,7 @@ import {
   LayoutTemplate,
   Layers,
   Building2,
+  Receipt,
 } from "lucide-react";
 
 interface AdminShellProps {
@@ -111,6 +112,12 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
           label: "Penggajian Guru",
           href: "/admin/payroll",
           icon: Banknote,
+          roles: ["admin"],
+        },
+        {
+          label: "Tagihan SPP Murid",
+          href: "/admin/spp",
+          icon: Receipt,
           roles: ["admin"],
         },
       ],
