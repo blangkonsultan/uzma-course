@@ -1,4 +1,13 @@
 # Session Handoff
+## Local Demo Fixture and Remote Prune Tooling — 2026-10-18
+- **Local setup completed**: `.env.local` now targets Supabase local (`127.0.0.1:54321`) with the generated local keys and PostgreSQL URL `127.0.0.1:54322`. Secret values were not printed or committed.
+- **Local seed completed**: `npm run seed:local` passed with 7 guru, 24 murid, 33 enrollment, multi-program coverage, nominal/percentage discounts, 3 payroll periods, and paid/unpaid/cancelled SPP data. Guru 07 has `minimum_income = NULL`.
+- **Credential manifest**: `supabase/seed-credentials.local.json`, ignored and mode `600`.
+- **Remote prune tooling**: Implemented `npm run prune:remote` with project guard, explicit confirmation, backup-before-write, transactional operational delete, preserved landing/admin snapshots, and no insert path.
+- **Remote status**: Not executed. The command failed closed because `.env.remote.local` is absent. Remote execution requires local-only `SEED_REMOTE_SERVICE_ROLE_KEY` and `SEED_REMOTE_DB_URL`; no remote data changed.
+- **Verification**: 77 Vitest suites / 450 tests passed, clean lint, clean production build, and local API HTTP smoke 200. Managed Chromium navigation timed out before visual interaction; no visual browser claim is made.
+- **Commits**: `6c6dcbb`, `30c516d`, `51e5c9b`, `a597ec8`, `ece20bd`.
+
 
 ## Release Readiness Remediation Implementation — 2026-10-18
 - **Status**: Completed and verified against Definition of Done.

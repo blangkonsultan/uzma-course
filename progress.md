@@ -1,4 +1,27 @@
 # Progress Log
+## 2026-10-18 (Local Demo Fixture and Remote Prune Tooling)
+- **Status**: Local environment and fixture completed; remote prune tooling implemented but not executed because the explicit remote environment file is not available.
+- **Local environment**:
+  - `.env.local` now points to `http://127.0.0.1:54321`; local anon/service-role keys were copied from the generated Docker secret file without printing them. `SUPABASE_DB_URL` points to PostgreSQL `127.0.0.1:54322`.
+  - Local API smoke returned HTTP 200 for a public branches query.
+- **Local fixture**:
+  - `npm run seed:local` passed and wrote the ignored `supabase/seed-credentials.local.json` with mode `600`.
+  - Fixture contains **7 guru**, **24 murid**, **33 enrollment**, **8 multi-program students**, and **1 three-program student**.
+  - Discount distribution: **10 none**, **11 nominal**, **12 percentage**.
+  - Payroll: one `paid`, one `closed`, and one `open` period. Guru 04 (inactive with sessions) has a payroll entry; Guru 05 (inactive without sessions) does not; Guru 07 has `minimum_income = NULL` and `minimum_income_snapshot = 0`.
+  - SPP: **6 paid**, **20 unpaid**, **1 cancelled** invoices and **6 payments**.
+- **Implementation**:
+  - Added target guards, pinned `pg@8.23.1`, local Auth Admin API lifecycle, transactional PostgreSQL seeding, credential manifest handling, remote backup-gated prune command, and 77-suite regression coverage.
+- **Verification**:
+  - Focused seed suites: **4 files / 21 tests passed**.
+  - `./init.sh`: **77 Vitest suites / 450 tests passed**, coverage **66.02% statements / 59.82% branches / 68.63% functions / 67.17% lines**, lint passed, and production Webpack build passed.
+  - Existing happy-dom iframe `NotSupportedError` messages for external Maps/YouTube/TikTok fixtures remained non-failing test output.
+  - `/login` HTTP smoke returned 200. Managed Chromium navigation timed out before visual interaction; no browser visual claim is made for this seed-only change.
+- **Remote prune status**:
+  - `npm run prune:remote -- --confirm PRUNE_REMOTE_OPERATIONAL_DATA` failed closed because `.env.remote.local` is absent; no remote write occurred.
+  - Remote execution still requires `SEED_REMOTE_SERVICE_ROLE_KEY` and `SEED_REMOTE_DB_URL` in the ignored remote environment file, plus the backup preflight.
+- **Commits**: `6c6dcbb`, `30c516d`, `51e5c9b`, `a597ec8`, `ece20bd`.
+
 
 ## 2026-10-18 (Release Readiness Remediation Implementation)
 - **Status**: Completed and fully verified.
