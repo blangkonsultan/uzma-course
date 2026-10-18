@@ -14,6 +14,7 @@
 - **Change**: The Guru schedule now shows **“Lihat Kartu Mengajar”** and links to the saved session date when the teaching log is `submitted`; draft or unsaved sessions retain **“Isi Kartu Mengajar”**.
 - **Implementation**: `getTeacherActiveSchedule()` enriches classes from `teaching_sessions` using the WIB previous-session date; the schedule client consumes the saved date/status.
 - **Verification**: `./init.sh` passed with 0 lint errors, **73 Vitest suites / 422 tests passed**, coverage at **65.87% statements, 59.62% branches, 68.48% functions, 67.02% lines**, and clean production Webpack build. Follow-up code review: **Ready to merge: Yes**.
+- **Visual refinement**: Submitted links use a neutral read-only treatment with a green check icon; draft links use the primary action treatment with a pencil icon. Mechanical detector returned `[]`.
 
 ## 2026-10-17 (feat-010 Student Billing & SPP Invoicing Completed)
 - **Status**: Completed (feat-010 100% Completed).

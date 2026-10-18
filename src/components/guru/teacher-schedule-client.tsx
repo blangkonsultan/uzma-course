@@ -4,7 +4,17 @@ import { useState, useRef, useEffect } from "react";
 import type { TeacherClassItem } from "@/lib/teacher-schedule";
 import Link from "next/link";
 import { formatTimeString, formatBranchName } from "@/lib/utils";
-import { Clock, Users, Calendar, BookOpen, ChevronDown, ChevronUp, MapPin } from "lucide-react";
+import {
+  Calendar,
+  BookOpen,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  MapPin,
+  Pencil,
+  Users,
+} from "lucide-react";
 
 const DAYS = [
   { id: 1, label: "Senin" },
@@ -155,10 +165,10 @@ export function TeacherScheduleClient({
             const studentCount = cls.students.length;
             const teachingLogDate =
               cls.teaching_log_date ?? getPreviousSessionDate(cls.day_of_week);
-            const teachingLogLabel =
-              cls.teaching_log_status === "submitted"
-                ? "Lihat Kartu Mengajar"
-                : "Isi Kartu Mengajar";
+            const isSubmitted = cls.teaching_log_status === "submitted";
+            const teachingLogLabel = isSubmitted
+              ? "Lihat Kartu Mengajar"
+              : "Isi Kartu Mengajar";
 
             return (
               <div
@@ -249,8 +259,17 @@ export function TeacherScheduleClient({
                 <div className="border-t border-slate-100 p-3">
                   <Link
                     href={`/guru/mengajar/${cls.id}?date=${teachingLogDate}`}
-                    className="flex min-h-11 w-full items-center justify-center rounded-full bg-primary-50 px-3 py-2.5 text-xs font-bold text-primary-700 transition-colors hover:bg-primary-100"
+                    className={`flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-3 py-2.5 text-xs font-bold transition-colors ${
+                      isSubmitted
+                        ? "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                        : "bg-primary-600 text-white hover:bg-primary-700"
+                    }`}
                   >
+                    {isSubmitted ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    ) : (
+                      <Pencil className="h-4 w-4" />
+                    )}
                     {teachingLogLabel}
                   </Link>
                 </div>

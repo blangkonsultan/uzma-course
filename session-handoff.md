@@ -9,6 +9,7 @@
 - Submitted teaching logs now show **“Lihat Kartu Mengajar”** on `/guru/jadwal` and use the saved session date; draft/unsaved sessions remain **“Isi Kartu Mengajar”**.
 - DAL status/date enrichment and component regression tests added.
 - Verification: `./init.sh` passed with **73 Vitest suites / 422 tests**, clean lint, and clean production build. Code review: **Ready to merge: Yes**.
+- Visual refinement: draft links are primary purple with Pencil; submitted links are neutral with green CheckCircle2.
 
 
 
