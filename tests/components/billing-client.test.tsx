@@ -126,6 +126,24 @@ describe("BillingClient Component", () => {
     expect(screen.getByText("1 Murid")).toBeDefined();
   });
 
+  it("renders a named SPP search control with standard form metadata", () => {
+    render(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch=""
+      />
+    );
+
+    const searchInput = screen.getByRole("textbox", { name: "Cari tagihan SPP" });
+    expect(searchInput).toBeDefined();
+    expect(searchInput.getAttribute("name")).toBe("q");
+    expect(searchInput.getAttribute("inputmode")).toBe("search");
+    expect(searchInput.getAttribute("autocomplete")).toBe("off");
+  });
+
   it("renders invoice rows and action buttons", () => {
     render(
       <BillingClient

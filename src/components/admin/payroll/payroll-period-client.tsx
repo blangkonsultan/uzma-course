@@ -192,42 +192,44 @@ export function PayrollPeriodClient({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+          <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-center">
             {allPeriods.length > 0 && (
-              <select
-                aria-label="Pilih Periode Payroll"
-                value={period.id}
-                onChange={(e) => router.push(`/admin/payroll?period=${e.target.value}`)}
-                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700"
-              >
-                {allPeriods.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {formatPeriodMonth(p.period_month)} ({p.status === "open" ? "Terbuka" : p.status === "closed" ? "Ditutup" : "Dibayar"})
-                  </option>
-                ))}
-              </select>
+              <div className="relative flex-1 sm:flex-initial min-w-[150px]">
+                <select
+                  aria-label="Pilih Periode Payroll"
+                  value={period.id}
+                  onChange={(e) => router.push(`/admin/payroll?period=${e.target.value}`)}
+                  className="w-full appearance-none px-3.5 pr-8 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-[36px] rounded-xl border border-slate-200 bg-white text-base sm:text-xs font-semibold text-slate-700 cursor-pointer"
+                >
+                  {allPeriods.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {formatPeriodMonth(p.period_month)} ({p.status === "open" ? "Terbuka" : p.status === "closed" ? "Ditutup" : "Dibayar"})
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
 
             <button
               type="button"
               onClick={() => setShowNewMonthModal(true)}
-              className="px-2.5 py-1.5 rounded-xl border border-dashed border-primary-300 text-primary-700 hover:bg-primary-50 text-xs font-bold transition-colors inline-flex items-center gap-1"
+              className="px-3.5 py-2.5 sm:px-2.5 sm:py-1.5 min-h-[44px] sm:min-h-[36px] rounded-xl border border-dashed border-primary-300 text-primary-700 hover:bg-primary-50 text-xs font-bold transition-colors inline-flex items-center justify-center gap-1 shrink-0"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Bulan Baru</span>
             </button>
             {isOpen && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+              <span className="inline-flex items-center px-3 py-1.5 min-h-[36px] sm:min-h-0 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
                 Periode Terbuka
               </span>
             )}
             {isClosed && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
+              <span className="inline-flex items-center px-3 py-1.5 min-h-[36px] sm:min-h-0 rounded-full text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
                 Periode Ditutup
               </span>
             )}
             {isPaid && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+              <span className="inline-flex items-center px-3 py-1.5 min-h-[36px] sm:min-h-0 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                 <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                 Sudah Dibayar
               </span>
@@ -299,12 +301,12 @@ export function PayrollPeriodClient({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
             {isOpen && !confirmClose && (
               <button
                 type="button"
                 onClick={() => setConfirmClose(true)}
-                className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5"
               >
                 <Lock className="w-4 h-4" />
                 <span>Tutup Periode Payroll</span>
@@ -324,7 +326,7 @@ export function PayrollPeriodClient({
                   type="button"
                   disabled={isPending}
                   onClick={handleMarkPaid}
-                  className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                  className="w-full sm:w-auto px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Tandai Sudah Dibayar</span>
@@ -349,11 +351,11 @@ export function PayrollPeriodClient({
                 </p>
               </div>
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setConfirmClose(false)}
-                className="px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100/80 rounded-xl transition-colors"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-[36px] text-xs font-semibold text-amber-900 hover:bg-amber-100/80 rounded-xl transition-colors inline-flex items-center justify-center"
               >
                 Batal
               </button>
@@ -361,7 +363,7 @@ export function PayrollPeriodClient({
                 type="button"
                 disabled={isPending}
                 onClick={handleClose}
-                className="px-4 py-2 text-xs font-bold text-white bg-amber-700 hover:bg-amber-800 rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-bold text-white bg-amber-700 hover:bg-amber-800 rounded-xl shadow-xs transition-colors disabled:opacity-50 inline-flex items-center justify-center"
               >
                 {isPending ? "Menutup..." : "Konfirmasi Tutup Periode"}
               </button>
@@ -387,16 +389,16 @@ export function PayrollPeriodClient({
                     aria-label="Pilih Bulan Baru"
                     value={newMonthInput}
                     onChange={(e) => setNewMonthInput(e.target.value)}
-                    className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 font-medium"
+                    className="w-full sm:w-auto px-3.5 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-[36px] rounded-xl border border-slate-300 bg-white text-base sm:text-xs text-slate-800 font-medium"
                   />
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowNewMonthModal(false)}
-                className="px-3 py-1.5 text-xs font-semibold text-primary-900 hover:bg-primary-100/80 rounded-xl transition-colors"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-[36px] text-xs font-semibold text-primary-900 hover:bg-primary-100/80 rounded-xl transition-colors inline-flex items-center justify-center"
               >
                 Batal
               </button>
@@ -404,7 +406,7 @@ export function PayrollPeriodClient({
                 type="button"
                 disabled={isPending || !newMonthInput}
                 onClick={handleCreatePeriod}
-                className="px-4 py-2 text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs transition-colors disabled:opacity-50 inline-flex items-center justify-center"
               >
                 {isPending ? "Memproses..." : "Buka Periode"}
               </button>

@@ -239,7 +239,7 @@ export function BillingClient({
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 flex-1">
           {/* Branch Filter */}
-          <div className="relative min-w-[140px]">
+          <div className="relative min-w-[140px] flex-1 sm:flex-initial">
             <select
               aria-label="Filter Cabang"
               value={branchFilter}
@@ -247,6 +247,7 @@ export function BillingClient({
                 setBranchFilter(e.target.value);
                 handleFilterChange(e.target.value, statusFilter, searchFilter);
               }}
+              className="w-full appearance-none pl-3 pr-8 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors cursor-pointer"
             >
               <option value="all">Semua Cabang</option>
               {branches.map((b) => (
@@ -255,10 +256,11 @@ export function BillingClient({
                 </option>
               ))}
             </select>
+            <Filter className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
 
           {/* Status Filter */}
-          <div className="relative min-w-[130px]">
+          <div className="relative min-w-[130px] flex-1 sm:flex-initial">
             <select
               aria-label="Filter Status Tagihan"
               value={statusFilter}
@@ -266,25 +268,31 @@ export function BillingClient({
                 setStatusFilter(e.target.value);
                 handleFilterChange(branchFilter, e.target.value, searchFilter);
               }}
+              className="w-full appearance-none pl-3 pr-8 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors cursor-pointer"
             >
               <option value="all">Semua Status</option>
               <option value="unpaid">Belum Lunas</option>
               <option value="paid">Lunas</option>
             </select>
+            <Filter className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
 
           {/* Search Input */}
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="relative flex-1 min-w-[200px] w-full">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
+              name="q"
+              inputMode="search"
+              autoComplete="off"
               placeholder="Cari murid, nomor induk, atau nomor invoice..."
+              aria-label="Cari tagihan SPP"
               value={searchFilter}
               onChange={(e) => {
                 setSearchFilter(e.target.value);
                 handleFilterChange(branchFilter, statusFilter, e.target.value);
               }}
-              className="w-full pl-8 pr-3 py-2 text-base sm:text-xs rounded-xl border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+              className="w-full pl-10 pr-3 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
             />
           </div>
         </div>
@@ -294,7 +302,7 @@ export function BillingClient({
           type="button"
           disabled={isGenerating}
           onClick={handleGenerateInvoices}
-          className="px-4 py-2 text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-50 shrink-0"
+          className="w-full sm:w-auto px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-50 shrink-0"
         >
           <RefreshCw
             className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : ""}`}

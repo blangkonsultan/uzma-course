@@ -152,7 +152,7 @@ export function PaymentModal({
                 required
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-800 text-base sm:text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="w-full px-3.5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] rounded-xl border border-slate-200 bg-white text-slate-800 text-base sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
               />
             </div>
 
@@ -168,7 +168,7 @@ export function PaymentModal({
                 required
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-800 text-base sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="w-full px-3.5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] rounded-xl border border-slate-200 bg-white text-slate-800 text-base sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 cursor-pointer"
               >
                 {PAYMENT_METHODS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -191,7 +191,7 @@ export function PaymentModal({
                 placeholder="Contoh: BCA-9842 atau No. Mutasi"
                 value={paymentReference}
                 onChange={(e) => setPaymentReference(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-800 text-base sm:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="w-full px-3.5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] rounded-xl border border-slate-200 bg-white text-slate-800 text-base sm:text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
               />
             </div>
 
@@ -208,34 +208,34 @@ export function PaymentModal({
                 placeholder="Catatan tambahan pembayaran..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-800 text-base sm:text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 resize-none"
+                className="w-full px-3.5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] rounded-xl border border-slate-200 bg-white text-slate-800 text-base sm:text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 resize-none"
               />
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          {/* Action Buttons: Primary first on mobile, side-by-side on sm: */}
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               disabled={isPending}
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+              className="w-full sm:w-auto px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors inline-flex items-center justify-center"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              className="w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-50"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
                   <span>Menyimpan...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span>Simpan Pembayaran & Terbitkan Kwitansi</span>
                 </>
               )}

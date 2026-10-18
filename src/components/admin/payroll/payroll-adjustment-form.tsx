@@ -39,7 +39,7 @@ export function PayrollAdjustmentForm({
           setIsOpen(true);
           setError(null);
         }}
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors"
+        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 sm:px-3 sm:py-2 min-h-[44px] sm:min-h-[36px] rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors"
       >
         <Plus className="w-4 h-4 text-primary-600" />
         <span>+ Tambah Adjustment</span>
@@ -112,8 +112,7 @@ export function PayrollAdjustmentForm({
             id="adj-teacher"
             value={teacherId}
             onChange={(e) => setTeacherId(e.target.value)}
-            className="w-full px-3 py-2.5 text-base sm:text-xs rounded-xl border border-slate-200 bg-white text-slate-800"
-            required
+            className="w-full px-3.5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-xs rounded-xl border border-slate-200 bg-white text-slate-800"
           >
             {entries.map((entry) => (
               <option key={entry.teacher_id} value={entry.teacher_id}>
@@ -133,8 +132,7 @@ export function PayrollAdjustmentForm({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="Contoh: 25000 atau -10000"
-            className="w-full px-3 py-2.5 text-base sm:text-xs rounded-xl border border-slate-200 bg-white text-slate-800"
-            required
+            className="w-full px-3.5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-xs rounded-xl border border-slate-200 bg-white text-slate-800"
           />
         </div>
 
@@ -148,24 +146,23 @@ export function PayrollAdjustmentForm({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="Contoh: Kompensasi cancel murid"
-            className="w-full px-3 py-2.5 text-base sm:text-xs rounded-xl border border-slate-200 bg-white text-slate-800"
-            required
+            className="w-full px-3.5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-xs rounded-xl border border-slate-200 bg-white text-slate-800"
           />
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 pt-1">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-1">
         <button
           type="button"
           onClick={() => setIsOpen(false)}
-          className="px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 rounded-xl transition-colors"
+          className="w-full sm:w-auto px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-semibold text-slate-600 hover:bg-slate-200 rounded-xl transition-colors inline-flex items-center justify-center"
         >
           Batal
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-4 py-2 text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs transition-colors disabled:opacity-50"
+          className="w-full sm:w-auto px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs transition-colors disabled:opacity-50 inline-flex items-center justify-center"
         >
           {isSubmitting ? "Menyimpan..." : "Simpan Adjustment"}
         </button>
