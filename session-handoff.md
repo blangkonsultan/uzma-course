@@ -8,6 +8,13 @@
 - **Verification**: 77 Vitest suites / 450 tests passed, clean lint, clean production build, and local API HTTP smoke 200. Managed Chromium navigation timed out before visual interaction; no visual browser claim is made.
 - **Commits**: `6c6dcbb`, `30c516d`, `51e5c9b`, `a597ec8`, `ece20bd`.
 
+## Next Session TODO — Remote Production Prune
+- [ ] Create ignored `.env.remote.local` with the approved remote service-role key and direct PostgreSQL URL; never paste secrets into chat or commit the file.
+- [ ] Confirm backup destination outside the repository.
+- [ ] Run `npm run prune:remote -- --confirm PRUNE_REMOTE_OPERATIONAL_DATA`.
+- [ ] Verify the backup hash, preserved landing/admin snapshots, and zero operational rows after prune.
+- **Current safety state**: remote production has not been modified.
+
 
 ## Release Readiness Remediation Implementation — 2026-10-18
 - **Status**: Completed and verified against Definition of Done.
