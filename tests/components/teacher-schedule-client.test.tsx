@@ -34,4 +34,22 @@ describe("TeacherScheduleClient Teaching Log entry", () => {
       /^\/guru\/mengajar\/class-1\?date=\d{4}-\d{2}-\d{2}$/
     );
   });
+  it("uses the view label and saved date for a submitted teaching log", () => {
+    const submittedClass: TeacherClassItem = {
+      ...classes[0],
+      teaching_log_date: "2026-10-14",
+      teaching_log_status: "submitted",
+    };
+
+    render(<TeacherScheduleClient classes={[submittedClass]} />);
+    const dayLabel = ["", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"][
+      classDay
+    ];
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(dayLabel) }));
+
+    const link = screen.getByRole("link", { name: "Lihat Kartu Mengajar" });
+    expect(link.getAttribute("href")).toBe(
+      "/guru/mengajar/class-1?date=2026-10-14"
+    );
+  });
 });

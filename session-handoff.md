@@ -5,6 +5,11 @@
 - Added regression coverage for SPP data/KPI/control refresh, composed filters, search focus, Guru multi-branch behavior, Payroll period changes, adjustment draft reset, and official receipt modal behavior.
 - Verification: `./init.sh` passed with **72 Vitest suites / 420 tests**, clean lint, and clean production build. Browser smoke passed at 360px, 375px, and 1280px with zero horizontal overflow.
 - Code review follow-up: **Ready to merge: Yes**; no Critical or Important issues.
+## Teaching Log Schedule Label
+- Submitted teaching logs now show **“Lihat Kartu Mengajar”** on `/guru/jadwal` and use the saved session date; draft/unsaved sessions remain **“Isi Kartu Mengajar”**.
+- DAL status/date enrichment and component regression tests added.
+- Verification: `./init.sh` passed with **73 Vitest suites / 422 tests**, clean lint, and clean production build. Code review: **Ready to merge: Yes**.
+
 
 
 Phase 5 CMS Integrity, TikTok Shortlink Hardening & Public Landing Polish is implemented, review-hardened, and verified.

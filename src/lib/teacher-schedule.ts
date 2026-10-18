@@ -1,3 +1,4 @@
+import { getWIBDateBounds } from "./attendances";
 import { createAdminClient } from "./supabase/admin";
 
 export interface TeacherClassItem {
@@ -14,6 +15,8 @@ export interface TeacherClassItem {
     full_name: string;
     student_number: string | null;
   }[];
+  teaching_log_date?: string;
+  teaching_log_status?: "draft" | "submitted" | null;
 }
 
 interface RawShift {
@@ -52,6 +55,15 @@ interface RawClassRow {
   branch_shifts: RawShift | null;
   program_variants: RawVariant | null;
   schedule_placements: RawPlacement[];
+}
+
+function getPreviousSessionDate(dayOfWeek: number) {
+  const todayWib = getWIBDateBounds().dateString;
+  const date = new Date(`${todayWib}T00:00:00Z`);
+  const todayDay = date.getUTCDay() === 0 ? 7 : date.getUTCDay();
+  const daysBack = (todayDay - dayOfWeek + 7) % 7;
+  date.setUTCDate(date.getUTCDate() - daysBack);
+  return date.toISOString().slice(0, 10);
 }
 
 export async function getTeacherActiveSchedule(teacherId: string) {
@@ -127,7 +139,39 @@ export async function getTeacherActiveSchedule(teacherId: string) {
     };
   });
 
+  const classIds = formattedClasses.map((item) => item.id);
+  const teachingLogDates = Array.from(
+    new Set(formattedClasses.map((item) => getPreviousSessionDate(item.day_of_week)))
+  );
+  const sessionByClassDate = new Map<string, "draft" | "submitted">();
+
+  if (classIds.length > 0) {
+    const { data: teachingSessions } = await supabase
+      .from("teaching_sessions")
+      .select("schedule_class_id, session_date, status")
+      .eq("teacher_id", teacherId)
+      .in("schedule_class_id", classIds)
+      .in("session_date", teachingLogDates);
+
+    (teachingSessions || []).forEach((session) => {
+      sessionByClassDate.set(
+        `${session.schedule_class_id}:${session.session_date}`,
+        session.status as "draft" | "submitted"
+      );
+    });
+  }
+
+  const classesWithTeachingLogs = formattedClasses.map((item) => {
+    const teachingLogDate = getPreviousSessionDate(item.day_of_week);
+    return {
+      ...item,
+      teaching_log_date: teachingLogDate,
+      teaching_log_status:
+        sessionByClassDate.get(`${item.id}:${teachingLogDate}`) ?? null,
+    };
+  });
+
   return {
-    classes: formattedClasses,
+    classes: classesWithTeachingLogs,
   };
 }

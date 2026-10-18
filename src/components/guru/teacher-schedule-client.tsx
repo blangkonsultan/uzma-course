@@ -153,6 +153,12 @@ export function TeacherScheduleClient({
           dayClasses.map((cls) => {
             const isExpanded = expandedClassId === cls.id;
             const studentCount = cls.students.length;
+            const teachingLogDate =
+              cls.teaching_log_date ?? getPreviousSessionDate(cls.day_of_week);
+            const teachingLogLabel =
+              cls.teaching_log_status === "submitted"
+                ? "Lihat Kartu Mengajar"
+                : "Isi Kartu Mengajar";
 
             return (
               <div
@@ -242,10 +248,10 @@ export function TeacherScheduleClient({
                 )}
                 <div className="border-t border-slate-100 p-3">
                   <Link
-                    href={`/guru/mengajar/${cls.id}?date=${getPreviousSessionDate(cls.day_of_week)}`}
+                    href={`/guru/mengajar/${cls.id}?date=${teachingLogDate}`}
                     className="flex min-h-11 w-full items-center justify-center rounded-full bg-primary-50 px-3 py-2.5 text-xs font-bold text-primary-700 transition-colors hover:bg-primary-100"
                   >
-                    Isi Kartu Mengajar
+                    {teachingLogLabel}
                   </Link>
                 </div>
               </div>

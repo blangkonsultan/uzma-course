@@ -9,6 +9,12 @@
 - **Verification**: `./init.sh` passed with 0 lint errors, **72 Vitest suites / 420 tests passed**, coverage at **65.42% statements, 59.42% branches, 68.16% functions, 66.54% lines**, and clean production Webpack build. Browser smoke passed SPP search/filter behavior at 360px and 1280px with zero horizontal overflow; Guru branch filtering and multi-branch labels also passed.
 - **Code review**: Follow-up reviewer assessment **Ready to merge: Yes**, with no Critical or Important issues.
 
+## 2026-10-18 (Teaching Log Schedule Label)
+- **Status**: Completed and review-approved.
+- **Change**: The Guru schedule now shows **“Lihat Kartu Mengajar”** and links to the saved session date when the teaching log is `submitted`; draft or unsaved sessions retain **“Isi Kartu Mengajar”**.
+- **Implementation**: `getTeacherActiveSchedule()` enriches classes from `teaching_sessions` using the WIB previous-session date; the schedule client consumes the saved date/status.
+- **Verification**: `./init.sh` passed with 0 lint errors, **73 Vitest suites / 422 tests passed**, coverage at **65.87% statements, 59.62% branches, 68.48% functions, 67.02% lines**, and clean production Webpack build. Follow-up code review: **Ready to merge: Yes**.
+
 ## 2026-10-17 (feat-010 Student Billing & SPP Invoicing Completed)
 - **Status**: Completed (feat-010 100% Completed).
 - **Evidence**:
