@@ -22,3 +22,13 @@ export async function withPostgresTransaction(databaseUrl, callback) {
     await client.end();
   }
 }
+
+export async function withPostgresConnection(databaseUrl, callback) {
+  const client = new Client({ connectionString: databaseUrl });
+  await client.connect();
+  try {
+    return await callback(client);
+  } finally {
+    await client.end();
+  }
+}
