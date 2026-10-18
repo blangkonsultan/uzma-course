@@ -154,7 +154,7 @@ SELECT
   current_date - 7,
   28
 FROM enrollment_rows enrollment
-JOIN public.students student ON student.student_number = replace(upper(enrollment."studentKey"), 'STUDENT-', 'DM-')
+JOIN public.students student ON student.student_number = replace(upper(enrollment."studentKey"), 'STUDENT-', 'DM-0')
 JOIN public.programs program ON program.initials = enrollment."programInitials"
 JOIN LATERAL (
   SELECT program_variant.id
@@ -275,7 +275,7 @@ WITH class_rows AS (
     now()
   FROM session_rows session_row
   JOIN public.branch_shifts shift ON shift.id = session_row.shift_id
-  RETURNING id
+  RETURNING id, schedule_class_id, session_date, variant_id
 )
 INSERT INTO public.teaching_session_students (
   session_id,
@@ -297,15 +297,15 @@ SELECT
   CASE WHEN placement_number.position % 2 = 0 THEN 'Latihan demo selesai' ELSE NULL END,
   'Fixture teaching note',
   variant.teacher_fee
-FROM public.teaching_sessions teaching_session
+FROM inserted_sessions teaching_session
 JOIN public.schedule_placements placement ON placement.class_id = teaching_session.schedule_class_id
 JOIN public.program_variants variant ON variant.id = teaching_session.variant_id
-CROSS JOIN LATERAL (
-  SELECT row_number() OVER (ORDER BY placement_inner.student_id)::integer AS position
-  FROM public.schedule_placements placement_inner
-  WHERE placement_inner.class_id = teaching_session.schedule_class_id
-    AND placement_inner.student_id <= placement.student_id
-) placement_number;
+  CROSS JOIN LATERAL (
+    SELECT COUNT(*)::integer AS position
+    FROM public.schedule_placements placement_inner
+    WHERE placement_inner.class_id = teaching_session.schedule_class_id
+      AND placement_inner.student_id <= placement.student_id
+  ) placement_number;
 
 INSERT INTO public.payroll_periods (period_month, status)
 VALUES
