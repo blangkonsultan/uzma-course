@@ -268,7 +268,7 @@ describe("Admin Core Components (src/components/admin/)", () => {
   });
 
   describe("SearchFilterBar", () => {
-    it("renders search input, filter selects, and handles actions", () => {
+    it("renders search input with standard form metadata, filter selects, and handles actions", () => {
       const { container } = render(
         <SearchFilterBar
           searchPlaceholder="Cari data..."
@@ -284,7 +284,11 @@ describe("Admin Core Components (src/components/admin/)", () => {
           ]}
         />
       );
-      const searchInput = screen.getByPlaceholderText("Cari data...");
+      const searchInput = screen.getByRole("textbox", { name: "Cari data..." });
+      expect(searchInput.getAttribute("name")).toBe("search");
+      expect(searchInput.getAttribute("inputmode")).toBe("search");
+      expect(searchInput.getAttribute("autocomplete")).toBe("off");
+
       fireEvent.change(searchInput, { target: { value: "krian" } });
       const form = container.querySelector("form");
       if (form) fireEvent.submit(form);

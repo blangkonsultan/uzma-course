@@ -314,7 +314,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="text-[11px] text-rose-600 hover:text-rose-700 font-medium inline-flex items-center gap-1.5 p-1.5 rounded-lg hover:bg-rose-50 transition-colors"
+              className="text-[11px] text-rose-600 hover:text-rose-700 font-medium inline-flex items-center gap-1.5 p-2 sm:p-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-lg hover:bg-rose-50 transition-colors"
             >
               {isLoggingOut ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -335,7 +335,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 -ml-1 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors"
+              className="md:hidden p-2.5 -ml-1 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Buka navigasi"
             >
               <Menu className="w-5 h-5" />
@@ -374,7 +374,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="px-3 py-2 sm:py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200/80 rounded-xl transition-colors inline-flex items-center gap-1.5 min-h-[38px] sm:min-h-0"
+              className="px-3.5 py-2.5 sm:px-3 sm:py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200/80 rounded-xl transition-colors inline-flex items-center gap-1.5 min-h-[44px] sm:min-h-[36px]"
               aria-label="Keluar dari akun"
             >
               {isLoggingOut ? (
