@@ -3,9 +3,10 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import { requireAdminPage } from "@/lib/auth";
 import { getProgramById } from "@/lib/programs";
-import { getBranchById, getBranchDetailData } from "@/lib/branches";
+import { getBranchById, getBranchDetailData, getBranches } from "@/lib/branches";
 import { getStudentByIdForView } from "@/lib/students";
 import DraftPage from "@/app/admin/draft/page";
+import { getPaginatedGurus } from "@/lib/gurus";
 import { getScheduleDrafts } from "@/lib/drafts";
 
 vi.mock("@/lib/drafts", () => ({
@@ -288,6 +289,45 @@ describe("Application Pages (src/app/)", () => {
       const page3 = await GuruListPage({ searchParams: Promise.resolve({ status: "inactive" }) });
       render(page3);
     });
+    it("shows all assigned branches for a multi-branch guru", async () => {
+      vi.mocked(getBranches).mockResolvedValueOnce([
+        { id: "sumokembangsri", name: "Cabang Sumokembangsri" } as never,
+        { id: "junwangi", name: "Cabang Junwangi" } as never,
+      ]);
+      vi.mocked(getPaginatedGurus).mockResolvedValueOnce({
+        data: [
+          {
+            id: "g-multi",
+            full_name: "Guru Multi Cabang",
+            created_at: "2026-10-01T00:00:00Z",
+            phone: null,
+            branch_id: "sumokembangsri",
+            is_active: true,
+            profile_programs: [],
+            profile_branches: [
+              { branch_id: "sumokembangsri", is_primary: true },
+              { branch_id: "junwangi", is_primary: false },
+            ],
+          },
+        ] as never,
+        count: 1,
+      });
+
+      const page = await GuruListPage({
+        searchParams: Promise.resolve({ branch: "junwangi" }),
+      });
+      render(page);
+
+      const guruRows = screen
+        .getAllByText("Guru Multi Cabang")
+        .map((element) => element.closest("tr"))
+        .filter(Boolean);
+      expect(guruRows.length).toBeGreaterThan(0);
+      const guruRow = guruRows[0];
+      expect(guruRow?.textContent).toContain("Cabang Sumokembangsri");
+      expect(guruRow?.textContent).toContain("Cabang Junwangi");
+    });
+
 
     it("redirects non-admin from GuruListPage", async () => {
       vi.mocked(requireAdminPage).mockRejectedValueOnce(new Error("NEXT_REDIRECT: /admin"));

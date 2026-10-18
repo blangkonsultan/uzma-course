@@ -43,13 +43,17 @@ export function PayrollPeriodClient({
   allPeriods = [],
 }: PayrollPeriodClientProps) {
   const router = useRouter();
-  const [detail, setDetail] = useState(initialDetail);
+  const [localDetail, setLocalDetail] = useState(initialDetail);
   const [newMonthInput, setNewMonthInput] = useState("");
   const [showNewMonthModal, setShowNewMonthModal] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const detail =
+    localDetail.period.id === initialDetail.period.id
+      ? localDetail
+      : initialDetail;
   const period = detail.period;
   const isPaid = period.status === "paid";
   const isClosed = period.status === "closed";
@@ -64,7 +68,7 @@ export function PayrollPeriodClient({
         return;
       }
       if (res.data) {
-        setDetail(res.data);
+        setLocalDetail(res.data);
       }
       setConfirmClose(false);
     });
@@ -79,7 +83,7 @@ export function PayrollPeriodClient({
         return;
       }
       if (res.data) {
-        setDetail(res.data);
+        setLocalDetail(res.data);
       }
     });
   };
@@ -115,9 +119,11 @@ export function PayrollPeriodClient({
     }
     if (res.data) {
       const newAdj = res.data;
-      setDetail((prev) => {
-        const nextAdjustments = [...prev.adjustments, newAdj];
-        const nextEntries = prev.entries.map((entry) => {
+      setLocalDetail((prev) => {
+        const detailForUpdate =
+          prev.period.id === initialDetail.period.id ? prev : initialDetail;
+        const nextAdjustments = [...detailForUpdate.adjustments, newAdj];
+        const nextEntries = detailForUpdate.entries.map((entry) => {
           if (entry.teacher_id === input.teacher_id) {
             const nextAdjTotal = entry.adjustments_total + input.amount;
             return {
@@ -149,7 +155,7 @@ export function PayrollPeriodClient({
         );
 
         return {
-          ...prev,
+          ...detailForUpdate,
           adjustments: nextAdjustments,
           entries: nextEntries,
           totals: nextTotals,
@@ -308,6 +314,7 @@ export function PayrollPeriodClient({
             {isClosed && (
               <>
                 <PayrollAdjustmentForm
+                  key={period.id}
                   periodId={period.id}
                   entries={detail.entries}
                   onSubmit={handleAddAdjustment}

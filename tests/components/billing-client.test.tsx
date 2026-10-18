@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { BillingClient } from "@/components/admin/billing/billing-client";
 import type { BillingSummary, StudentInvoiceItem } from "@/lib/billing";
@@ -161,7 +161,6 @@ describe("BillingClient Component", () => {
     expect(screen.getByText(/Catat Pembayaran SPP/i)).toBeDefined();
     expect(screen.getAllByText(/Ahmad Murid/i).length).toBeGreaterThan(1);
   });
-
   it("opens official receipt modal when Lihat Kwitansi is clicked", () => {
     render(
       <BillingClient
@@ -177,4 +176,108 @@ describe("BillingClient Component", () => {
     expect(screen.getByText(/Kwitansi Pembayaran Resmi/i)).toBeDefined();
     expect(screen.getByText("RCT-2610-0001")).toBeDefined();
   });
+
+
+  it("renders updated server data when filter navigation changes the props", async () => {
+    const { rerender } = render(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch=""
+      />
+    );
+
+    const filteredSummary: BillingSummary = {
+      invoices: [sampleInvoices[1]],
+      kpis: {
+        total_invoiced: 150000,
+        total_paid: 150000,
+        total_outstanding: 0,
+        unpaid_students_count: 0,
+      },
+    };
+
+    rerender(
+      <BillingClient
+        initialSummary={filteredSummary}
+        branches={sampleBranches}
+        currentBranch="branch-1"
+        currentStatus="paid"
+        currentSearch="Budi"
+      />
+    );
+
+    expect(screen.getByText("INV-2610-0002")).toBeDefined();
+    expect(screen.queryByText("INV-2610-0001")).toBeNull();
+    expect(screen.getByText("0 Murid")).toBeDefined();
+    await waitFor(() => {
+      expect((screen.getByLabelText("Filter Cabang") as HTMLSelectElement).value).toBe("branch-1");
+      expect((screen.getByLabelText("Filter Status Tagihan") as HTMLSelectElement).value).toBe("paid");
+      expect(
+        (screen.getByPlaceholderText("Cari murid, nomor induk, atau nomor invoice...") as HTMLInputElement).value
+      ).toBe("Budi");
+    });
+  });
+  it("keeps the search input mounted when server filter props settle", async () => {
+    const { rerender } = render(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch=""
+      />
+    );
+    const searchInput = screen.getByPlaceholderText(
+      "Cari murid, nomor induk, atau nomor invoice..."
+    );
+    searchInput.focus();
+
+    rerender(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="branch-1"
+        currentStatus="paid"
+        currentSearch="Budi"
+      />
+    );
+
+    const settledInput = screen.getByPlaceholderText(
+      "Cari murid, nomor induk, atau nomor invoice..."
+    );
+    expect(settledInput).toBe(searchInput);
+    expect(document.activeElement).toBe(searchInput);
+    await waitFor(() => {
+      expect((settledInput as HTMLInputElement).value).toBe("Budi");
+    });
+  });
+
+  it("preserves earlier filter changes when composing filters before navigation settles", () => {
+    pushMock.mockClear();
+
+    render(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch=""
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("Filter Cabang"), {
+      target: { value: "branch-1" },
+    });
+    fireEvent.change(screen.getByLabelText("Filter Status Tagihan"), {
+      target: { value: "paid" },
+    });
+
+    expect(pushMock).toHaveBeenLastCalledWith(
+      "/admin/spp?branch=branch-1&status=paid"
+    );
+  });
+
 });

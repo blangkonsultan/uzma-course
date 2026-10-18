@@ -34,6 +34,24 @@ function getInitials(name: string): string {
   }
   return name.slice(0, 2).toUpperCase();
 }
+function getGuruBranchNames(
+  guru: ProfileWithPrograms,
+  branchMap: Record<string, string>
+): string {
+  const assignedBranchIds = guru.profile_branches?.map((branch) => branch.branch_id) ?? [];
+  const branchIds = assignedBranchIds.length > 0
+    ? assignedBranchIds
+    : guru.branch_id
+      ? [guru.branch_id]
+      : [];
+
+  if (branchIds.length === 0) return "Belum ditentukan";
+
+  return branchIds
+    .map((branchId) => branchMap[branchId] ?? branchId)
+    .join(", ");
+}
+
 
 export default async function GuruPage({ searchParams }: GuruPageProps) {
   await requireAdminPage();
@@ -123,9 +141,7 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
     {
       header: "Cabang",
       cell: (guru) => {
-        const branchName = guru.branch_id
-          ? branchMap[guru.branch_id] ?? guru.branch_id
-          : "Belum ditentukan";
+        const branchName = getGuruBranchNames(guru, branchMap);
         return (
           <div className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
             <MapPin className="w-3.5 h-3.5 text-slate-500" />
@@ -216,9 +232,7 @@ export default async function GuruPage({ searchParams }: GuruPageProps) {
         keyExtractor={(item) => item.id}
         emptyStateMessage="Tidak ada data guru yang sesuai dengan filter pencarian."
         mobileCard={(guru) => {
-          const branchName = guru.branch_id
-            ? branchMap[guru.branch_id] ?? guru.branch_id
-            : "Belum ditentukan";
+          const branchName = getGuruBranchNames(guru, branchMap);
           const initials = getInitials(guru.full_name);
           const cleanPhone = guru.phone?.replace(/[^0-9]/g, "");
 

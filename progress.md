@@ -1,4 +1,14 @@
 # Progress Log
+## 2026-10-18 (Admin Filter Refresh Integrity Fixes)
+- **Status**: Completed and review-approved.
+- **Root causes fixed**:
+  - `/admin/spp` kept server-provided invoice summaries and filter state stale across query navigation; BillingClient now synchronizes settled props without remounting the search input and preserves rapid filter composition.
+  - `/admin/guru` filtered only `profiles.branch_id`; branch filtering now resolves `profile_branches` assignments and displays all assigned branches.
+  - `/admin/payroll` retained stale period detail and adjustment drafts across period switches; period detail selection is server-prop-aware and adjustment forms reset by period.
+- **Regression coverage**: Billing summary/KPI/control refresh, search focus preservation, rapid filter composition, Guru secondary-branch filtering/display, Payroll period refresh, adjustment draft reset, and official receipt modal behavior.
+- **Verification**: `./init.sh` passed with 0 lint errors, **72 Vitest suites / 420 tests passed**, coverage at **65.42% statements, 59.42% branches, 68.16% functions, 66.54% lines**, and clean production Webpack build. Browser smoke passed SPP search/filter behavior at 360px and 1280px with zero horizontal overflow; Guru branch filtering and multi-branch labels also passed.
+- **Code review**: Follow-up reviewer assessment **Ready to merge: Yes**, with no Critical or Important issues.
+
 ## 2026-10-17 (feat-010 Student Billing & SPP Invoicing Completed)
 - **Status**: Completed (feat-010 100% Completed).
 - **Evidence**:

@@ -1,4 +1,11 @@
 # Session Handoff
+## Admin Filter Refresh Integrity Fixes
+- Fixed stale server-prop state after filter navigation on `/admin/spp` and `/admin/payroll` without remounting the SPP search input.
+- Fixed Guru branch filtering to include `profile_branches` secondary assignments and display all assigned branches in table/mobile views.
+- Added regression coverage for SPP data/KPI/control refresh, composed filters, search focus, Guru multi-branch behavior, Payroll period changes, adjustment draft reset, and official receipt modal behavior.
+- Verification: `./init.sh` passed with **72 Vitest suites / 420 tests**, clean lint, and clean production build. Browser smoke passed at 360px, 375px, and 1280px with zero horizontal overflow.
+- Code review follow-up: **Ready to merge: Yes**; no Critical or Important issues.
+
 
 Phase 5 CMS Integrity, TikTok Shortlink Hardening & Public Landing Polish is implemented, review-hardened, and verified.
 
@@ -64,4 +71,4 @@ Phase 5 CMS Integrity, TikTok Shortlink Hardening & Public Landing Polish is imp
 - `feat-001` through `feat-011` are now **100% completed**. All features in `feature_list.json` have complete implementations, automated test suites, clean production builds, and documentation.
 
 ## Recommended Next Step
-- Perform end-to-end smoke test or deploy database migrations to production Supabase via `npx supabase db push`.
+- Deploy the reviewed application changes through the normal release pipeline, then run authenticated production smoke for SPP, Guru, and Payroll filter/period flows. Database migrations are already synchronized with production.

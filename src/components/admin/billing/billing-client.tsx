@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   CreditCard,
@@ -74,10 +74,22 @@ export function BillingClient({
   currentSearch = "",
 }: BillingClientProps) {
   const router = useRouter();
-  const [summary] = useState<BillingSummary>(initialSummary);
+  const summary = initialSummary;
   const [branchFilter, setBranchFilter] = useState(currentBranch);
   const [statusFilter, setStatusFilter] = useState(currentStatus);
   const [searchFilter, setSearchFilter] = useState(currentSearch);
+  useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setBranchFilter(currentBranch);
+      setStatusFilter(currentStatus);
+      setSearchFilter(currentSearch);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentBranch, currentStatus, currentSearch]);
 
   const [paymentInvoice, setPaymentInvoice] =
     useState<StudentInvoiceItem | null>(null);
@@ -235,7 +247,6 @@ export function BillingClient({
                 setBranchFilter(e.target.value);
                 handleFilterChange(e.target.value, statusFilter, searchFilter);
               }}
-              className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-700"
             >
               <option value="all">Semua Cabang</option>
               {branches.map((b) => (
@@ -255,7 +266,6 @@ export function BillingClient({
                 setStatusFilter(e.target.value);
                 handleFilterChange(branchFilter, e.target.value, searchFilter);
               }}
-              className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-700"
             >
               <option value="all">Semua Status</option>
               <option value="unpaid">Belum Lunas</option>

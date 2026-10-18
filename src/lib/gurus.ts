@@ -24,8 +24,32 @@ export async function getPaginatedGurus(params: GetPaginatedGurusParams) {
     .from("profiles")
     .select("*, profile_programs(program_id)", { count: "exact" })
     .eq("role", "guru");
+
   if (branch !== "all") {
-    query = query.eq("branch_id", branch);
+    let branchProfileIds: string[] | null = null;
+    try {
+      const { data: assignments, error: assignmentsError } = await supabase
+        .from("profile_branches")
+        .select("profile_id")
+        .eq("branch_id", branch);
+
+      if (!assignmentsError && assignments) {
+        branchProfileIds = Array.from(
+          new Set(assignments.map((assignment) => assignment.profile_id))
+        );
+      }
+    } catch {
+      branchProfileIds = null;
+    }
+
+    if (branchProfileIds) {
+      if (branchProfileIds.length === 0) {
+        return { data: [], count: 0 };
+      }
+      query = query.in("id", branchProfileIds);
+    } else {
+      query = query.eq("branch_id", branch);
+    }
   }
 
   if (status === "active") {

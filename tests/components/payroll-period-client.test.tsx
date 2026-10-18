@@ -83,8 +83,110 @@ const paidPeriodDetail: AdminPayrollPeriodDetail = {
     paid_by: "admin-1",
   },
 };
+const nextPeriodDetail: AdminPayrollPeriodDetail = {
+  ...openPeriodDetail,
+  period: {
+    ...openPeriodDetail.period,
+    id: "period-2",
+    period_month: "2026-11-01",
+  },
+  entries: [],
+  linesCount: 3,
+  totals: {
+    fee_sessions_total: 0,
+    fixed_allowances_total: 0,
+    adjustments_total: 0,
+    total_amount: 0,
+  },
+};
+const nextClosedPeriodDetail: AdminPayrollPeriodDetail = {
+  ...nextPeriodDetail,
+  period: {
+    ...nextPeriodDetail.period,
+    status: "closed",
+    closed_at: "2026-11-30T23:59:59Z",
+    closed_by: "admin-1",
+  },
+  entries: [
+    {
+      ...openPeriodDetail.entries[0],
+      id: "entry-2",
+      period_id: "period-2",
+      teacher_id: "teacher-2",
+      teacher: {
+        id: "teacher-2",
+        full_name: "Guru Baru",
+        phone: "08123456780",
+      },
+    },
+  ],
+  linesCount: 4,
+  totals: openPeriodDetail.totals,
+};
+
+
 
 describe("PayrollPeriodClient", () => {
+  it("renders the newly selected payroll period when server props change", () => {
+    const { rerender } = render(
+      <PayrollPeriodClient
+        initialDetail={openPeriodDetail}
+        allPeriods={[
+          { id: "period-1", period_month: "2026-10-01", status: "open" },
+          { id: "period-2", period_month: "2026-11-01", status: "open" },
+        ]}
+      />
+    );
+
+    rerender(
+      <PayrollPeriodClient
+        initialDetail={nextPeriodDetail}
+        allPeriods={[
+          { id: "period-1", period_month: "2026-10-01", status: "open" },
+          { id: "period-2", period_month: "2026-11-01", status: "open" },
+        ]}
+      />
+    );
+
+    expect(screen.getByText("Periode November 2026")).toBeDefined();
+    expect(screen.getByText("3 sesi mengajar terdaftar · 0 guru")).toBeDefined();
+  });
+  it("resets an open adjustment form when the selected period changes", () => {
+    const { rerender } = render(
+      <PayrollPeriodClient
+        initialDetail={closedPeriodDetail}
+        allPeriods={[
+          { id: "period-1", period_month: "2026-10-01", status: "closed" },
+          { id: "period-2", period_month: "2026-11-01", status: "closed" },
+        ]}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "+ Tambah Adjustment" }));
+    expect((screen.getByLabelText("Pilih Guru") as HTMLSelectElement).value).toBe("teacher-1");
+    fireEvent.change(screen.getByLabelText("Nominal Adjustment (Rp)"), {
+      target: { value: "25000" },
+    });
+    fireEvent.change(screen.getByLabelText("Alasan Adjustment"), {
+      target: { value: "Penyesuaian periode lama" },
+    });
+
+    rerender(
+      <PayrollPeriodClient
+        initialDetail={nextClosedPeriodDetail}
+        allPeriods={[
+          { id: "period-1", period_month: "2026-10-01", status: "closed" },
+          { id: "period-2", period_month: "2026-11-01", status: "closed" },
+        ]}
+      />
+    );
+
+    expect(screen.getByRole("button", { name: "+ Tambah Adjustment" })).toBeDefined();
+    expect(screen.queryByLabelText("Nominal Adjustment (Rp)")).toBeNull();
+    expect(screen.queryByLabelText("Alasan Adjustment")).toBeNull();
+  });
+
+
   it("renders open period and handles close confirmation flow", async () => {
     vi.mocked(closePeriodAction).mockResolvedValueOnce({
       data: closedPeriodDetail,

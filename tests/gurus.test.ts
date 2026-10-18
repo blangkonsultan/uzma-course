@@ -57,6 +57,65 @@ describe("Guru Data Access Layer (src/lib/gurus.ts)", () => {
       ]);
       expect(result.count).toBe(1);
     });
+    it("includes gurus assigned through a secondary branch when filtering by branch", async () => {
+      const secondaryBranchGuru = {
+        id: "g-secondary",
+        full_name: "Guru Cabang Sekunder",
+        role: "guru",
+        branch_id: "sumokembangsri",
+        is_active: true,
+        profile_programs: [],
+      };
+      let primaryBranchFilterApplied = false;
+      const profileQuery = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn((column: string) => {
+          if (column === "branch_id") primaryBranchFilterApplied = true;
+          return profileQuery;
+        }),
+        in: vi.fn().mockReturnThis(),
+        ilike: vi.fn().mockReturnThis(),
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockImplementation(async () => ({
+          data: primaryBranchFilterApplied ? [] : [secondaryBranchGuru],
+          count: primaryBranchFilterApplied ? 0 : 1,
+        })),
+      };
+      const profileBranchesQuery = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        in: vi.fn().mockReturnThis(),
+        then: (resolve: (value: unknown) => unknown) =>
+          resolve({
+            data: [
+              {
+                profile_id: "g-secondary",
+                branch_id: "junwangi",
+                is_primary: false,
+              },
+            ],
+            error: null,
+          }),
+      };
+
+      (createClient as unknown as Mock).mockResolvedValue({
+        from: vi.fn((table: string) =>
+          table === "profiles" ? profileQuery : profileBranchesQuery
+        ),
+      });
+
+      const result = await getPaginatedGurus({
+        search: "",
+        branch: "junwangi",
+        status: "all",
+        page: 1,
+        pageSize: 10,
+      });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id).toBe("g-secondary");
+    });
+
 
     it("filters by inactive status and search term", async () => {
       const mockSelect = vi.fn().mockReturnThis();

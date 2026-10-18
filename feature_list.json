@@ -30,7 +30,7 @@
       "description": "Admin management of teachers, qualifications, contact info, branch placements, assigned programs, and active/inactive status toggles",
       "dependencies": ["feat-003"],
       "status": "completed",
-      "evidence": "Server actions at /admin/guru/actions.ts, GuruStatusButton with optimistic toggle, verified on /admin/guru"
+      "evidence": "Server actions at /admin/guru/actions.ts, GuruStatusButton with optimistic toggle, multi-branch branch filtering through profile_branches, and verified on /admin/guru"
     },
     {
       "id": "feat-005",
@@ -78,7 +78,7 @@
       "description": "Automated monthly teacher payout calculations based on session attendance and rolling 28-day student SPP tuition invoicing with official receipts and payment tracking",
       "dependencies": ["feat-008", "feat-009"],
       "status": "completed",
-      "evidence": "Sub-project 1 (Payroll Guru) completed with 4-table accounting ledger, guarded RPCs, Admin controls, and Guru monthly statements. Sub-project 2 (Student Billing & SPP Invoicing) completed: student_invoices and student_payments tables with INV-YYMM-NNNN and RCT-YYMM-NNNN sequencers, rolling 28-day cycle generator RPC generate_due_student_invoices, record_student_payment RPC, typed DAL src/lib/billing.ts, admin actions at src/app/admin/spp/actions.ts, admin dashboard at /admin/spp with 4 KPI cards, PaymentModal, OfficialReceiptModal printable slip, and WhatsApp reminder generator. Verified via 72 Vitest suites / 413 tests passed, 64.79% statements, 58.83% branches, 67.55% functions, 65.95% lines, 0 ESLint errors/warnings, and clean production Webpack build"
+      "evidence": "Sub-project 1 (Payroll Guru) completed with 4-table accounting ledger, guarded RPCs, Admin controls, and Guru monthly statements. Sub-project 2 (Student Billing & SPP Invoicing) completed: student_invoices and student_payments tables with INV-YYMM-NNNN and RCT-YYMM-NNNN sequencers, rolling 28-day cycle generator RPC generate_due_student_invoices, record_student_payment RPC, typed DAL src/lib/billing.ts, admin actions at src/app/admin/spp/actions.ts, admin dashboard at /admin/spp with 4 KPI cards, PaymentModal, OfficialReceiptModal printable slip, and WhatsApp reminder generator. Filter refresh integrity fixes for SPP, Guru, and Payroll were regression-tested and browser-smoke verified at 360px, 375px, and 1280px. Verified via 72 Vitest suites / 420 tests passed, 65.42% statements, 59.42% branches, 68.16% functions, 66.54% lines, 0 ESLint errors/warnings, and clean production Webpack build"
     },
     {
       "id": "feat-011",
