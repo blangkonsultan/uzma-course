@@ -1,5 +1,17 @@
 # Progress Log
 
+## 2026-10-18 (Release Readiness Remediation Implementation)
+- **Status**: Completed and fully verified.
+- **Scope**: Executed the approved remediation plan (`docs/superpowers/plans/2026-10-18-release-readiness-remediation.md`) across DAL architecture and mobile ergonomics.
+- **Changes implemented**:
+  - **Payroll DAL**: Added `getLatestPayrollPeriodId()` and `getPayrollPeriods()` in `src/lib/payroll.ts` with explicit domain error mapping and descending period sorting (`tests/crud/payroll-dal.test.ts` passing 7 tests).
+  - **DAL Cutover**: Cleaned up `src/app/admin/spp/page.tsx` and `src/app/admin/payroll/page.tsx`, eliminating all inline `createClient()` and raw database queries in favor of `getBranches()` and payroll DAL helpers (`tests/pages.test.tsx` passing 31 tests).
+  - **Shared Controls**: Standardized `SearchFilterBar` with `name="search"`, `inputMode="search"`, `autoComplete="off"`, `min-h-[44px] sm:min-h-[36px]`, and `text-base sm:text-sm`. Enforced 44px hit areas on AdminShell navigation trigger and mobile logout button (`tests/components-admin.test.tsx` passing 24 tests).
+  - **SPP & Payroll Controls**: Named SPP search input (`name="q"`, `aria-label="Cari tagihan SPP"`), enlarged selects/buttons to 44px on mobile and 36px on desktop, added 16px iOS-zoom-safe typography, and made action bars primary-action-first and full-width on mobile across PaymentModal, Payroll period actions, and PayrollAdjustmentForm (`tests/components/billing-client.test.tsx` and `tests/components/payroll-period-client.test.tsx` passing 14 tests).
+- **Verification**: Full `./init.sh` passed: 0 ESLint errors/warnings, **73 Vitest suites / 429 tests passed**, coverage at **66.02% statements, 59.82% branches, 68.63% functions, 67.17% lines**, and clean production Webpack build. `impeccable detect --json` returned 0 warnings (`[]`).
+- **Browser Smoke**: Authenticated headless Chromium verified at 360px, 375px, and 1280px with 0 document horizontal overflow (`scrollWidth === window.innerWidth = 360/375/1280`). Computed mobile heights confirmed at 44–46px and inputs at 16px.
+- **Commits**: `c55c0c2` (DAL), `b409fa3` (pages), `2390207` (shared controls), `286e217` (surface controls).
+
 ## 2026-10-18 (Cross-Surface Release Readiness Audit)
 - **Status**: Audit completed; no product code changes made.
 - **Scope**: Public landing page, authenticated Admin routes (`/admin`, `/admin/guru`, `/admin/murid`, `/admin/cabang`, `/admin/landing`, `/admin/payroll`, `/admin/spp`), current filter/period flows, responsive layout, accessibility, DAL boundaries, and frontend performance patterns.

@@ -1,16 +1,21 @@
 # Session Handoff
 
-## Cross-Surface Release Readiness Audit — 2026-10-18
-- All `feat-001` through `feat-011` remain completed; no new feature is currently queued in `feature_list.json`.
-- Baseline passed: `./init.sh` → 0 lint errors, 73 Vitest suites / 422 tests, clean production Webpack build. The generated `public/sw.js` diff was restored and the working tree is clean.
-- Browser smoke covered public landing and authenticated Admin routes at 360px, 375px, and 1280px. No browser errors, no document horizontal overflow, and SPP filter/search state refreshed correctly.
-- Manual release-readiness score: **16/20 (Good)**; Impeccable detector returned `[]`.
-- Prior-work audit found three first-priority corrections:
-  1. Move raw `supabase.from(...)` reads out of `src/app/admin/spp/page.tsx` and `src/app/admin/payroll/page.tsx` into `src/lib/` DAL services.
-  2. Bring shared Admin search/filter, SPP, Payroll, and mobile navigation controls to the 36–44px touch target range and `text-base sm:text-sm` mobile form typography.
-  3. Add an explicit accessible name and `name` to the SPP search input.
-- Secondary optimization: debounce or submit billing search instead of navigating on every keystroke; add intrinsic dimensions to public landing images; replace high-traffic `transition-all` declarations with property-specific transitions.
-- **Recommended next step**: obtain approval for one bounded remediation slice covering DAL boundary cleanup plus mobile control/accessibility hardening, then add regression tests and rerun the full harness/browser smoke.
+## Release Readiness Remediation Implementation — 2026-10-18
+- **Status**: Completed and verified against Definition of Done.
+- **Scope Covered**:
+  - **DAL Boundaries**: Replaced raw `supabase.from(...)` queries in `src/app/admin/spp/page.tsx` and `src/app/admin/payroll/page.tsx` with dedicated DAL functions (`getBranches()`, `getLatestPayrollPeriodId()`, and `getPayrollPeriods()`).
+  - **Touch Targets & Typography**: Standardized `SearchFilterBar`, SPP controls, PaymentModal, Payroll period controls, and PayrollAdjustmentForm to 44px mobile / 36px desktop touch target minimums with `text-base sm:text-sm` font sizing to prevent iOS Safari auto-zoom.
+  - **Accessibility & Form Contracts**: Named SPP search input (`name="q"`, `aria-label="Cari tagihan SPP"`), added standard search metadata, and reordered modal/form action bars to make the primary action dominant and full-width on mobile viewports.
+- **Verification**:
+  - Full `./init.sh` passed: 0 lint errors, **73 Vitest suites / 429 tests passed**, coverage above thresholds (**66.02% statements, 59.82% branches, 68.63% functions, 67.17% lines**), and clean production Webpack build.
+  - Mechanical detector `impeccable detect` returned 0 findings (`[]`).
+  - Browser smoke passed at 360px, 375px, and 1280px with 0 horizontal overflow (`scrollWidth === innerWidth`), computed 44–46px heights, and 16px input font size.
+- **Commits**: `c55c0c2`, `b409fa3`, `2390207`, `286e217`.
+- **Deferred Optimizations (P2/P3)**:
+  - Debounce search on `/admin/spp` to reduce rapid server navigations on typing.
+  - Add explicit intrinsic dimensions to public landing images for CLS perfection.
+  - Replace broad `transition-all` with property-specific transitions (`transition-colors`, `transition-opacity`, `transition-transform`).
+- **Recommended Next Step**: Deploy the verified remediation changes to production. All current functional requirements (`feat-001` through `feat-011`) are fully completed and clean.
 
 
 ## Admin Filter Refresh Integrity Fixes
