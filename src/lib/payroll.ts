@@ -11,6 +11,10 @@ export type PayrollEntryRow =
   Database["public"]["Tables"]["payroll_entries"]["Row"];
 export type PayrollAdjustmentRow =
   Database["public"]["Tables"]["payroll_adjustments"]["Row"];
+export type PayrollPeriodSummary = Pick<
+  PayrollPeriodRow,
+  "id" | "period_month" | "status"
+>;
 
 export interface ProfileAllowanceItem {
   name?: string;
@@ -125,6 +129,34 @@ export async function getOpenPayrollPeriod(
     throw new Error(`Gagal membaca periode payroll terbuka: ${error.message}`);
   }
   return data;
+}
+
+export async function getLatestPayrollPeriodId(): Promise<string | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("payroll_periods")
+    .select("id")
+    .order("period_month", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Gagal membaca periode payroll terbaru: ${error.message}`);
+  }
+  return data?.id ?? null;
+}
+
+export async function getPayrollPeriods(): Promise<PayrollPeriodSummary[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("payroll_periods")
+    .select("id, period_month, status")
+    .order("period_month", { ascending: false });
+
+  if (error) {
+    throw new Error(`Gagal membaca daftar periode payroll: ${error.message}`);
+  }
+  return data ?? [];
 }
 
 export async function createPayrollPeriod(
