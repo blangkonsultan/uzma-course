@@ -1,4 +1,21 @@
 # Progress Log
+
+## 2026-10-18 (Cross-Surface Release Readiness Audit)
+- **Status**: Audit completed; no product code changes made.
+- **Scope**: Public landing page, authenticated Admin routes (`/admin`, `/admin/guru`, `/admin/murid`, `/admin/cabang`, `/admin/landing`, `/admin/payroll`, `/admin/spp`), current filter/period flows, responsive layout, accessibility, DAL boundaries, and frontend performance patterns.
+- **Baseline**: `./init.sh` passed with 0 lint errors, 73 Vitest suites / 422 tests, coverage at 65.88% statements / 59.67% branches / 68.48% functions / 67.02% lines, and a clean production Webpack build. The generated `public/sw.js` diff was restored; the working tree is clean.
+- **Browser evidence**: Headless Chromium smoke checked 360px, 375px, and 1280px. Public and Admin pages reported `scrollWidth === innerWidth`, no browser errors, and no failed landing images after scrolling through tested checkpoints. SPP search and status filter state settled into the URL and refreshed KPI data correctly; search text remained preserved.
+- **Audit score (manual)**: **16/20 — Good**. Accessibility 3/4, Performance 3/4, Theming 4/4, Responsive 3/4, Implementation Integrity 3/4. `.claude/skills/impeccable/scripts/impeccable detect --json src/` returned `[]`.
+- **P1 findings**:
+  - `src/app/admin/spp/page.tsx:5,25-36` and `src/app/admin/payroll/page.tsx:10,38-62` still issue raw Supabase reads from Server Components, violating the repository DAL rule and duplicating data-access boundaries.
+  - Mobile Admin controls are below the project touch/typography standard: `SearchFilterBar` uses `text-sm` controls at `src/components/admin/search-filter-bar.tsx:88-120`; SPP native selects render at 25px and its action at 32px (`src/components/admin/billing/billing-client.tsx:243-303`); Payroll period/actions render at roughly 30-33px (`src/components/admin/payroll/payroll-period-client.tsx:197-214,302-327`); the mobile navigation trigger is 36px (`src/components/admin/admin-shell.tsx:335-342`). The 360px browser pass reproduced these computed sizes.
+  - The SPP search input at `src/components/admin/billing/billing-client.tsx:279-287` has no explicit accessible name or `name`, leaving the primary billing search field weaker than the shared `SearchFilterBar` contract.
+- **P2 findings**:
+  - Billing search pushes a server navigation on every keystroke (`src/components/admin/billing/billing-client.tsx:279-285`), which can create avoidable query churn on slow connections even though the tested final state is correct.
+  - Public landing images use raw `<img>` elements without explicit dimensions in several sections (`src/components/landing/gallery-section.tsx:174,212`, `src/components/landing/team-section.tsx:49`, and related logo/media components). CSS aspect-ratio and lazy loading mitigate some risk, but explicit intrinsic dimensions would reduce CLS and improve audit compliance.
+  - `transition-all` remains present in multiple shared and high-traffic surfaces; replacing it with property-specific transitions is a separate polish pass, not bundled into the first remediation.
+- **Decision**: All `feat-001` through `feat-011` are complete. The next progress item should be a bounded **release-readiness remediation** rather than inventing a new feature. First priority: move SPP/Payroll reads into DAL services and harden shared mobile controls; defer image-dimension and transition cleanup to a separately verified slice.
+
 ## 2026-10-18 (Admin Filter Refresh Integrity Fixes)
 - **Status**: Completed and review-approved.
 - **Root causes fixed**:

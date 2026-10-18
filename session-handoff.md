@@ -1,4 +1,18 @@
 # Session Handoff
+
+## Cross-Surface Release Readiness Audit — 2026-10-18
+- All `feat-001` through `feat-011` remain completed; no new feature is currently queued in `feature_list.json`.
+- Baseline passed: `./init.sh` → 0 lint errors, 73 Vitest suites / 422 tests, clean production Webpack build. The generated `public/sw.js` diff was restored and the working tree is clean.
+- Browser smoke covered public landing and authenticated Admin routes at 360px, 375px, and 1280px. No browser errors, no document horizontal overflow, and SPP filter/search state refreshed correctly.
+- Manual release-readiness score: **16/20 (Good)**; Impeccable detector returned `[]`.
+- Prior-work audit found three first-priority corrections:
+  1. Move raw `supabase.from(...)` reads out of `src/app/admin/spp/page.tsx` and `src/app/admin/payroll/page.tsx` into `src/lib/` DAL services.
+  2. Bring shared Admin search/filter, SPP, Payroll, and mobile navigation controls to the 36–44px touch target range and `text-base sm:text-sm` mobile form typography.
+  3. Add an explicit accessible name and `name` to the SPP search input.
+- Secondary optimization: debounce or submit billing search instead of navigating on every keystroke; add intrinsic dimensions to public landing images; replace high-traffic `transition-all` declarations with property-specific transitions.
+- **Recommended next step**: obtain approval for one bounded remediation slice covering DAL boundary cleanup plus mobile control/accessibility hardening, then add regression tests and rerun the full harness/browser smoke.
+
+
 ## Admin Filter Refresh Integrity Fixes
 - Fixed stale server-prop state after filter navigation on `/admin/spp` and `/admin/payroll` without remounting the SPP search input.
 - Fixed Guru branch filtering to include `profile_branches` secondary assignments and display all assigned branches in table/mobile views.
