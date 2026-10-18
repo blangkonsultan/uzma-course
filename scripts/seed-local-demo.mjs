@@ -24,7 +24,11 @@ function requireEnvironmentValue(env, name) {
   if (!value) throw new Error(`${name} wajib diisi.`);
   return value;
 }
-
+/**
+ * @param {Record<string, string | undefined>} baseEnv
+ * @param {string} envFilePath
+ * @returns {Record<string, string | undefined>}
+ */
 export function loadLocalEnvironment(
   baseEnv = process.env,
   envFilePath = path.join(ROOT_DIR, ".env.local")
@@ -74,7 +78,10 @@ function buildDependencies(env, overrides) {
     writeManifest: overrides.writeManifest || writeCredentialManifest,
   };
 }
-
+/**
+ * @param {Record<string, string | undefined>} [env]
+ * @param {Record<string, any>} [overrides]
+ */
 export async function seedLocalDemo(env = process.env, overrides = {}) {
   const resolvedEnv = env === process.env ? loadLocalEnvironment() : env;
   validateFixtureDefinition();

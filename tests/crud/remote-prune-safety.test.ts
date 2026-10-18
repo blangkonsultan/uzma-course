@@ -4,7 +4,12 @@ import {
 } from "@/../scripts/lib/seed-target.mjs";
 import { pruneRemoteOperational } from "@/../scripts/prune-remote-operational.mjs";
 
-const remoteEnv = () => ({
+type RemoteEnv = Record<string, string | undefined>;
+type FakeClient = {
+  query: (sql: string) => Promise<{ rows: Array<Record<string, never>> }>;
+};
+
+const remoteEnv = (): RemoteEnv => ({
   SEED_REMOTE_SUPABASE_URL: "https://demo-ref.supabase.co",
   SEED_REMOTE_PROJECT_REF: "demo-ref",
   SEED_REMOTE_SERVICE_ROLE_KEY: "remote-service-role-placeholder",
@@ -63,7 +68,10 @@ describe("remote operational prune safety", () => {
           path: "/tmp/demo-prune.dump",
           sha256: "backup-hash",
         }),
-        withPostgresTransaction: async (_url, callback) =>
+        withPostgresTransaction: async (
+          _url: string,
+          callback: (client: FakeClient) => Promise<unknown>
+        ): Promise<unknown> =>
           callback({ query: vi.fn().mockResolvedValue({ rows: [] }) }),
         verifyPostCommit: vi.fn().mockRejectedValue(new Error("landing changed")),
       }

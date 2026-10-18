@@ -15,6 +15,9 @@ function createTempEnvFile(contents: string) {
   writeFileSync(filePath, contents);
   return { directory, filePath };
 }
+type FakeClient = {
+  query: (sql: string) => Promise<{ rows: Array<{ id?: string }> }>;
+};
 
 describe("local demo seeder Auth lifecycle", () => {
   it("loads the local env file while preserving explicit shell values", () => {
@@ -108,7 +111,10 @@ describe("local demo seeder Auth lifecycle", () => {
         },
         {
           createAdminClient: () => ({ auth: { admin: { createUser, deleteUser } } }),
-          withPostgresTransaction: async (_url, callback) => {
+          withPostgresTransaction: async (
+            _url: string,
+            callback: (client: FakeClient) => Promise<unknown>
+          ): Promise<unknown> => {
             transactionCount += 1;
             if (transactionCount === 1) {
               return callback({
