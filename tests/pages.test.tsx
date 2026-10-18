@@ -9,6 +9,14 @@ import DraftPage from "@/app/admin/draft/page";
 import { getPaginatedGurus } from "@/lib/gurus";
 import { getScheduleDrafts } from "@/lib/drafts";
 
+import { getBillingSummary } from "@/lib/billing";
+import {
+  getPayrollPeriodForAdmin,
+  getOpenPayrollPeriod,
+  createPayrollPeriod,
+  getLatestPayrollPeriodId,
+  getPayrollPeriods,
+} from "@/lib/payroll";
 vi.mock("@/lib/drafts", () => ({
   getScheduleDrafts: vi.fn().mockResolvedValue([]),
 }));
@@ -78,6 +86,30 @@ vi.mock("@/lib/dashboard", () => ({
   getRecentGurus: vi.fn().mockResolvedValue([])
 }));
 
+
+vi.mock("@/lib/billing", () => ({
+  getBillingSummary: vi.fn().mockResolvedValue({
+    invoices: [],
+    kpis: {
+      total_invoiced: 0,
+      total_paid: 0,
+      total_outstanding: 0,
+      unpaid_students_count: 0,
+    },
+  }),
+}));
+
+vi.mock("@/lib/payroll", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/payroll")>();
+  return {
+    ...actual,
+    getPayrollPeriodForAdmin: vi.fn(),
+    getOpenPayrollPeriod: vi.fn(),
+    createPayrollPeriod: vi.fn(),
+    getLatestPayrollPeriodId: vi.fn(),
+    getPayrollPeriods: vi.fn(),
+  };
+});
 vi.mock("@/lib/branches", () => ({
   getPaginatedBranchesWithStats: vi.fn().mockResolvedValue({ branches: [{ id: "krian", name: "Cabang Krian" }], totalItems: 1, totalPages: 1 }),
   getBranchById: vi.fn(),
@@ -149,6 +181,8 @@ import DetailProgramPage from "@/app/admin/program/[id]/page";
 import EditProgramPage from "@/app/admin/program/[id]/edit/page";
 import LandingCmsPage from "@/app/admin/landing/page";
 import SectionEditorPage from "@/app/admin/landing/[section]/page";
+import AdminBillingPage from "@/app/admin/spp/page";
+import AdminPayrollPage from "@/app/admin/payroll/page";
 import type { LandingSectionKey } from "@/types/landing";
 
 describe("Application Pages (src/app/)", () => {
@@ -477,6 +511,113 @@ describe("Application Pages (src/app/)", () => {
       render(pageJsx);
       
       expect(screen.getByText("Peringatan Aktivasi Jadwal")).toBeDefined();
+    });
+  });
+
+  describe("Billing & Payroll Admin Pages", () => {
+    it("renders AdminBillingPage with DAL-provided active branches", async () => {
+      vi.mocked(getBillingSummary).mockResolvedValueOnce({
+        invoices: [],
+        kpis: {
+          total_invoiced: 100000,
+          total_paid: 50000,
+          total_outstanding: 50000,
+          unpaid_students_count: 1,
+        },
+      });
+      vi.mocked(getBranches).mockResolvedValueOnce([
+        { id: "b-1", name: "Cabang Sukses" } as never,
+      ]);
+
+      const pageJsx = await AdminBillingPage({ searchParams: Promise.resolve({}) });
+      render(pageJsx);
+
+      expect(screen.getByText("Tagihan SPP Murid")).toBeDefined();
+      expect(screen.getByText("Cabang Sukses")).toBeDefined();
+    });
+
+    it("uses the latest Payroll period when no current open period exists", async () => {
+      vi.mocked(getOpenPayrollPeriod).mockResolvedValueOnce(null);
+      vi.mocked(getLatestPayrollPeriodId).mockResolvedValueOnce("period-nov");
+      vi.mocked(getPayrollPeriods).mockResolvedValueOnce([
+        { id: "period-nov", period_month: "2026-11-01", status: "closed" },
+      ]);
+      vi.mocked(getPayrollPeriodForAdmin).mockResolvedValueOnce({
+        period: {
+          id: "period-nov",
+          period_month: "2026-11-01",
+          status: "closed",
+          closed_at: null,
+          closed_by: null,
+          paid_at: null,
+          paid_by: null,
+          created_at: "",
+          updated_at: "",
+        },
+        entries: [],
+        adjustments: [],
+        linesCount: 0,
+        totals: {
+          fee_sessions_total: 0,
+          fixed_allowances_total: 0,
+          adjustments_total: 0,
+          total_amount: 0,
+        },
+      });
+
+      const pageJsx = await AdminPayrollPage({ searchParams: Promise.resolve({}) });
+      render(pageJsx);
+
+      expect(screen.getAllByText("Penggajian Guru").length).toBeGreaterThan(0);
+      expect(screen.getByText("Periode November 2026")).toBeDefined();
+      expect(createPayrollPeriod).not.toHaveBeenCalled();
+    });
+
+    it("creates and renders a current Payroll period when no period exists", async () => {
+      vi.mocked(getOpenPayrollPeriod).mockResolvedValueOnce(null);
+      vi.mocked(getLatestPayrollPeriodId).mockResolvedValueOnce(null);
+      vi.mocked(createPayrollPeriod).mockResolvedValueOnce({
+        id: "period-auto",
+        period_month: "2026-10-01",
+        status: "open",
+        closed_at: null,
+        closed_by: null,
+        paid_at: null,
+        paid_by: null,
+        created_at: "",
+        updated_at: "",
+      });
+      vi.mocked(getPayrollPeriods).mockResolvedValueOnce([
+        { id: "period-auto", period_month: "2026-10-01", status: "open" },
+      ]);
+      vi.mocked(getPayrollPeriodForAdmin).mockResolvedValueOnce({
+        period: {
+          id: "period-auto",
+          period_month: "2026-10-01",
+          status: "open",
+          closed_at: null,
+          closed_by: null,
+          paid_at: null,
+          paid_by: null,
+          created_at: "",
+          updated_at: "",
+        },
+        entries: [],
+        adjustments: [],
+        linesCount: 0,
+        totals: {
+          fee_sessions_total: 0,
+          fixed_allowances_total: 0,
+          adjustments_total: 0,
+          total_amount: 0,
+        },
+      });
+
+      const pageJsx = await AdminPayrollPage({ searchParams: Promise.resolve({}) });
+      render(pageJsx);
+
+      expect(createPayrollPeriod).toHaveBeenCalled();
+      expect(screen.getByText("Periode Oktober 2026")).toBeDefined();
     });
   });
 });

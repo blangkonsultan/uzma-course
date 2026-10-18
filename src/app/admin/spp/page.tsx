@@ -1,9 +1,8 @@
 import { requireAdminPage } from "@/lib/auth";
 import { PageHeader } from "@/components/admin/page-header";
 import { getBillingSummary } from "@/lib/billing";
+import { getBranches } from "@/lib/branches";
 import { BillingClient } from "@/components/admin/billing/billing-client";
-import { createClient } from "@/lib/supabase/server";
-
 export const metadata = {
   title: "Tagihan SPP Murid | Uzma Course",
 };
@@ -22,21 +21,14 @@ export default async function AdminBillingPage({
   await requireAdminPage();
   const { branch, status, q } = await searchParams;
 
-  const supabase = await createClient();
-  const [summary, branchesRes] = await Promise.all([
+  const [summary, branches] = await Promise.all([
     getBillingSummary({
       branchId: branch,
       status: status,
       search: q,
     }),
-    supabase
-      .from("branches")
-      .select("id, name")
-      .eq("is_active", true)
-      .order("name"),
+    getBranches(),
   ]);
-
-  const branches = branchesRes.data || [];
 
   return (
     <div className="space-y-6">

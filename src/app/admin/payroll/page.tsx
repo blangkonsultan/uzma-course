@@ -4,10 +4,11 @@ import {
   getPayrollPeriodForAdmin,
   getOpenPayrollPeriod,
   createPayrollPeriod,
+  getLatestPayrollPeriodId,
+  getPayrollPeriods,
   getWIBMonthFirstDay,
 } from "@/lib/payroll";
 import { PayrollPeriodClient } from "@/components/admin/payroll/payroll-period-client";
-import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
   title: "Penggajian Guru | Uzma Course",
@@ -34,17 +35,9 @@ export default async function AdminPayrollPage({
     if (openPeriod) {
       targetPeriodId = openPeriod.id;
     } else {
-      // Check most recent period
-      const supabase = await createClient();
-      const { data: recent } = await supabase
-        .from("payroll_periods")
-        .select("id")
-        .order("period_month", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (recent) {
-        targetPeriodId = recent.id;
+      const latestId = await getLatestPayrollPeriodId();
+      if (latestId) {
+        targetPeriodId = latestId;
       } else {
         // Automatically create open period for current month
         const newPeriod = await createPayrollPeriod(user.id, currentMonthDate);
@@ -53,16 +46,10 @@ export default async function AdminPayrollPage({
     }
   }
 
-  const supabase = await createClient();
-  const [detail, allPeriodsRes] = await Promise.all([
+  const [detail, allPeriods] = await Promise.all([
     targetPeriodId ? getPayrollPeriodForAdmin(targetPeriodId) : null,
-    supabase
-      .from("payroll_periods")
-      .select("id, period_month, status")
-      .order("period_month", { ascending: false }),
+    getPayrollPeriods(),
   ]);
-  const allPeriods = allPeriodsRes.data || [];
-
   return (
     <div className="space-y-6">
       <PageHeader
