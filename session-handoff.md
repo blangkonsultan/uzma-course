@@ -8,9 +8,15 @@
 - **Code fix**: `scripts/lib/remote-backup.mjs` now waits for both PostgreSQL child exit and backup output stream completion; regression test added at `tests/crud/remote-backup.test.ts`.
 - **Verification**: `./init.sh` passed with 78 Vitest suites / 451 tests, clean lint, and clean production Webpack build.
 
+## Release Status — 2026-10-19
+- **Deployment**: Commit `879c20c` pushed to `main`; Vercel production deployment `uzma-course-o92z9m6ad-uzmacourseapp-7223.vercel.app` is `READY`. Canonical site: `https://uzmacourse.com`.
+- **Admin smoke**: Login succeeded; `/admin/spp` and `/admin/payroll` loaded successfully.
+- **SPP filters**: Branch, status, and search navigation settled correctly on production.
+- **Responsive smoke**: SPP and Payroll had zero horizontal overflow at 360px, 375px, and 1280px.
+- **Guru limitation**: `/guru/jadwal` correctly redirects the admin session to `/admin`. An authenticated Guru smoke remains unavailable because the remote prune removed all non-admin auth users by design; provision a dedicated Guru test account before running that workflow.
+
 ## Next Session TODO
-- [ ] Deploy the verified changes through the normal release pipeline.
-- [ ] Run authenticated production smoke for SPP, Guru, and Payroll filter/period flows.
+- [ ] Provision or approve a dedicated production Guru test account if authenticated Guru smoke is required.
 - [ ] Keep the verified remote backup outside the repository; do not commit `.env.remote.local` or backup files.
 
 

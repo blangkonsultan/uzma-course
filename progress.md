@@ -1,4 +1,12 @@
 # Progress Log
+## 2026-10-19 (Production Deployment and Smoke)
+- **Deployment**: Pushed commit `879c20c` to `main`; Vercel production deployment `uzma-course-o92z9m6ad-uzmacourseapp-7223.vercel.app` is `READY`. Canonical site: `https://uzmacourse.com`.
+- **Admin smoke**: Production admin login succeeded with the configured test account.
+- **SPP smoke**: `/admin/spp` loaded with zero operational data as expected after prune. Branch, status, and search filters settled into the URL (`branch=junwangi`, `status=unpaid`, `q=INV-`).
+- **Payroll smoke**: `/admin/payroll` loaded successfully and displayed the current open period with zero sessions and zero teachers after prune.
+- **Guru smoke**: Admin access to `/guru/jadwal` correctly redirected to `/admin`. An authenticated Guru workflow could not run because the remote prune intentionally left zero non-admin auth users; no Guru test account exists in production.
+- **Responsive smoke**: SPP and Payroll reported `scrollWidth === innerWidth` at 360px, 375px, and 1280px.
+
 ## 2026-10-19 (Remote Production Operational Prune)
 - **Status**: Completed successfully with the backup-gated remote prune command.
 - **Connection**: Used the Supabase Session pooler over port `5432`; no credentials are recorded here.
