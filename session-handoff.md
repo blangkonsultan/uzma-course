@@ -1,19 +1,17 @@
 # Session Handoff
-## Local Demo Fixture and Remote Prune Tooling — 2026-10-18
-- **Local setup completed**: `.env.local` now targets Supabase local (`127.0.0.1:54321`) with the generated local keys and PostgreSQL URL `127.0.0.1:54322`. Secret values were not printed or committed.
-- **Local seed completed**: `npm run seed:local` passed with 7 guru, 24 murid, 33 enrollment, multi-program coverage, nominal/percentage discounts, 3 payroll periods, and paid/unpaid/cancelled SPP data. Guru 07 has `minimum_income = NULL`.
-- **Credential manifest**: `supabase/seed-credentials.local.json`, ignored and mode `600`.
-- **Remote prune tooling**: Implemented `npm run prune:remote` with project guard, explicit confirmation, backup-before-write, transactional operational delete, preserved landing/admin snapshots, and no insert path.
-- **Remote status**: Not executed. The command failed closed because `.env.remote.local` is absent. Remote execution requires local-only `SEED_REMOTE_SERVICE_ROLE_KEY` and `SEED_REMOTE_DB_URL`; no remote data changed.
-- **Verification**: 77 Vitest suites / 450 tests passed, clean lint, clean production build, and local API HTTP smoke 200. Managed Chromium navigation timed out before visual interaction; no visual browser claim is made.
-- **Commits**: `6c6dcbb`, `30c516d`, `51e5c9b`, `a597ec8`, `ece20bd`.
+## Remote Production Operational Prune — 2026-10-19
+- **Status**: Completed successfully. The remote operational prune committed after backup and invariant checks.
+- **Connection**: Used the Supabase Session pooler on port `5432`; `.env.remote.local` remains ignored and mode `600`.
+- **Backup**: `/home/bagas/backups/uzma-course/remote-prune-2026-10-19T00-51-39-288Z.dump`, mode `600`, SHA-256 `c4d92ffce47cf50f9cb38a4923df40a33f2bd85d5220cacf2171f909cb47b4fb`.
+- **Post-prune verification**: All operational counts are zero, including non-admin profiles/auth users, students, enrollments, shifts, schedules, attendance, teaching logs, payroll, invoices, payments, and non-admin assignments.
+- **Preserved data**: 1 admin profile, 14 landing-content rows, 4 programs, 7 variants, 3 branches, and 3 program-logo objects.
+- **Code fix**: `scripts/lib/remote-backup.mjs` now waits for both PostgreSQL child exit and backup output stream completion; regression test added at `tests/crud/remote-backup.test.ts`.
+- **Verification**: `./init.sh` passed with 78 Vitest suites / 451 tests, clean lint, and clean production Webpack build.
 
-## Next Session TODO — Remote Production Prune
-- [ ] Create ignored `.env.remote.local` with the approved remote service-role key and direct PostgreSQL URL; never paste secrets into chat or commit the file.
-- [ ] Confirm backup destination outside the repository.
-- [ ] Run `npm run prune:remote -- --confirm PRUNE_REMOTE_OPERATIONAL_DATA`.
-- [ ] Verify the backup hash, preserved landing/admin snapshots, and zero operational rows after prune.
-- **Current safety state**: remote production has not been modified.
+## Next Session TODO
+- [ ] Deploy the verified changes through the normal release pipeline.
+- [ ] Run authenticated production smoke for SPP, Guru, and Payroll filter/period flows.
+- [ ] Keep the verified remote backup outside the repository; do not commit `.env.remote.local` or backup files.
 
 
 ## Release Readiness Remediation Implementation — 2026-10-18

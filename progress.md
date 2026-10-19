@@ -1,4 +1,14 @@
 # Progress Log
+## 2026-10-19 (Remote Production Operational Prune)
+- **Status**: Completed successfully with the backup-gated remote prune command.
+- **Connection**: Used the Supabase Session pooler over port `5432`; no credentials are recorded here.
+- **Backup**: `/home/bagas/backups/uzma-course/remote-prune-2026-10-19T00-51-39-288Z.dump`, mode `600`, SHA-256 `c4d92ffce47cf50f9cb38a4923df40a33f2bd85d5220cacf2171f909cb47b4fb`.
+- **Remote result**: `committed: true`; post-commit verification passed. Non-admin profiles/auth users, students/enrollments, schedules, attendance, teaching logs, payroll, invoices, payments, and non-admin assignments are all zero.
+- **Preservation result**: 1 admin profile, 14 landing-content rows, 4 programs, 7 program variants, 3 branches, and 3 program-logo objects remain.
+- **Implementation fix**: Added regression coverage and fixed the remote backup stream completion race in `scripts/lib/remote-backup.mjs`; backup completion now waits for both the child exit and output stream finish.
+- **Verification**: `./init.sh` passed with 78 Vitest suites / 451 tests, clean lint, coverage `66.02%` statements / `59.82%` branches / `68.63%` functions / `67.17%` lines, and a clean production Webpack build.
+- Existing happy-dom iframe `NotSupportedError` messages for external Maps/YouTube/TikTok fixtures remained non-failing test output.
+
 ## 2026-10-18 (Local Demo Fixture and Remote Prune Tooling)
 - **Status**: Local environment and fixture completed; remote prune tooling implemented but not executed because the explicit remote environment file is not available.
 - **Local environment**:

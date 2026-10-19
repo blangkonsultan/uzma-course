@@ -25,7 +25,9 @@ export async function createRemoteBackup(
   const outputPath = path.join(outputDirectory, `remote-prune-${timestamp}.dump`);
   const command = options.command || process.env.PG_DUMP_BIN || "pg_dump";
   const args = options.args || ["--format=custom", databaseUrl];
-  const output = createWriteStream(outputPath, { mode: 0o600 });
+  const output =
+    options.createOutput?.(outputPath) ??
+    createWriteStream(outputPath, { mode: 0o600 });
 
   try {
     await new Promise((resolve, reject) => {
@@ -33,24 +35,38 @@ export async function createRemoteBackup(
         stdio: ["ignore", "pipe", "pipe"],
       });
       let stderr = "";
+      let childExited = false;
+      let streamFinished = false;
+      let settled = false;
+      const fail = (error) => {
+        if (settled) return;
+        settled = true;
+        reject(error);
+      };
+      const resolveIfReady = () => {
+        if (settled || !childExited || !streamFinished) return;
+        settled = true;
+        resolve();
+      };
       child.stderr.on("data", (chunk) => {
         stderr += chunk.toString();
       });
-      child.on("error", reject);
+      child.on("error", fail);
       child.on("close", (code) => {
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(new Error(`Backup PostgreSQL gagal dengan exit code ${code}.`));
+        if (code !== 0) {
+          fail(new Error(`Backup PostgreSQL gagal dengan exit code ${code}.`));
+          return;
         }
+        childExited = true;
+        resolveIfReady();
+      });
+      output.on("error", fail);
+      output.on("finish", () => {
+        streamFinished = true;
+        resolveIfReady();
       });
       child.stdout.pipe(output);
-      output.on("error", reject);
       void stderr;
-    });
-    await new Promise((resolve, reject) => {
-      output.on("finish", resolve);
-      output.on("error", reject);
     });
   } catch (error) {
     output.destroy();
