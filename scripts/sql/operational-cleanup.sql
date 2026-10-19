@@ -15,6 +15,27 @@ TRUNCATE TABLE
   public.students,
   public.branch_shifts;
 
+-- Remove local-only orphaned admin profiles left without an Auth user.
+DELETE FROM public.profile_branches
+WHERE profile_id IN (
+  SELECT p.id
+  FROM public.profiles p
+  WHERE p.role = 'admin'
+    AND NOT EXISTS (SELECT 1 FROM auth.users u WHERE u.id = p.id)
+);
+
+DELETE FROM public.profile_programs
+WHERE profile_id IN (
+  SELECT p.id
+  FROM public.profiles p
+  WHERE p.role = 'admin'
+    AND NOT EXISTS (SELECT 1 FROM auth.users u WHERE u.id = p.id)
+);
+
+DELETE FROM public.profiles p
+WHERE p.role = 'admin'
+  AND NOT EXISTS (SELECT 1 FROM auth.users u WHERE u.id = p.id);
+
 DELETE FROM public.profile_branches
 WHERE profile_id IN (
   SELECT id FROM public.profiles WHERE role <> 'admin'

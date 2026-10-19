@@ -2,8 +2,8 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { GURU_FIXTURES } from "@/../scripts/lib/demo-fixture.mjs";
-import { createGuruUsers } from "@/../scripts/lib/local-auth.mjs";
+import { ADMIN_FIXTURE, GURU_FIXTURES } from "@/../scripts/lib/demo-fixture.mjs";
+import { createGuruUsers, ensureAdminUser } from "@/../scripts/lib/local-auth.mjs";
 import {
   loadLocalEnvironment,
   seedLocalDemo,
@@ -16,7 +16,10 @@ function createTempEnvFile(contents: string) {
   return { directory, filePath };
 }
 type FakeClient = {
-  query: (sql: string) => Promise<{ rows: Array<{ id?: string }> }>;
+  query: (
+    sql: string,
+    values?: unknown[]
+  ) => Promise<{ rows: Array<{ id?: string }> }>;
 };
 
 describe("local demo seeder Auth lifecycle", () => {
@@ -68,6 +71,47 @@ describe("local demo seeder Auth lifecycle", () => {
     );
   });
 
+  it("creates or updates the local admin fixture without trusting role metadata", async () => {
+    const createUser = vi.fn(async ({ email, user_metadata }) => ({
+      data: {
+        user: {
+          id: `id-${email}`,
+          email,
+          user_metadata,
+        },
+      },
+      error: null,
+    }));
+    const adminClient = {
+      auth: {
+        admin: {
+          listUsers: vi.fn().mockResolvedValue({ data: { users: [] }, error: null }),
+          createUser,
+          updateUserById: vi.fn(),
+        },
+      },
+    };
+
+    const user = await ensureAdminUser(adminClient, ADMIN_FIXTURE, {
+      password: "local-admin-password",
+    });
+
+    expect(user).toMatchObject({
+      email: ADMIN_FIXTURE.email,
+      fullName: ADMIN_FIXTURE.fullName,
+      password: "local-admin-password",
+      created: true,
+    });
+    expect(createUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: ADMIN_FIXTURE.email,
+        password: "local-admin-password",
+        email_confirm: true,
+        user_metadata: expect.objectContaining({ role: "admin" }),
+      })
+    );
+  });
+
   it("deletes only users created by the current run after partial failure", async () => {
     const deleteUser = vi.fn().mockResolvedValue({ error: null });
     const adminClient = {
@@ -111,6 +155,13 @@ describe("local demo seeder Auth lifecycle", () => {
         },
         {
           createAdminClient: () => ({ auth: { admin: { createUser, deleteUser } } }),
+          ensureAdminUser: vi.fn().mockResolvedValue({
+            id: "admin-id",
+            email: ADMIN_FIXTURE.email,
+            fullName: ADMIN_FIXTURE.fullName,
+            password: "local-admin-password",
+            created: true,
+          }),
           withPostgresTransaction: async (
             _url: string,
             callback: (client: FakeClient) => Promise<unknown>
@@ -135,7 +186,7 @@ describe("local demo seeder Auth lifecycle", () => {
     ).rejects.toThrow("fixture SQL failed");
 
     expect(writeManifest).not.toHaveBeenCalled();
-    expect(deleteUser).toHaveBeenCalledTimes(7);
+    expect(deleteUser).toHaveBeenCalledTimes(8);
   });
 
   it("rejects local seeding when the target guard fails", async () => {

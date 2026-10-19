@@ -3,6 +3,12 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 export const FIXTURE_BRANCHES = ["sumokembangsri", "junwangi"];
+
+export const ADMIN_FIXTURE = {
+  key: "admin-local",
+  email: "local-admin@uzmacourse.test",
+  fullName: "Admin Pusat",
+};
 export const FIXTURE_PROGRAMS = ["AHE", "ASE", "BEE", "MAPEL"];
 
 const PROGRAM_SPP = {

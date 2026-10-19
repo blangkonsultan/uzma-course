@@ -1,5 +1,6 @@
 DO $$
 DECLARE
+  admin_count integer;
   guru_count integer;
   student_count integer;
   multi_program_count integer;
@@ -15,6 +16,11 @@ DECLARE
   guru_seven_id uuid;
   closed_period_id uuid;
 BEGIN
+  SELECT COUNT(*) INTO admin_count FROM public.profiles WHERE role = 'admin';
+  IF admin_count <> 1 THEN
+    RAISE EXCEPTION 'Fixture invariant failed: expected one local admin, got %', admin_count;
+  END IF;
+
   SELECT COUNT(*) INTO guru_count FROM public.profiles WHERE role = 'guru';
   IF guru_count <> 7 THEN
     RAISE EXCEPTION 'Fixture invariant failed: expected 7 gurus, got %', guru_count;

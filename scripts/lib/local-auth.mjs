@@ -11,6 +11,62 @@ function getPassword(passwordSource, guru) {
   return `Demo-${randomBytes(18).toString("base64url")}`;
 }
 
+export async function ensureAdminUser(adminClient, adminFixture, passwordSource) {
+  const listResult = await adminClient.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  });
+  if (listResult?.error) {
+    throw new Error(`Gagal membaca akun admin lokal: ${listResult.error.message}`);
+  }
+
+  const existingUser = listResult.data?.users?.find(
+    (user) => user.email?.toLowerCase() === adminFixture.email.toLowerCase()
+  );
+  const password = getPassword(passwordSource, adminFixture);
+  const userMetadata = {
+    full_name: adminFixture.fullName,
+    role: "admin",
+  };
+
+  if (existingUser) {
+    const result = await adminClient.auth.admin.updateUserById(existingUser.id, {
+      password,
+      email_confirm: true,
+      user_metadata: userMetadata,
+    });
+    if (result?.error) {
+      throw new Error(`Gagal memperbarui akun admin lokal: ${result.error.message}`);
+    }
+    return {
+      id: existingUser.id,
+      email: adminFixture.email,
+      fullName: adminFixture.fullName,
+      password,
+      created: false,
+    };
+  }
+
+  const result = await adminClient.auth.admin.createUser({
+    email: adminFixture.email,
+    password,
+    email_confirm: true,
+    user_metadata: userMetadata,
+  });
+  if (result?.error || !result?.data?.user?.id) {
+    throw new Error(
+      `Gagal membuat akun admin lokal: ${result?.error?.message || "user tidak dikembalikan."}`
+    );
+  }
+  return {
+    id: result.data.user.id,
+    email: adminFixture.email,
+    fullName: adminFixture.fullName,
+    password,
+    created: true,
+  };
+}
+
 export async function deleteCreatedUsers(adminClient, userIds) {
   for (const userId of userIds) {
     const result = await adminClient.auth.admin.deleteUser(userId);

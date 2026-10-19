@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 import {
+  ADMIN_FIXTURE,
   ENROLLMENT_FIXTURES,
   GURU_FIXTURES,
   STUDENT_FIXTURES,
@@ -11,7 +12,11 @@ import {
   validateFixtureDefinition,
 } from "./lib/demo-fixture.mjs";
 import { assertLocalSeedTarget, getLocalDatabaseUrl } from "./lib/seed-target.mjs";
-import { createGuruUsers, deleteCreatedUsers } from "./lib/local-auth.mjs";
+import {
+  createGuruUsers,
+  deleteCreatedUsers,
+  ensureAdminUser,
+} from "./lib/local-auth.mjs";
 import { withPostgresTransaction } from "./lib/postgres.mjs";
 
 const ROOT_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
@@ -53,8 +58,8 @@ function createDefaultAdminClient(env) {
   });
 }
 
-function createPasswordSource(env) {
-  const configuredPassword = env.SEED_GURU_PASSWORD?.trim();
+function createPasswordSource(env, variableName) {
+  const configuredPassword = env[variableName]?.trim();
   if (configuredPassword) return { password: configuredPassword };
   return {};
 }
@@ -71,6 +76,7 @@ function writeCredentialManifest(manifest) {
 function buildDependencies(env, overrides) {
   return {
     createAdminClient: overrides.createAdminClient || (() => createDefaultAdminClient(env)),
+    ensureAdminUser: overrides.ensureAdminUser || ensureAdminUser,
     withPostgresTransaction: overrides.withPostgresTransaction || withPostgresTransaction,
     cleanupSql: overrides.cleanupSql || readFileSync(CLEANUP_SQL_PATH, "utf8"),
     fixtureSql: overrides.fixtureSql || renderFixtureSql(),
@@ -89,23 +95,35 @@ export async function seedLocalDemo(env = process.env, overrides = {}) {
   const databaseUrl = getLocalDatabaseUrl(resolvedEnv);
   const dependencies = buildDependencies(resolvedEnv, overrides);
   const adminClient = dependencies.createAdminClient();
+  let adminUser;
   let createdUsers = [];
 
-  await dependencies.withPostgresTransaction(databaseUrl, async (client) => {
-    await client.query(dependencies.cleanupSql);
-    const result = await client.query(
-      "SELECT id FROM public.profiles WHERE role = 'admin' ORDER BY created_at LIMIT 1"
-    );
-    if (!result.rows[0]?.id) {
-      throw new Error("Tidak ada akun admin lokal untuk membuat fixture payroll/SPP.");
-    }
-  });
-
   try {
+    adminUser = await dependencies.ensureAdminUser(
+      adminClient,
+      ADMIN_FIXTURE,
+      createPasswordSource(resolvedEnv, "SEED_ADMIN_PASSWORD")
+    );
+
+    await dependencies.withPostgresTransaction(databaseUrl, async (client) => {
+      await client.query(
+        "UPDATE public.profiles SET role = 'admin', full_name = $2 WHERE id = $1",
+        [adminUser.id, adminUser.fullName]
+      );
+      await client.query(dependencies.cleanupSql);
+      const result = await client.query(
+        "SELECT id FROM public.profiles WHERE role = 'admin' AND id = $1",
+        [adminUser.id]
+      );
+      if (!result.rows[0]?.id) {
+        throw new Error("Akun admin lokal gagal dipertahankan setelah cleanup.");
+      }
+    });
+
     createdUsers = await createGuruUsers(
       adminClient,
       GURU_FIXTURES,
-      createPasswordSource(resolvedEnv)
+      createPasswordSource(resolvedEnv, "SEED_GURU_PASSWORD")
     );
 
     await dependencies.withPostgresTransaction(databaseUrl, async (client) => {
@@ -116,22 +134,25 @@ export async function seedLocalDemo(env = process.env, overrides = {}) {
     const manifestPath = await dependencies.writeManifest({
       generatedAt: new Date().toISOString(),
       target: "local",
+      admin: adminUser,
       users: createdUsers,
     });
 
     return {
       target: "local",
+      admin: adminUser.email,
       gurus: GURU_FIXTURES.length,
       students: STUDENT_FIXTURES.length,
       enrollments: ENROLLMENT_FIXTURES.length,
       manifestPath,
     };
   } catch (error) {
-    if (createdUsers.length > 0) {
-      await deleteCreatedUsers(
-        adminClient,
-        createdUsers.map((user) => user.id)
-      );
+    const createdUserIds = [
+      ...createdUsers.map((user) => user.id),
+      ...(adminUser?.created ? [adminUser.id] : []),
+    ];
+    if (createdUserIds.length > 0) {
+      await deleteCreatedUsers(adminClient, createdUserIds);
     }
     throw error;
   }
