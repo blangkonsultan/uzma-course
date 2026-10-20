@@ -58,9 +58,10 @@ function createDefaultAdminClient(env) {
   });
 }
 
-function createPasswordSource(env, variableName) {
+function createPasswordSource(env, variableName, defaultPassword) {
   const configuredPassword = env[variableName]?.trim();
   if (configuredPassword) return { password: configuredPassword };
+  if (defaultPassword) return { password: defaultPassword };
   return {};
 }
 
@@ -99,13 +100,21 @@ export async function seedLocalDemo(env = process.env, overrides = {}) {
   let createdUsers = [];
 
   try {
+    const adminFixture = {
+      ...ADMIN_FIXTURE,
+      email: resolvedEnv.SEED_ADMIN_EMAIL?.trim() || ADMIN_FIXTURE.email,
+    };
     adminUser = await dependencies.ensureAdminUser(
       adminClient,
-      ADMIN_FIXTURE,
-      createPasswordSource(resolvedEnv, "SEED_ADMIN_PASSWORD")
+      adminFixture,
+      createPasswordSource(resolvedEnv, "SEED_ADMIN_PASSWORD", "admin123456")
     );
 
     await dependencies.withPostgresTransaction(databaseUrl, async (client) => {
+      await client.query(
+        "UPDATE public.profiles SET role = 'guru' WHERE role = 'admin' AND id <> $1",
+        [adminUser.id]
+      );
       await client.query(
         "UPDATE public.profiles SET role = 'admin', full_name = $2 WHERE id = $1",
         [adminUser.id, adminUser.fullName]
@@ -123,7 +132,7 @@ export async function seedLocalDemo(env = process.env, overrides = {}) {
     createdUsers = await createGuruUsers(
       adminClient,
       GURU_FIXTURES,
-      createPasswordSource(resolvedEnv, "SEED_GURU_PASSWORD")
+      createPasswordSource(resolvedEnv, "SEED_GURU_PASSWORD", "guru123456")
     );
 
     await dependencies.withPostgresTransaction(databaseUrl, async (client) => {

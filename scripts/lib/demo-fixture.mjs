@@ -6,8 +6,8 @@ export const FIXTURE_BRANCHES = ["sumokembangsri", "junwangi"];
 
 export const ADMIN_FIXTURE = {
   key: "admin-local",
-  email: "local-admin@uzmacourse.test",
-  fullName: "Admin Pusat",
+  email: "admin@uzmacourse.com",
+  fullName: "Admin Uzma Course",
 };
 export const FIXTURE_PROGRAMS = ["AHE", "ASE", "BEE", "MAPEL"];
 

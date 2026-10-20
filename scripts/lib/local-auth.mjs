@@ -1,14 +1,12 @@
-import { randomBytes } from "node:crypto";
-
-function getPassword(passwordSource, guru) {
+function getPassword(passwordSource, user) {
   if (typeof passwordSource === "string") return passwordSource;
   if (passwordSource && typeof passwordSource.password === "string") {
     return passwordSource.password;
   }
   if (passwordSource && typeof passwordSource.getPassword === "function") {
-    return passwordSource.getPassword(guru);
+    return passwordSource.getPassword(user);
   }
-  return `Demo-${randomBytes(18).toString("base64url")}`;
+  return user?.key === "admin-local" ? "admin123456" : "guru123456";
 }
 
 export async function ensureAdminUser(adminClient, adminFixture, passwordSource) {
@@ -19,6 +17,18 @@ export async function ensureAdminUser(adminClient, adminFixture, passwordSource)
   if (listResult?.error) {
     throw new Error(`Gagal membaca akun admin lokal: ${listResult.error.message}`);
   }
+  const staleAdmins = listResult.data?.users?.filter(
+    (user) =>
+      user.email?.toLowerCase() !== adminFixture.email.toLowerCase() &&
+      (user.email?.toLowerCase() === "local-admin@uzmacourse.test" ||
+        user.user_metadata?.role === "admin")
+  );
+  if (staleAdmins?.length && typeof adminClient.auth?.admin?.deleteUser === "function") {
+    for (const stale of staleAdmins) {
+      await adminClient.auth.admin.deleteUser(stale.id);
+    }
+  }
+
 
   const existingUser = listResult.data?.users?.find(
     (user) => user.email?.toLowerCase() === adminFixture.email.toLowerCase()
