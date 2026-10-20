@@ -1,12 +1,18 @@
 {
   "mcpServers": {
+    "supabase-local": {
+      "type": "http",
+      "url": "http://127.0.0.1:54321/mcp"
+    },
     "supabase-prod-read": {
       "type": "http",
-      "url": "https://mcp.supabase.com/mcp?project_ref=tnqudnltxblfbbgzkcwb&read_only=true&features=database,docs"
+      "url": "https://mcp.supabase.com/mcp?project_ref=tnqudnltxblfbbgzkcwb&read_only=true&features=database,docs",
+      "enabled": false
     },
     "supabase-prod-write": {
       "type": "http",
-      "url": "https://mcp.supabase.com/mcp?project_ref=tnqudnltxblfbbgzkcwb&features=database,docs"
+      "url": "https://mcp.supabase.com/mcp?project_ref=tnqudnltxblfbbgzkcwb&features=database,docs",
+      "enabled": false
     }
   }
 }
