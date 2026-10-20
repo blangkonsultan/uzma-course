@@ -49,6 +49,12 @@ export interface BillingSummary {
   kpis: BillingKPIs;
 }
 
+export type {
+  GroupedStudentBilling,
+  BillingReportSummary,
+} from "./billing-helpers";
+export { groupInvoicesByStudent } from "./billing-helpers";
+
 export interface RecordPaymentInput {
   invoice_id: string;
   payment_method: "cash" | "transfer_bca" | "transfer_bri" | "transfer_mandiri" | "qris" | "other";

@@ -14,10 +14,12 @@ import {
   MessageCircle,
   Receipt,
   Check,
+  Printer,
 } from "lucide-react";
 import { generateCycleInvoicesAction } from "@/app/admin/spp/actions";
 import { PaymentModal } from "./payment-modal";
 import { OfficialReceiptModal } from "./official-receipt-modal";
+import { SppExportModal } from "./spp-export-modal";
 import type { BillingSummary, StudentInvoiceItem } from "@/lib/billing";
 
 interface BillingClientProps {
@@ -95,6 +97,7 @@ export function BillingClient({
     useState<StudentInvoiceItem | null>(null);
   const [receiptInvoice, setReceiptInvoice] =
     useState<StudentInvoiceItem | null>(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
     message: string;
@@ -297,18 +300,31 @@ export function BillingClient({
           </div>
         </div>
 
-        {/* Generate Cycle Invoices Button */}
-        <button
-          type="button"
-          disabled={isGenerating}
-          onClick={handleGenerateInvoices}
-          className="w-full sm:w-auto px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-50 shrink-0"
-        >
-          <RefreshCw
-            className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : ""}`}
-          />
-          <span>{isGenerating ? "Memeriksa..." : "+ Terbitkan Tagihan Siklus"}</span>
-        </button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+          {/* Export PDF Button */}
+          <button
+            type="button"
+            onClick={() => setIsExportModalOpen(true)}
+            disabled={summary.invoices.length === 0}
+            className="w-full sm:w-auto px-3.5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-2xs transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-50 shrink-0"
+          >
+            <Printer className="w-3.5 h-3.5 text-slate-600" />
+            <span>Export Rekap PDF</span>
+          </button>
+
+          {/* Generate Cycle Invoices Button */}
+          <button
+            type="button"
+            disabled={isGenerating}
+            onClick={handleGenerateInvoices}
+            className="w-full sm:w-auto px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-50 shrink-0"
+          >
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : ""}`}
+            />
+            <span>{isGenerating ? "Memeriksa..." : "+ Terbitkan Tagihan Siklus"}</span>
+          </button>
+        </div>
       </div>
 
       {/* Invoices Table Card */}
@@ -469,6 +485,21 @@ export function BillingClient({
         <OfficialReceiptModal
           invoice={receiptInvoice}
           onClose={() => setReceiptInvoice(null)}
+        />
+      )}
+
+      {/* SPP Export Modal */}
+      {isExportModalOpen && (
+        <SppExportModal
+          invoices={summary.invoices}
+          branchName={
+            branchFilter === "all"
+              ? "Semua Cabang"
+              : branches.find((b) => b.id === branchFilter)?.name || "Cabang Terpilih"
+          }
+          statusFilter={statusFilter}
+          searchFilter={searchFilter}
+          onClose={() => setIsExportModalOpen(false)}
         />
       )}
     </div>

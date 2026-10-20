@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { BillingClient } from "@/components/admin/billing/billing-client";
 import type { BillingSummary, StudentInvoiceItem } from "@/lib/billing";
@@ -296,6 +297,67 @@ describe("BillingClient Component", () => {
     expect(pushMock).toHaveBeenLastCalledWith(
       "/admin/spp?branch=branch-1&status=paid"
     );
+  });
+
+  it("renders export button and opens SppExportModal on click", async () => {
+    render(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="branch-1"
+        currentStatus="all"
+        currentSearch=""
+      />
+    );
+
+    const exportBtn = screen.getByRole("button", { name: /Export Rekap PDF/i });
+    expect(exportBtn).toBeInTheDocument();
+    expect(exportBtn).not.toBeDisabled();
+
+    fireEvent.click(exportBtn);
+
+    const modal = screen.getByRole("dialog");
+    expect(modal).toBeInTheDocument();
+    expect(
+      within(modal).getByRole("heading", { name: /Pratinjau Export Rekap SPP/i })
+    ).toBeInTheDocument();
+    expect(within(modal).getAllByText(/Sumokembangsri/i).length).toBeGreaterThanOrEqual(1);
+    expect(within(modal).getByText("Ahmad Murid")).toBeInTheDocument();
+    expect(within(modal).getByText("Budi Santoso")).toBeInTheDocument();
+    // Close modal
+    const closeBtn = screen.getByLabelText("Tutup pratinjau export");
+    fireEvent.click(closeBtn);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("heading", { name: /Pratinjau Export Rekap SPP/i })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it("disables the export button when there are no invoices", () => {
+    const emptySummary: BillingSummary = {
+      invoices: [],
+      kpis: {
+        total_invoiced: 0,
+        total_paid: 0,
+        total_outstanding: 0,
+        unpaid_students_count: 0,
+      },
+    };
+
+    render(
+      <BillingClient
+        initialSummary={emptySummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch=""
+      />
+    );
+
+    const exportBtn = screen.getByRole("button", { name: /Export Rekap PDF/i });
+    expect(exportBtn).toBeDisabled();
   });
 
 });
