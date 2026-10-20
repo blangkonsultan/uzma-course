@@ -1,4 +1,12 @@
 # Progress Log
+## 2026-10-20 (SPP PDF Export, Seeder Credentials Sync, and Payroll UI Polish)
+- **SPP PDF Export**: Implemented `groupInvoicesByStudent` helper in `src/lib/billing-helpers.ts` (and re-exported from `src/lib/billing.ts`) with multi-program student grouping, financial totals accumulation, and status classification (`paid`, `unpaid`, `partial`).
+- **Printable Modal**: Created `SppExportModal` at `src/components/admin/billing/spp-export-modal.tsx` with formal Uzma Course letterhead, grouped student tables, program sub-rows, bottom financial summary, bank payment details, and signature section with print `@media print` A4 optimization.
+- **Billing Integration**: Integrated "Export Rekap PDF" button into `BillingClient` in `src/components/admin/billing/billing-client.tsx` adhering to active branch, status, and search filters.
+- **Seeder Credentials Sync**: Updated `ADMIN_FIXTURE` in `scripts/lib/demo-fixture.mjs` to `admin@uzmacourse.com`, set default deterministic passwords (`admin123456` and `guru123456`) in `scripts/lib/local-auth.mjs` and `scripts/seed-local-demo.mjs`, and re-seeded local database with verified HTTP 200 auth tokens for both admin and guru.
+- **Admin Payroll Polish**: Fixed layout defect where opening manual adjustment caused "Tandai Sudah Dibayar" button to float awkwardly in whitespace; promoted adjustment form to a full-width panel below the actions bar, added ChevronDown to period dropdown, formatted signed adjustments (`+Rp` / `-Rp`), and standardized action buttons to `rounded-full` as per `DESIGN.md`.
+- **Verification**: Full `./init.sh` passed: 0 ESLint errors/warnings, **80 Vitest suites / 462 tests passed** (coverage: 66.51% statements, 60.12% branches, 69.19% functions, 67.67% lines), and clean Next.js production Webpack build.
+
 ## 2026-10-19 (Production Deployment and Smoke)
 - **Deployment**: Pushed commit `879c20c` to `main`; Vercel production deployment `uzma-course-o92z9m6ad-uzmacourseapp-7223.vercel.app` is `READY`. Canonical site: `https://uzmacourse.com`.
 - **Admin smoke**: Production admin login succeeded with the configured test account.

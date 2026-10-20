@@ -1,21 +1,21 @@
 # Session Handoff
-## Remote Production Operational Prune — 2026-10-19
-- **Status**: Completed successfully. The remote operational prune committed after backup and invariant checks.
-- **Connection**: Used the Supabase Session pooler on port `5432`; `.env.remote.local` remains ignored and mode `600`.
-- **Backup**: `/home/bagas/backups/uzma-course/remote-prune-2026-10-19T00-51-39-288Z.dump`, mode `600`, SHA-256 `c4d92ffce47cf50f9cb38a4923df40a33f2bd85d5220cacf2171f909cb47b4fb`.
-- **Post-prune verification**: All operational counts are zero, including non-admin profiles/auth users, students, enrollments, shifts, schedules, attendance, teaching logs, payroll, invoices, payments, and non-admin assignments.
-- **Preserved data**: 1 admin profile, 14 landing-content rows, 4 programs, 7 variants, 3 branches, and 3 program-logo objects.
-- **Code fix**: `scripts/lib/remote-backup.mjs` now waits for both PostgreSQL child exit and backup output stream completion; regression test added at `tests/crud/remote-backup.test.ts`.
-- **Verification**: `./init.sh` passed with 78 Vitest suites / 451 tests, clean lint, and clean production Webpack build.
-
-## Release Status — 2026-10-19
-- **Deployment**: Commit `879c20c` pushed to `main`; Vercel production deployment `uzma-course-o92z9m6ad-uzmacourseapp-7223.vercel.app` is `READY`. Canonical site: `https://uzmacourse.com`.
-- **Admin smoke**: Login succeeded; `/admin/spp` and `/admin/payroll` loaded successfully.
-- **SPP filters**: Branch, status, and search navigation settled correctly on production.
-- **Responsive smoke**: SPP and Payroll had zero horizontal overflow at 360px, 375px, and 1280px.
-- **Guru limitation**: `/guru/jadwal` correctly redirects the admin session to `/admin`. An authenticated Guru smoke remains unavailable because the remote prune removed all non-admin auth users by design; provision a dedicated Guru test account before running that workflow.
+## SPP PDF Export, Seeder Credentials Sync & Payroll UI Polish — 2026-10-20
+- **Status**: Completed and verified against Definition of Done.
+- **Scope Covered**:
+  - **SPP PDF Export**: Grouped student billing data when a student has 1 or multiple programs (`groupInvoicesByStudent`), generated printable `SppExportModal` with formal letterhead, student groups, sub-program items, bottom financial summary, bank payment instructions, and signature block.
+  - **Seeder Sync**: Aligned `ADMIN_FIXTURE` to `admin@uzmacourse.com`, deterministic passwords `admin123456` and `guru123456`, and cleaned up stale admin profile handling.
+  - **Payroll UI Polish**: Extracted `PayrollAdjustmentForm` to a full-width panel across the card below the actions bar, eliminating the awkward floating "Tandai Sudah Dibayar" button; added custom ChevronDown to period dropdown; signed adjustment formatting; and aligned action buttons to `rounded-full` as per `DESIGN.md`.
+  - **MCP Configuration**: Connected `supabase-local` (`http://127.0.0.1:54321/mcp`) and disabled remote cloud profiles to prevent startup 401s.
+- **Verification**:
+  - Full `./init.sh` passed: 0 lint errors, **80 Vitest suites / 462 tests passed** (coverage: 66.51% statements, 60.12% branches, 69.19% functions, 67.67% lines), and clean production Webpack build.
+  - Mechanical detector `impeccable detect` returned 0 findings (`[]`).
+  - Verified auth tokens for `admin@uzmacourse.com` (`admin123456`) and `guru.demo.01@uzmacourse.test` (`guru123456`).
 
 ## Next Session TODO
+- [ ] Run authenticated production smoke if deploying to Vercel production.
+- [ ] Keep remote backup files outside git repository.
+
+## Remote Production Operational Prune — 2026-10-19
 - [ ] Provision or approve a dedicated production Guru test account if authenticated Guru smoke is required.
 - [ ] Keep the verified remote backup outside the repository; do not commit `.env.remote.local` or backup files.
 
