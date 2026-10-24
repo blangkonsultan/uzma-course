@@ -8,7 +8,40 @@ export interface GuideArticleContentProps {
 }
 
 export function GuideArticleContent({ article }: GuideArticleContentProps): ReactElement {
-  let nextStep = 1;
+  const stepGroups: ReactElement[] = [];
+  let start = 1;
+  for (const group of article.groups) {
+    stepGroups.push(
+      <section key={group.id} data-guide-step-group className="min-w-0">
+        {group.warning ? (
+          <aside role="note" data-guide-note className="mb-5 flex gap-3 rounded-2xl bg-amber-50 p-4 text-amber-900">
+            <AlertTriangle aria-hidden="true" className="mt-1 h-5 w-5 shrink-0" />
+            <p>{group.warning}</p>
+          </aside>
+        ) : null}
+        <div className={group.screenshots.length ? "grid min-w-0 items-start gap-6 @xl:grid-cols-[minmax(0,1fr)_minmax(0,.9fr)]" : "min-w-0"}>
+          <ol start={start} className="list-decimal space-y-6 pl-5 marker:font-semibold marker:text-primary-800">
+            {group.steps.map((step, position) => (
+              <li key={`${group.id}-${position}`} className="min-w-0 pl-1" data-guide-step>
+                <h4 className="font-semibold text-slate-900">{step.title}</h4>
+                <div className="mt-2 space-y-2">
+                  {step.paragraphs.map((paragraph) => <p key={paragraph} className="max-w-[72ch] break-words">{paragraph}</p>)}
+                </div>
+              </li>
+            ))}
+          </ol>
+          {group.screenshots.length ? (
+            <div className="min-w-0 space-y-5">
+              {group.screenshots.map((shot) => (
+                <GuideFigure key={shot.src} src={shot.src} width={shot.width} height={shot.height} alt={shot.alt} caption={shot.caption} />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </section>,
+    );
+    start += group.steps.length;
+  }
 
   return (
     <article id="guide-article" tabIndex={-1} aria-labelledby="guide-topic-title" className="@container min-w-0 scroll-mt-24 rounded-2xl text-sm leading-[1.85] text-slate-700 outline-offset-4 focus-visible:outline-2 focus-visible:outline-primary-600 selection:bg-primary-100 selection:text-primary-950">
@@ -25,39 +58,7 @@ export function GuideArticleContent({ article }: GuideArticleContentProps): Reac
       <section className="mt-8" aria-label="Langkah-langkah">
         <h3 className="mb-5 text-base font-semibold text-slate-900">Langkah-langkah</h3>
         <div className="space-y-8">
-          {article.groups.map((group) => {
-            const start = nextStep;
-            nextStep += group.steps.length;
-            return (
-              <section key={group.id} data-guide-step-group className="min-w-0">
-                {group.warning ? (
-                  <aside role="note" data-guide-note className="mb-5 flex gap-3 rounded-2xl bg-amber-50 p-4 text-amber-900">
-                    <AlertTriangle aria-hidden="true" className="mt-1 h-5 w-5 shrink-0" />
-                    <p>{group.warning}</p>
-                  </aside>
-                ) : null}
-                <div className={group.screenshots.length ? "grid min-w-0 items-start gap-6 @xl:grid-cols-[minmax(0,1fr)_minmax(0,.9fr)]" : "min-w-0"}>
-                  <ol start={start} className="list-decimal space-y-6 pl-5 marker:font-semibold marker:text-primary-800">
-                    {group.steps.map((step, position) => (
-                      <li key={`${group.id}-${position}`} className="min-w-0 pl-1" data-guide-step>
-                        <h4 className="font-semibold text-slate-900">{step.title}</h4>
-                        <div className="mt-2 space-y-2">
-                          {step.paragraphs.map((paragraph) => <p key={paragraph} className="max-w-[72ch] break-words">{paragraph}</p>)}
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                  {group.screenshots.length ? (
-                    <div className="min-w-0 space-y-5">
-                      {group.screenshots.map((shot) => (
-                        <GuideFigure key={shot.src} src={shot.src} width={shot.width} height={shot.height} alt={shot.alt} caption={shot.caption} />
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              </section>
-            );
-          })}
+          {stepGroups}
         </div>
       </section>
 
