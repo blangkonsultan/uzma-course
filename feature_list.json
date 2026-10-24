@@ -93,8 +93,16 @@
       "name": "Role-Specific Admin and Teacher User Guides",
       "description": "Separate protected Indonesian guides with task-based steps, real sanitized application screenshots, system rules, recommended practices, and troubleshooting for admin and teacher workflows",
       "dependencies": ["feat-002", "feat-003", "feat-004", "feat-005", "feat-008", "feat-009", "feat-010", "feat-011"],
-      "status": "in_progress",
-      "evidence": "Full design and implementation plan approved; Native execution selected. Shared illustrated reader committed as 89f1f54 with 2 suites / 13 query/search/focus regressions passing. Admin help entry and genuine local screenshots are in progress; role guide content/routes are not complete. The user also approved a discovered scheduling PGRST100 compatibility fix: 3 focused suites / 9 tests pass and real local class creation now succeeds. Baseline ./init.sh was 80 suites / 462 tests; the final integrated feature gate is pending."
+       "status": "completed",
+       "evidence": "Separated Indonesian illustrated guides implemented and fully verified under /admin/panduan (44 topics) and /guru/panduan (15 topics). All 65 authentic screenshots (49 admin, 16 guru) use local demo data without credentials. Accessible native dialog viewer, keyboard skip link, topic focus management, search with diacritics/whitespace normalization, and scoped @media print with auto-expanded FAQ verification passed. Anonymous and cross-role access redirects verified for HTML and RSC. Discovered PGRST100 scheduling overlap bug resolved with regression coverage. Native print tested via Chromium PDF output; 360px, 375px, and 1280px+ viewports verified with 0 horizontal overflow. Full ./init.sh passed (83 Vitest suites / 479 tests, clean ESLint, Next.js Webpack build), and independent code review returned READY TO MERGE with zero findings."
+    },
+    {
+      "id": "feat-013",
+      "name": "Local SEO and AI Search Visibility",
+      "description": "Deferred improvements for Uzma Course brand discovery, les baca in Sidoarjo/Krian/Wonoayu/Balongbendo/Mojokerto/Mojosari and nearby searches, and reading-writing-arithmetic visibility in Google, Maps, and AI search using verified business facts",
+      "dependencies": ["feat-001", "feat-002", "feat-003", "feat-011"],
+      "status": "pending",
+      "evidence": "Read-only live/source audit completed; implementation deferred at the user's request. Backlog and audit evidence: docs/seo-ai-search-backlog.md. Owner-ready questions: docs/seo-owner-clarifications.txt. Await confirmed business facts, authorized account coordination, an explicit request to resume, and agreed implementation scope. No SEO product code, CMS data, Google profiles, hosting settings, or DNS changed; unrelated feat-012 remains in progress."
     }
   ]
 }

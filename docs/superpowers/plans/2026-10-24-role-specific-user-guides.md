@@ -314,6 +314,6 @@ it("tracks a newly selected server topic and moves article focus", () => {
 
 ## Execution Handoff
 
-The full design is approved. This plan must still be reviewed and an execution method selected before production implementation begins.
+The user approved the full design and selected **Native** execution after the plan's self-review. Task commits and verification are recorded under `.superpowers/sdd/2026-10-24-role-specific-user-guides/`; durable results and restart instructions are in `progress.md`, `feature_list.json`, and `session-handoff.md`.
 
-**Recommended method: Native.** The six task-sized changes share one reader, one application runtime, and coordinated authenticated screenshot work; keeping implementation in this session avoids repeated context handoffs while retaining a fresh whole-feature review at the end. Subagent-driven execution remains available if the user prefers an independent review gate after every task.
+**Selected method: Native.** One implementation owner integrated the shared reader, admin setup/scheduling, SPP/payroll, all 14 CMS sections, and the separate teacher guide. The final gate includes an independent whole-feature review; design approval and execution-method selection are not outstanding decisions.

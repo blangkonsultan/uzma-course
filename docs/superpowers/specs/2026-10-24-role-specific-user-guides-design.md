@@ -1,7 +1,7 @@
 # Role-Specific User Guides — Uzma Course
 
 Date: 2026-10-24
-Status: Approved by the user on 2026-10-24; implementation plan review and execution-method selection remain.
+Status: Approved by the user on 2026-10-24; Native execution selected. Implementation and verification evidence are tracked in `progress.md` and `feature_list.json`.
 Active feature: `feat-012` — Role-Specific Admin and Teacher User Guides.
 
 ## Intent

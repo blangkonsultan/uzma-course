@@ -1,18 +1,30 @@
 # Progress Log
 
-## 2026-10-24 (Role-Specific User Guides — Native Implementation)
-- **Status**: Native execution selected. Shared reader implemented; admin content and genuine screenshots are in progress. The full guide feature is not complete.
-- **Active feature**: `feat-012` — separate admin and guru user guides with Indonesian steps, real screenshots, system rules, practical advice, and troubleshooting.
-- **Selected presentation**: The browser companion recorded **Langkah bergambar** (`illustrated`). Admin uses a searchable contents rail; guru retains a phone-first reading surface.
-- **Specification**: `docs/superpowers/specs/2026-10-24-role-specific-user-guides-design.md`. Fresh builder check returned **nothing important left**; independent boundary review returned **no material boundary findings**.
-- **Plan**: `docs/superpowers/plans/2026-10-24-role-specific-user-guides.md`; Native execution ledger under `.superpowers/sdd/2026-10-24-role-specific-user-guides/`. Task 1 committed as `89f1f54` with 2 suites / 13 query/search/focus regressions passing.
-- **Prototype evidence**: Both roles and three compositions exercised at 360px, 375px, 1280px, and 1440px with zero horizontal overflow, no clipped controls, and loaded sample screenshots. Topic filtering/navigation, mobile contents collapse, screenshot zoom/Escape, and help expansion were exercised in Chromium.
-- **Baseline**: `./init.sh` passed clean lint, **80 Vitest suites / 462 tests**, and the production Webpack build. No operational transactions were saved to make the mockups.
-- **Artifact boundary**: The HTML preview and captured demo assets remain ignored under `.superpowers/brainstorm/`; they are not production guide pages. The detector ran once and included pinned purple/Poppins and structural-shell warnings, so no zero-findings claim is made.
-- **Authorized prerequisite fix**: A real scheduling save exposed PostgREST `PGRST100` from an unsupported cross-resource OR. The user selected **Fix the query**. `insertScheduleClass` now scopes conflicts through active/current draft IDs and supported filters, preserving the original conflict rules and touching-time boundaries. Regression: two valid-write cases failed before; 3 focused suites / 9 tests pass after. Real UI class creation and the student-allocation dialog now succeed.
-- **Capture data**: One owned local demo class is tracked in the ignored Native ledger/capture manifest for remaining screenshots; remove it and only owned attendance rows after capture. No production data or schema/policies were changed.
-- **Next step**: Continue plan Task 2 and all remaining guide tasks, then run the integrated browser/privacy/print checks, full `./init.sh`, and independent whole-feature review. Preserve unrelated `public/sw.js` working-tree state.
+## 2026-10-24 (Local SEO and AI Search — Audit Handoff, Implementation Deferred)
+- **Status**: Audit completed; `feat-013` is pending. The user requested a persistent TODO and an owner-forwardable clarification list, not implementation.
+- **Backlog**: `docs/seo-ai-search-backlog.md` records all requested search/location goals, observed evidence and limits, 13 deferred TODOs, source links, and resume instructions.
+- **Owner checklist**: `docs/seo-owner-clarifications.txt` covers brand/unit naming, current branches and service areas, programs, ages, ratios, fees, trial terms, credentials, publication consent, authorized account management, and success/approval ownership.
+- **Audit findings**: The homepage is indexed and appeared for "les baca balongbendo" in organic results and an AI Overview; other sampled queries had weaker visibility. Both public Maps profiles lacked a website link; Junwangi also lacked public phone/hours. The `www` certificate covered only the apex hostname. Published class-size/age/program-scope facts need owner confirmation.
+- **Evidence limits**: Google samples are not stable rank measurements; later queries encountered a CAPTCHA. Actual crawler-IP access and private Search Console/Business Profile/hosting configuration were not inspected. Source/live browser checks from the audit are documented; no application tests/build were rerun for this documentation-only handoff.
+- **Resume boundary**: Collect owner answers, then wait for the user's explicit request to resume and agree the complete implementation scope. Do not treat owner answers or this backlog as approval to implement.
+- **Preserved work**: `feat-012` and its Native execution ledger remain unchanged. No product code, CMS content, production data, Google profiles, hosting settings, or DNS was changed by this handoff.
 
+## 2026-10-24 (Role-Specific User Guides — Native Implementation & Full Verification Completed)
+- **Status**: Completed and fully verified against Definition of Done (`feat-012` is `completed`).
+- **Scope covered**:
+  - **Protected Web Guides**: Built `/admin/panduan` (44 articles across 11 chapters) and `/guru/panduan` (15 articles across 7 chapters) with complete Indonesian steps, authentic screenshots, system rules, operational advice, and expandable FAQ troubleshooting.
+  - **Navigation Integration**: Added "Panduan Pengguna" link in the Admin sidebar under Bantuan, and a 44px "Panduan Pengguna" row in Guru Profil while strictly preserving the existing 5-tab mobile bottom bar.
+  - **Screenshot Assets**: Captured and published 65 authentic PNGs (49 admin, 16 guru) under `public/guides/admin/` and `public/guides/guru/` using local demo identities and sanitized form inputs. Intrinsic dimensions and metadata verified via fixed registries.
+  - **Shared Reader UI**: Implemented `GuideReader`, `GuideShell`, `GuideArticleContent`, and `GuideFigure`. Added keyboard skip link, programmatic focus management to article on navigation, instant search with zero-result recovery, responsive dialog modal with original-size pan, native Escape handling, and focus restoration to the opener button.
+  - **Native Print Engine**: Scoped `@media print` rules under `body[data-guide-printing]`. Built `GuidePrintButton` with beforeprint snapshotting that auto-expands troubleshooting disclosures and restores them on afterprint. Verified clean Chromium PDF output with no app chrome, contained figures (max 110mm width), and unclipped text.
+  - **Workflow Fidelity**: Correctly synchronized rolling 28-day SPP cycles, closed-only payroll adjustments, non-automatic registered minimums, Master Program separation from CMS titles, immutable submitted teaching cards, and attendance-only IndexedDB offline queues.
+  - **Prerequisite Fix**: Fixed PostgREST `PGRST100` cross-resource OR query in `insertScheduleClass` by resolving active draft IDs upfront. Touching intervals permitted; 3 focused suites / 9 tests pass.
+  - **Legacy Manual Cutover**: Updated `docs/buku-panduan-pengguna.md` with direct web guide links, designated legacy PDF as an archive, and aligned SPP/payroll/attendance rules.
+- **Verification Summary**:
+  - Full `./init.sh` passed: 0 ESLint errors/warnings, **83 Vitest suites / 479 tests passed** (coverage: 65.55% statements, 59.79% branches, 67.90% functions, 66.72% lines), and clean Next.js Webpack production build.
+  - Independent whole-feature code review returned **READY TO MERGE** with zero critical, important, or minor issues.
+  - Real browser smoke passed across 360px, 375px, and 1280px+ viewports with 0 document horizontal overflow and 16px mobile search input.
+- **Commits**: `89f1f54`, `a488732`, `2a75807`, `571169a`, `d5a4136`, `7a99ff5`, `838cb46`, `51b0667`.
 ## 2026-10-20 (SPP PDF Export, Seeder Credentials Sync, and Payroll UI Polish)
 - **SPP PDF Export**: Implemented `groupInvoicesByStudent` helper in `src/lib/billing-helpers.ts` (and re-exported from `src/lib/billing.ts`) with multi-program student grouping, financial totals accumulation, and status classification (`paid`, `unpaid`, `partial`).
 - **Printable Modal**: Created `SppExportModal` at `src/components/admin/billing/spp-export-modal.tsx` with formal Uzma Course letterhead, grouped student tables, program sub-rows, bottom financial summary, bank payment details, and signature section with print `@media print` A4 optimization.
