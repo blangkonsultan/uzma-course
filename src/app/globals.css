@@ -77,3 +77,55 @@
     transform: none !important;
   }
 }
+
+@media print {
+  body[data-guide-printing] {
+    background: white !important;
+  }
+  body[data-guide-printing] [data-guide-print-hide],
+  body[data-guide-printing] [data-guide-screen-only],
+  body[data-guide-printing] [role="status"],
+  body[data-guide-printing] [role="alert"] {
+    display: none !important;
+  }
+  body[data-guide-printing] [data-guide-print-container] {
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  body[data-guide-printing] [data-guide-reader] {
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+  body[data-guide-printing] [data-guide-step-group] > div {
+    display: block !important;
+  }
+  body[data-guide-printing] [data-guide-note],
+  body[data-guide-printing] [data-guide-step],
+  body[data-guide-printing] [data-guide-reader] figure {
+    break-inside: avoid;
+  }
+  body[data-guide-printing] [data-guide-reader] figure {
+    width: 100%;
+    max-width: 110mm;
+    margin: 5mm auto;
+  }
+  body[data-guide-printing] [data-guide-reader] figure button {
+    border: 0;
+    background: transparent;
+  }
+  body[data-guide-printing] [data-guide-reader] figure img {
+    max-height: 180mm;
+    object-fit: contain;
+  }
+  body[data-guide-printing] [data-guide-reader] :is(h1, h2, h3, h4) {
+    break-after: avoid;
+  }
+}

@@ -147,7 +147,7 @@ Component signatures, with named exported props interfaces:
 - `GuideReader({ guide, index, topic }: GuideReaderProps): ReactElement`, server; `guide: GuideDefinition`, `index: readonly GuideIndexItem[]`, `topic: string | string[] | undefined`.
 - `GuideArticleContent({ article }: GuideArticleContentProps): ReactElement`, server; `article: GuideArticle`.
 - `GuideShell({ role, basePath, index, activeSlug, children }: GuideShellProps): ReactElement`, client; `role: GuideRole`, `basePath: "/admin/panduan" | "/guru/panduan"`, navigation index only, `activeSlug: string`, and server-rendered `children: ReactNode`.
-- `GuideFigure({ screenshot }: GuideFigureProps): ReactElement`, client; one `GuideScreenshot` from the selected article, not the role's complete image registry.
+- `GuideFigure({ src, width, height, alt, caption }: GuideFigureProps): ReactElement`, client; only the selected screenshot's display fields. Keep `sourceRoute`/`state` in the server authoring model rather than serializing unused provenance metadata. This is the recorded Task 1 execution ruling.
 - `GuidePrintButton(): ReactElement`, client; prints the currently rendered reader, never fetches all articles or creates a separate generated PDF.
 
 ## Task 1: Shared Illustrated Reader and Its Consumer Boundaries
