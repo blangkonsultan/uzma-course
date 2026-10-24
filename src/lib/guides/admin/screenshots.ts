@@ -226,5 +226,65 @@ export const ADMIN_SCREENSHOTS = {
     "caption": "Contoh tampilan cetak guru; tersedia pula pilihan Cetak Murid dari daftar atau papan.",
     "sourceRoute": "/print/draft/[id]",
     "state": "teacher-schedule-print"
+  },
+  "billingList": {
+    "src": "/guides/admin/spp-filter.png", "width": 1440, "height": 1000,
+    "alt": "Filter dan daftar Tagihan SPP Murid",
+    "caption": "Data demo menunjukkan filter cabang/status, pencarian, penerbitan siklus, serta tindakan tiap tagihan.",
+    "sourceRoute": "/admin/spp", "state": "billing-filtered-list"
+  },
+  "payment": {
+    "src": "/guides/admin/spp-pembayaran.png", "width": 1440, "height": 1000,
+    "alt": "Form Catat Pembayaran SPP",
+    "caption": "Form pelunasan invoice demo. Tidak ada pembayaran baru disimpan untuk capture.",
+    "sourceRoute": "/admin/spp", "state": "payment-form-unsaved"
+  },
+  "receipt": {
+    "src": "/guides/admin/spp-kwitansi.png", "width": 1440, "height": 1000,
+    "alt": "Kwitansi pembayaran demo yang sudah tercatat",
+    "caption": "Kwitansi dari pembayaran demo yang sudah tersedia, dengan nomor, rincian, dan cap LUNAS.",
+    "sourceRoute": "/admin/spp?status=paid", "state": "existing-paid-receipt"
+  },
+  "billingExport": {
+    "src": "/guides/admin/spp-export.png", "width": 1440, "height": 1000,
+    "alt": "Pratinjau Export Rekap SPP",
+    "caption": "Rekap demo mengikuti filter halaman dan mengelompokkan murid yang memiliki lebih dari satu program.",
+    "sourceRoute": "/admin/spp", "state": "grouped-recap-preview"
+  },
+  "payrollOpen": {
+    "src": "/guides/admin/payroll-open.png", "width": 1440, "height": 1000,
+    "alt": "Periode payroll terbuka",
+    "caption": "Periode demo berstatus Terbuka sebelum penutupan. Angka yang ditampilkan harus dibaca bersama status periodenya.",
+    "sourceRoute": "/admin/payroll", "state": "payroll-open"
+  },
+  "payrollClose": {
+    "src": "/guides/admin/payroll-tutup.png", "width": 1440, "height": 1000,
+    "alt": "Konfirmasi Penutupan Periode Payroll",
+    "caption": "Panel konfirmasi ditampilkan lalu dibatalkan; tidak ada periode yang ditutup untuk capture.",
+    "sourceRoute": "/admin/payroll", "state": "payroll-close-confirmation-unsent"
+  },
+  "payrollClosed": {
+    "src": "/guides/admin/payroll-closed.png", "width": 1440, "height": 1000,
+    "alt": "Periode payroll ditutup sebelum dibayar",
+    "caption": "Snapshot periode demo berstatus Ditutup, dengan tindakan adjustment dan penandaan pembayaran.",
+    "sourceRoute": "/admin/payroll", "state": "payroll-closed-unpaid"
+  },
+  "payrollAdjustment": {
+    "src": "/guides/admin/payroll-penyesuaian.png", "width": 1440, "height": 1000,
+    "alt": "Form Tambah Adjustment Manual pada periode tertutup",
+    "caption": "Form guru, nominal bertanda, dan alasan dibuka tanpa menyimpan penyesuaian.",
+    "sourceRoute": "/admin/payroll", "state": "closed-period-adjustment-form"
+  },
+  "payrollPaid": {
+    "src": "/guides/admin/payroll-paid.png", "width": 1440, "height": 1000,
+    "alt": "Periode payroll yang sudah dibayar",
+    "caption": "Periode demo yang sejak awal sudah berstatus Dibayar; bukan pembayaran yang dilakukan untuk panduan.",
+    "sourceRoute": "/admin/payroll", "state": "existing-paid-payroll"
+  },
+  "payrollNew": {
+    "src": "/guides/admin/payroll-bulan-baru.png", "width": 1440, "height": 1000,
+    "alt": "Form Buka Periode Payroll Bulan Baru",
+    "caption": "Pemilihan bulan ditampilkan tanpa menekan Buka Periode; tidak ada periode baru dibuat untuk capture.",
+    "sourceRoute": "/admin/payroll", "state": "new-period-form-unsent"
   }
 } as const satisfies Record<string, GuideScreenshot>;
