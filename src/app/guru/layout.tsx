@@ -19,9 +19,9 @@ export default async function GuruLayout({
   await requireGuruPage();
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-slate-50 relative pb-16">
+    <div data-guide-print-container className="flex flex-col min-h-[100dvh] bg-slate-50 relative pb-16">
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-md mx-auto bg-white shadow-sm h-full">
+      <main data-guide-print-container className="flex-1 w-full max-w-md mx-auto bg-white shadow-sm h-full">
         {children}
       </main>
       <GuruBottomNav />

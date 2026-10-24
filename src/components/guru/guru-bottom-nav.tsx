@@ -8,7 +8,7 @@ export function GuruBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 pb-safe">
+    <nav data-guide-print-hide className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 pb-safe">
       <div className="grid grid-cols-5 items-center max-w-md mx-auto h-16 relative px-1">
         {/* 1. Beranda */}
         <Link
