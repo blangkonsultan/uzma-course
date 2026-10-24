@@ -1,14 +1,16 @@
 # Session Handoff
 
 ## Role-Specific Admin and Teacher User Guides — 2026-10-24
-- **Status**: Full design approved; implementation plan written and self-reviewed. Awaiting plan review and execution-method selection. No production guide routes have been added.
-- **Feature**: `feat-012` is `planned`; do not mark completed based on the mockups.
+- **Status**: Native implementation in progress on `feat/role-specific-user-guides`. Shared reader committed; the full admin/teacher guide routes and content are not complete.
+- **Feature**: `feat-012` is `in_progress`; do not mark completed based on the shared reader or screenshots alone.
 - **Design**: `docs/superpowers/specs/2026-10-24-role-specific-user-guides-design.md`.
-- **Plan**: `docs/superpowers/plans/2026-10-24-role-specific-user-guides.md`. Six task-sized changes, with separate finance/CMS boundaries and one integration owner. Native is recommended, not yet chosen.
+- **Plan**: `docs/superpowers/plans/2026-10-24-role-specific-user-guides.md`. Native execution was explicitly selected. Resume via this plan's ignored ledger and task briefs under `.superpowers/sdd/2026-10-24-role-specific-user-guides/`; Task 1 is already complete at `89f1f54` (13 regressions passed).
 - **Review**: Fresh builder check found nothing important left; independent boundary review found no material contradictions with role guards, screenshot privacy, attendance queues, teaching-card locking, SPP, or payroll.
 - **Preview**: `.superpowers/brainstorm/152828-1792805980/content/role-guides-v1.html` (ignored). Companion uses reserved loopback port 5180; read its `state/server-info` for the full keyed URL rather than copying session keys into committed documentation.
 - **Evidence**: Baseline `./init.sh` passed **80 suites / 462 tests**, lint, and production build. Browser mockups covered both roles/three compositions at 360px, 375px, 1280px, and 1440px with zero horizontal overflow and no clipped controls. Real local screenshots show the SPP payment form, guru schedule, and submitted card; no operational transaction was saved.
-- **Next action**: Present the implementation plan for review and execution-method selection. After that approval, invoke executing-plans for Native or subagent-driven-development for the alternative. Do not reopen the approved layout or full-design gate.
+- **Authorized scheduling fix**: The user approved correcting the pre-existing `PGRST100` overlap query discovered during real screenshot preparation. Supported current/active draft-ID filters preserve the original conflict rules. Three focused suites / 9 tests pass; a real local class save and Add Murid dialog succeeded.
+- **Owned capture fixture**: Read the ignored `capture-fixture.json` in this plan's execution workspace. It identifies the single temporary local Saturday class for Guru Demo 01; keep it only for remaining captures, then remove it and only any owned attendance rows. Do not reseed, alter unrelated rows, or touch production.
+- **Next action**: Continue Native Task 2 from the ledger, author the remaining role chapters/assets, verify all acceptance criteria, and obtain the final independent review. Do not reopen the approved design/method choices or redo Task 1.
 - **Implementation reminders**: Role-separated content imports, protected `/admin/panduan` and `/guru/panduan`, exact current UI labels, sanitized demo assets under `public/guides/` rather than ignored `public/docs/`, and explicit separation of system rules from advice.
 
 ## SPP PDF Export, Seeder Credentials Sync & Payroll UI Polish — 2026-10-20

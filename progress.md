@@ -1,15 +1,17 @@
 # Progress Log
 
-## 2026-10-24 (Role-Specific User Guide Design and Implementation Plan)
-- **Status**: Full design approved; implementation plan written and self-reviewed. Awaiting plan review and execution-method selection. Production guide implementation has not started.
+## 2026-10-24 (Role-Specific User Guides — Native Implementation)
+- **Status**: Native execution selected. Shared reader implemented; admin content and genuine screenshots are in progress. The full guide feature is not complete.
 - **Active feature**: `feat-012` — separate admin and guru user guides with Indonesian steps, real screenshots, system rules, practical advice, and troubleshooting.
 - **Selected presentation**: The browser companion recorded **Langkah bergambar** (`illustrated`). Admin uses a searchable contents rail; guru retains a phone-first reading surface.
 - **Specification**: `docs/superpowers/specs/2026-10-24-role-specific-user-guides-design.md`. Fresh builder check returned **nothing important left**; independent boundary review returned **no material boundary findings**.
-- **Plan**: `docs/superpowers/plans/2026-10-24-role-specific-user-guides.md` defines the shared reader, admin setup/scheduling, finance, all 14 CMS sections, teacher guide, screenshots, and acceptance gates. Native execution is recommended but not yet selected.
+- **Plan**: `docs/superpowers/plans/2026-10-24-role-specific-user-guides.md`; Native execution ledger under `.superpowers/sdd/2026-10-24-role-specific-user-guides/`. Task 1 committed as `89f1f54` with 2 suites / 13 query/search/focus regressions passing.
 - **Prototype evidence**: Both roles and three compositions exercised at 360px, 375px, 1280px, and 1440px with zero horizontal overflow, no clipped controls, and loaded sample screenshots. Topic filtering/navigation, mobile contents collapse, screenshot zoom/Escape, and help expansion were exercised in Chromium.
 - **Baseline**: `./init.sh` passed clean lint, **80 Vitest suites / 462 tests**, and the production Webpack build. No operational transactions were saved to make the mockups.
 - **Artifact boundary**: The HTML preview and captured demo assets remain ignored under `.superpowers/brainstorm/`; they are not production guide pages. The detector ran once and included pinned purple/Poppins and structural-shell warnings, so no zero-findings claim is made.
-- **Next step**: Review the implementation plan and choose Native or subagent-driven execution, then invoke the matching execution skill. Preserve existing auth, business rules, and service-worker boundaries; do not add production screenshots containing real data.
+- **Authorized prerequisite fix**: A real scheduling save exposed PostgREST `PGRST100` from an unsupported cross-resource OR. The user selected **Fix the query**. `insertScheduleClass` now scopes conflicts through active/current draft IDs and supported filters, preserving the original conflict rules and touching-time boundaries. Regression: two valid-write cases failed before; 3 focused suites / 9 tests pass after. Real UI class creation and the student-allocation dialog now succeed.
+- **Capture data**: One owned local demo class is tracked in the ignored Native ledger/capture manifest for remaining screenshots; remove it and only owned attendance rows after capture. No production data or schema/policies were changed.
+- **Next step**: Continue plan Task 2 and all remaining guide tasks, then run the integrated browser/privacy/print checks, full `./init.sh`, and independent whole-feature review. Preserve unrelated `public/sw.js` working-tree state.
 
 ## 2026-10-20 (SPP PDF Export, Seeder Credentials Sync, and Payroll UI Polish)
 - **SPP PDF Export**: Implemented `groupInvoicesByStudent` helper in `src/lib/billing-helpers.ts` (and re-exported from `src/lib/billing.ts`) with multi-program student grouping, financial totals accumulation, and status classification (`paid`, `unpaid`, `partial`).

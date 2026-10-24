@@ -93,8 +93,8 @@
       "name": "Role-Specific Admin and Teacher User Guides",
       "description": "Separate protected Indonesian guides with task-based steps, real sanitized application screenshots, system rules, recommended practices, and troubleshooting for admin and teacher workflows",
       "dependencies": ["feat-002", "feat-003", "feat-004", "feat-005", "feat-008", "feat-009", "feat-010", "feat-011"],
-      "status": "planned",
-      "evidence": "Full illustrated guide design approved by the user on 2026-10-24. Spec: docs/superpowers/specs/2026-10-24-role-specific-user-guides-design.md. Self-reviewed implementation plan: docs/superpowers/plans/2026-10-24-role-specific-user-guides.md. Builder/boundary reviews found no material blockers. Baseline ./init.sh passed 80 suites / 462 tests, lint, and build; role mockups were exercised at 360px, 375px, 1280px, and 1440px. Production guide routes are not implemented; awaiting plan review and execution-method selection."
+      "status": "in_progress",
+      "evidence": "Full design and implementation plan approved; Native execution selected. Shared illustrated reader committed as 89f1f54 with 2 suites / 13 query/search/focus regressions passing. Admin help entry and genuine local screenshots are in progress; role guide content/routes are not complete. The user also approved a discovered scheduling PGRST100 compatibility fix: 3 focused suites / 9 tests pass and real local class creation now succeeds. Baseline ./init.sh was 80 suites / 462 tests; the final integrated feature gate is pending."
     }
   ]
 }
