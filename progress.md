@@ -1,14 +1,15 @@
 # Progress Log
 
-## 2026-10-24 (Role-Specific User Guide Design and Browser Mockups)
-- **Status**: Design reviewed; awaiting user approval of the full specification. Production guide implementation has not started.
+## 2026-10-24 (Role-Specific User Guide Design and Implementation Plan)
+- **Status**: Full design approved; implementation plan written and self-reviewed. Awaiting plan review and execution-method selection. Production guide implementation has not started.
 - **Active feature**: `feat-012` — separate admin and guru user guides with Indonesian steps, real screenshots, system rules, practical advice, and troubleshooting.
 - **Selected presentation**: The browser companion recorded **Langkah bergambar** (`illustrated`). Admin uses a searchable contents rail; guru retains a phone-first reading surface.
 - **Specification**: `docs/superpowers/specs/2026-10-24-role-specific-user-guides-design.md`. Fresh builder check returned **nothing important left**; independent boundary review returned **no material boundary findings**.
+- **Plan**: `docs/superpowers/plans/2026-10-24-role-specific-user-guides.md` defines the shared reader, admin setup/scheduling, finance, all 14 CMS sections, teacher guide, screenshots, and acceptance gates. Native execution is recommended but not yet selected.
 - **Prototype evidence**: Both roles and three compositions exercised at 360px, 375px, 1280px, and 1440px with zero horizontal overflow, no clipped controls, and loaded sample screenshots. Topic filtering/navigation, mobile contents collapse, screenshot zoom/Escape, and help expansion were exercised in Chromium.
 - **Baseline**: `./init.sh` passed clean lint, **80 Vitest suites / 462 tests**, and the production Webpack build. No operational transactions were saved to make the mockups.
 - **Artifact boundary**: The HTML preview and captured demo assets remain ignored under `.superpowers/brainstorm/`; they are not production guide pages. The detector ran once and included pinned purple/Poppins and structural-shell warnings, so no zero-findings claim is made.
-- **Next step**: Obtain full design approval, then use the writing-plans skill. Preserve existing auth, business rules, and service-worker boundaries; do not add production screenshots containing real data.
+- **Next step**: Review the implementation plan and choose Native or subagent-driven execution, then invoke the matching execution skill. Preserve existing auth, business rules, and service-worker boundaries; do not add production screenshots containing real data.
 
 ## 2026-10-20 (SPP PDF Export, Seeder Credentials Sync, and Payroll UI Polish)
 - **SPP PDF Export**: Implemented `groupInvoicesByStudent` helper in `src/lib/billing-helpers.ts` (and re-exported from `src/lib/billing.ts`) with multi-program student grouping, financial totals accumulation, and status classification (`paid`, `unpaid`, `partial`).

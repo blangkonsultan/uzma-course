@@ -1,14 +1,14 @@
 # Role-Specific User Guides — Uzma Course
 
 Date: 2026-10-24
-Status: Illustrated presentation selected; full design awaiting user approval.
+Status: Approved by the user on 2026-10-24; implementation plan review and execution-method selection remain.
 Active feature: `feat-012` — Role-Specific Admin and Teacher User Guides.
 
 ## Intent
 
 Give admins and teachers independent, practical instructions for completing their actual Uzma Course work. Replace repeated verbal onboarding with Indonesian, task-based instructions, real application screenshots, clear system rules, and actionable troubleshooting.
 
-The user explicitly requested separate guide pages for admin and guru, complete steps, screenshots, and usage rules. They accepted the recommended role-specific scope and requested browser mockups. The companion recorded selection `illustrated` from **Gunakan susunan ini**; the user then requested continuation. This selects the **Langkah bergambar** presentation, not implementation of an unreviewed specification.
+The user explicitly requested separate guide pages for admin and guru, complete steps, screenshots, and usage rules. They accepted the recommended role-specific scope and requested browser mockups. The companion recorded selection `illustrated` from **Gunakan susunan ini**. The user subsequently approved this full reviewed design on 2026-10-24, including the assistant-proposed decisions below.
 
 ## Decisions and authority
 
@@ -19,7 +19,7 @@ The user explicitly requested separate guide pages for admin and guru, complete 
 - The recommended coverage of existing master data, scheduling, SPP, payroll, CMS, teacher attendance, teaching cards, honor, and account use.
 - Illustrated task reader: steps and relevant screenshots side by side on wide screens, with a readable mobile sequence.
 
-### Assistant recommendations to approve with this document
+### Assistant-proposed decisions approved with this document
 
 - Indonesian guide copy with the application's exact menu, status, and button labels.
 - Protected routes `/admin/panduan` and `/guru/panduan`, preserving existing role boundaries.
@@ -262,4 +262,4 @@ Implementation is accepted only when:
 
 The fresh builder check returned **nothing important left**. The independent boundary reviewer returned **no material boundary findings**, covering role guards, role-specific payloads, screenshot privacy, offline attendance, submitted teaching cards, SPP settlement, and payroll boundaries.
 
-After the user approves this full reviewed design, use the writing-plans skill to produce the implementation plan. Do not start production code, scaffolding, dependency installation, or operational database changes before that approval.
+The user approved this full reviewed design on 2026-10-24. The implementation plan is `docs/superpowers/plans/2026-10-24-role-specific-user-guides.md`. Review that plan and select an execution method before production implementation begins.

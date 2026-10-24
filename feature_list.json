@@ -94,7 +94,7 @@
       "description": "Separate protected Indonesian guides with task-based steps, real sanitized application screenshots, system rules, recommended practices, and troubleshooting for admin and teacher workflows",
       "dependencies": ["feat-002", "feat-003", "feat-004", "feat-005", "feat-008", "feat-009", "feat-010", "feat-011"],
       "status": "planned",
-      "evidence": "Illustrated reading layout selected through the browser companion. Design: docs/superpowers/specs/2026-10-24-role-specific-user-guides-design.md. Fresh builder check: nothing important left; boundary review: no material findings. Baseline ./init.sh passed 80 suites / 462 tests, lint, and build. Prototype checked at 360px, 375px, 1280px, and 1440px. Production guide routes are not implemented; full design approval is required before implementation planning."
+      "evidence": "Full illustrated guide design approved by the user on 2026-10-24. Spec: docs/superpowers/specs/2026-10-24-role-specific-user-guides-design.md. Self-reviewed implementation plan: docs/superpowers/plans/2026-10-24-role-specific-user-guides.md. Builder/boundary reviews found no material blockers. Baseline ./init.sh passed 80 suites / 462 tests, lint, and build; role mockups were exercised at 360px, 375px, 1280px, and 1440px. Production guide routes are not implemented; awaiting plan review and execution-method selection."
     }
   ]
 }
