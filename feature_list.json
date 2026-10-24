@@ -87,6 +87,14 @@
       "dependencies": ["feat-001", "feat-006"],
       "status": "completed",
       "evidence": "Server actions at /admin/cabang/actions.ts, BranchStatusButton, BranchForm, verified list/create/detail/edit on /admin/cabang with 0 horizontal overflow at 360px-1280px"
+    },
+    {
+      "id": "feat-012",
+      "name": "Role-Specific Admin and Teacher User Guides",
+      "description": "Separate protected Indonesian guides with task-based steps, real sanitized application screenshots, system rules, recommended practices, and troubleshooting for admin and teacher workflows",
+      "dependencies": ["feat-002", "feat-003", "feat-004", "feat-005", "feat-008", "feat-009", "feat-010", "feat-011"],
+      "status": "planned",
+      "evidence": "Illustrated reading layout selected through the browser companion. Design: docs/superpowers/specs/2026-10-24-role-specific-user-guides-design.md. Fresh builder check: nothing important left; boundary review: no material findings. Baseline ./init.sh passed 80 suites / 462 tests, lint, and build. Prototype checked at 360px, 375px, 1280px, and 1440px. Production guide routes are not implemented; full design approval is required before implementation planning."
     }
   ]
 }

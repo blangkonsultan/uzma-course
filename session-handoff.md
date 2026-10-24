@@ -1,4 +1,15 @@
 # Session Handoff
+
+## Role-Specific Admin and Teacher User Guides — 2026-10-24
+- **Status**: Design reviewed and illustrated layout selected; awaiting approval of the full design. No production guide routes have been added.
+- **Feature**: `feat-012` is `planned`; do not mark completed based on the mockups.
+- **Design**: `docs/superpowers/specs/2026-10-24-role-specific-user-guides-design.md`.
+- **Review**: Fresh builder check found nothing important left; independent boundary review found no material contradictions with role guards, screenshot privacy, attendance queues, teaching-card locking, SPP, or payroll.
+- **Preview**: `.superpowers/brainstorm/152828-1792805980/content/role-guides-v1.html` (ignored). Companion uses reserved loopback port 5180; read its `state/server-info` for the full keyed URL rather than copying session keys into committed documentation.
+- **Evidence**: Baseline `./init.sh` passed **80 suites / 462 tests**, lint, and production build. Browser mockups covered both roles/three compositions at 360px, 375px, 1280px, and 1440px with zero horizontal overflow and no clipped controls. Real local screenshots show the SPP payment form, guru schedule, and submitted card; no operational transaction was saved.
+- **Next action**: Ask for approval of the full reviewed design, then invoke writing-plans before production implementation. The user already selected `illustrated`; do not reopen the layout choice.
+- **Implementation reminders**: Role-separated content imports, protected `/admin/panduan` and `/guru/panduan`, exact current UI labels, sanitized demo assets under `public/guides/` rather than ignored `public/docs/`, and explicit separation of system rules from advice.
+
 ## SPP PDF Export, Seeder Credentials Sync & Payroll UI Polish — 2026-10-20
 - **Status**: Completed and verified against Definition of Done.
 - **Scope Covered**:
