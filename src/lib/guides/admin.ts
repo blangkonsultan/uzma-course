@@ -10,6 +10,8 @@ import { ADMIN_STUDENTS } from "./admin/students";
 import { ADMIN_SCHEDULING } from "./admin/scheduling";
 import { ADMIN_BILLING } from "./admin/billing";
 import { ADMIN_PAYROLL } from "./admin/payroll";
+import { ADMIN_WEBSITE_BASIC } from "./admin/website-basic";
+import { ADMIN_WEBSITE_MEDIA } from "./admin/website-media";
 
 export const ADMIN_GUIDE = {
   role: "admin",
@@ -26,6 +28,8 @@ export const ADMIN_GUIDE = {
     ADMIN_SCHEDULING,
     ADMIN_BILLING,
     ADMIN_PAYROLL,
+    ADMIN_WEBSITE_BASIC,
+    ADMIN_WEBSITE_MEDIA,
   ],
 } as const satisfies GuideDefinition;
 

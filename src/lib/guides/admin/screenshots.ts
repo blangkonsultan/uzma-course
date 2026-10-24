@@ -286,5 +286,89 @@ export const ADMIN_SCREENSHOTS = {
     "alt": "Form Buka Periode Payroll Bulan Baru",
     "caption": "Pemilihan bulan ditampilkan tanpa menekan Buka Periode; tidak ada periode baru dibuat untuk capture.",
     "sourceRoute": "/admin/payroll", "state": "new-period-form-unsent"
+  },
+  "cmsHero": {
+    "src": "/guides/admin/cms-hero.png", "width": 1440, "height": 1000,
+    "alt": "Editor Hero Banner dengan teks contoh yang belum disimpan",
+    "caption": "Contoh input Hero Banner pada editor asli. Perubahan tidak disimpan atau diterbitkan.",
+    "sourceRoute": "/admin/landing/hero", "state": "unsaved-demo-text"
+  },
+  "cmsPrograms": {
+    "src": "/guides/admin/cms-programs.png", "width": 1440, "height": 1000,
+    "alt": "Editor judul Program Belajar dan tautan Master Program",
+    "caption": "Editor judul section; daftar program dikelola melalui Master Program. Teks contoh tidak disimpan.",
+    "sourceRoute": "/admin/landing/programs", "state": "unsaved-demo-section-heading"
+  },
+  "cmsFaq": {
+    "src": "/guides/admin/cms-faq.png", "width": 1440, "height": 1000,
+    "alt": "Pertanyaan, slug ID, dan jawaban contoh di editor FAQ",
+    "caption": "Satu item FAQ contoh pada form asli, tanpa menerbitkan perubahan daftar.",
+    "sourceRoute": "/admin/landing/faq", "state": "unsaved-demo-faq"
+  },
+  "cmsCta": {
+    "src": "/guides/admin/cms-cta.png", "width": 1440, "height": 1000,
+    "alt": "Editor judul, tagline, dan teks tombol Call to Action",
+    "caption": "Input ajakan konsultasi ditampilkan sebagai contoh yang belum disimpan.",
+    "sourceRoute": "/admin/landing/cta", "state": "unsaved-demo-cta"
+  },
+  "cmsFooter": {
+    "src": "/guides/admin/cms-footer.png", "width": 1440, "height": 1000,
+    "alt": "Daftar media sosial dan navigasi footer dengan tautan example.com",
+    "caption": "Bagian media sosial dan tautan footer menggunakan input demo yang tidak disimpan. Posisi gulir mengecualikan contoh nomor kontak asli.",
+    "sourceRoute": "/admin/landing/footer", "state": "unsaved-demo-social-and-navigation"
+  },
+  "cmsNavbar": {
+    "src": "/guides/admin/cms-navbar.png", "width": 1440, "height": 1000,
+    "alt": "Editor brand, teks tombol, dan tautan navigasi header",
+    "caption": "Menu Program Belajar digunakan sebagai contoh input navigasi yang belum disimpan.",
+    "sourceRoute": "/admin/landing/navbar", "state": "unsaved-demo-navigation"
+  },
+  "cmsFloatingWa": {
+    "src": "/guides/admin/cms-floating_wa.png", "width": 1440, "height": 1000,
+    "alt": "Checkbox Aktifkan Tombol Floating WhatsApp",
+    "caption": "Kontrol visibilitas pada editor asli; tidak ada perubahan pengaturan yang disimpan.",
+    "sourceRoute": "/admin/landing/floating_wa", "state": "existing-visibility-control"
+  },
+  "cmsWhyUs": {
+    "src": "/guides/admin/cms-why_us.png", "width": 1440, "height": 1000,
+    "alt": "Judul, ikon, dan deskripsi poin keunggulan contoh",
+    "caption": "Item keunggulan demo ditambahkan pada form tanpa menyimpan daftar.",
+    "sourceRoute": "/admin/landing/why_us", "state": "unsaved-demo-advantage"
+  },
+  "cmsFacilities": {
+    "src": "/guides/admin/cms-facilities.png", "width": 1440, "height": 1000,
+    "alt": "Nama, ikon, dan deskripsi fasilitas contoh",
+    "caption": "Contoh pengisian fasilitas pada editor asli; bukan pengumuman fasilitas baru.",
+    "sourceRoute": "/admin/landing/facilities", "state": "unsaved-demo-facility"
+  },
+  "cmsTeam": {
+    "src": "/guides/admin/cms-team.png", "width": 1440, "height": 1000,
+    "alt": "Editor profil pengelola demo dengan logo lembaga sebagai contoh gambar",
+    "caption": "Logo digunakan untuk mendemonstrasikan input gambar, bukan sebagai foto orang. Identitas dan teks demo tidak diterbitkan.",
+    "sourceRoute": "/admin/landing/team", "state": "unsaved-demo-profile-and-logo"
+  },
+  "cmsGallery": {
+    "src": "/guides/admin/cms-gallery.png", "width": 1440, "height": 1000,
+    "alt": "Kategori galeri contoh dengan satu logo dan teks alt",
+    "caption": "Kategori dan gambar contoh dibuat melalui kontrol form. Tidak ada foto anak atau perubahan tersimpan.",
+    "sourceRoute": "/admin/landing/gallery", "state": "unsaved-demo-gallery-group"
+  },
+  "cmsTestimonials": {
+    "src": "/guides/admin/cms-testimonials.png", "width": 1440, "height": 1000,
+    "alt": "Editor testimoni dengan nama Orang Tua Demo dan kutipan contoh",
+    "caption": "Teks secara eksplisit merupakan contoh panduan, bukan testimoni orang tua sebenarnya, dan tidak disimpan.",
+    "sourceRoute": "/admin/landing/testimonials", "state": "unsaved-explicit-demo-testimonial"
+  },
+  "cmsVideos": {
+    "src": "/guides/admin/cms-videos.png", "width": 1440, "height": 1000,
+    "alt": "Editor video TikTok dengan deteksi shortlink dan tombol ekstraksi ID",
+    "caption": "Shortlink CONTOH-PANDUAN hanya menunjukkan kontrol deteksi; bukan video yang dapat diputar. Ekstraksi dan publikasi tidak dijalankan.",
+    "sourceRoute": "/admin/landing/videos", "state": "unsaved-demo-shortlink-control"
+  },
+  "cmsLocations": {
+    "src": "/guides/admin/cms-locations.png", "width": 1440, "height": 1000,
+    "alt": "Editor lokasi publik dengan nama dan alamat cabang demo",
+    "caption": "Lokasi contoh pada CMS publik, bukan alamat cabang sebenarnya atau perubahan pada Master Cabang. Tidak disimpan.",
+    "sourceRoute": "/admin/landing/locations", "state": "unsaved-demo-public-location"
   }
 } as const satisfies Record<string, GuideScreenshot>;
