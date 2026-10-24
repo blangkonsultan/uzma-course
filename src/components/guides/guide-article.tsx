@@ -11,7 +11,7 @@ export function GuideArticleContent({ article }: GuideArticleContentProps): Reac
   let nextStep = 1;
 
   return (
-    <article id="guide-article" tabIndex={-1} aria-labelledby="guide-topic-title" className="@container min-w-0 rounded-2xl text-sm leading-[1.85] text-slate-700 outline-offset-4 focus-visible:outline-2 focus-visible:outline-primary-600 selection:bg-primary-100 selection:text-primary-950">
+    <article id="guide-article" tabIndex={-1} aria-labelledby="guide-topic-title" className="@container min-w-0 scroll-mt-24 rounded-2xl text-sm leading-[1.85] text-slate-700 outline-offset-4 focus-visible:outline-2 focus-visible:outline-primary-600 selection:bg-primary-100 selection:text-primary-950">
       <h2 id="guide-topic-title" className="text-2xl font-bold leading-tight tracking-tight text-slate-900">{article.title}</h2>
       <p className="mt-3 max-w-[72ch] text-sm leading-[1.85] text-slate-600">{article.summary}</p>
 

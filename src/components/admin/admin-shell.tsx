@@ -24,6 +24,7 @@ import {
   Layers,
   Building2,
   Receipt,
+  BookOpen,
 } from "lucide-react";
 
 interface AdminShellProps {
@@ -133,6 +134,17 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
         },
       ],
     },
+    {
+      title: "Bantuan",
+      items: [
+        {
+          label: "Panduan Pengguna",
+          href: "/admin/panduan",
+          icon: BookOpen,
+          roles: ["admin"],
+        },
+      ],
+    },
   ];
 
   const upcomingItems = [
@@ -163,10 +175,11 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
     : "Semua Cabang";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+    <div data-guide-print-container className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
       {/* Mobile Drawer Overlay */}
       {mobileMenuOpen && (
         <div
+          data-guide-print-hide
           className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-xs md:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
@@ -174,6 +187,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
 
       {/* Sidebar: Desktop fixed/sticky + Mobile drawer */}
       <aside
+        data-guide-print-hide
         className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-white border-r border-slate-200/80 flex flex-col transition-transform duration-200 ease-in-out md:translate-x-0 ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -328,9 +342,9 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 md:pl-64 flex flex-col min-h-screen">
+      <div data-guide-print-container className="flex-1 md:pl-64 flex flex-col min-h-screen">
         {/* Top Navbar */}
-        <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+        <header data-guide-print-hide className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               type="button"
@@ -388,7 +402,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
         </header>
 
         {/* Page Body */}
-        <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main data-guide-print-container id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
           {children}
         </main>
       </div>

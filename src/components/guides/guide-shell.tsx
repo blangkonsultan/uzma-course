@@ -63,14 +63,14 @@ export function GuideShell({ role, basePath, index, activeSlug, children }: Guid
           <ChevronDown aria-hidden="true" className={cn("h-4 w-4 shrink-0", contentsOpen && "rotate-180")} />
         </button>
         <div id={contentsId} className={cn(contentsOpen ? "block" : "hidden", role === "admin" && "lg:block")}>
-          <div className="space-y-5 p-4 lg:sticky lg:top-20">
-            <div className="relative">
+          <div className={cn("max-h-[60dvh] space-y-5 overflow-y-auto p-4", role === "admin" && "lg:sticky lg:top-20 lg:max-h-[calc(100dvh-14rem)]")}>
+            <div className="sticky top-0 z-10 bg-white">
               <Search aria-hidden="true" className="pointer-events-none absolute top-3.5 left-3 h-4 w-4 text-slate-500" />
               <input
                 ref={searchRef}
                 type="search"
                 aria-label="Cari topik panduan"
-                placeholder="Cari topik panduan"
+                placeholder="Cari topik…"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 className="min-h-11 w-full min-w-0 rounded-xl border border-slate-300 bg-white py-2.5 pr-11 pl-9 text-base text-slate-800 caret-primary-700 placeholder:text-slate-500 focus:border-primary-600 focus:outline-2 focus:outline-offset-1 focus:outline-primary-600 sm:text-sm"
