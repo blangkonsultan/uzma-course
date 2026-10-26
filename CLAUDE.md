@@ -4,11 +4,12 @@ Project harness for agent-assisted development on Uzma Course.
 
 ## Project Overview
 
-**Uzma Course** — a tutoring center web app with two active modules:
+**Uzma Course** — a tutoring center web app with three active modules:
 1. **Public Landing Page**: Dynamic showcase with categorized gallery (Lisensi, Wisuda, Kegiatan), program catalog, WhatsApp CTAs, testimonials, video embeds, and branch locations.
-2. **Internal Admin & Teacher Portal**: Master Program Belajar, Master Guru, Master Murid, and 14-section Landing Page CMS.
+2. **Internal Admin ERP & CMS**: Master Data (Cabang, Shift, Program, Guru, Murid), Scheduling Kanban Board (`/admin/draft`), SPP 28-Day Billing & Kwitansi (`/admin/spp`), Teacher Payroll (`/admin/payroll`), 14-section Landing Page CMS, and Admin User Guide (`/admin/panduan`).
+3. **Teacher Mobile Portal (`/guru`)**: Geofence GPS Attendance with IndexedDB Offline Queue (`/guru/absen`), Teacher Schedule (`/guru/jadwal`), Digital Teaching Logs / Kartu Kendali (`/guru/mengajar/[id]`), Personal Payroll Slip (`/guru/honor`), Profil & Device Notifications (`/guru/profil`), and Teacher User Guide (`/guru/panduan`).
 
-Stack: Next.js 16 (Turbopack) · React 19 · Vitest · Supabase (Auth + Postgres) · Tailwind CSS v4 · TypeScript · Vercel.
+Stack: Next.js 16 (Turbopack / Webpack) · React 19 · Vitest · Supabase (Auth + Postgres) · Tailwind CSS v4 · TypeScript · Serwist PWA · Vercel.
 
 ## Startup Workflow
 
@@ -50,10 +51,15 @@ npm run build        # Production build
 npm run lint         # ESLint
 npm test             # Vitest unit test suite
 npm run test:watch   # Vitest interactive watcher
+npm run seed:local   # Seed local database with deterministic demo fixtures & accounts
 
 # Database migrations (Supabase CLI)
 npx supabase migration new <name>
 npx supabase db push --db-url "$DATABASE_URL"
+
+# CodeGraph (code intelligence index)
+codegraph sync       # Sync index after file additions or changes
+codegraph explore "<query>" # Inspect symbol callers, callees, and definitions
 ```
 ## Architecture
 
@@ -65,23 +71,47 @@ src/
 │   ├── page.tsx            # Public landing page (composes landing sections)
 │   ├── login/              # Portal authentication (admin & teacher)
 │   ├── admin/              # Protected admin ERP & CMS routes
-│   │   ├── guru/           # Master Guru list, tambah, edit, server actions
+│   │   ├── cabang/         # Master Cabang (village-based hierarchy)
+│   │   ├── shift/          # Master Shift operasional
+│   │   ├── guru/           # Master Guru list, tambah, detail, edit, server actions
 │   │   ├── murid/          # Master Murid list, tambah, detail, edit, server actions
 │   │   ├── program/        # Master Program list, tambah, detail, edit, server actions
-│   │   └── landing/        # Landing Page CMS (14 section editors & actions)
+│   │   ├── draft/          # Scheduling Kanban board & draft management
+│   │   ├── spp/            # Tagihan SPP siklus 28 hari, catat bayar, kwitansi, export PDF
+│   │   ├── payroll/        # Penggajian guru, penutupan periode, manual adjustment
+│   │   ├── landing/        # Landing Page CMS (14 section editors & actions)
+│   │   └── panduan/        # Illustrated Admin User Guide (44 topics)
+│   ├── guru/               # Protected Teacher Portal (mobile-first layout)
+│   │   ├── absen/          # Geofence GPS attendance with offline IndexedDB sync
+│   │   ├── jadwal/         # Daily schedule across assigned branches
+│   │   ├── mengajar/[id]/  # Teaching log / kartu kendali per session
+│   │   ├── honor/          # Personal monthly honor breakdown & statement
+│   │   ├── profil/         # Profile, password update, device notifications
+│   │   └── panduan/        # Illustrated Teacher User Guide (15 topics)
 │   ├── layout.tsx          # Root layout (Poppins font, metadata, skip-link)
 │   ├── robots.ts
 │   └── sitemap.ts
 ├── components/
 │   ├── admin/              # Admin CMS & ERP components (forms, tables, MasterMobileCard)
+│   ├── guru/               # Teacher mobile portal components (attendance, teaching log, etc.)
+│   ├── guides/             # Reusable illustrated guide reader, shell, figure modal, print
 │   ├── landing/            # Landing page section components (hero, gallery, etc.)
 │   └── ui/                 # Reusable UI primitives (Button, Card, Badge, etc.)
 ├── lib/
 │   ├── constants.ts        # Programs, branches, WA config
+│   ├── auth.ts             # Centralized route/action auth guards (admin & guru)
 │   ├── landing-content.ts  # Supabase CMS data fetcher & DEFAULT_LANDING_CONTENT
 │   ├── programs.ts         # Master programs database query & mappers
+│   ├── branches.ts, shifts.ts, gurus.ts, students.ts # Core Master Data DAL
+│   ├── board.ts            # Scheduling conflict resolution & placement DAL
+│   ├── billing.ts          # SPP invoice generation, payments, receipt DAL
+│   ├── payroll.ts          # Teacher payroll calculation, snapshots & adjustments DAL
+│   ├── teaching-logs.ts    # Teaching session cards & attendance status DAL
+│   ├── attendances.ts      # Geofence check-in/out & WIB date bounding DAL
+│   ├── guides/             # Server-only guide registries & navigation helpers
+│   ├── pwa/                # IndexedDB queue (db.ts) & haversine distance
 │   ├── utils.ts            # Formatting helpers, image normalizer, cn()
-│   └── supabase/           # Supabase client (client.ts, server.ts, middleware.ts)
+│   └── supabase/           # Supabase client (client.ts, server.ts, admin.ts, middleware.ts)
 ├── types/                  # TypeScript interfaces (landing.ts, database.ts, index.ts)
 └── proxy.ts                # Next.js edge proxy & auth session protection
 tests/                      # Vitest unit test suites (utils, whatsapp, landing-content)
@@ -122,6 +152,10 @@ Each section is a self-contained component importing from `ui/` primitives and `
 - **Admin Portal**: `admin@uzmacourse.com` / `admin123456`
   - Login URL: `http://localhost:3000/login` or `https://uzmacourse.com/login`
   - Role: `admin` (Full access to Master Data & CMS)
+- **Teacher Portal**: `guru.demo.01@uzmacourse.test` / `guru123456`
+  - Login URL: `http://localhost:3000/login` (auto-redirects to `/guru`)
+  - Role: `guru` (Access to Attendance, Schedule, Teaching Logs, Honor, Guides)
+  - Full credentials manifest: `supabase/seed-credentials.local.json`
 ### Database Policy
 
 All schema changes via Supabase CLI migrations only (`supabase/migrations/`). Never inject SQL directly in dashboard or via `supabase db execute`. Create migrations with `npx supabase migration new <name>`, apply with `npx supabase db push`.
@@ -143,6 +177,14 @@ All schema changes via Supabase CLI migrations only (`supabase/migrations/`). Ne
 - Supabase client: use `createClient()` from `@/lib/supabase/server` in server contexts, `@/lib/supabase/client` in `"use client"` components
 - **Data Access Layer (DAL) Standard**: NEVER write raw database queries (`supabase.from(...)`) directly in UI components (`page.tsx`, `layout.tsx`). Abstract all database reads into dedicated service functions within the `src/lib/` directory and call those functions from your Server Components.
 - **Centralized Authentication**: Use `await requireAdminPage()` from `src/lib/auth.ts` for role and session checks in admin pages instead of repeating inline Supabase profile queries.
+- **Teacher Authentication**: Use `await requireGuruPage()` in teacher pages (`/guru/*`) and `await requireGuruAction()` in teacher Server Actions.
+
+### Key Domain Rules & Gotchas
+
+- **Rolling 28-Day SPP Cycle**: Student billing does NOT follow calendar months; invoices recur every 28 days based on `student_programs.cycle_start_date`. Invoices are branch-scoped and snapshotted.
+- **Payroll Lifecycle (`open` → `closed` → `paid`)**: Manual adjustments can ONLY be added to `closed` periods prior to payment. The registered minimum guarantee is metadata for review, not an automatic top-up. Marking `paid` records status; it does not trigger bank transfers.
+- **Teaching Cards / Kartu Mengajar**: Submitted cards are permanently locked (read-only). Clicking "Kirim Kartu" saves pending edits before locking. All pupil attendance statuses (Hadir, Tidak Hadir, Izin, Cancel) are required before submit.
+- **PWA Offline Attendance Queue**: Only teacher attendance check-in/out is queued offline in IndexedDB (`UzmaCoursePWA`). Other portal surfaces require an active connection.
 
 ## Design / UI Work
 
