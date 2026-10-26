@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { useState } from "react";
 import { SppExportModal } from "@/components/admin/billing/spp-export-modal";
 import type { StudentInvoiceItem } from "@/lib/billing";
 
@@ -110,18 +111,32 @@ describe("SppExportModal Component", () => {
     expect(student).not.toBeInTheDocument();
   });
 
-  it("calls onClose when Escape key is pressed", () => {
-    const handleClose = vi.fn();
-    render(
-      <SppExportModal
-        invoices={sampleInvoices}
-        branchName="Cabang Kranggan"
-        onClose={handleClose}
-      />
-    );
+  it("returns keyboard focus to the export action after closing the preview", () => {
+    function PreviewHarness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button onClick={() => setOpen(true)}>Open SPP preview</button>
+          {open && (
+            <SppExportModal
+              invoices={sampleInvoices}
+              onClose={() => setOpen(false)}
+            />
+          )}
+        </>
+      );
+    }
 
-    fireEvent.keyDown(window, { key: "Escape" });
-    expect(handleClose).toHaveBeenCalledTimes(1);
+    render(<PreviewHarness />);
+    const opener = screen.getByRole("button", { name: "Open SPP preview" });
+    opener.focus();
+    fireEvent.click(opener);
+    const close = screen.getByRole("button", { name: "Tutup pratinjau export" });
+    close.focus();
+    fireEvent.click(close);
+
+    expect(opener).toHaveFocus();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("renders empty state notice when invoices array is empty", () => {

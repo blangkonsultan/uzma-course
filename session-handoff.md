@@ -1,5 +1,13 @@
 # Session Handoff
 
+## SPP Preview and Print Polish — 2026-10-26
+- **Branch**: `fix/spp-pdf-print`; local changes only, no push/deployment.
+- **Delivered**: Native modal focus/Escape/restoration, 44px shared controls, safe-area padding, bounded document panning, higher-contrast metadata, clearer program rows, semantic table groups, and aligned financial totals.
+- **Currency invariant**: Keep `Rp` plus its amount unbroken using NBSP, nowrap, and tabular numerals on all report monetary cells and totals. Verified all 48 pairs, a twelve-digit stress value, and zero.
+- **Print**: The polished complete report is 4 nonblank A4 pages (27 invoices / 18 students / all totals), intentionally keeping student groups together; a filtered student report is 1 nonblank page. The original blank-page fix is preserved.
+- **Evidence**: 360px/375px/768px/1280px, all controls at least 44px, no document overflow or wrapped currency; real keyboard and emulated Chromium touch panning; native focus containment, Escape, and opener restoration; focused suite 14/14 and detector `[]`.
+- **Final gate**: `./init.sh` passed: 0 ESLint errors/warnings, 83 suites / 479 tests, coverage above all thresholds, successful production Webpack build. Feature tracker validation passed; no billing-data mutations were performed. Verification limits remain in `progress.md`.
+
 ## Student SPP PDF Blank-Page Fix — 2026-10-26
 - **Branch**: `fix/spp-pdf-print`; application changes are local, not pushed or deployed.
 - **Fix**: `SppExportModal` now portals to the body and prints in normal document flow with isolated, unclipped content and no backdrop/transition artifacts.
