@@ -1,12 +1,9 @@
 import "@testing-library/jest-dom/vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { useState } from "react";
 import { SppExportModal } from "@/components/admin/billing/spp-export-modal";
 import type { StudentInvoiceItem } from "@/lib/billing";
-
-if (!window.print) {
-  window.print = () => {};
-}
 
 const sampleInvoices: StudentInvoiceItem[] = [
   {
@@ -100,37 +97,46 @@ describe("SppExportModal Component", () => {
     expect(screen.getAllByText(/Rp 650.000/i).length).toBeGreaterThanOrEqual(1);
   });
 
-  it("triggers window.print when print button is clicked", () => {
-    const printSpy = vi.spyOn(window, "print").mockImplementation(() => {});
-    render(
-      <SppExportModal
-        invoices={sampleInvoices}
-        branchName="Cabang Kranggan"
-        onClose={vi.fn()}
-      />
+  it("keeps the report visible when the billing page is hidden for printing", () => {
+    const { unmount } = render(
+      <div style={{ visibility: "hidden", height: 0, overflow: "hidden" }}>
+        <SppExportModal invoices={sampleInvoices} onClose={vi.fn()} />
+      </div>
     );
 
-    const printButton = screen.getByRole("button", {
-      name: /Cetak \/ Simpan PDF/i,
-    });
-    fireEvent.click(printButton);
+    const student = screen.getByText("Ahmad Faza");
+    expect(student).toBeVisible();
 
-    expect(printSpy).toHaveBeenCalledTimes(1);
-    printSpy.mockRestore();
+    unmount();
+    expect(student).not.toBeInTheDocument();
   });
 
-  it("calls onClose when Escape key is pressed", () => {
-    const handleClose = vi.fn();
-    render(
-      <SppExportModal
-        invoices={sampleInvoices}
-        branchName="Cabang Kranggan"
-        onClose={handleClose}
-      />
-    );
+  it("returns keyboard focus to the export action after closing the preview", () => {
+    function PreviewHarness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button onClick={() => setOpen(true)}>Open SPP preview</button>
+          {open && (
+            <SppExportModal
+              invoices={sampleInvoices}
+              onClose={() => setOpen(false)}
+            />
+          )}
+        </>
+      );
+    }
 
-    fireEvent.keyDown(window, { key: "Escape" });
-    expect(handleClose).toHaveBeenCalledTimes(1);
+    render(<PreviewHarness />);
+    const opener = screen.getByRole("button", { name: "Open SPP preview" });
+    opener.focus();
+    fireEvent.click(opener);
+    const close = screen.getByRole("button", { name: "Tutup pratinjau export" });
+    close.focus();
+    fireEvent.click(close);
+
+    expect(opener).toHaveFocus();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("renders empty state notice when invoices array is empty", () => {

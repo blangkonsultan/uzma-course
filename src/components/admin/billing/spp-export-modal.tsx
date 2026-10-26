@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Printer,
   X,
@@ -14,6 +15,7 @@ import {
   type GroupedStudentBilling,
 } from "@/lib/billing-helpers";
 import type { StudentInvoiceItem } from "@/lib/billing";
+import { Button } from "@/components/ui/button";
 
 interface SppExportModalProps {
   invoices: StudentInvoiceItem[];
@@ -56,16 +58,18 @@ export function SppExportModal({
   searchFilter = "",
   onClose,
 }: SppExportModalProps) {
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const report = groupInvoicesByStudent(invoices);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+    const dialog = dialogRef.current;
+    const opener = document.activeElement;
+    dialog?.showModal();
+    return () => {
+      dialog?.close();
+      if (opener instanceof HTMLElement) opener.focus({ preventScroll: true });
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, []);
 
   const printDateStr = new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
@@ -76,102 +80,180 @@ export function SppExportModal({
     timeZone: "Asia/Jakarta",
   }).format(new Date());
 
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 print:static print:p-0 print:bg-transparent"
-      role="dialog"
+  // Opened by the client-side export action; keep print layout outside the app shell.
+  return createPortal(
+    <dialog
+      ref={dialogRef}
+      id="spp-export-modal"
+      className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none border-0 bg-transparent p-3 text-slate-900 backdrop:bg-slate-900/60 open:flex open:items-center open:justify-center"
+      style={{
+        paddingTop: "max(0.75rem, env(safe-area-inset-top))",
+        paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+        paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
+        paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
+      }}
       aria-modal="true"
       aria-labelledby="export-modal-title"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+      aria-describedby="spp-export-preview-hint"
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
       }}
     >
       <style>{`
+        body:has(#spp-export-modal[open]) {
+          overflow: hidden;
+        }
+        body:has(#spp-export-modal[open]) > :not(#spp-export-modal) {
+          overflow: clip;
+        }
         @media print {
           @page {
             size: A4 portrait;
             margin: 10mm;
           }
-          body * {
-            visibility: hidden !important;
+          body {
+            margin: 0 !important;
+            background: white !important;
+            overflow: visible !important;
           }
-          #spp-export-print-area, #spp-export-print-area * {
-            visibility: visible !important;
+          body > :not(#spp-export-modal) {
+            display: none !important;
+          }
+          #spp-export-modal, #spp-export-modal * {
+            animation: none !important;
+            transition: none !important;
+          }
+          #spp-export-modal {
+            position: static !important;
+            display: block !important;
+            inset: auto !important;
+            width: 100% !important;
+            height: auto !important;
+            max-height: none !important;
+            margin: 0 !important;
+            overflow: visible !important;
+            padding: 0 !important;
+            background: transparent !important;
+            backdrop-filter: none !important;
+          }
+          #spp-export-modal::backdrop {
+            display: none !important;
+          }
+          #spp-export-modal > div {
+            display: block !important;
+            max-width: none !important;
+            max-height: none !important;
+            overflow: visible !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+          }
+          #spp-export-modal [data-spp-preview-scroll] {
+            display: block !important;
+            overflow: visible !important;
+            padding: 0 !important;
+            background: transparent !important;
           }
           #spp-export-print-area {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
+            position: static !important;
             width: 100% !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            overflow: visible !important;
             padding: 0 !important;
             background: white !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+          }
+          #spp-export-print-area [data-spp-table-frame] {
+            overflow: visible !important;
+            border-radius: 0 !important;
+          }
+          #spp-export-print-area thead {
+            display: table-header-group;
+          }
+          #spp-export-print-area tbody,
+          #spp-export-print-area tr,
+          #spp-export-print-area [data-spp-summary],
+          #spp-export-print-area [data-spp-signature] {
+            break-inside: avoid;
           }
         }
       `}</style>
 
-      <div
-        ref={dialogRef}
-        className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200 print:shadow-none print:border-none print:max-w-none print:max-h-none print:rounded-none"
-      >
+      <div className="flex max-h-full w-full min-w-0 max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
         {/* Modal Controls Bar */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-slate-200 bg-slate-50 print:hidden shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-primary-100 text-primary-700">
-              <FileSpreadsheet className="w-4 h-4" />
+        <div className="grid shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-3 border-b border-slate-200 bg-white px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:px-6 print:hidden">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="hidden size-10 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700 sm:flex">
+              <FileSpreadsheet aria-hidden="true" className="size-5" />
             </span>
-            <div>
-              <h2
-                id="export-modal-title"
-                className="text-xs sm:text-sm font-bold text-slate-900"
-              >
+            <div className="min-w-0">
+              <h2 id="export-modal-title" className="text-balance text-sm font-semibold leading-snug text-slate-900">
                 Pratinjau Export Rekap SPP
               </h2>
-              <p className="text-[11px] text-slate-500 hidden sm:block">
-                {report.total_students} Murid · {report.total_programs} Program ·{" "}
-                {branchName}
+              <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                {report.total_students} Murid · {report.total_programs} Program · {branchName}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => window.print()}
-              disabled={report.total_students === 0}
-              className="px-3.5 py-2 text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-xs"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Cetak / Simpan PDF</span>
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-              aria-label="Tutup pratinjau export"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="col-start-2 row-start-1 size-11 shrink-0 p-0 text-slate-600 hover:bg-slate-100 hover:text-slate-900 sm:col-start-3"
+            aria-label="Tutup pratinjau export"
+          >
+            <X aria-hidden="true" className="size-5" />
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => window.print()}
+            disabled={report.total_students === 0}
+            className="col-span-2 min-h-11 w-full whitespace-nowrap text-sm sm:col-span-1 sm:col-start-2 sm:row-start-1 sm:w-auto"
+          >
+            <Printer aria-hidden="true" className="size-4 shrink-0" />
+            Cetak / Simpan PDF
+          </Button>
+          <p id="spp-export-preview-hint" className="col-span-2 text-pretty text-xs leading-relaxed text-slate-600 sm:col-span-3">
+            Geser pratinjau untuk melihat seluruh kolom. PDF dicetak dalam ukuran A4.
+          </p>
         </div>
 
         {/* Printable Area */}
         <div
+          data-spp-preview-scroll
+          role="region"
+          aria-label="Pratinjau dokumen rekap SPP"
+          tabIndex={0}
+          className="min-h-0 min-w-0 flex-1 overflow-auto overscroll-contain bg-slate-100 p-3 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-600 sm:p-5"
+        >
+        <div
           id="spp-export-print-area"
-          className="p-6 sm:p-8 overflow-y-auto space-y-6 text-slate-900 bg-white font-sans text-xs print:p-0 print:overflow-visible"
+          className="mx-auto min-w-[44rem] space-y-6 rounded-xl bg-white p-5 font-sans text-xs text-slate-900 shadow-sm sm:p-6"
         >
           {/* Header Kop Dokumen */}
-          <div className="flex items-start justify-between border-b-2 border-primary-900 pb-4">
-            <div className="flex items-center gap-3">
+          <div className="flex items-start justify-between gap-6 border-b-2 border-primary-900 pb-4">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/logo-uzma-course.jpg"
                 alt="Logo Uzma Course"
-                className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0"
+                width={48}
+                height={48}
+                className="size-12 shrink-0 rounded-xl object-cover"
               />
               <div>
                 <h1 className="text-base sm:text-lg font-black tracking-tight text-primary-950 uppercase">
                   Uzma Course
                 </h1>
-                <p className="text-xs text-slate-600 font-medium">
+                <p className="text-pretty text-xs font-medium leading-relaxed text-slate-600">
                   Lembaga Bimbingan Belajar & Les Privat Terpadu
                 </p>
                 <p className="text-[11px] text-slate-500">
@@ -180,7 +262,7 @@ export function SppExportModal({
               </div>
             </div>
 
-            <div className="text-right text-[11px] text-slate-600 space-y-0.5">
+            <div className="w-60 shrink-0 space-y-1 text-right text-[11px] leading-relaxed text-slate-600">
               <div>
                 <span className="text-slate-500">Cabang:</span>{" "}
                 <strong className="text-slate-900">{branchName}</strong>
@@ -199,7 +281,7 @@ export function SppExportModal({
                   </span>
                 </div>
               )}
-              <div className="text-[10px] text-slate-400 pt-1">
+              <div className="pt-1 text-[10px] tabular-nums text-slate-500">
                 Dicetak: {printDateStr} WIB
               </div>
             </div>
@@ -218,19 +300,19 @@ export function SppExportModal({
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
-                <table className="w-full text-left border-collapse text-[11px]">
+              <div data-spp-table-frame className="overflow-hidden rounded-xl border border-slate-200">
+                <table className="w-full border-collapse text-left text-[11px] leading-relaxed">
+                  <caption className="sr-only">Rekap tagihan SPP per murid dan program belajar</caption>
                   <thead>
-                    <tr className="bg-slate-100/80 border-b border-slate-300 text-slate-700 font-bold">
-                      <th className="py-2.5 px-3 w-10 text-center">No</th>
-                      <th className="py-2.5 px-3">Murid / Program Belajar</th>
-                      <th className="py-2.5 px-3">Wali & Kontak</th>
-                      <th className="py-2.5 px-3 text-center">Jatuh Tempo</th>
-                      <th className="py-2.5 px-3 text-right">Tagihan</th>
-                      <th className="py-2.5 px-3 text-center">Status</th>
+                    <tr className="border-b border-slate-300 bg-slate-100 font-semibold text-slate-700">
+                      <th scope="col" className="w-10 px-3 py-3 text-center">No</th>
+                      <th scope="col" className="px-3 py-3">Murid / Program Belajar</th>
+                      <th scope="col" className="px-3 py-3">Wali & Kontak</th>
+                      <th scope="col" className="px-3 py-3 text-center">Jatuh Tempo</th>
+                      <th scope="col" className="px-3 py-3 text-right">Tagihan</th>
+                      <th scope="col" className="px-3 py-3 text-center">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
                     {report.grouped_students.map(
                       (student: GroupedStudentBilling, index: number) => (
                         <StudentBillingGroupRows
@@ -240,13 +322,12 @@ export function SppExportModal({
                         />
                       )
                     )}
-                  </tbody>
                 </table>
               </div>
 
               {/* Ringkasan Finansial Bawah */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-start justify-between gap-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                <div className="space-y-1 text-[11px] text-slate-600">
+              <div data-spp-summary className="flex items-start justify-between gap-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div className="min-w-0 flex-1 space-y-1 text-pretty text-[11px] leading-relaxed text-slate-600">
                   <p className="font-bold text-slate-800">
                     Informasi Pembayaran Cabang:
                   </p>
@@ -266,36 +347,32 @@ export function SppExportModal({
                   </p>
                 </div>
 
-                <div className="min-w-[240px] border-t sm:border-t-0 sm:border-l border-slate-200 sm:pl-4 pt-3 sm:pt-0 space-y-1.5 text-right text-[11px]">
-                  <div className="flex justify-between text-slate-600">
-                    <span>
-                      Total Tagihan ({report.total_programs} program):
-                    </span>
-                    <span className="font-bold text-slate-900">
-                      Rp {report.total_invoiced.toLocaleString("id-ID")}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-emerald-700">
-                    <span>Kas Masuk (Lunas):</span>
-                    <span className="font-bold">
-                      Rp {report.total_paid.toLocaleString("id-ID")}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-amber-800 font-bold border-t border-slate-200 pt-1.5 text-xs">
-                    <span>Sisa Piutang Tertunggak:</span>
-                    <span>
-                      Rp {report.total_outstanding.toLocaleString("id-ID")}
-                    </span>
-                  </div>
-                </div>
+                <dl className="grid w-72 shrink-0 grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-2 border-l border-slate-200 pl-4 text-[11px] leading-relaxed">
+                  <dt className="text-slate-600">
+                    Total Tagihan ({report.total_programs} program):
+                  </dt>
+                  <dd className="whitespace-nowrap text-right font-semibold tabular-nums text-slate-900">
+                    Rp{"\u00a0"}{report.total_invoiced.toLocaleString("id-ID")}
+                  </dd>
+                  <dt className="text-emerald-700">Kas Masuk (Lunas):</dt>
+                  <dd className="whitespace-nowrap text-right font-semibold tabular-nums text-emerald-700">
+                    Rp{"\u00a0"}{report.total_paid.toLocaleString("id-ID")}
+                  </dd>
+                  <dt className="border-t border-slate-200 pt-2 font-semibold text-amber-900">
+                    Sisa Piutang Tertunggak:
+                  </dt>
+                  <dd className="whitespace-nowrap border-t border-slate-200 pt-2 text-right font-bold tabular-nums text-amber-900">
+                    Rp{"\u00a0"}{report.total_outstanding.toLocaleString("id-ID")}
+                  </dd>
+                </dl>
               </div>
 
               {/* Tanda Tangan */}
-              <div className="flex justify-between items-end pt-6 text-[11px] text-slate-600">
-                <div className="text-[10px] text-slate-400">
+              <div data-spp-signature className="flex items-end justify-between gap-8 pt-6 text-[11px] text-slate-600">
+                <div className="max-w-sm text-pretty text-[10px] leading-relaxed text-slate-500">
                   Dokumen ini dihasilkan secara otomatis oleh Sistem Manajemen Uzma Course.
                 </div>
-                <div className="text-center w-48 space-y-12">
+                <div className="w-44 shrink-0 space-y-12 text-center">
                   <p>
                     Sidoarjo, {formatDateIndo(new Date().toISOString().split("T")[0])}
                   </p>
@@ -307,8 +384,10 @@ export function SppExportModal({
             </div>
           )}
         </div>
+        </div>
       </div>
-    </div>
+    </dialog>,
+    document.body
   );
 }
 
@@ -320,49 +399,49 @@ function StudentBillingGroupRows({
   index: number;
 }) {
   return (
-    <>
+    <tbody className="divide-y divide-slate-200">
       {/* Baris Induk Siswa */}
-      <tr className="bg-slate-50/70 font-semibold border-t-2 border-slate-300">
+      <tr className="border-t border-slate-300 bg-slate-50 font-semibold">
         <td className="py-2 px-3 text-center text-slate-500 text-[10px]">
           {index}
         </td>
-        <td className="py-2 px-3" colSpan={3}>
-          <div className="flex items-center gap-2">
-            <span className="text-primary-950 font-bold text-xs">
+        <th scope="rowgroup" className="px-3 py-2 text-left" colSpan={3}>
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="text-xs font-semibold text-primary-950">
               {student.student_name}
             </span>
             <span className="text-[10px] text-slate-500 font-medium">
               (NIS: {student.student_number})
             </span>
-            <span className="text-[10px] text-slate-400 font-normal">
+            <span className="text-[10px] font-normal text-slate-500">
               · {student.branch_name}
             </span>
             {student.programs_count > 1 && (
-              <span className="px-1.5 py-0.5 rounded bg-primary-100 text-primary-800 text-[9px] font-bold">
+              <span className="whitespace-nowrap rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-semibold text-primary-800">
                 {student.programs_count} Program
               </span>
             )}
           </div>
-        </td>
-        <td className="py-2 px-3 text-right font-bold text-primary-950">
-          Rp {student.total_invoiced.toLocaleString("id-ID")}
+        </th>
+        <td className="whitespace-nowrap px-3 py-2 text-right font-semibold tabular-nums text-primary-950">
+          Rp{"\u00a0"}{student.total_invoiced.toLocaleString("id-ID")}
         </td>
         <td className="py-2 px-3 text-center">
           {student.status === "paid" && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-bold">
-              <CheckCircle2 className="w-2.5 h-2.5" />
+            <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
+              <CheckCircle2 aria-hidden="true" className="size-3" />
               LUNAS
             </span>
           )}
           {student.status === "unpaid" && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[9px] font-bold">
-              <Clock className="w-2.5 h-2.5" />
+            <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-900">
+              <Clock aria-hidden="true" className="size-3" />
               BELUM BAYAR
             </span>
           )}
           {student.status === "partial" && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[9px] font-bold">
-              <Clock className="w-2.5 h-2.5" />
+            <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800">
+              <Clock aria-hidden="true" className="size-3" />
               SEBAGIAN
             </span>
           )}
@@ -375,44 +454,42 @@ function StudentBillingGroupRows({
         return (
           <tr
             key={inv.id}
-            className="hover:bg-slate-50/50 transition-colors text-[10px] text-slate-700"
+            className="text-[11px] text-slate-700"
           >
             <td></td>
-            <td className="py-1.5 px-3 pl-6">
-              <div className="flex items-center gap-1.5">
-                <span className="text-slate-400">↳</span>
-                <span className="font-medium text-slate-900">
-                  {inv.program?.name}
-                </span>
-                <span className="text-slate-500">
-                  ({inv.variant?.name})
-                </span>
-                <span className="text-slate-400 text-[9px]">
-                  · {inv.invoice_number}
-                </span>
+            <td className="px-3 py-2 pl-6">
+              <div className="space-y-0.5">
+                <p className="font-medium text-slate-900">{inv.program?.name}</p>
+                <p className="text-[10px] text-slate-600">({inv.variant?.name})</p>
+                <p className="whitespace-nowrap text-[10px] tabular-nums text-slate-500">
+                  {inv.invoice_number}
+                </p>
               </div>
             </td>
             <td className="py-1.5 px-3 text-slate-600">
               {student.parent_name || "-"}
               {student.parent_phone && (
-                <span className="text-slate-400 block text-[9px]">
+                <span className="block whitespace-nowrap text-[10px] tabular-nums text-slate-500">
                   {student.parent_phone}
                 </span>
               )}
             </td>
-            <td className="py-1.5 px-3 text-center text-slate-600">
+            <td className="whitespace-nowrap px-3 py-2 text-center text-[10px] tabular-nums text-slate-600">
               {formatDateIndo(inv.due_date)}
             </td>
-            <td className="py-1.5 px-3 text-right font-medium text-slate-900">
-              Rp {inv.total_amount.toLocaleString("id-ID")}
+            <td className="whitespace-nowrap px-3 py-2 text-right font-medium tabular-nums text-slate-900">
+              Rp{"\u00a0"}{inv.total_amount.toLocaleString("id-ID")}
             </td>
             <td className="py-1.5 px-3 text-center">
               {isPaid ? (
-                <span className="text-emerald-700 font-bold text-[9px]">
-                  Lunas ({formatDateIndo(inv.payment?.payment_date)})
+                <span className="text-[10px] font-semibold text-emerald-700">
+                  Lunas
+                  <span className="block whitespace-nowrap tabular-nums">
+                    ({formatDateIndo(inv.payment?.payment_date)})
+                  </span>
                 </span>
               ) : (
-                <span className="text-amber-700 font-bold text-[9px]">
+                <span className="whitespace-nowrap text-[10px] font-semibold text-amber-900">
                   Belum Bayar
                 </span>
               )}
@@ -420,6 +497,6 @@ function StudentBillingGroupRows({
           </tr>
         );
       })}
-    </>
+    </tbody>
   );
 }
