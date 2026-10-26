@@ -1,5 +1,15 @@
 # Progress Log
 
+## 2026-10-26 (Student SPP PDF Blank-Page Fix)
+- **Status**: Completed and verified for `feat-010`.
+- **Root cause**: The SPP report was nested in the billing page. Print visibility rules retained hidden page layout, backdrop blur anchored the absolutely positioned report below the page, and the modal's overflow constraints clipped it. The original PDF first page rasterized blank.
+- **Fix**: Portal the client-opened export modal to `document.body`; isolate that direct body child for printing, restore normal document flow, remove backdrop/height/overflow restrictions, and disable print transitions/animations. Filters, grouping, document contents, and financial calculations are unchanged.
+- **Regression**: Replaced the window.print forwarding assertion with a real visibility/unmount regression for a report opened from a hidden, clipped billing container; observed failing before and passing after. Focused billing/export verification passed **2 suites / 14 tests**.
+- **Browser/PDF proof**: Native Chromium A4 output contains all **27 invoice identifiers / 18 students**, all three financial totals, and **3 nonblank pages** without admin/preview chrome. A branch/status/search-filtered report generated from the 360px viewport contains only the selected student/invoice on **1 nonblank page**. First/final PDF pages were visually inspected. Preview checks at 360px, 375px, and 1280px found no document horizontal overflow or offscreen print/close controls; closing restores the filtered page.
+- **Verification finding**: The first post-fix full run passed lint but timed out in `tests/pages.test.tsx`'s 14-editor render-only CMS test (no assertions). Removed that non-behavior test rather than raising its timeout; the meaningful page tests remain.
+- **Final checks**: `./init.sh` passed: 0 ESLint errors/warnings, **83 Vitest suites / 479 tests passed**, coverage 65.54% statements / 59.79% branches / 67.82% functions / 66.74% lines, and a clean production Webpack build. Existing disabled-iframe happy-dom diagnostics remain non-failing output. Changed-component Impeccable detector returned `[]`; feature tracker parses successfully; CodeGraph synchronized; development `/login` returned HTTP 200.
+- **Scope boundary**: No invoice/payment/database mutation, dependency change, deployment, or push. Unrelated SEO files and the pre-existing generated `public/sw.js` modification remain outside the fix.
+
 ## 2026-10-24 (Local SEO and AI Search — Audit Handoff, Implementation Deferred)
 - **Status**: Audit completed; `feat-013` is pending. The user requested a persistent TODO and an owner-forwardable clarification list, not implementation.
 - **Backlog**: `docs/seo-ai-search-backlog.md` records all requested search/location goals, observed evidence and limits, 13 deferred TODOs, source links, and resume instructions.

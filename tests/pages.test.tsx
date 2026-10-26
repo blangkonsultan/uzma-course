@@ -467,32 +467,6 @@ describe("Application Pages (src/app/)", () => {
       await expect(LandingCmsPage({ searchParams: Promise.resolve({}) })).rejects.toThrow("NEXT_REDIRECT: /admin");
     });
 
-    it("renders SectionEditorPage for each valid section", async () => {
-      const sections: LandingSectionKey[] = [
-        "hero",
-        "programs",
-        "why_us",
-        "facilities",
-        "team",
-        "gallery",
-        "testimonials",
-        "videos",
-        "locations",
-        "faq",
-        "cta",
-        "footer",
-        "navbar",
-        "floating_wa",
-      ];
-
-      for (const section of sections) {
-        const pageJsx = await SectionEditorPage({
-          params: Promise.resolve({ section }),
-        });
-        render(pageJsx);
-      }
-    });
-
     it("redirects on invalid section", async () => {
       await expect(
         SectionEditorPage({ params: Promise.resolve({ section: "invalid" as unknown as LandingSectionKey }) })

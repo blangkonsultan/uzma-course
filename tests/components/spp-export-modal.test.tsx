@@ -4,10 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import { SppExportModal } from "@/components/admin/billing/spp-export-modal";
 import type { StudentInvoiceItem } from "@/lib/billing";
 
-if (!window.print) {
-  window.print = () => {};
-}
-
 const sampleInvoices: StudentInvoiceItem[] = [
   {
     id: "inv-1",
@@ -100,23 +96,18 @@ describe("SppExportModal Component", () => {
     expect(screen.getAllByText(/Rp 650.000/i).length).toBeGreaterThanOrEqual(1);
   });
 
-  it("triggers window.print when print button is clicked", () => {
-    const printSpy = vi.spyOn(window, "print").mockImplementation(() => {});
-    render(
-      <SppExportModal
-        invoices={sampleInvoices}
-        branchName="Cabang Kranggan"
-        onClose={vi.fn()}
-      />
+  it("keeps the report visible when the billing page is hidden for printing", () => {
+    const { unmount } = render(
+      <div style={{ visibility: "hidden", height: 0, overflow: "hidden" }}>
+        <SppExportModal invoices={sampleInvoices} onClose={vi.fn()} />
+      </div>
     );
 
-    const printButton = screen.getByRole("button", {
-      name: /Cetak \/ Simpan PDF/i,
-    });
-    fireEvent.click(printButton);
+    const student = screen.getByText("Ahmad Faza");
+    expect(student).toBeVisible();
 
-    expect(printSpy).toHaveBeenCalledTimes(1);
-    printSpy.mockRestore();
+    unmount();
+    expect(student).not.toBeInTheDocument();
   });
 
   it("calls onClose when Escape key is pressed", () => {

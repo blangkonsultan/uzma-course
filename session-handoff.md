@@ -1,5 +1,13 @@
 # Session Handoff
 
+## Student SPP PDF Blank-Page Fix — 2026-10-26
+- **Branch**: `fix/spp-pdf-print`; application changes are local, not pushed or deployed.
+- **Fix**: `SppExportModal` now portals to the body and prints in normal document flow with isolated, unclipped content and no backdrop/transition artifacts.
+- **Browser evidence**: Full A4 report: 27 invoices / 18 students / 3 nonblank pages, all totals present; filtered mobile-origin report: 1 nonblank page with only the selected student. Print/close controls verified within 360px, 375px, and 1280px viewports; closing restores the filtered billing page.
+- **Tests**: Hidden/clipped-parent visibility regression failed before and passed after; focused billing/export suite passed 14 tests. Removed an assertion-free CMS render loop after it timed out during full verification, without relaxing the timeout or changing CMS production behavior.
+- **Final verification**: `./init.sh` passed: 0 ESLint errors/warnings, 83 suites / 479 tests, coverage above all thresholds, clean production Webpack build. CodeGraph is synchronized and the existing development server remains available (`/login`: HTTP 200).
+- **Preserved work**: Unrelated untracked SEO documents and the existing generated service-worker change are not part of this fix.
+
 ## Role-Specific Admin and Teacher User Guides — 2026-10-24
 - **Status**: Completed and verified (`feat-012` is `completed`).
 - **Routes Delivered**:

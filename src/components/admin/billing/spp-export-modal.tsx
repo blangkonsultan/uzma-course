@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Printer,
   X,
@@ -76,8 +77,10 @@ export function SppExportModal({
     timeZone: "Asia/Jakarta",
   }).format(new Date());
 
-  return (
+  // Opened by the client-side export action; keep print layout outside the app shell.
+  return createPortal(
     <div
+      id="spp-export-modal"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 print:static print:p-0 print:bg-transparent"
       role="dialog"
       aria-modal="true"
@@ -92,17 +95,37 @@ export function SppExportModal({
             size: A4 portrait;
             margin: 10mm;
           }
-          body * {
-            visibility: hidden !important;
+          body {
+            margin: 0 !important;
+            background: white !important;
           }
-          #spp-export-print-area, #spp-export-print-area * {
-            visibility: visible !important;
+          body > :not(#spp-export-modal) {
+            display: none !important;
+          }
+          #spp-export-modal, #spp-export-modal * {
+            animation: none !important;
+            transition: none !important;
+          }
+          #spp-export-modal {
+            position: static !important;
+            display: block !important;
+            padding: 0 !important;
+            background: transparent !important;
+            backdrop-filter: none !important;
+          }
+          #spp-export-modal > div {
+            display: block !important;
+            max-width: none !important;
+            max-height: none !important;
+            overflow: visible !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
           }
           #spp-export-print-area {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
+            position: static !important;
             width: 100% !important;
+            overflow: visible !important;
             padding: 0 !important;
             background: white !important;
           }
@@ -308,7 +331,8 @@ export function SppExportModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
