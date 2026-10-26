@@ -105,13 +105,23 @@ export async function insertScheduleClass(data: {
     );
   }
 
-  // 3. Validate Teacher Overlap (within this draft AND across active drafts of other branches)
+  // 3. Validate teacher overlap in this draft or any active draft.
+  const { data: activeDrafts, error: draftScopeErr } = await supabase
+    .from("schedule_drafts")
+    .select("id")
+    .eq("status", "active");
+
+  if (draftScopeErr || !activeDrafts) throw new Error("Gagal memvalidasi jadwal.");
+  const conflictDraftIds = [data.draft_id];
+  for (const draft of activeDrafts) {
+    if (draft.id !== data.draft_id) conflictDraftIds.push(draft.id);
+  }
   const { data: overlaps, error: overlapErr } = await supabase
     .from("schedule_classes")
-    .select("id, start_time, end_time, schedule_drafts!inner(id, name, status, branch_id)")
+    .select("id")
     .eq("teacher_id", data.teacher_id)
     .eq("day_of_week", data.day_of_week)
-    .or(`draft_id.eq.${data.draft_id},schedule_drafts.status.eq.active`)
+    .in("draft_id", conflictDraftIds)
     .lt("start_time", data.end_time)
     .gt("end_time", data.start_time);
 

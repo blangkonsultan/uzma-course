@@ -1,8 +1,13 @@
 # Buku Panduan Pengguna (User Manual Guide) — Uzma Course
 
-Selamat datang di **Buku Panduan Pengguna Sistem Informasi Terpadu Uzma Course**. Dokumen ini dirancang sebagai rujukan operasional resmi bagi **Admin (Pengelola Pusat/Cabang)** dan **Guru (Pendidik)** dalam mengoperasikan seluruh modul aplikasi, mulai dari pendaftaran murid, penjadwalan kelas bebas bentrok, presensi geofence, pengisian kartu kendali mengajar, penggajian guru, hingga penagihan SPP berkala dan kwitansi resmi.
+Dokumen ini adalah ringkasan operasional **Uzma Course**. Rujukan utama pada versi aplikasi terkini adalah dua panduan web terpisah dengan langkah bergambar, aturan sistem, saran operasional, dan bantuan:
 
-> 📄 **Berkas PDF Resmi**: Dokumen panduan cetak beresolusi tinggi tersedia di [`docs/buku-panduan-pengguna.pdf`](buku-panduan-pengguna.pdf) (14 Halaman, Ukuran A4).
+- **Admin:** [Panduan Admin](/admin/panduan), melalui menu **Bantuan → Panduan Pengguna**.
+- **Guru:** [Panduan Guru](/guru/panduan), melalui **Profil → Panduan Pengguna**.
+
+Keduanya memerlukan akun dengan peran yang sesuai. Tautan rute dibuka pada origin aplikasi yang menjalankan versi ini; panduan web bukan halaman publik tanpa login. **Cetak panduan** mencetak artikel yang sedang dipilih beserta screenshot, peringatan, dan jawaban bantuannya.
+
+> **PDF arsip:** [`buku-panduan-pengguna.pdf`](buku-panduan-pengguna.pdf) adalah snapshot lama yang tidak diperbarui bersama panduan web ini. Gunakan panduan web sesuai peran untuk langkah dan label kontrol terkini.
 
 ---
 
@@ -76,13 +81,13 @@ Sistem Uzma Course membagi akses operasional menjadi dua antarmuka khusus:
   - `Sistem (Rasio)`: rasio murid per kelas (1 = privat, 2 = semi-privat, 4+ = reguler).
   - `Frekuensi`: jumlah pertemuan per minggu (misal: 2x seminggu, 3x seminggu).
   - `Fee Guru per Sesi`: honor yang diterima guru saat mengajar sesi varian tersebut.
-  - `Default SPP`: biaya paket standar bulanan per murid.
+  - `Default SPP`: biaya standar paket untuk siklus belajar 28 hari per enrollment, bukan penagihan otomatis per bulan kalender.
 
 #### D. Data Guru / Pendidik (`/admin/guru`)
 - Mendaftarkan profil guru baru, cabang penempatan utama, cabang sekunder (multi-cabang), dan kontak WhatsApp.
 - **Pengaturan Tunjangan & Garansi**:
   - Tunjangan Tetap: Tambahkan komponen tunjangan bulanan (Transport, Kreativitas, dll).
-  - Garansi Honor Minimum: Batas bawah penerimaan honor bulanan yang dijamin lembaga (misal: Rp 250.000).
+  - Garansi Honor Minimum: nominal terdaftar untuk ditinjau terhadap ketentuan kompensasi. Nilai ini disnapshot sebagai informasi, bukan otomatis ditambahkan sebagai top-up ke total honor. Admin harus meninjau selisih yang perlu disesuaikan sebelum pembayaran.
 
 #### E. Data Murid (`/admin/murid`)
 - Mendaftarkan murid baru beserta data wali/orang tua dan nomor WhatsApp aktif.
@@ -121,17 +126,17 @@ Rute: `/admin/draft` $\rightarrow$ `/admin/draft/[id]/board`
 Rute: `/admin/payroll`
 
 1. **Siklus Periode Penggajian**:
-   - Periode berstatus **Terbuka (`open`)**: Guru dapat mengisi kartu kendali mengajar. Fee sesi terakumulasi secara *real-time*.
+   - Periode berstatus **Terbuka (`open`)**: Guru dapat mengisi kartu mengajar; estimasi guru memakai sesi submitted yang diakui. Entry rekap admin dapat belum terbentuk sampai penutupan, sehingga angka nol belum membuktikan tidak ada aktivitas.
    - **Tutup Periode Payroll**:
      - Di akhir bulan kalender, klik tombol **"Tutup Periode Payroll"**.
      - Sistem secara atomik menarik seluruh sesi mengajar tersubmit, membekukan *snapshot* tunjangan tetap dan garansi minimum, serta mengubah status menjadi **Ditutup (`closed`)**.
 2. **Penambahan Penyesuaian (Adjustment)**:
-   - Pada status `closed`, klik **"+ Tambah Adjustment"**.
+   - Hanya pada status **`closed` sebelum `paid`**, klik **"+ Tambah Adjustment"**. Adjustment tidak ditambahkan pada periode terbuka atau yang sudah dibayar.
    - Masukkan nominal positif (bonus/lembur) atau negatif (potongan/denda) beserta alasan tertulis.
    - Total honor guru dan grand total payroll terhitung bersih secara otomatis.
 3. **Pencairan Honor (*Mark Paid*)**:
    - Setelah transfer honor dilakukan, klik tombol **"Tandai Sudah Dibayar"**.
-   - Periode terkunci permanen (**`paid`**), tombol mutasi dinonaktifkan, dan slip resmi guru terarsip secara permanen.
+   - Tindakan ini mencatat status akhir **`paid`** dan mengunci perubahan yang tidak diizinkan. Tombol tidak melakukan transfer bank; cocokkan penerima, total dan bukti pembayaran nyata sebelum memilihnya.
 
 ![Modul Penggajian Guru](screenshots/05-admin-payroll.png)
 *Gambar 5: Rekapitulasi Penggajian Guru dan Penguncian Periode Otomatis*
@@ -213,12 +218,12 @@ Rute: `/guru/absen`
 
 1. Masuk ke menu **Presensi** di navigasi bawah.
 2. Saat pertama kali membuka, browser akan meminta izin lokasi: pilih **"Izinkan Saat Menggunakan Aplikasi" (Allow)**.
-3. Sistem secara otomatis mendeteksi koordinat GPS dan memilih cabang mengajar terdekat.
+3. Periksa cabang tugas yang dipilih atau disarankan sebagai terdekat. Pilihan mengikuti penugasan dan jadwal aktif hari ini; **Hari Ini Libur** berarti tidak ada jadwal yang ditemukan untuk hari tersebut. Kesalahan penugasan/jadwal harus dilaporkan kepada admin.
 4. **Presensi Datang**:
-   - Jika posisi Anda berada di dalam radius cabang, indikator berwarna hijau *"Dalam radius"*.
-   - Ketuk tombol hijau besar **"Presensi Datang"**. Jam kedatangan WIB langsung tercatat.
+   - Periksa jarak GPS dan radius toleransi cabang yang tampil; berada dalam radius kerja yang benar adalah prasyarat, bukan mengikuti angka contoh pada screenshot.
+   - Ketuk **"Check-In"**, tunggu hasil, lalu periksa **Sudah Masuk** serta jumlah **Antrean**. Status optimistis saat offline belum berarti server sudah menerima catatan.
 5. **Presensi Pulang**:
-   - Di akhir jam mengajar shift, buka kembali menu presensi dan ketuk **"Presensi Pulang"**.
+   - Setelah tugas selesai, buka kembali presensi dan pilih **"Check-Out"**. Pastikan hasil tersimpan/sinkron. Antrean lokal jangan dihapus dan harus diselesaikan sebelum keluar atau mengganti akun/perangkat.
 
 <div align="center">
   <img src="screenshots/10-guru-presensi.png" width="300" alt="Presensi Geofence GPS" />
@@ -243,15 +248,15 @@ Rute: `/guru/jadwal`
 Rute: `/guru/jadwal` $\rightarrow$ Ketuk **"Isi Kartu Mengajar"**
 
 1. **Pemilihan Tanggal**:
-   - Tanggal otomatis terpilih hari ini (WIB). Anda juga dapat membuka tanggal sesi lampau yang sesuai dengan hari kelas tersebut.
+   - Periksa tanggal yang dibuka dari tautan jadwal; tanggal itu dapat menunjuk pertemuan terakhir sesuai hari kelas. Pilih tanggal pertemuan yang benar, sesuai hari jadwal dan tidak di masa depan menurut WIB, sebelum mengisi.
 2. **Status Kehadiran Murid**:
-   - Pilih status kehadiran masing-masing murid: **Hadir (`present`)**, **Tidak Hadir (`absent`)**, atau **Izin (`excused`)**.
+   - Pilih status tiap murid: **Hadir (`present`)**, **Tidak Hadir (`absent`)**, **Izin (`excused`)**, atau **Cancel (`cancelled`)**. Semua murid wajib memiliki status sebelum kartu dikirim.
 3. **Capaian & Catatan Guru**:
    - Ketikkan capaian belajar ananda pada sesi tersebut (misal: *"Membaca Modul 3 Halaman 12-14"*).
    - Berikan catatan perkembangan atau evaluasi fokus belajar.
-4. **Simpan Draf vs Kirim Kartu**:
-   - **Simpan Draf**: Jika sesi belajar masih berlangsung atau ingin mengedit catatan nanti. Data tersimpan aman di server tanpa mengunci form.
-   - **Kirim Kartu (Submit)**: Jika sesi telah selesai sepenuhnya. Sistem akan membekukan *snapshot* honor sesi Anda dan mengunci kartu menjadi *read-only*.
+4. **Simpan Draft vs Kirim Kartu**:
+   - **Simpan Draft**: Menyimpan pekerjaan ke server tanpa mengirim kartu final. Tunggu pesan berhasil dan periksa kelas/tanggal yang sama ketika melanjutkan; antrean offline presensi tidak menyimpan kartu mengajar.
+   - **Kirim Kartu**: Menyimpan perubahan saat ini lalu mengirim dan mengunci kartu sebagai **Submitted**. Periksa seluruh murid, tanggal dan catatan sebelum tindakan final.
 
 <div align="center">
   <img src="screenshots/12-guru-teaching-log.png" width="300" alt="Kartu Kendali Mengajar" />
@@ -264,11 +269,11 @@ Rute: `/guru/jadwal` $\rightarrow$ Ketuk **"Isi Kartu Mengajar"**
 Rute: `/guru/honor`
 
 1. **Estimasi Berjalan (Bulan Aktif)**:
-   - Menampilkan total *Take-Home Pay* sementara yang terakumulasi dari seluruh kartu mengajar yang telah Anda kirim (*submitted*) di bulan berjalan.
-   - Menampilkan rincian tunjangan tetap aktif dan garansi honor minimum terdaftar.
+   - Menampilkan estimasi dari kartu submitted pada periode berjalan dan komponen yang diakui. Fee sesi standar saat ini memakai status Hadir; Tidak Hadir/Izin/Cancel tidak menambah fee sesi tersebut.
+   - Rincian tunjangan dan **Garansi Minimum Terdaftar** dibaca terpisah dari total. Minimum terdaftar bukan komponen top-up otomatis; minta admin memeriksa ketidaksesuaian dengan ketentuan kompensasi.
 2. **Arsip Slip Resmi Periode Lampau**:
-   - Buka dropdown **"Periode"** di bagian atas slip.
-   - Pilih bulan sebelumnya yang berstatus **"Sudah Ditransfer / Paid"** untuk melihat bukti rincian slip gaji resmi yang telah dicairkan oleh Admin.
+   - Buka **Pilih Periode Honor** dan gunakan pilihan yang tersedia untuk akun sendiri. Cocokkan bulan/tahun pada rekap, bukan hanya URL.
+   - **Estimasi Berjalan**, **Periode Ditutup / Menunggu Transfer**, dan **Sudah Ditransfer / Paid** memiliki arti berbeda. Status pembayaran dicatat admin, bukan bukti aplikasi memverifikasi mutasi bank; laporkan arsip yang tidak tersedia atau penerimaan nyata yang tidak sesuai.
 
 <div align="center">
   <img src="screenshots/13-guru-honor.png" width="300" alt="Slip Honor Guru" />
@@ -279,13 +284,11 @@ Rute: `/guru/honor`
 
 ## 4. Tanya Jawab & Pemecahan Masalah (FAQ)
 
-### Q1: Mengapa tombol "Presensi Datang" berwarna abu-abu / terkunci?
-> **Jawaban:** Pastikan dua hal:
-> 1. GPS pada smartphone Anda telah aktif dan Anda telah memberikan izin akses lokasi pada browser.
-> 2. Jarak fisik Anda berada di dalam radius toleransi cabang (misal: maksimal 50 meter dari titik gedung cabang). Jika indikator menampilkan *"Di luar radius (+120m)"*, silakan mendekat ke lokasi cabang.
+### Q1: Mengapa Check-In tidak dapat diselesaikan?
+> **Jawaban:** Periksa identitas akun, penugasan cabang, jadwal aktif hari ini, izin/akurasi GPS, cabang terpilih, jarak dan radius yang ditampilkan. Jika **Hari Ini Libur** atau penugasan berbeda muncul padahal seharusnya bertugas, laporkan kelas, cabang, tanggal dan jam kepada admin. Jangan mengubah tanggal perangkat atau memalsukan lokasi. Bila ada **Antrean**, selesaikan sinkronisasi pada akun/perangkat asal sebelum mengulang tindakan.
 
 ### Q2: Saya terlanjur klik "Kirim Kartu" padahal ada catatan murid yang salah ketik. Apakah bisa diedit kembali?
-> **Jawaban:** Demi kepatuhan akuntansi dan integritas penghitungan honor otomatis, sesi yang berstatus `submitted` akan langsung terkunci permanen. Jika ada perbaikan darurat, hubungi Admin Pusat untuk melakukan pembukaan kunci dari database.
+> **Jawaban:** Kartu **Submitted** bersifat hanya-baca. Catat kelas, tanggal sesi, murid dan rincian koreksi yang diperlukan, lalu hubungi admin. Tidak ada alur buka-kembali/unsubmit yang dijanjikan oleh panduan ini; jangan mengubah database atau membuka kunci kartu secara langsung.
 
 ### Q3: Saat mencetak Kwitansi SPP, bagaimana cara menghilangkan teks URL dan tanggal di header/footer kertas?
 > **Jawaban:** Pada jendela pratinjau cetak (*Print Preview*) browser:
@@ -294,8 +297,8 @@ Rute: `/guru/honor`
 > 3. Pastikan opsi **"Background graphics" (Grafik latar belakang)** tercentang agar warna dan logo tercetak sempurna.
 
 ### Q4: Apakah data draf kartu mengajar akan hilang jika ponsel tiba-tiba mati atau kehabisan baterai?
-> **Jawaban:** Tidak, selama Anda telah menekan tombol "Simpan Draf", seluruh catatan telah tersimpan aman di basis data awan (*cloud database* Supabase) dan dapat dibuka kembali kapan pun dari perangkat mana pun.
+> **Jawaban:** Data dapat dilanjutkan jika **Simpan Draft** benar-benar berhasil di server. Tunggu pesan tersimpan dan buka kelas/tanggal yang sama untuk memeriksa hasilnya. Mengetik tanpa menyimpan, atau gagal simpan saat offline, tidak menjamin data bertahan. Antrean offline yang didukung di sini adalah presensi, bukan seluruh isian kartu mengajar.
 
 ---
 
-*Dokumen ini diterbitkan oleh Tim Pengembang Uzma Course — Terakhir Diperbarui: 17 Oktober 2026.*
+*Ringkasan Markdown diperbarui: 24 Oktober 2026. PDF/HTML arsip tidak diregenerasi; panduan web sesuai peran adalah rujukan langkah terkini.*

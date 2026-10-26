@@ -1,5 +1,5 @@
 import { requireGuruPage } from "@/lib/auth";
-import { User, LogOut, KeyRound, ChevronRight } from "lucide-react";
+import { User, LogOut, KeyRound, ChevronRight, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { NotificationTestButton } from "@/components/guru/notification-test-button";
 
@@ -24,6 +24,13 @@ export default async function ProfilPage() {
       </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+        <Link href="/guru/panduan" className="min-h-11 p-4 flex items-center justify-between border-b border-slate-100 hover:bg-slate-50 transition-colors w-full focus-visible:outline-2 focus-visible:outline-primary-600">
+          <div className="flex items-center space-x-3 text-slate-700">
+            <BookOpen aria-hidden="true" className="w-5 h-5 text-slate-400" />
+            <span className="font-medium">Panduan Pengguna</span>
+          </div>
+          <ChevronRight aria-hidden="true" className="w-4 h-4 text-slate-300" />
+        </Link>
         <Link href="/guru/profil/password" className="p-4 flex items-center justify-between border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors w-full">
           <div className="flex items-center space-x-3 text-slate-700">
             <KeyRound className="w-5 h-5 text-slate-400" />

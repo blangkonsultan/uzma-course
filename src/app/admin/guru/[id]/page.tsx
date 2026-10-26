@@ -120,7 +120,7 @@ export default async function GuruDetailPage({ params }: GuruDetailPageProps) {
                   <div className="text-sm font-medium text-slate-500">Email</div>
                   <div className="text-sm text-slate-900 sm:col-span-2 flex items-center gap-2">
                     <Mail className="w-4 h-4 text-slate-500" />
-                    {guru.full_name || "-"}
+                    {guru.email || "-"}
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 p-4 sm:p-6 gap-2 sm:gap-4">

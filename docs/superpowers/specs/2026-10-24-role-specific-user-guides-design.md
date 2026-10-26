@@ -1,7 +1,7 @@
 # Role-Specific User Guides — Uzma Course
 
 Date: 2026-10-24
-Status: Approved by the user on 2026-10-24; implementation plan review and execution-method selection remain.
+Status: Approved by the user on 2026-10-24; Native execution selected. Implementation and verification evidence are tracked in `progress.md` and `feature_list.json`.
 Active feature: `feat-012` — Role-Specific Admin and Teacher User Guides.
 
 ## Intent
@@ -263,3 +263,8 @@ Implementation is accepted only when:
 The fresh builder check returned **nothing important left**. The independent boundary reviewer returned **no material boundary findings**, covering role guards, role-specific payloads, screenshot privacy, offline attendance, submitted teaching cards, SPP settlement, and payroll boundaries.
 
 The user approved this full reviewed design on 2026-10-24. The implementation plan is `docs/superpowers/plans/2026-10-24-role-specific-user-guides.md`. Review that plan and select an execution method before production implementation begins.
+
+## Authorized prerequisite discovered during execution
+
+During genuine local screenshot preparation, the existing class-creation overlap query returned HTTP 400 / PostgREST `PGRST100` because it combined an embedded table field in a cross-resource OR. The user explicitly selected **Fix the query** rather than documenting a broken flow. The authorized change is limited to supported query construction with the same current-draft-or-active-draft conflict semantics, regression coverage, and a real class-creation smoke. It does not add scheduling policy, schema, permissions, or unrelated database remediation.
+

@@ -1,15 +1,25 @@
 # Session Handoff
 
 ## Role-Specific Admin and Teacher User Guides — 2026-10-24
-- **Status**: Full design approved; implementation plan written and self-reviewed. Awaiting plan review and execution-method selection. No production guide routes have been added.
-- **Feature**: `feat-012` is `planned`; do not mark completed based on the mockups.
-- **Design**: `docs/superpowers/specs/2026-10-24-role-specific-user-guides-design.md`.
-- **Plan**: `docs/superpowers/plans/2026-10-24-role-specific-user-guides.md`. Six task-sized changes, with separate finance/CMS boundaries and one integration owner. Native is recommended, not yet chosen.
-- **Review**: Fresh builder check found nothing important left; independent boundary review found no material contradictions with role guards, screenshot privacy, attendance queues, teaching-card locking, SPP, or payroll.
-- **Preview**: `.superpowers/brainstorm/152828-1792805980/content/role-guides-v1.html` (ignored). Companion uses reserved loopback port 5180; read its `state/server-info` for the full keyed URL rather than copying session keys into committed documentation.
-- **Evidence**: Baseline `./init.sh` passed **80 suites / 462 tests**, lint, and production build. Browser mockups covered both roles/three compositions at 360px, 375px, 1280px, and 1440px with zero horizontal overflow and no clipped controls. Real local screenshots show the SPP payment form, guru schedule, and submitted card; no operational transaction was saved.
-- **Next action**: Present the implementation plan for review and execution-method selection. After that approval, invoke executing-plans for Native or subagent-driven-development for the alternative. Do not reopen the approved layout or full-design gate.
-- **Implementation reminders**: Role-separated content imports, protected `/admin/panduan` and `/guru/panduan`, exact current UI labels, sanitized demo assets under `public/guides/` rather than ignored `public/docs/`, and explicit separation of system rules from advice.
+- **Status**: Completed and verified (`feat-012` is `completed`).
+- **Routes Delivered**:
+  - `/admin/panduan`: Protected by `requireAdminPage()`, 44 articles, 11 chapters, searchable contents rail, 49 authentic screenshots.
+  - `/guru/panduan`: Protected by `requireGuruPage()`, 15 articles, 7 chapters, phone-first layout, 16 authentic screenshots.
+- **Prerequisite Bugfix**: Corrected `insertScheduleClass()` conflict query in `src/lib/board.ts` to eliminate `PGRST100`. Touching intervals allowed; 3 focused test suites / 9 tests passing.
+- **Legacy Manual Cutover**: `docs/buku-panduan-pengguna.md` updated with direct links to both role guides; legacy PDF marked as an archived snapshot.
+- **Verification Evidence**:
+  - `./init.sh`: 0 ESLint errors/warnings, **83 Vitest suites / 479 tests passed**, clean production Webpack build.
+  - Independent code review completed with verdict **READY TO MERGE** and 0 findings.
+  - Verified role access matrix: Anonymous redirects to `/login`; cross-role requests redirect to respective dashboard roots (`/admin` or `/guru`); HTML and RSC responses contain zero foreign guide data.
+  - Responsive layout verified at 360px, 375px, and 1280px+ with 0 horizontal overflow.
+## Deferred Local SEO and AI Search — 2026-10-24
+- **Status**: `feat-013` is pending; the user explicitly deferred implementation until another session.
+- **Read first**: `docs/seo-ai-search-backlog.md` for audit evidence, every requested keyword/location, prioritized unchecked TODOs, official references, and verification limits.
+- **Forward to owner**: `docs/seo-owner-clarifications.txt`. Confirm real brand/branch/service facts, class ratios and entry ages, publishable fees/trial/credentials/media, account-management responsibility, and the success/approval contact.
+- **Resume only on request**: Owner answers are prerequisites, not implementation authorization. On an explicit resume request, inspect the current project state, recheck time-sensitive external findings, agree the complete scope/design, and prepare the implementation plan.
+- **Preserve unrelated work**: Do not interrupt or reset the ongoing `feat-012` guide implementation or its ledger merely because the SEO backlog exists.
+- **No implementation**: This handoff changes only documentation/tracking. The earlier live audit observed existing Google AI/organic/local visibility for Balongbendo, incomplete Maps profiles, a `www` TLS hostname mismatch, and public-fact inconsistencies; it did not fix them.
+
 
 ## SPP PDF Export, Seeder Credentials Sync & Payroll UI Polish — 2026-10-20
 - **Status**: Completed and verified against Definition of Done.

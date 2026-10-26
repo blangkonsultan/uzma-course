@@ -4,8 +4,13 @@ import { getPaginatedGurus, getGuruById } from "@/lib/gurus";
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(),
 }));
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: vi.fn(),
+}));
+
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 describe("Guru Data Access Layer (src/lib/gurus.ts)", () => {
   beforeEach(() => {
@@ -173,15 +178,50 @@ describe("Guru Data Access Layer (src/lib/gurus.ts)", () => {
           single: mockSingle,
         }),
       });
+      (createAdminClient as unknown as Mock).mockReturnValue({
+        auth: {
+          admin: {
+            getUserById: vi.fn().mockResolvedValue({
+              data: { user: { email: "adhera@uzmacourse.test" } },
+            }),
+          },
+        },
+      });
 
       const result = await getGuruById("g-adhera");
       expect(result).not.toBeNull();
       expect(result?.full_name).toBe("Adheraprabu Bagaskhara");
+      expect(result?.email).toBe("adhera@uzmacourse.test");
       expect(result?.profile_branches).toEqual([
         { branch_id: "sumokembangsri", is_primary: true },
       ]);
     });
 
+    it("gracefully falls back when auth user cannot be fetched", async () => {
+      const mockGuru = {
+        id: "g-adhera",
+        full_name: "Adheraprabu Bagaskhara",
+        role: "guru",
+        branch_id: "sumokembangsri",
+        is_active: true,
+      };
+
+      (createClient as unknown as Mock).mockResolvedValue({
+        from: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({ data: mockGuru }),
+        }),
+      });
+
+      (createAdminClient as unknown as Mock).mockImplementation(() => {
+        throw new Error("Missing service role key");
+      });
+
+      const result = await getGuruById("g-adhera");
+      expect(result).not.toBeNull();
+      expect(result?.email).toBeUndefined();
+    });
     it("returns null if guru is not found", async () => {
       const mockSelect = vi.fn().mockReturnThis();
       const mockEq = vi.fn().mockReturnThis();

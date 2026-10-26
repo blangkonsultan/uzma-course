@@ -3,10 +3,11 @@ import type { Profile } from "@/types";
 import type { Json } from "@/types/database";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type ProfileWithPrograms = Profile & {
-  profile_programs?: { program_id: string }[];
-  profile_branches?: { branch_id: string; is_primary: boolean }[];
-};
+ export type ProfileWithPrograms = Profile & {
+   profile_programs?: { program_id: string }[];
+   profile_branches?: { branch_id: string; is_primary: boolean }[];
+  email?: string;
+ };
 
 export interface GetPaginatedGurusParams {
   search: string;
@@ -132,11 +133,23 @@ export async function getGuruById(id: string) {
   if (profileBranches.length === 0 && data.branch_id) {
     profileBranches = [{ branch_id: data.branch_id, is_primary: true }];
   }
+  let email: string | undefined;
+  try {
+    const adminClient = createAdminClient();
+    const { data: authUser } = await adminClient.auth.admin.getUserById(id);
+    if (authUser?.user?.email) {
+      email = authUser.user.email;
+    }
+  } catch {
+    // Graceful fallback if auth user cannot be fetched or service role key is missing
+  }
 
-  return {
-    ...data,
-    profile_branches: profileBranches,
-  } as ProfileWithPrograms;
+
+   return {
+     ...data,
+     profile_branches: profileBranches,
+    email,
+   } as ProfileWithPrograms;
 }
 
 export interface CreateGuruProfileData {
