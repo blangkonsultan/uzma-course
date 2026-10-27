@@ -1,5 +1,15 @@
 # Progress Log
 
+## 2026-10-27 (Demo Student Numbers Aligned with Registration)
+- **Status**: Completed and verified for `feat-005`.
+- **Root cause**: Demo fixtures generated `DM-*` student numbers, and enrollment/class SQL reconstructed or hard-coded those display numbers. The real registration path uses the branch code plus a zero-padded per-branch sequence.
+- **Fix**: Demo NIS now runs `01001`–`01012` for Sumokembangsri and `02001`–`02012` for Junwangi. Names/identities remain visibly labelled as demo. Enrollment and class placement joins resolve stable fixture keys through the canonical student fixture instead of encoding NIS strings. Seed database invariants verify the numeric format and configured branch prefix.
+- **Regression**: Replaced an assertion-free/default-copy fixture check with exact independent per-branch NIS sequences and uniqueness coverage; observed failing on `DM-*` before and passing after. Focused fixture/seeder/number-stability checks passed **4 suites / 19 tests**.
+- **Actual SQL proof**: Executed the complete rendered fixture SQL and versioned invariants in an isolated PostgreSQL 17.11 copy: **24 students / 33 enrollments / 7 classes / 12 placements / 27 invoices / 6 payments / 3 payroll periods**. Verified the three-program student's enrollments and intended class placement, both 12-number branch ranges, and transaction rollback.
+- **Safety**: The temporary database had no network or host ports and was removed after verification. The ordinary local seed/reset command was **not** run against existing data. Original student count and ID/NIS/branch fingerprint remained unchanged (`24`, MD5 `b0f6d4273fc6e94cbbee815efe7983f9`). No production, schema, auth-account, dependency, or port-registry change.
+- **Documentation**: Corrected stale `YYMM.BB.NNN` tracker wording to the actual branch-prefix format. Historical guide screenshots were not regenerated; existing local demo rows were not reseeded.
+- **Final gate**: `./init.sh` passed: 0 ESLint errors/warnings, **83 suites / 479 tests passed**, coverage 65.52% statements / 59.79% branches / 67.73% functions / 66.72% lines, and a successful production Webpack build. Existing disabled-iframe happy-dom diagnostics remain non-failing output. Feature tracker validated; CodeGraph synchronized. Unrelated service-worker/SEO working changes are outside this fix.
+
 ## 2026-10-26 (SPP Preview/Print Audit, Polish, and Unbroken Currency)
 - **Status**: Completed and verified for `feat-010`.
 - **Audit**: Initial technical score **14/20** (accessibility 2, performance 3, responsive 2, theming 4, integrity 3). Verified 18 of 48 monetary pairs wrapping, focus escaping to the invoice-generation action behind the modal, 32–36px controls, secondary text contrast 2.63:1, and crowded mobile document layout. Branded typography/tokens, report data, and existing blank-page isolation were sound.

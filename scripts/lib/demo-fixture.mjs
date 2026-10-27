@@ -114,19 +114,22 @@ export const GURU_FIXTURES = [
 
 export const STUDENT_FIXTURES = Array.from({ length: 24 }, (_, index) => {
   const number = index + 1;
+  const branchId = FIXTURE_BRANCHES[index % FIXTURE_BRANCHES.length];
+  const branchCode = branchId === "sumokembangsri" ? "01" : "02";
+  const branchSequence = Math.floor(index / FIXTURE_BRANCHES.length) + 1;
   const isActive = number !== 23 && number !== 24;
   const lifecycleStatus =
     number <= 18 ? "active" : number <= 20 ? "cuti" : number <= 22 ? "lulus" : "keluar";
 
   return {
     key: `student-${String(number).padStart(2, "0")}`,
-    studentNumber: `DM-${String(number).padStart(3, "0")}`,
+    studentNumber: `${branchCode}${String(branchSequence).padStart(3, "0")}`,
     fullName: `Murid Demo ${String(number).padStart(2, "0")}`,
     birthDate: `201${number % 8}-${String((number % 12) + 1).padStart(2, "0")}-${String((number % 24) + 1).padStart(2, "0")}`,
     parentName: `Orang Tua Demo ${String(number).padStart(2, "0")}`,
     parentPhone: `0812999${String(number).padStart(4, "0")}`,
     parentEmail: `ortu.demo.${String(number).padStart(2, "0")}@uzmacourse.test`,
-    branchId: number % 2 === 0 ? "junwangi" : "sumokembangsri",
+    branchId,
     isActive,
     lifecycleStatus,
   };

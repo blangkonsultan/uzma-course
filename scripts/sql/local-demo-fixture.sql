@@ -129,6 +129,12 @@ WITH enrollment_rows AS (
     "discountType" text,
     "discountValue" integer
   )
+), student_fixtures AS (
+  SELECT *
+  FROM jsonb_to_recordset(__STUDENT_FIXTURES_JSON__::jsonb) AS x(
+    "key" text,
+    "studentNumber" text
+  )
 )
 INSERT INTO public.student_programs (
   student_id,
@@ -154,7 +160,8 @@ SELECT
   current_date - 7,
   28
 FROM enrollment_rows enrollment
-JOIN public.students student ON student.student_number = replace(upper(enrollment."studentKey"), 'STUDENT-', 'DM-0')
+JOIN student_fixtures fixture ON fixture."key" = enrollment."studentKey"
+JOIN public.students student ON student.student_number = fixture."studentNumber"
 JOIN public.programs program ON program.initials = enrollment."programInitials"
 JOIN LATERAL (
   SELECT program_variant.id
@@ -165,15 +172,21 @@ JOIN LATERAL (
   LIMIT 1
 ) variant ON TRUE;
 
-WITH class_specs(teacher_email, branch_id, program_initials, shift_name, day_of_week, student_numbers) AS (
+WITH class_specs(teacher_email, branch_id, program_initials, shift_name, day_of_week, student_keys) AS (
   VALUES
-    ('guru.demo.01@uzmacourse.test', 'sumokembangsri', 'AHE', 'Pagi', 1, ARRAY['DM-001', 'DM-003']::text[]),
-    ('guru.demo.02@uzmacourse.test', 'junwangi', 'ASE', 'Pagi', 2, ARRAY['DM-002', 'DM-004']::text[]),
-    ('guru.demo.03@uzmacourse.test', 'sumokembangsri', 'BEE', 'Sore', 3, ARRAY['DM-005', 'DM-007']::text[]),
-    ('guru.demo.03@uzmacourse.test', 'junwangi', 'MAPEL', 'Sore', 4, ARRAY['DM-006']::text[]),
-    ('guru.demo.04@uzmacourse.test', 'sumokembangsri', 'AHE', 'Pagi', 5, ARRAY['DM-009', 'DM-011']::text[]),
-    ('guru.demo.06@uzmacourse.test', 'junwangi', 'BEE', 'Sore', 6, ARRAY['DM-010', 'DM-012']::text[]),
-    ('guru.demo.07@uzmacourse.test', 'sumokembangsri', 'MAPEL', 'Pagi', 7, ARRAY['DM-013']::text[])
+    ('guru.demo.01@uzmacourse.test', 'sumokembangsri', 'AHE', 'Pagi', 1, ARRAY['student-01', 'student-03']::text[]),
+    ('guru.demo.02@uzmacourse.test', 'junwangi', 'ASE', 'Pagi', 2, ARRAY['student-02', 'student-04']::text[]),
+    ('guru.demo.03@uzmacourse.test', 'sumokembangsri', 'BEE', 'Sore', 3, ARRAY['student-05', 'student-07']::text[]),
+    ('guru.demo.03@uzmacourse.test', 'junwangi', 'MAPEL', 'Sore', 4, ARRAY['student-06']::text[]),
+    ('guru.demo.04@uzmacourse.test', 'sumokembangsri', 'AHE', 'Pagi', 5, ARRAY['student-09', 'student-11']::text[]),
+    ('guru.demo.06@uzmacourse.test', 'junwangi', 'BEE', 'Sore', 6, ARRAY['student-10', 'student-12']::text[]),
+    ('guru.demo.07@uzmacourse.test', 'sumokembangsri', 'MAPEL', 'Pagi', 7, ARRAY['student-13']::text[])
+), student_fixtures AS (
+  SELECT *
+  FROM jsonb_to_recordset(__STUDENT_FIXTURES_JSON__::jsonb) AS x(
+    "key" text,
+    "studentNumber" text
+  )
 ), inserted_classes AS (
   INSERT INTO public.schedule_classes (
     draft_id,
@@ -223,8 +236,8 @@ JOIN auth.users auth_user ON auth_user.id = inserted.teacher_id
 JOIN public.program_variants variant ON variant.id = inserted.variant_id
 JOIN public.programs program ON program.id = variant.program_id
   AND program.initials = spec.program_initials
-JOIN public.students student
-  ON student.student_number = ANY(spec.student_numbers)
+JOIN student_fixtures fixture ON fixture."key" = ANY(spec.student_keys)
+JOIN public.students student ON student.student_number = fixture."studentNumber"
 WHERE auth_user.email = spec.teacher_email;
 
 WITH class_rows AS (

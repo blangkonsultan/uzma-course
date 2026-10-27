@@ -31,6 +31,17 @@ BEGIN
     RAISE EXCEPTION 'Fixture invariant failed: expected 24 students, got %', student_count;
   END IF;
 
+  IF EXISTS (
+    SELECT 1
+    FROM public.students student
+    JOIN public.branches branch ON branch.id = student.branch_id
+    WHERE student.student_number IS NULL
+       OR student.student_number !~ '^[0-9]{5,}$'
+       OR LEFT(student.student_number, 2) IS DISTINCT FROM branch.code
+  ) THEN
+    RAISE EXCEPTION 'Fixture invariant failed: student number does not match branch-prefix format';
+  END IF;
+
   SELECT COUNT(*) INTO multi_program_count
   FROM (
     SELECT student_id

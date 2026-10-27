@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   ENROLLMENT_FIXTURES,
-  FIXTURE_EXPECTATIONS,
   GURU_FIXTURES,
   STUDENT_FIXTURES,
-  validateFixtureDefinition,
 } from "@/../scripts/lib/demo-fixture.mjs";
 
 describe("local demo fixture definition", () => {
@@ -51,10 +49,23 @@ describe("local demo fixture definition", () => {
     expect(counts.get("percentage")).toBeGreaterThanOrEqual(6);
   });
 
-  it("validates the complete fixture before database access", () => {
-    expect(() => validateFixtureDefinition()).not.toThrow();
-    expect(FIXTURE_EXPECTATIONS.guruCount).toBe(7);
-    expect(FIXTURE_EXPECTATIONS.studentCount).toBe(24);
-    expect(FIXTURE_EXPECTATIONS.payrollPeriodCount).toBe(3);
+  it("uses unique branch-local student numbers compatible with normal registrations", () => {
+    expect(
+      STUDENT_FIXTURES
+        .filter((student) => student.branchId === "sumokembangsri")
+        .map((student) => student.studentNumber)
+    ).toEqual([
+      "01001", "01002", "01003", "01004", "01005", "01006",
+      "01007", "01008", "01009", "01010", "01011", "01012",
+    ]);
+    expect(
+      STUDENT_FIXTURES
+        .filter((student) => student.branchId === "junwangi")
+        .map((student) => student.studentNumber)
+    ).toEqual([
+      "02001", "02002", "02003", "02004", "02005", "02006",
+      "02007", "02008", "02009", "02010", "02011", "02012",
+    ]);
+    expect(new Set(STUDENT_FIXTURES.map((student) => student.studentNumber)).size).toBe(24);
   });
 });
