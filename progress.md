@@ -1,5 +1,15 @@
 # Progress Log
 
+## 2026-10-27 (Authorized Local Operational Reset and Demo Reseed)
+- **Status**: Completed on the user's explicit local-reset request using the existing `npm run seed:local` workflow; no schema drop/recreation was needed.
+- **Target safety**: Resolved both runtime destinations before execution: API `http://127.0.0.1:54321`, PostgreSQL `127.0.0.1:54322/postgres`; Docker port binding and project configuration matched. Production was not targeted.
+- **Recovery backup**: `/home/bagas/backups/uzma-course/local-reset-2026-10-27/remote-prune-2026-10-27T01-43-18-035Z.dump` (the shared helper uses a legacy basename), 615782 bytes, mode `600`, SHA-256 `c8dfe68267eb351abcf25d96dbcf6704fdc91bf09db67e581096cf5bfb79a882`. Native `pg_restore --list` verified the archive before reset.
+- **Execution**: The version-controlled seeder cleared operational records, recreated the guru accounts and demo fixtures, and passed its live SQL invariants. Existing branches/programs/variants/CMS and the admin identity were retained.
+- **Live result**: **7 gurus / 24 students / 33 enrollments / 7 classes / 12 placements / 27 invoices / 6 payments / 3 payroll periods**. Sumokembangsri NIS `01001`–`01012`, Junwangi `02001`–`02012`; **0 legacy `DM-*` numbers** remain.
+- **Preservation proof**: Before/after content hashes match for 2 branches, 4 programs, 4 variants, and 14 landing-content rows; admin profile ID unchanged.
+- **Runtime proof**: Fresh admin and guru logins succeeded and returned the expected profile roles; admin RLS read all 24 standard-format NIS values. Their API smoke sessions were signed out locally. The actual admin student pages loaded, and the SPP preview for Murid Demo 01 visibly showed `NIS: 01001` with all three enrolled programs. Owned QA tab closed.
+- **Credentials and scope**: Ignored `supabase/seed-credentials.local.json` was refreshed and verified mode `600`; no credential values published. No application/migration/dependency code or host-port allocation changed. Verification used the real seed command, SQL checks, Auth/RLS calls, and browser smoke; no redundant test/build run was performed for this data-only operation.
+
 ## 2026-10-27 (Demo Student Numbers Aligned with Registration)
 - **Status**: Completed and verified for `feat-005`.
 - **Root cause**: Demo fixtures generated `DM-*` student numbers, and enrollment/class SQL reconstructed or hard-coded those display numbers. The real registration path uses the branch code plus a zero-padded per-branch sequence.

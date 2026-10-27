@@ -1,5 +1,13 @@
 # Session Handoff
 
+## Local Demo Database Refreshed — 2026-10-27
+- **Status**: User-authorized local operational reset/reseed completed through `npm run seed:local`; production and schema were untouched.
+- **Current dataset**: 7 gurus, 24 students, 33 enrollments, 7 classes, 12 placements, 27 invoices, 6 payments, and 3 payroll periods. Demo NIS is now live as `01001`–`01012` / `02001`–`02012`; no `DM-*` values remain.
+- **Preserved**: 2 branches, 4 programs, 4 variants, 14 CMS rows (content hashes unchanged), and the existing admin identity.
+- **Verification**: Admin/guru login and role checks passed; admin read 24 corrected NIS rows through RLS. Browser smoke loaded the refreshed student data and displayed `01001` in the SPP preview. New local credentials are in the ignored, mode-600 `supabase/seed-credentials.local.json`.
+- **Recovery**: Private pre-reset archive is under `/home/bagas/backups/uzma-course/local-reset-2026-10-27/`; exact filename, hash, and restore-list proof are in `progress.md`.
+- **Workflow boundary**: No GitHub merge/push or production database operation was performed as part of the reset. Earlier entries describing preserved old local demo rows are historical and superseded by this authorized refresh.
+
 ## Demo Student Number Correction — 2026-10-27
 - **Branch**: `fix/demo-student-numbers`, based on merged `main` (`1f2c2af`); not pushed.
 - **Delivered**: Demo NIS uses the normal branch-prefix format: Sumokembangsri `01001`–`01012`, Junwangi `02001`–`02012`. Demo labels remain in names. Enrollment/class fixture joins use stable fixture keys; SQL invariants reject inconsistent NIS prefixes.
