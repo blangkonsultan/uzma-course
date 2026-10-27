@@ -1,5 +1,20 @@
 # Session Handoff
 
+## Local Demo Database Refreshed — 2026-10-27
+- **Status**: User-authorized local operational reset/reseed completed through `npm run seed:local`; production and schema were untouched.
+- **Current dataset**: 7 gurus, 24 students, 33 enrollments, 7 classes, 12 placements, 27 invoices, 6 payments, and 3 payroll periods. Demo NIS is now live as `01001`–`01012` / `02001`–`02012`; no `DM-*` values remain.
+- **Preserved**: 2 branches, 4 programs, 4 variants, 14 CMS rows (content hashes unchanged), and the existing admin identity.
+- **Verification**: Admin/guru login and role checks passed; admin read 24 corrected NIS rows through RLS. Browser smoke loaded the refreshed student data and displayed `01001` in the SPP preview. New local credentials are in the ignored, mode-600 `supabase/seed-credentials.local.json`.
+- **Recovery**: Private pre-reset archive is under `/home/bagas/backups/uzma-course/local-reset-2026-10-27/`; exact filename, hash, and restore-list proof are in `progress.md`.
+- **Workflow boundary**: No GitHub merge/push or production database operation was performed as part of the reset. Earlier entries describing preserved old local demo rows are historical and superseded by this authorized refresh.
+
+## Demo Student Number Correction — 2026-10-27
+- **Branch**: `fix/demo-student-numbers`, based on merged `main` (`1f2c2af`); not pushed.
+- **Delivered**: Demo NIS uses the normal branch-prefix format: Sumokembangsri `01001`–`01012`, Junwangi `02001`–`02012`. Demo labels remain in names. Enrollment/class fixture joins use stable fixture keys; SQL invariants reject inconsistent NIS prefixes.
+- **Evidence**: Numbering regression failed before and passed after; 4 focused suites / 19 tests passed. Full fixture SQL/invariants executed in a disposable, network-isolated PostgreSQL copy with 24 students, 33 enrollments, 7 classes, 12 placements, 27 invoices, and 6 payments; intended relationships verified.
+- **Data boundary**: Existing local data was not reset or renumbered. Student count/fingerprint stayed unchanged. Applying fresh fixtures through `npm run seed:local` resets operational data and must not be run casually; production is out of scope.
+- **Final gate**: `./init.sh` passed: 0 ESLint errors/warnings, 83 suites / 479 tests, coverage above thresholds, successful production Webpack build. Feature tracker validated and CodeGraph synchronized. Temporary smoke container removed; unrelated service-worker and SEO changes preserved.
+
 ## SPP Preview and Print Polish — 2026-10-26
 - **Branch**: `fix/spp-pdf-print`; local changes only, no push/deployment.
 - **Delivered**: Native modal focus/Escape/restoration, 44px shared controls, safe-area padding, bounded document panning, higher-contrast metadata, clearer program rows, semantic table groups, and aligned financial totals.
