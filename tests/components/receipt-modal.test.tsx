@@ -1,5 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { useState } from "react";
 import { OfficialReceiptModal } from "@/components/admin/billing/official-receipt-modal";
 import type { StudentInvoiceItem } from "@/lib/billing";
 
@@ -44,25 +46,59 @@ const paidInvoice: StudentInvoiceItem = {
 };
 
 describe("OfficialReceiptModal Component", () => {
-  it("renders receipt details including numbers, student, cycle, and paid badge", () => {
+  it("shows the stored payment identity and settled amount", () => {
     const onClose = vi.fn();
     render(<OfficialReceiptModal invoice={paidInvoice} onClose={onClose} />);
 
-    expect(screen.getByText("RCT-2610-0001")).toBeDefined();
-    expect(screen.getByText(/INV-2610-0002/)).toBeDefined();
-    expect(screen.getByText("Budi Santoso")).toBeDefined();
-    expect(screen.getByText("01002")).toBeDefined();
-    expect(screen.getAllByText("Rp 150.000").length).toBeGreaterThan(0);
-    expect(screen.getByText("LUNAS")).toBeDefined();
+    expect(screen.getByText("RCT-2610-0001")).toBeVisible();
+    expect(screen.getByText(/INV-2610-0002/)).toBeVisible();
+    expect(screen.getByText("Budi Santoso")).toBeVisible();
+    expect(screen.getByText("01002")).toBeVisible();
+    const totalRow = screen.getByRole("row", { name: /Total Pelunasan/i });
+    expect(within(totalRow).getByText("Rp 150.000")).toBeVisible();
+    expect(screen.getByText("LUNAS")).toBeVisible();
   });
 
-  it("calls window.print when Cetak button is clicked", () => {
-    const printMock = vi.fn();
-    window.print = printMock;
-    const onClose = vi.fn();
-    render(<OfficialReceiptModal invoice={paidInvoice} onClose={onClose} />);
+  it("keeps the receipt visible when the billing page is hidden for printing", () => {
+    const { unmount } = render(
+      <div style={{ visibility: "hidden", height: 0, overflow: "hidden" }}>
+        <OfficialReceiptModal invoice={paidInvoice} onClose={vi.fn()} />
+      </div>
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: /Cetak Kwitansi/i }));
-    expect(printMock).toHaveBeenCalled();
+    const receipt = screen.getByText("RCT-2610-0001");
+    expect(receipt).toBeVisible();
+
+    unmount();
+    expect(receipt).not.toBeInTheDocument();
+  });
+
+  it("returns focus to the receipt action when the preview closes", () => {
+    function ReceiptHarness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button onClick={() => setOpen(true)}>Open receipt</button>
+          {open && (
+            <OfficialReceiptModal
+              invoice={paidInvoice}
+              onClose={() => setOpen(false)}
+            />
+          )}
+        </>
+      );
+    }
+
+    render(<ReceiptHarness />);
+    const opener = screen.getByRole("button", { name: "Open receipt" });
+    opener.focus();
+    fireEvent.click(opener);
+
+    const close = screen.getByRole("button", { name: "Tutup kwitansi" });
+    close.focus();
+    fireEvent.click(close);
+
+    expect(opener).toHaveFocus();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
