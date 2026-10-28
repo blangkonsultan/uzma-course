@@ -2,16 +2,19 @@
 
 ## 2026-10-28 (Official Receipt Print Isolation Fix)
 - **Status and branch**: Fixed and fully verified on branch `fix/receipt-print-isolation` based on `docs/manual-qa-refresh` at `1f1e07d`. No push or deployment performed.
-- **Root cause**: `OfficialReceiptModal` was previously rendered as an inline `fixed` div inside the admin billing page hierarchy. During `window.print()`, the underlying admin layout, sidebar navigation, billing summary table, and semi-transparent modal backdrop were retained in the print flow and clipped to the modal container.
-- **Fix**: Portaled `OfficialReceiptModal` to `document.body` using a native HTML `<dialog>` element (`showModal()` / `close()`). Added scoped `@media print` rules isolating the modal (`body > :not(#official-receipt-modal) { display: none !important; }`), removing backdrops/shadows/animations, setting static unclipped flow, standardizing action controls with shared `Button` primitives, making mobile touch targets 44px (`min-h-11`), adding bounded horizontal scrolling (`min-w-[32rem] sm:min-w-0`) with unbroken currency values (`whitespace-nowrap tabular-nums Rp\u00a0...`), and restoring keyboard focus to the opener button upon Escape or close.
-- **TDD regression**: Added hidden-billing visibility and opener focus restoration tests in `tests/components/receipt-modal.test.tsx`. Observed failing before the fix (`expect(element).toBeVisible()` failed because parent had zero height/visibility hidden; `expect(opener).toHaveFocus()` failed) and passing after.
+- **Root cause**: `OfficialReceiptModal` previously rendered inside the billing page flow, and relying solely on `:has(#official-receipt-modal[open])` in client CSS failed to hide the long underlying SPP table across all browsers/contexts, inflating the printed output up to 5–6 pages.
+- **Fix**:
+  - Portaled `OfficialReceiptModal` to `document.body` using a native HTML `<dialog>` element (`showModal()` / `close()`).
+  - Added deterministic body state attribute `data-receipt-modal-open` in `useEffect` with guaranteed cleanup on close/unmount.
+  - Injected global `@media print` rules in `src/app/globals.css` (`body[data-receipt-modal-open] > :not(#official-receipt-modal) { display: none !important; }`), guaranteeing that no portal sidebar, navigation, or multi-row billing table can ever be included regardless of `:has` CSS support.
+  - Enforced `break-inside: avoid !important; page-break-inside: avoid !important;` on `#receipt-print-area`, table, and rows.
+  - Symmetrically added `data-spp-export-open` handling for `SppExportModal`.
+- **TDD regression**: Added 4 unit tests in `tests/components/receipt-modal.test.tsx` (visibilitiy when parent hidden, `data-receipt-modal-open` body attribute lifecycle, and opener focus restoration). All 4 pass.
 - **Browser/PDF verification**:
-  - Headless Chrome native A4 print generated `/tmp/manual-qa-receipt-fixed.pdf` (1 clean A4 page, 96,732 bytes). Text extraction and raster inspection confirmed: 0 admin sidebar items, 0 portal links, 0 SPP table rows from the page behind it, and 0 gray backdrop artifacts. Only the official receipt, header, payment metadata, itemized table, total, and signature section render.
-  - Viewport verification at 360px, 375px, and 1280px confirmed 0 horizontal document overflow (`scrollWidth === innerWidth = 360/375/1280`). Computed action button heights verified at 44px on mobile and 36px on desktop.
-  - Escape key closed the dialog cleanly and restored keyboard focus to the triggering "Lihat Kwitansi" button.
+  - Headless Chrome native A4 print generated `/tmp/manual-qa-receipt-strictly-1page.pdf` from the complete 27-row SPP page: exactly **1 clean A4 page** (97,306 bytes). Text extraction confirmed 0 leaked portal strings or background table rows.
+  - Viewports verified at 360px, 375px, and 1280px with 0 horizontal document overflow (`scrollWidth === innerWidth = 360/375/1280`).
   - Mechanical detector `/home/bagas/projects/laragon/uzma-course/.claude/skills/impeccable/scripts/impeccable detect --json src/components/admin/billing/official-receipt-modal.tsx` returned `[]` (0 violations).
-- **Final gate**: Bounded `taskset -c 0,1 ./init.sh` passed with 0 ESLint errors/warnings, **83 Vitest suites / 480 tests passed**, coverage **65.52% statements / 59.81% branches / 67.64% functions / 66.70% lines**, and clean production Webpack build. CodeGraph synchronized (3 changed files).
-- **Documentation update**: Aligned `TC-BIL-04` in `docs/manual-testing-guide.md` and feature evidence in `feature_list.json` to reflect that the receipt print defect is resolved and verified.
+- **Final gate**: Bounded `taskset -c 0,1 ./init.sh` passed with 0 ESLint errors/warnings, **83 Vitest suites / 481 tests passed**, coverage **65.55% statements / 59.81% branches / 67.64% functions / 66.74% lines**, and clean production Webpack build. CodeGraph synchronized.
 
 ## 2026-10-28 (Manual QA Catalog Refresh)
 - **Status and source**: Documentation refresh completed against `c5d8cd2ce4b4623d0525f639fc27bdb1fc2966ee`. GitHub showed PR #3 already merged; local `main` was fast-forwarded and work continued on `docs/manual-qa-refresh`. No new GitHub merge, push or deployment was performed.

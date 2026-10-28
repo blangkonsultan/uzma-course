@@ -73,6 +73,17 @@ describe("OfficialReceiptModal Component", () => {
     expect(receipt).not.toBeInTheDocument();
   });
 
+  it("sets body attribute while open and cleans up on close", () => {
+    const { unmount } = render(
+      <OfficialReceiptModal invoice={paidInvoice} onClose={vi.fn()} />
+    );
+
+    expect(document.body).toHaveAttribute("data-receipt-modal-open");
+
+    unmount();
+    expect(document.body).not.toHaveAttribute("data-receipt-modal-open");
+  });
+
   it("returns focus to the receipt action when the preview closes", () => {
     function ReceiptHarness() {
       const [open, setOpen] = useState(false);
@@ -94,11 +105,14 @@ describe("OfficialReceiptModal Component", () => {
     opener.focus();
     fireEvent.click(opener);
 
+    expect(document.body).toHaveAttribute("data-receipt-modal-open");
+
     const close = screen.getByRole("button", { name: "Tutup kwitansi" });
     close.focus();
     fireEvent.click(close);
 
     expect(opener).toHaveFocus();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(document.body).not.toHaveAttribute("data-receipt-modal-open");
   });
 });

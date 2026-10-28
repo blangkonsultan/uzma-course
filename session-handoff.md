@@ -2,14 +2,13 @@
 
 ## Official Receipt Print Isolation Repaired — 2026-10-28
 - **Branch**: `fix/receipt-print-isolation` branched from `docs/manual-qa-refresh` at `1f1e07d`. Not pushed or merged.
-- **Delivered**: Fixed open defect `TC-BIL-04` by portaling `OfficialReceiptModal` to `document.body` inside a native `<dialog>`, adding scoped `@media print` isolation to completely eliminate the portal navigation, sidebar, billing table, and backdrop blur from printed receipt output. Upgraded action buttons to shared `Button` with 44px mobile touch targets, unbroken currency formatting (`Rp\u00a0...`), responsive horizontal scroll container, and opener focus restoration.
+- **Delivered**: Fixed open defect `TC-BIL-04` by portaling `OfficialReceiptModal` to `document.body` inside a native `<dialog>`, adding scoped `@media print` isolation and global `globals.css` rules keyed by `data-receipt-modal-open`. This guarantees that long background SPP tables cannot inflate print output into 5–6 pages on any browser engine.
 - **Evidence**:
-  - Hidden-billing visibility and opener focus regressions in `tests/components/receipt-modal.test.tsx` failed before and passed after (3/3 tests pass).
-  - Native Chromium A4 PDF verified 1 clean page containing exclusively the receipt letterhead, metadata, items, total, and signature; text search for portal landmarks confirmed 0 leaked navigation strings.
+  - Hidden-billing visibility, `data-receipt-modal-open` attribute lifecycle, and opener focus regressions in `tests/components/receipt-modal.test.tsx` pass (4/4 tests).
+  - Native Chromium A4 PDF verified strictly **1 clean page** from the complete 27-row SPP page (`/tmp/manual-qa-receipt-strictly-1page.pdf`), containing exclusively the receipt letterhead, metadata, items, total, and signature.
   - 360px, 375px, and 1280px viewports checked with 0 document overflow, computed 44px touch heights, and clean Escape key dismissal with focus restoration.
   - Mechanical Impeccable detector returned `[]`.
-  - Full `./init.sh` passed with 0 lint errors, **83 suites / 480 tests**, coverage above all thresholds, and a successful production Webpack build. CodeGraph synchronized.
-- **Catalog & Trackers**: Updated `docs/manual-testing-guide.md` (`TC-BIL-04`), `feature_list.json`, `progress.md`, and this handoff.
+  - Full `./init.sh` passed with 0 lint errors, **83 suites / 481 tests**, coverage above all thresholds, and a successful production Webpack build. CodeGraph synchronized.
 - **Recommended next step**: Present finishing options (merge locally, create PR, or keep branch) to the user.
 
 ## Manual QA Catalog Refreshed — 2026-10-28

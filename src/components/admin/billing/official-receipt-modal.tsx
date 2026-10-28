@@ -54,11 +54,15 @@ export function OfficialReceiptModal({
     const dialog = dialogRef.current;
     const opener = document.activeElement;
     dialog?.showModal();
+    document.body.setAttribute("data-receipt-modal-open", "");
+
     return () => {
+      document.body.removeAttribute("data-receipt-modal-open");
       dialog?.close();
       if (opener instanceof HTMLElement) opener.focus({ preventScroll: true });
     };
   }, []);
+
   const handlePrint = () => {
     window.print();
   };
@@ -85,10 +89,10 @@ export function OfficialReceiptModal({
       }}
     >
       <style>{`
-        body:has(#official-receipt-modal[open]) {
+        body[data-receipt-modal-open] {
           overflow: hidden;
         }
-        body:has(#official-receipt-modal[open]) > :not(#official-receipt-modal) {
+        body[data-receipt-modal-open] > :not(#official-receipt-modal) {
           overflow: clip;
         }
         @media print {
@@ -102,6 +106,9 @@ export function OfficialReceiptModal({
             overflow: visible !important;
           }
           body > :not(#official-receipt-modal) {
+            display: none !important;
+          }
+          body[data-receipt-modal-open] > :not(#official-receipt-modal) {
             display: none !important;
           }
           #official-receipt-modal, #official-receipt-modal * {
@@ -149,6 +156,16 @@ export function OfficialReceiptModal({
             background: white !important;
             border-radius: 0 !important;
             box-shadow: none !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+          #receipt-print-area table {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+          #receipt-print-area tr {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
           }
         }
       `}</style>
