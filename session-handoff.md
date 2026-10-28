@@ -1,5 +1,26 @@
 # Session Handoff
 
+## Official Receipt Print Isolation Repaired — 2026-10-28
+- **Branch**: `fix/receipt-print-isolation` branched from `docs/manual-qa-refresh` at `1f1e07d`. Not pushed or merged.
+- **Delivered**: Fixed open defect `TC-BIL-04` by portaling `OfficialReceiptModal` to `document.body` inside a native `<dialog>`, adding scoped `@media print` isolation and global `globals.css` rules keyed by `data-receipt-modal-open`. This guarantees that long background SPP tables cannot inflate print output into 5–6 pages on any browser engine.
+- **Evidence**:
+  - Hidden-billing visibility, `data-receipt-modal-open` attribute lifecycle, and opener focus regressions in `tests/components/receipt-modal.test.tsx` pass (4/4 tests).
+  - Native Chromium A4 PDF verified strictly **1 clean page** from the complete 27-row SPP page (`/tmp/manual-qa-receipt-strictly-1page.pdf`), containing exclusively the receipt letterhead, metadata, items, total, and signature.
+  - 360px, 375px, and 1280px viewports checked with 0 document overflow, computed 44px touch heights, and clean Escape key dismissal with focus restoration.
+  - Mechanical Impeccable detector returned `[]`.
+  - Full `./init.sh` passed with 0 lint errors, **83 suites / 481 tests**, coverage above all thresholds, and a successful production Webpack build. CodeGraph synchronized.
+- **Recommended next step**: Present finishing options (merge locally, create PR, or keep branch) to the user.
+
+## Manual QA Catalog Refreshed — 2026-10-28
+- **Branch and baseline**: `docs/manual-qa-refresh` from `main` at `c5d8cd2`. PR #3 was already merged remotely when checked; local `main` was fast-forwarded before authoring. Earlier open-PR/unmerged-seeder entries below are historical, not the current source boundary. No new PR, merge, push or deployment was performed.
+- **Delivered**: `docs/manual-testing-guide.md` now contains **150 unique cases**, preserving all **52 legacy IDs**. Added current Master Data, all 14 CMS editors, admin/guru guides, SPP recap/receipt and currency regressions, demo NIS/seeding safety, profile/notifications, RLS and accessibility coverage. Every procedure specifies prerequisites, concrete steps, observable results and cleanup/risk; results default to NOT_RUN.
+- **Validation**: Five-column case rows, unique/preserved IDs, source links, 14 CMS cases and absence of retired credential examples checked. The documented source-fixture command ran successfully. Local Auth/HTTP/RLS, admin guide-reader/search/image/print/reflow, CMS read-only inspection and native recap PDFs were sampled without business mutations. Exact evidence and limits are in the dated `progress.md` entry.
+- **Open defect**: `TC-BIL-04` **FAILS** clean receipt printing: the portal sidebar/header, SPP table and backdrop remain behind the receipt in native Chromium PDF. Recap export is a separate surface and still prints 27 invoices on 4 nonblank pages, or the selected pupil's three invoices on 1 page, with independently matched totals. Do not mark receipt printing PASS or weaken its criterion; application repair was not part of this request.
+- **Project verification**: Initial unrestricted `./init.sh` hit 3 timeouts under observed host memory pressure; build was not reached. Bounded **`taskset -c 0,1 ./init.sh` passed** with 0 lint errors/warnings, **83 suites / 479 tests**, coverage above configured thresholds and a successful production Webpack build. No code/test/timeout changes. CodeGraph synchronized successfully using the same CPU affinity.
+- **Limits**: The 150-case catalog is ready, **not fully executed**. Separate teacher UI-login automation did not complete; teacher Auth/HTTP/RLS probes passed, not the UI-form case. No mutating regression, physical-device, OS-notification, cold-offline, screen-reader or physical-printer certification. Owned QA tab closed and temporary Auth sessions signed out locally.
+- **Next action**: Run selected procedures in an approved QA environment and maintain a separate execution ledger. Obtain explicit approval plus disposable fixtures/backup before writes or resets. If requested, scope a separate receipt-print isolation repair and rerun `TC-BIL-04`; do not change accounting data to repair presentation.
+- **Preserved work**: No application/schema/dependency changes. Existing `public/sw.js` and untracked SEO documents are unrelated and must not be staged with these QA documents. Repository files for this update: the manual, `feature_list.json`, `progress.md`, and this handoff.
+
 ## Local Demo Database Refreshed — 2026-10-27
 - **Status**: User-authorized local operational reset/reseed completed through `npm run seed:local`; production and schema were untouched.
 - **Current dataset**: 7 gurus, 24 students, 33 enrollments, 7 classes, 12 placements, 27 invoices, 6 payments, and 3 payroll periods. Demo NIS is now live as `01001`–`01012` / `02001`–`02012`; no `DM-*` values remain.

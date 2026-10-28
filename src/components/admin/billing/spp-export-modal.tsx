@@ -65,12 +65,14 @@ export function SppExportModal({
     const dialog = dialogRef.current;
     const opener = document.activeElement;
     dialog?.showModal();
+    document.body.setAttribute("data-spp-export-open", "");
+
     return () => {
+      document.body.removeAttribute("data-spp-export-open");
       dialog?.close();
       if (opener instanceof HTMLElement) opener.focus({ preventScroll: true });
     };
   }, []);
-
   const printDateStr = new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
     month: "long",

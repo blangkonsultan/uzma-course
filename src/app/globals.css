@@ -79,6 +79,18 @@
 }
 
 @media print {
+  body[data-receipt-modal-open] {
+    background: white !important;
+  }
+  body[data-receipt-modal-open] > :not(#official-receipt-modal) {
+    display: none !important;
+  }
+  body[data-spp-export-open] {
+    background: white !important;
+  }
+  body[data-spp-export-open] > :not(#spp-export-modal) {
+    display: none !important;
+  }
   body[data-guide-printing] {
     background: white !important;
   }
