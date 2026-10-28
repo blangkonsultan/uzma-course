@@ -1,7 +1,7 @@
 # Session Handoff
 
 ## Official Receipt Print Isolation Repaired — 2026-10-28
-- **Branch**: `fix/receipt-print-isolation` branched from `docs/manual-qa-refresh` at `1f1e07d`. Not pushed or merged.
+- **Branch**: `fix/receipt-print-isolation` pushed to `origin/fix/receipt-print-isolation`. Created [PR #4](https://github.com/blangkonsultan/uzma-course/pull/4) targeting `main`.
 - **Delivered**: Fixed open defect `TC-BIL-04` by portaling `OfficialReceiptModal` to `document.body` inside a native `<dialog>`, adding scoped `@media print` isolation and global `globals.css` rules keyed by `data-receipt-modal-open`. This guarantees that long background SPP tables cannot inflate print output into 5–6 pages on any browser engine.
 - **Evidence**:
   - Hidden-billing visibility, `data-receipt-modal-open` attribute lifecycle, and opener focus regressions in `tests/components/receipt-modal.test.tsx` pass (4/4 tests).
@@ -9,7 +9,7 @@
   - 360px, 375px, and 1280px viewports checked with 0 document overflow, computed 44px touch heights, and clean Escape key dismissal with focus restoration.
   - Mechanical Impeccable detector returned `[]`.
   - Full `./init.sh` passed with 0 lint errors, **83 suites / 481 tests**, coverage above all thresholds, and a successful production Webpack build. CodeGraph synchronized.
-- **Recommended next step**: Present finishing options (merge locally, create PR, or keep branch) to the user.
+- **PR Reference**: [PR #4: fix(billing): isolate official receipt printing to strict 1-page layout](https://github.com/blangkonsultan/uzma-course/pull/4).
 
 ## Manual QA Catalog Refreshed — 2026-10-28
 - **Branch and baseline**: `docs/manual-qa-refresh` from `main` at `c5d8cd2`. PR #3 was already merged remotely when checked; local `main` was fast-forwarded before authoring. Earlier open-PR/unmerged-seeder entries below are historical, not the current source boundary. No new PR, merge, push or deployment was performed.
