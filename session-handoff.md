@@ -1,5 +1,24 @@
 # Session Handoff
 
+## Design Documentation PR Published — 2026-10-29
+- **Published branch**: `docs/design-system-patterns` now tracks `origin/docs/design-system-patterns`.
+- **Pull request**: [PR #5 — docs(design): align UI patterns with verified component contracts](https://github.com/blangkonsultan/uzma-course/pull/5), base `main`; created as a normal open PR, not merged.
+- **Verified feature head**: `5b7e90eacd632c84143b90a55233fb48e0ad1f6e`; observed OPEN/CLEAN with successful Vercel checks at that head. Publication-record follow-ups do not inherit an earlier head's check status.
+- **Scope**: Six documentation/metadata files and their related publication records only. Prior full-gate and preview evidence is in `progress.md`; no fresh test run is claimed for Git-only publication.
+- **Next action**: Review the current PR checks and content; merge only on an explicit request. Keep the branch for feedback and preserve unrelated service-worker/SEO working changes.
+- **Tooling note**: For this shell, GitHub CLI needed a valid discovered WSL interoperability socket passed per command; no persistent environment or authentication configuration was changed.
+
+## Canonical Design Guide Corrected — 2026-10-29
+- **Branch**: `docs/design-system-patterns`, based on `main` at `a5c851a` (PR #4 already merged). No push, merge, or deployment in this task; older branch/publication entries below are historical.
+- **Delivered**: All seven approved DESIGN.md audit corrections, reorganized into the canonical eight-section guide with source links: real Guru tabs/teaching entry, correct modal APIs, mobile targets versus avatar, explicit safe areas, print ownership/pagination, truthful attendance-only offline states, and corrected radius/spacing semantics.
+- **Consistency**: Updated `CLAUDE.md` UI references to remove conflicting component/colour/action examples; refreshed the existing `.impeccable/design.json` schema-v2 metadata with 10 standalone source-derived previews. Updated `feat-006` documentation evidence without claiming a runtime control/safe-area repair.
+- **Review and validation**: Independent review found two additional issues, both verified and fixed: portable finite pill serialization and legitimate non-pending disabled/read-only states. YAML/JSON/dimension/reference/narrative checks, Markdown rendering and 23 installed-checkout source links passed. No new prose tests or Markdown-linter claim.
+- **Runtime proof**: App CSS and installed compiler confirmed the documented scale/utilities and undefined `pb-safe`; standalone metadata previews passed 360px/375px/1280px document-overflow/control-bounds checks, source navigation labels/routes, responsive input sizes, primary hover and keyboard focus. Screenshots inspected; see the dated progress entry for exact scope and temporary evidence.
+- **Detector**: 8 advisory colour fallbacks in the self-contained previews are exact existing Tailwind/source values, not new application colours. Verified and documented intentionally; no detector suppression.
+- **Gate**: `taskset -c 0,1 ./init.sh` passed lint, **83 suites / 481 tests**, configured coverage thresholds and the production Webpack build. Existing disabled-iframe test diagnostics remain non-failing.
+- **Boundary**: No `src` application changes, DB/financial/CMS writes, dependencies, services or ports. Existing service-worker/SEO working changes are unrelated. Actual legacy safe-area and interaction gaps, physical-device behaviour and offline/OS certification remain separate runtime work, not implied by this documentation update.
+- **Next use**: Read `DESIGN.md` and the linked component APIs before new features. Publish the documentation branch via PR only when requested; do not treat this guide as permission for a theme redesign, database reset, or automatic legacy-UI rollout.
+
 ## Official Receipt Print Isolation Repaired — 2026-10-28
 - **Branch**: `fix/receipt-print-isolation` branched from `docs/manual-qa-refresh` at `1f1e07d`. Not pushed or merged.
 - **Delivered**: Fixed open defect `TC-BIL-04` by portaling `OfficialReceiptModal` to `document.body` inside a native `<dialog>`, adding scoped `@media print` isolation and global `globals.css` rules keyed by `data-receipt-modal-open`. This guarantees that long background SPP tables cannot inflate print output into 5–6 pages on any browser engine.

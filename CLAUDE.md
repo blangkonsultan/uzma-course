@@ -121,8 +121,8 @@ tests/                      # Vitest unit test suites (utils, whatsapp, landing-
 
 **Reusable UI primitives (`src/components/ui/`):**
 Every visual building block that appears in 2+ places MUST be a reusable component here. Examples:
-- `Button` — variants: `primary`, `outline`, `ghost`, `whatsapp`. Sizes: `sm`, `md`, `lg`. Renders `<a>` when `href` prop given, `<button>` otherwise.
-- `Card` — container with `rounded-2xl shadow-md` border styling. Slots: `CardHeader`, `CardBody`, `CardFooter`.
+- `Button` — variants: `primary`, `outline`, `outline-white`, `secondary`, `ghost`, `whatsapp`. Sizes: `sm`, `md`, `lg`. Renders `<a>` when `href` is given and `<button>` otherwise; caller-owned target sizing follows `DESIGN.md`.
+- `Card` — structural surface with `rounded-2xl shadow-md` border styling. The exported content slots are `CardHeader` and `CardBody`; see `DESIGN.md` for responsive usage.
 - `Badge` — inline label (e.g., age range). Variants: `primary`, `accent`, `neutral`.
 - `SectionHeading` — centered section title (`<h2>`) with optional subtitle. Used by every landing section.
 - `Container` — `max-w-6xl mx-auto px-4`. Wraps all section content.
@@ -162,10 +162,10 @@ All schema changes via Supabase CLI migrations only (`supabase/migrations/`). Ne
 
 ### Styling
 
-- Tailwind CSS with custom `primary` and `accent` color scales (see `tailwind.config.ts`).
+- Tailwind CSS v4: custom `primary`/`accent` tokens live in `src/app/globals.css`; radius, spacing, and neutral defaults come from the installed Tailwind theme. See `DESIGN.md` for the verified scale.
 - Font: Poppins (AHE brand font).
 - Neutrals: Tailwind's `slate` scale.
-- Contrast rule: text-on-white uses `primary-700+` (WCAG AA). White/light text on `primary-600+` backgrounds.
+- Contrast: use the existing semantic palette and measure actual foreground/background pairs, including tinted and interactive states. Class names alone do not establish WCAG compliance.
 
 ## Code Conventions
 
@@ -188,33 +188,25 @@ All schema changes via Supabase CLI migrations only (`supabase/migrations/`). Ne
 
 ## Design / UI Work
 
-- Use `$impeccable` skill commands for design workflows when available (`.agents/skills/impeccable/`)
+- Use `$impeccable` workflows from `.claude/skills/impeccable/`. `DESIGN.md` is the canonical visual-token and new-feature UI-pattern guide; keep `.impeccable/design.json` synchronized when changing it rather than maintaining a parallel rule set here.
 - Landing page mode: **Persuade** (visitor decides and acts)
 - ERP mode: **Operate** (user completes a task)
 - **Zero-Broken Mobile Invariant (Aturan Wajib Responsif Tanpa Broken)**:
-  1. **Strict 0 Overflow**: Dilarang keras adanya horizontal scrollbar atau elemen yang meluber (`rect.right > window.innerWidth`) pada viewport terkecil (mulai 360px & 375px) hingga desktop (1280px+).
+  1. **Strict 0 Document Overflow**: Prevent layout-wide horizontal scrolling from 360px/375px through 1280px+. A deliberately bounded document/table scroller may contain wider content; its actions, focus, and touch/keyboard panning must remain usable. See `DESIGN.md`.
   2. **No Clipped / Squashed Actions**: Tombol aksi, panah urutan, dan tombol hapus tidak boleh terpotong atau terlempar ke luar layar oleh flex/truncation yang salah. Gunakan `min-w-0 flex-1` pada tombol berlabel dan `shrink-0` pada grup aksi.
-  3. **Touch Targets Standard**: Seluruh tombol interaktif, link navigasi, dan input wajib memiliki area sentuh minimal 36–44px agar nyaman dijangkau jari/ibu jari di layar ponsel.
+  3. **Touch Targets Standard**: New mobile/touch controls require at least 44px in both dimensions; deliberately compact desktop controls may use 36px. Noninteractive avatar dimensions are not action-target exceptions. Follow the examples in `DESIGN.md`.
   4. **Pencegahan iOS Safari Auto-Zoom**: Seluruh field form (`input`, `textarea`, `select`) wajib menggunakan ukuran font `text-base sm:text-sm` (16px di mobile, 14px di desktop) untuk mencegah browser mobile melakukan auto-zoom paksa saat fokus.
   5. **Responsive Padding & Anti-Nested Cards**: Dilarang menggunakan padding kaku `p-6` pada kartu mobile di dalam container utama yang sudah ber-padding. Gunakan `p-4 sm:p-6` pada kartu dan `p-3.5 sm:p-4` pada kartu item. Hindari pembungkusan kartu di dalam kartu yang membuat ruang input menyempit.
   6. **Flex Inputs**: Input di dalam flex container wajib menyertakan `min-w-0` agar placeholder panjang tidak menabrak atau mendorong tombol di sebelahnya ke luar layar.
   7. **Mobile-First Action Bars**: Pada form panjang, tombol aksi utama (*Simpan*) wajib dibuat dominan/full-width di mobile di atas tombol sekunder (*Kembali*), dan kembali bersisian (*side-by-side*) di layar desktop (`sm:`).
 
 
-### Master Entity Mobile Card Standard (Standar Kartu Mobile Master Data)
-Setiap halaman master baru (misal: Master Cabang, Master Ruangan, Master Jadwal, Master Biaya, dll) yang menggunakan `<DataTable>` **WAJIB** menyertakan prop `mobileCard` menggunakan komponen baku `<MasterMobileCard>` dari `@/components/admin/master-mobile-card`. Dilarang membiarkan tampilan tabel mentah di layar ponsel.
+### Master Entity Mobile Card Standard
 
-**Anatomi Baku 5-Bagian MasterMobileCard:**
-1. **Avatar Inisial**: Kotak 40×40px (`w-10 h-10 rounded-xl font-bold text-xs shrink-0`) dengan skema warna tematik:
-   - Program Belajar: `color="purple"` (`bg-purple-100 text-purple-700`)
-   - Guru / Pengajar: `color="emerald"` (`bg-emerald-100 text-emerald-800`)
-   - Murid / Siswa: `color="blue"` (`bg-blue-100 text-blue-700`)
-   - Cabang / Fasilitas / Operasional: `color="amber"` atau `color="slate"`
-2. **Identitas**: Judul entitas (link semantik) + Subtitle 12px teks sekunder (`line-clamp-1`).
-3. **Status**: `<StatusBadge isActive={...} />` di pojok kanan atas kartu.
-4. **Pills Row**: Tag cabang / kategori (`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 border border-slate-200/80`) berdampingan dengan atribut meta.
-5. **Summary Specs Box**: Kotak ringkasan 2 kolom (`p-3 rounded-xl bg-slate-50 border border-slate-100 grid grid-cols-2 gap-2 text-xs`) berisi label kapital 10px abu-abu dan nilai tebal di bawahnya.
-6. **Action Bar**: Bilah aksi bawah (`flex items-center gap-2 pt-2 border-t border-slate-100`) berisi tombol pil sentuh ergonomis (`h-10 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-2xs`) untuk Detail/Edit, serta tombol toggle status berbentuk kotak 40×40px (`w-10 h-10 rounded-xl`).
+New master lists using `<DataTable>` MUST supply `mobileCard` with `MasterMobileCard` from `@/components/admin/master-mobile-card`; do not leave a raw administrative table as the phone representation.
+
+Use [DESIGN.md — Master data and CRUD](DESIGN.md#master-data-and-crud) for the six content responsibilities, supported avatar colours, and avatar-versus-action sizing. The `actions` slot belongs to the caller: the card does not enlarge supplied buttons automatically. Use the shared controls with the documented target sizes; do not copy legacy action-size examples.
+
 ## Definition of Done
 
 A feature is done only when ALL of the following are true:
@@ -224,7 +216,7 @@ A feature is done only when ALL of the following are true:
 - [ ] `npm run lint` passes with zero errors/warnings
 - [ ] `npm test` succeeds with zero failures
 - [ ] `npm run build` succeeds with zero errors
-- [ ] Responsive verified at 360px, 375px, and 1280px+ with 0 horizontal overflow, comfortable touch targets (min 36–44px), and zero broken/clipped elements
+- [ ] Responsive verified at 360px, 375px, and 1280px+ with 0 document overflow, 44px mobile/touch targets (36px only for intentionally compact desktop controls), and no clipped actions
 - [ ] All new components follow ui/ primitives pattern
 - [ ] Evidence recorded in `feature_list.json` or `progress.md`
 - [ ] Repository remains restartable from standard startup path
