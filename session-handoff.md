@@ -1,5 +1,12 @@
 # Session Handoff
 
+## Admin Drawer Lifecycle Verified — 2026-10-29
+- **Base/integration**: Tablet PR [#7](https://github.com/blangkonsultan/uzma-course/pull/7) merged with clean successful checks and exact-head protection as `55d96b4265c108d721dd09ed9a909fcac0a38476`. Current source slice: `fix/admin-drawer-focus`.
+- **Delivered**: Shared navigation content is retained across a static desktop aside and native mobile dialog. Closed mobile links are not tabbable; open modal owns inertness/focus, Escape/backdrop/navigation close and opener restoration. Existing scroll state is restored on close/unmount; desktop resize closes the modal. No custom keyboard trap or role/destination change.
+- **Evidence**: Two focus/scroll regressions failed before, then passed; focused suite 25/25. Actual browser keyboard/background-focus, close/resize/navigation and 360/375/767/768/1280px checks passed; screenshot inspected. Browser-chrome focus stops are not counted as background application escapes.
+- **Gate/safety**: Full gate passed clean lint, 83 suites / 482 tests, coverage and Webpack build; detector `[]`. Updated the existing keyboard procedure without marking physical screen-reader/device portions PASS. Worker/SEO work preserved; no operational writes, dependencies, schema, port or service changes.
+- **Next**: Publish/integrate only under the user's clean latest-head gate, then continue PaymentModal focus, attendance delivery presentation and CMS gallery labels. Physical-device and P2 audit limitations remain separate.
+
 ## Admin Tablet Layout Verified — 2026-10-29
 - **Completed integration**: Guru zoom PR [#6](https://github.com/blangkonsultan/uzma-course/pull/6) merged as `fc5f23e6cec61d35c6247c9a8e34ee0d838d806e` after clean latest-head checks, no blocking review and fresh 83-suite/481-test publication verification. User authorized merging subsequent PRs only when clean; never bypass checks.
 - **Current slice**: `fix/admin-tablet-overflow`, based on merged main. Shell/content/search can shrink; shared filter controls remain usable below wide-layout width, and the separate SPP action toolbar follows the same layout boundary. Table content is bounded, not hidden or converted to unrelated cards.

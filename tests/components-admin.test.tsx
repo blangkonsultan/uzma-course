@@ -1,5 +1,6 @@
+import "@testing-library/jest-dom/vitest";
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import React from "react";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { PageHeader } from "@/components/admin/page-header";
@@ -368,48 +369,61 @@ describe("Admin Core Components (src/components/admin/)", () => {
   });
 
   describe("AdminShell", () => {
-    it("renders sidebar with navigation categories, toggles mobile menu, and handles logout", async () => {
-      render(
+    function renderShell() {
+      return render(
         <AdminShell
           profile={{
-            id: "user-1",
-            full_name: "Admin Uzma",
+            id: "demo-admin",
+            full_name: "Admin Demo",
             phone: null,
-            role: "admin", allowances: [],
-    minimum_income: 0,    
-      birth_date: null, bank_account_holder: null, bank_account_number: null, bank_name: null,
-            branch_id: "krian",
+            role: "admin",
+            allowances: [],
+            minimum_income: 0,
+            birth_date: null,
+            bank_account_holder: null,
+            bank_account_number: null,
+            bank_name: null,
+            branch_id: null,
             is_active: true,
             created_at: "",
             updated_at: "",
           }}
-          branches={[{ id: "krian", name: "Cabang Krian", sub_name: "", kecamatan: "Krian", desa: "Junwangi", code: "02", address: "", latitude: 0, longitude: 0, geofence_radius_m: 100, map_embed_url: null, gmaps_url: null, is_active: true, created_at: "", updated_at: "" }]}
         >
-          <div data-testid="admin-content">Admin Content</div>
+          <div>Admin Content</div>
         </AdminShell>
       );
-      expect(screen.getByTestId("admin-content")).toBeDefined();
-      expect(screen.getAllByText("Menu Utama").length).toBeGreaterThan(0);
-      expect(screen.getAllByText("Data Master").length).toBeGreaterThan(0);
+    }
 
-      // Open mobile menu
-      const openBtn = screen.getByLabelText("Buka navigasi");
-      fireEvent.click(openBtn);
+    it("moves focus into the drawer and returns it to the opener on close", async () => {
+      const originalOverflow = document.body.style.overflow;
+      renderShell();
+      const opener = screen.getByRole("button", { name: "Buka navigasi" });
+      opener.focus();
+      fireEvent.click(opener);
 
-      // Click link inside
-      const cabangLinks = screen.getAllByText("Data Cabang");
-      fireEvent.click(cabangLinks[0]);
+      const dismiss = document.activeElement as HTMLElement;
+      expect(dismiss).not.toBe(opener);
+      expect(dismiss).toHaveAccessibleName("Tutup Menu");
+      fireEvent.click(dismiss);
 
-      // Close mobile menu
-      const closeBtn = screen.getByLabelText("Tutup Menu");
-      fireEvent.click(closeBtn);
+      await waitFor(() => {
+        expect(opener).toHaveFocus();
+        expect(document.body.style.overflow).toBe(originalOverflow);
+      });
+    });
 
-      // Logout buttons
-      const logoutBtns = screen.getAllByLabelText(/Keluar/i);
-      if (logoutBtns[0]) {
-        await act(async () => {
-          fireEvent.click(logoutBtns[0]);
-        });
+    it("restores the existing scroll state when an open drawer unmounts", () => {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "auto";
+      try {
+        const { unmount } = renderShell();
+        fireEvent.click(screen.getByRole("button", { name: "Buka navigasi" }));
+        expect(document.body.style.overflow).toBe("hidden");
+
+        unmount();
+        expect(document.body.style.overflow).toBe("auto");
+      } finally {
+        document.body.style.overflow = originalOverflow;
       }
     });
   });

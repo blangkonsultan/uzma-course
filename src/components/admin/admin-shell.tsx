@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Profile, Branch } from "@/types";
@@ -37,6 +37,44 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggingOut, startLogoutTransition] = useTransition();
+  const drawerRef = useRef<HTMLDialogElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const previousOverflowRef = useRef("");
+
+  function openMobileMenu() {
+    const drawer = drawerRef.current;
+    if (!drawer || drawer.open) return;
+    previousOverflowRef.current = document.body.style.overflow;
+    drawer.showModal();
+    document.body.style.overflow = "hidden";
+    drawer.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+    setMobileMenuOpen(true);
+  }
+
+  function closeMobileMenu() {
+    drawerRef.current?.close();
+  }
+
+  function handleDrawerClose() {
+    document.body.style.overflow = previousOverflowRef.current;
+    setMobileMenuOpen(false);
+    menuButtonRef.current?.focus({ preventScroll: true });
+  }
+
+  useEffect(() => {
+    const drawer = drawerRef.current;
+    function handleResize() {
+      if (window.matchMedia("(min-width: 48rem)").matches) drawer?.close();
+    }
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (drawer?.open) {
+        drawer.close();
+        document.body.style.overflow = previousOverflowRef.current;
+      }
+    };
+  }, []);
 
 
   interface NavItem {
@@ -174,29 +212,13 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
     ? branchMap[profile.branch_id] ?? profile.branch_id
     : "Semua Cabang";
 
-  return (
-    <div data-guide-print-container className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      {/* Mobile Drawer Overlay */}
-      {mobileMenuOpen && (
-        <div
-          data-guide-print-hide
-          className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-xs md:hidden"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Sidebar: Desktop fixed/sticky + Mobile drawer */}
-      <aside
-        data-guide-print-hide
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-white border-r border-slate-200/80 flex flex-col transition-transform duration-200 ease-in-out md:translate-x-0 ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
+  const sidebarContent = (
+      <>
         {/* Brand Header */}
         <div className="h-16 px-6 border-b border-slate-100 flex items-center justify-between">
           <Link
             href="/admin"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={closeMobileMenu}
             className="flex items-center gap-2.5"
           >
             <div className="w-8 h-8 rounded-xl overflow-hidden border border-slate-200/80 shrink-0 shadow-2xs">
@@ -219,7 +241,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
 
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={closeMobileMenu}
             className="md:hidden p-2 min-h-[44px] min-w-[44px] text-slate-400 hover:text-slate-600 rounded-lg"
             aria-label="Tutup Menu"
           >
@@ -245,7 +267,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={closeMobileMenu}
                       className={`flex items-center gap-3 px-3.5 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all ${
                         isActive
                           ? "bg-primary-50 text-primary-700 shadow-xs font-semibold"
@@ -339,7 +361,35 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
             </button>
           </div>
         </div>
+      </>
+  );
+
+  return (
+    <div data-guide-print-container className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+      <aside
+        data-guide-print-hide
+        className="fixed top-0 bottom-0 left-0 z-50 hidden w-64 flex-col border-r border-slate-200/80 bg-white md:flex"
+      >
+        {sidebarContent}
       </aside>
+      <dialog
+        ref={drawerRef}
+        id="admin-mobile-navigation"
+        data-guide-print-hide
+        aria-label="Navigasi admin"
+        onClose={handleDrawerClose}
+        onClick={(event) => {
+          if (event.target !== event.currentTarget) return;
+          const bounds = event.currentTarget.getBoundingClientRect();
+          if (
+            event.clientX < bounds.left || event.clientX > bounds.right ||
+            event.clientY < bounds.top || event.clientY > bounds.bottom
+          ) closeMobileMenu();
+        }}
+        className="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-64 max-w-full flex-col border-0 bg-white p-0 text-slate-900 shadow-xl backdrop:bg-slate-900/50 open:flex"
+      >
+        {sidebarContent}
+      </dialog>
 
       {/* Main Content Area */}
       <div data-guide-print-container className="min-w-0 flex-1 md:pl-64 flex flex-col min-h-screen">
@@ -348,7 +398,11 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(true)}
+              ref={menuButtonRef}
+              aria-controls="admin-mobile-navigation"
+              aria-expanded={mobileMenuOpen}
+              aria-haspopup="dialog"
+              onClick={openMobileMenu}
               className="md:hidden p-2.5 -ml-1 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Buka navigasi"
             >
