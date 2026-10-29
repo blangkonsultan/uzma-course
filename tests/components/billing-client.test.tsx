@@ -1,8 +1,9 @@
 import "@testing-library/jest-dom/vitest";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { BillingClient } from "@/components/admin/billing/billing-client";
 import type { BillingSummary, StudentInvoiceItem } from "@/lib/billing";
+import { recordPaymentAction } from "@/app/admin/spp/actions";
 
 const pushMock = vi.fn();
 vi.mock("next/navigation", () => ({
@@ -165,7 +166,7 @@ describe("BillingClient Component", () => {
     expect(screen.getByText("Lihat Kwitansi")).toBeDefined();
   });
 
-  it("opens payment modal when Catat Bayar is clicked", () => {
+  it("returns focus to the invoice payment action when the form is cancelled", async () => {
     render(
       <BillingClient
         initialSummary={sampleSummary}
@@ -176,9 +177,46 @@ describe("BillingClient Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("Catat Bayar"));
-    expect(screen.getByText(/Catat Pembayaran SPP/i)).toBeDefined();
-    expect(screen.getAllByText(/Ahmad Murid/i).length).toBeGreaterThan(1);
+    const opener = screen.getByRole("button", { name: "Catat Bayar" });
+    opener.focus();
+    fireEvent.click(opener);
+    const dialog = screen.getByRole("dialog", { name: "Catat Pembayaran SPP" });
+    const cancel = within(dialog).getByRole("button", { name: "Batal" });
+    cancel.focus();
+    fireEvent.click(cancel);
+
+    await waitFor(() => expect(opener).toHaveFocus());
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("blocks cancellation while a payment is pending and retains entries on rejection", async () => {
+    const pending = Promise.withResolvers<{ success: boolean; error?: string }>();
+    vi.mocked(recordPaymentAction).mockReturnValueOnce(pending.promise);
+    render(<BillingClient initialSummary={sampleSummary} branches={sampleBranches} />);
+    fireEvent.click(screen.getByRole("button", { name: "Catat Bayar" }));
+
+    const dialog = screen.getByRole("dialog", { name: "Catat Pembayaran SPP" });
+    const reference = within(dialog).getByLabelText(/Nomor Referensi Transfer/);
+    fireEvent.change(reference, { target: { value: "DEMO-REFERENCE" } });
+    const submit = within(dialog).getByRole("button", { name: /Simpan Pembayaran/ });
+    fireEvent.submit(dialog.querySelector("form")!);
+
+    try {
+      await waitFor(() => expect(submit).toBeDisabled());
+      const cancel = new Event("cancel", { cancelable: true });
+      fireEvent(dialog, cancel);
+      expect(cancel.defaultPrevented).toBe(true);
+      expect(dialog).toBeVisible();
+      expect(within(dialog).getByRole("button", { name: "Batal" })).toBeDisabled();
+    } finally {
+      await act(async () => {
+        pending.resolve({ success: false, error: "Demo payment rejected" });
+      });
+    }
+
+    await waitFor(() => expect(submit).toBeEnabled());
+    expect(screen.getByRole("dialog", { name: "Catat Pembayaran SPP" })).toBeVisible();
+    expect(reference).toHaveValue("DEMO-REFERENCE");
   });
   it("opens official receipt modal when Lihat Kwitansi is clicked", () => {
     render(

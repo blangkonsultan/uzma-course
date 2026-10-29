@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { X, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { recordPaymentAction } from "@/app/admin/spp/actions";
 import type { StudentInvoiceItem } from "@/lib/billing";
@@ -35,17 +36,22 @@ export function PaymentModal({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !isPending) {
-        onClose();
+    const dialog = dialogRef.current;
+    const opener = document.activeElement;
+    const originalOverflow = document.body.style.overflow;
+    dialog?.showModal();
+    document.body.style.overflow = "hidden";
+    return () => {
+      dialog?.close();
+      document.body.style.overflow = originalOverflow;
+      if (opener instanceof HTMLElement && opener.isConnected) {
+        opener.focus({ preventScroll: true });
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isPending, onClose]);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,19 +75,29 @@ export function PaymentModal({
     });
   };
 
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200"
-      role="dialog"
+  return createPortal(
+    <dialog
+      ref={dialogRef}
+      id="payment-modal"
+      className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none border-0 bg-transparent p-4 text-slate-900 backdrop:bg-slate-900/50 open:flex open:items-center open:justify-center"
+      style={{
+        paddingTop: "max(1rem, env(safe-area-inset-top, 0px))",
+        paddingRight: "max(1rem, env(safe-area-inset-right, 0px))",
+        paddingBottom: "max(1rem, env(safe-area-inset-bottom, 0px))",
+        paddingLeft: "max(1rem, env(safe-area-inset-left, 0px))",
+      }}
       aria-modal="true"
       aria-labelledby="payment-modal-title"
-      onClick={(e) => {
-        if (e.target === e.currentTarget && !isPending) onClose();
+      onCancel={(event) => {
+        event.preventDefault();
+        if (!isPending) onClose();
+      }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget && !isPending) onClose();
       }}
     >
       <div
-        ref={dialogRef}
-        className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200"
+        className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col max-h-full animate-in zoom-in-95 duration-200"
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
@@ -243,6 +259,7 @@ export function PaymentModal({
           </div>
         </form>
       </div>
-    </div>
+    </dialog>,
+    document.body
   );
 }
