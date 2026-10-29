@@ -1,5 +1,12 @@
 # Session Handoff
 
+## Admin Tablet Layout Verified — 2026-10-29
+- **Completed integration**: Guru zoom PR [#6](https://github.com/blangkonsultan/uzma-course/pull/6) merged as `fc5f23e6cec61d35c6247c9a8e34ee0d838d806e` after clean latest-head checks, no blocking review and fresh 83-suite/481-test publication verification. User authorized merging subsequent PRs only when clean; never bypass checks.
+- **Current slice**: `fix/admin-tablet-overflow`, based on merged main. Shell/content/search can shrink; shared filter controls remain usable below wide-layout width, and the separate SPP action toolbar follows the same layout boundary. Table content is bounded, not hidden or converted to unrelated cards.
+- **Proof**: 24 final live viewport/page samples had zero document overflow; Murid 768px search expanded from 82px to 430px. Search/filter composition, targeted clear/reset and keyboard access to internally scrolled table actions worked. SPP export/generation controls are in bounds without executing writes. Screenshots inspected.
+- **Gate and safety**: Full gate passed clean lint, 83 suites / 481 tests, coverage and Webpack build; detector `[]`. Original worker bytes and unrelated SEO work preserved; no operational mutation, dependencies, schema, port or service change.
+- **Next approved work**: After guarded publication/integration of this slice, fix mobile drawer focus/Escape/restoration, Catat Bayar modal focus, factual attendance delivery states and CMS gallery labels in separate PRs. Existing physical-device and P2 audit limitations remain.
+
 ## Guru Zoom Correction Verified — 2026-10-29
 - **Branch**: `fix/guru-mobile-zoom`, based on `main` at `bd2db67`; this is the approved zoom-only follow-up, not execution of the complete frontend audit.
 - **Delivered**: Removed Guru maximum/user-scalable restrictions while preserving initial scale 1. Guru-scoped `any-pointer: coarse` styles retain base-size fields on portrait, landscape and wide touch-capable screens; mouse-only desktop/Admin behavior remains unchanged. Updated Honor/branch selector typography and added native `touch-manipulation` to the existing five-tab bottom navigation, with no gesture-blocking JavaScript or business-rule change.

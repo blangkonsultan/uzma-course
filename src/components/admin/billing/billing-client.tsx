@@ -239,8 +239,8 @@ export function BillingClient({
       </div>
 
       {/* Filter and Action Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 flex-1">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3">
+        <div className="min-w-0 flex flex-wrap items-center gap-2 flex-1">
           {/* Branch Filter */}
           <div className="relative min-w-[140px] flex-1 sm:flex-initial">
             <select

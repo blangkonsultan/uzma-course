@@ -342,7 +342,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
       </aside>
 
       {/* Main Content Area */}
-      <div data-guide-print-container className="flex-1 md:pl-64 flex flex-col min-h-screen">
+      <div data-guide-print-container className="min-w-0 flex-1 md:pl-64 flex flex-col min-h-screen">
         {/* Top Navbar */}
         <header data-guide-print-hide className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
           <div className="flex items-center gap-2.5 sm:gap-3">
@@ -402,7 +402,7 @@ export function AdminShell({ profile, branches = [], children }: AdminShellProps
         </header>
 
         {/* Page Body */}
-        <main data-guide-print-container id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main data-guide-print-container id="main-content" className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
           {children}
         </main>
       </div>

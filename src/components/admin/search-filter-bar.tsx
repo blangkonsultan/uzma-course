@@ -81,9 +81,9 @@ export function SearchFilterBar({
 
   return (
     <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs mb-6 space-y-3">
-      <div className="flex flex-col md:flex-row gap-3">
+      <div className="flex flex-col xl:flex-row gap-3">
         {/* Search Input Form */}
-        <form onSubmit={handleSearchSubmit} className="relative flex-1">
+        <form onSubmit={handleSearchSubmit} className="relative min-w-0 flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
@@ -115,7 +115,7 @@ export function SearchFilterBar({
             {filters.map((filter) => {
               const currentValue = searchParams.get(filter.id) || "all";
               return (
-                <div key={filter.id} className="relative min-w-[140px] flex-1 sm:flex-initial">
+                <div key={filter.id} className="relative min-w-[140px] flex-1 xl:flex-initial">
                   <select
                     value={currentValue}
                     onChange={(e) =>
