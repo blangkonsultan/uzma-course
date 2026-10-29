@@ -1,32 +1,247 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-08T00:00:00.000Z",
+  "generatedAt": "2026-10-29T00:53:51.959Z",
   "title": "Design System: Uzma Course",
   "extensions": {
     "colorMeta": {
-      "primary": { "role": "primary", "displayName": "Nurturing Purple", "canonical": "#9333ea", "tonalRamp": ["#faf5ff", "#f3e8ff", "#e9d5ff", "#d8b4fe", "#c084fc", "#a855f7", "#9333ea", "#7e22ce", "#6b21a8", "#581c87", "#3b0764"] },
-      "accent": { "role": "secondary", "displayName": "Warm Magenta", "canonical": "#be3099", "tonalRamp": ["#d946a8", "#be3099"] },
-      "neutral-bg": { "role": "neutral", "displayName": "Slate Background", "canonical": "#f8fafc", "tonalRamp": ["#f8fafc", "#f1f5f9", "#e2e8f0"] },
-      "neutral-text": { "role": "neutral", "displayName": "Slate Text", "canonical": "#334155", "tonalRamp": ["#64748b", "#475569", "#334155", "#1e293b", "#0f172a"] }
+      "primary": {
+        "role": "primary",
+        "displayName": "Nurturing Purple",
+        "canonical": "#9333ea",
+        "tonalRamp": [
+          "#3b0764",
+          "#581c87",
+          "#6b21a8",
+          "#7e22ce",
+          "#9333ea",
+          "#a855f7",
+          "#c084fc",
+          "#d8b4fe",
+          "#e9d5ff",
+          "#f3e8ff",
+          "#faf5ff"
+        ]
+      },
+      "primary-deep": {
+        "role": "primary",
+        "displayName": "Deep Purple",
+        "canonical": "#581c87",
+        "tonalRamp": [
+          "#3b0764",
+          "#581c87",
+          "#6b21a8",
+          "#7e22ce",
+          "#9333ea",
+          "#a855f7",
+          "#c084fc",
+          "#d8b4fe",
+          "#e9d5ff",
+          "#f3e8ff",
+          "#faf5ff"
+        ]
+      },
+      "primary-light": {
+        "role": "primary",
+        "displayName": "Soft Purple",
+        "canonical": "#f3e8ff",
+        "tonalRamp": [
+          "#3b0764",
+          "#581c87",
+          "#6b21a8",
+          "#7e22ce",
+          "#9333ea",
+          "#a855f7",
+          "#c084fc",
+          "#d8b4fe",
+          "#e9d5ff",
+          "#f3e8ff",
+          "#faf5ff"
+        ]
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "Warm Magenta",
+        "canonical": "#be3099",
+        "tonalRamp": [
+          "oklch(15.000% 0.20619 340.663)",
+          "oklch(26.429% 0.20619 340.663)",
+          "oklch(37.857% 0.20619 340.663)",
+          "oklch(49.286% 0.20619 340.663)",
+          "oklch(60.714% 0.20619 340.663)",
+          "oklch(72.143% 0.20619 340.663)",
+          "oklch(83.571% 0.20619 340.663)",
+          "oklch(95.000% 0.20619 340.663)"
+        ]
+      },
+      "accent-light": {
+        "role": "secondary",
+        "displayName": "Bright Magenta",
+        "canonical": "#d946a8",
+        "tonalRamp": [
+          "oklch(15.000% 0.20767 343.808)",
+          "oklch(26.429% 0.20767 343.808)",
+          "oklch(37.857% 0.20767 343.808)",
+          "oklch(49.286% 0.20767 343.808)",
+          "oklch(60.714% 0.20767 343.808)",
+          "oklch(72.143% 0.20767 343.808)",
+          "oklch(83.571% 0.20767 343.808)",
+          "oklch(95.000% 0.20767 343.808)"
+        ]
+      },
+      "neutral-bg": {
+        "role": "neutral",
+        "displayName": "Slate Background",
+        "canonical": "oklch(98.4% 0.003 247.858)",
+        "tonalRamp": [
+          "oklch(12.9% 0.042 264.695)",
+          "oklch(20.8% 0.042 265.755)",
+          "oklch(27.9% 0.041 260.031)",
+          "oklch(37.2% 0.044 257.287)",
+          "oklch(44.6% 0.043 257.281)",
+          "oklch(55.4% 0.046 257.417)",
+          "oklch(70.4% 0.04 256.788)",
+          "oklch(86.9% 0.022 252.894)",
+          "oklch(92.9% 0.013 255.508)",
+          "oklch(96.8% 0.007 247.896)",
+          "oklch(98.4% 0.003 247.858)"
+        ]
+      },
+      "neutral-surface": {
+        "role": "neutral",
+        "displayName": "Surface White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15.000% 0 0)",
+          "oklch(26.429% 0 0)",
+          "oklch(37.857% 0 0)",
+          "oklch(49.286% 0 0)",
+          "oklch(60.714% 0 0)",
+          "oklch(72.143% 0 0)",
+          "oklch(83.571% 0 0)",
+          "oklch(95.000% 0 0)"
+        ]
+      },
+      "neutral-text": {
+        "role": "neutral",
+        "displayName": "Slate Text",
+        "canonical": "oklch(37.2% 0.044 257.287)",
+        "tonalRamp": [
+          "oklch(12.9% 0.042 264.695)",
+          "oklch(20.8% 0.042 265.755)",
+          "oklch(27.9% 0.041 260.031)",
+          "oklch(37.2% 0.044 257.287)",
+          "oklch(44.6% 0.043 257.281)",
+          "oklch(55.4% 0.046 257.417)",
+          "oklch(70.4% 0.04 256.788)",
+          "oklch(86.9% 0.022 252.894)",
+          "oklch(92.9% 0.013 255.508)",
+          "oklch(96.8% 0.007 247.896)",
+          "oklch(98.4% 0.003 247.858)"
+        ]
+      }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "Headline landing page dan judul utama aplikasi." },
-      "headline": { "displayName": "Headline", "purpose": "Judul halaman (PageHeader) dan judul kartu (Card)." },
-      "title": { "displayName": "Title", "purpose": "Label form dan pengelompokan data." },
-      "body": { "displayName": "Body", "purpose": "Teks paragraf dan isi tabel." },
-      "label": { "displayName": "Label", "purpose": "Tombol, badge status, dan metadata kecil." }
+      "display": {
+        "displayName": "Display",
+        "purpose": "Display emphasis; existing 700 weight."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Semibold page and group headings; existing 600 weight."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Semibold section and form-group headings; existing 600 weight."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Regular reading text; existing 400 weight."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Medium labels; Buttons retain their own semibold treatment."
+      }
     },
     "shadows": [
-      { "name": "ambient-lift", "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)", "purpose": "Memberikan kedalaman samar pada kartu dan tombol utama (shadow-sm / shadow-2xs)." },
-      { "name": "floating-panel", "value": "0 -4px 15px -3px rgba(0,0,0,0.05)", "purpose": "Mengangkat modal atau sticky header jauh ke atas antarmuka lainnya." }
+      {
+        "name": "shadow-2xs",
+        "value": "0 1px rgb(0 0 0 / 0.05)",
+        "purpose": "Button primary and outline: a 1px offset with no blur; distinct from shadow-xs."
+      },
+      {
+        "name": "shadow-xs",
+        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "purpose": "InputField and master-card/field shallow lift."
+      },
+      {
+        "name": "shadow-sm",
+        "value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+        "purpose": "Installed small elevation step; not an alias for shadow-xs or shadow-2xs."
+      },
+      {
+        "name": "shadow-md",
+        "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+        "purpose": "Shared Card and Guru navigation floating Presensi control."
+      },
+      {
+        "name": "shadow-lg",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "purpose": "Installed stronger elevation step for existing overlay usage where applicable."
+      },
+      {
+        "name": "shadow-xl",
+        "value": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+        "purpose": "Installed stronger elevation step; not the shared Card default."
+      },
+      {
+        "name": "shadow-2xl",
+        "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+        "purpose": "Installed highest standard elevation step; reserve stronger elevation for overlays."
+      }
     ],
     "motion": [
-      { "name": "transition-colors", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing untuk hover state button dan link." }
+      {
+        "name": "default-transition-duration",
+        "value": "150ms",
+        "purpose": "Installed Tailwind default used by transition-colors and transition-all."
+      },
+      {
+        "name": "default-transition-timing-function",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Installed default state-transition easing."
+      },
+      {
+        "name": "attendance-pressed-scale",
+        "value": "0.95",
+        "purpose": "GuruBottomNav floating Presensi control active:scale-95; not a global Button effect."
+      },
+      {
+        "name": "reduced-motion-duration",
+        "value": "0.01ms",
+        "purpose": "globals.css reduced-motion default; existing animate-in/transition-all/transition-colors/transition-opacity exceptions retain 150ms and remove transforms."
+      }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" }
+      {
+        "name": "sm",
+        "value": "40rem"
+      },
+      {
+        "name": "md",
+        "value": "48rem"
+      },
+      {
+        "name": "lg",
+        "value": "64rem"
+      },
+      {
+        "name": "xl",
+        "value": "80rem"
+      },
+      {
+        "name": "2xl",
+        "value": "96rem"
+      }
     ]
   },
   "components": [
@@ -34,44 +249,112 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Tombol aksi utama berbentuk pil melingkar.",
-      "html": "<button class=\"ds-btn-primary\">SIMPAN</button>",
-      "css": ".ds-btn-primary { background: #9333ea; color: #ffffff; padding: 8px 24px; font-weight: 600; border: none; border-radius: 9999px; transition: background-color 0.2s, color 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; } .ds-btn-primary:hover { background: #7e22ce; }"
+      "description": "Button variant=\"primary\", default size=\"md\" (text-base, px-6, py-2.5). Enabled and native-disabled styling samples; no submission handler.",
+      "html": "<div class=\"ds-button-samples\"><button type=\"button\" class=\"ds-button ds-button-primary\">Simpan</button><button type=\"button\" class=\"ds-button ds-button-primary\" disabled aria-label=\"Simpan (nonaktif)\">Simpan</button></div>",
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; border:0 solid; border-radius:9999px; padding:0.625rem 1.5rem; font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; font-size:1rem; font-weight:600; line-height:1.5; text-decoration:none; cursor:pointer; transition:color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-button:focus-visible { outline:2px solid transparent; outline-offset:2px; box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--color-primary-500, #a855f7); } .ds-button:disabled { opacity:0.5; pointer-events:none; cursor:not-allowed; } .ds-button-samples { display:flex; flex-wrap:wrap; gap:0.75rem; max-width:360px; padding:0.375rem; } .ds-button-primary { background:var(--color-primary-600, #9333ea); color:#fff; box-shadow:0 1px rgb(0 0 0 / 0.05); } .ds-button-primary:hover { background:var(--color-primary-700, #7e22ce); } @media (prefers-reduced-motion:reduce) { .ds-button { transition-duration:150ms; transform:none; } }"
     },
     {
-      "name": "Standard Card",
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Button variant=\"outline\", default size=\"md\" (text-base, px-6, py-2.5). Enabled and native-disabled styling samples; no submission handler.",
+      "html": "<div class=\"ds-button-samples\"><button type=\"button\" class=\"ds-button ds-button-outline\">Batal</button><button type=\"button\" class=\"ds-button ds-button-outline\" disabled aria-label=\"Batal (nonaktif)\">Batal</button></div>",
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; border:0 solid; border-radius:9999px; padding:0.625rem 1.5rem; font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; font-size:1rem; font-weight:600; line-height:1.5; text-decoration:none; cursor:pointer; transition:color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-button:focus-visible { outline:2px solid transparent; outline-offset:2px; box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--color-primary-500, #a855f7); } .ds-button:disabled { opacity:0.5; pointer-events:none; cursor:not-allowed; } .ds-button-samples { display:flex; flex-wrap:wrap; gap:0.75rem; max-width:360px; padding:0.375rem; } .ds-button-outline { border:1px solid var(--color-slate-200, oklch(92.9% 0.013 255.508)); background:#fff; color:var(--color-slate-700, oklch(37.2% 0.044 257.287)); box-shadow:0 1px rgb(0 0 0 / 0.05); } .ds-button-outline:hover { background:var(--color-slate-50, oklch(98.4% 0.003 247.858)); color:var(--color-slate-900, oklch(20.8% 0.042 265.755)); } @media (prefers-reduced-motion:reduce) { .ds-button { transition-duration:150ms; transform:none; } }"
+    },
+    {
+      "name": "Inverse Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline-white",
+      "description": "Button variant=\"outline-white\", default size=\"md\" (text-base, px-6, py-2.5). Enabled and native-disabled styling samples; no submission handler. White outline shown on an existing deep-purple contextual surface.",
+      "html": "<div class=\"ds-inverse-surface\"><div class=\"ds-button-samples\"><button type=\"button\" class=\"ds-button ds-button-outline-white\">Lihat Jadwal</button><button type=\"button\" class=\"ds-button ds-button-outline-white\" disabled aria-label=\"Lihat Jadwal (nonaktif)\">Lihat Jadwal</button></div></div>",
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; border:0 solid; border-radius:9999px; padding:0.625rem 1.5rem; font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; font-size:1rem; font-weight:600; line-height:1.5; text-decoration:none; cursor:pointer; transition:color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-button:focus-visible { outline:2px solid transparent; outline-offset:2px; box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--color-primary-500, #a855f7); } .ds-button:disabled { opacity:0.5; pointer-events:none; cursor:not-allowed; } .ds-button-samples { display:flex; flex-wrap:wrap; gap:0.75rem; max-width:360px; padding:0.375rem; } .ds-button-outline-white { border:2px solid #fff; background:transparent; color:#fff; } .ds-button-outline-white:hover { background:rgb(255 255 255 / 0.1); } .ds-inverse-surface { max-width:360px; padding:1rem; border-radius:1rem; background:var(--color-primary-900, #581c87); } @media (prefers-reduced-motion:reduce) { .ds-button { transition-duration:150ms; transform:none; } }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Button variant=\"secondary\", default size=\"md\" (text-base, px-6, py-2.5). Enabled and native-disabled styling samples; no submission handler.",
+      "html": "<div class=\"ds-button-samples\"><button type=\"button\" class=\"ds-button ds-button-secondary\">Kembali</button><button type=\"button\" class=\"ds-button ds-button-secondary\" disabled aria-label=\"Kembali (nonaktif)\">Kembali</button></div>",
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; border:0 solid; border-radius:9999px; padding:0.625rem 1.5rem; font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; font-size:1rem; font-weight:600; line-height:1.5; text-decoration:none; cursor:pointer; transition:color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-button:focus-visible { outline:2px solid transparent; outline-offset:2px; box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--color-primary-500, #a855f7); } .ds-button:disabled { opacity:0.5; pointer-events:none; cursor:not-allowed; } .ds-button-samples { display:flex; flex-wrap:wrap; gap:0.75rem; max-width:360px; padding:0.375rem; } .ds-button-secondary { background:var(--color-slate-100, oklch(96.8% 0.007 247.896)); color:var(--color-slate-800, oklch(27.9% 0.041 260.031)); } .ds-button-secondary:hover { background:var(--color-slate-200, oklch(92.9% 0.013 255.508)); } @media (prefers-reduced-motion:reduce) { .ds-button { transition-duration:150ms; transform:none; } }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Button variant=\"ghost\", default size=\"md\" (text-base, px-6, py-2.5). Enabled and native-disabled styling samples; no submission handler.",
+      "html": "<div class=\"ds-button-samples\"><button type=\"button\" class=\"ds-button ds-button-ghost\">Detail</button><button type=\"button\" class=\"ds-button ds-button-ghost\" disabled aria-label=\"Detail (nonaktif)\">Detail</button></div>",
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; border:0 solid; border-radius:9999px; padding:0.625rem 1.5rem; font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; font-size:1rem; font-weight:600; line-height:1.5; text-decoration:none; cursor:pointer; transition:color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-button:focus-visible { outline:2px solid transparent; outline-offset:2px; box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--color-primary-500, #a855f7); } .ds-button:disabled { opacity:0.5; pointer-events:none; cursor:not-allowed; } .ds-button-samples { display:flex; flex-wrap:wrap; gap:0.75rem; max-width:360px; padding:0.375rem; } .ds-button-ghost { background:transparent; color:var(--color-primary-600, #9333ea); } .ds-button-ghost:hover { color:var(--color-primary-700, #7e22ce); background:var(--color-primary-50, #faf5ff); } @media (prefers-reduced-motion:reduce) { .ds-button { transition-duration:150ms; transform:none; } }"
+    },
+    {
+      "name": "WhatsApp Button",
+      "kind": "button",
+      "refersTo": "button-whatsapp",
+      "description": "Button variant=\"whatsapp\", default size=\"md\" (text-base, px-6, py-2.5). Enabled and native-disabled styling samples; no submission handler.",
+      "html": "<div class=\"ds-button-samples\"><button type=\"button\" class=\"ds-button ds-button-whatsapp\">WhatsApp</button><button type=\"button\" class=\"ds-button ds-button-whatsapp\" disabled aria-label=\"WhatsApp (nonaktif)\">WhatsApp</button></div>",
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; border:0 solid; border-radius:9999px; padding:0.625rem 1.5rem; font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; font-size:1rem; font-weight:600; line-height:1.5; text-decoration:none; cursor:pointer; transition:color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-button:focus-visible { outline:2px solid transparent; outline-offset:2px; box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--color-primary-500, #a855f7); } .ds-button:disabled { opacity:0.5; pointer-events:none; cursor:not-allowed; } .ds-button-samples { display:flex; flex-wrap:wrap; gap:0.75rem; max-width:360px; padding:0.375rem; } .ds-button-whatsapp { background:var(--color-green-500, oklch(72.3% 0.219 149.579)); color:#fff; } .ds-button-whatsapp:hover { background:var(--color-green-600, oklch(62.7% 0.194 149.214)); } @media (prefers-reduced-motion:reduce) { .ds-button { transition-duration:150ms; transform:none; } }"
+    },
+    {
+      "name": "InputField",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "InputField default and error examples with persistent labels, required markers and associated hint/error text. Actual source uses text-base and py-2.5 below sm, text-sm and py-2 at sm; there is no component-specific disabled styling. Values and errors are illustrative, with no backend validation handler.",
+      "html": "<div class=\"ds-fields\"><div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-student-name\">Nama siswa<span class=\"ds-required\">*</span></label><input class=\"ds-input\" id=\"ds-student-name\" name=\"student-name\" type=\"text\" required aria-invalid=\"false\" aria-describedby=\"ds-student-name-hint\" placeholder=\"Nama lengkap siswa\"><p class=\"ds-field-hint\" id=\"ds-student-name-hint\">Gunakan nama sesuai data pendaftaran.</p></div><div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-student-email\">Email<span class=\"ds-required\">*</span></label><input class=\"ds-input ds-input-error\" id=\"ds-student-email\" name=\"student-email\" type=\"email\" required aria-invalid=\"true\" aria-describedby=\"ds-student-email-error\" value=\"nama@\"><p class=\"ds-field-error\" id=\"ds-student-email-error\">Masukkan alamat email lengkap, misalnya nama@contoh.com.</p></div></div>",
+      "css": ".ds-fields { width:100%; max-width:360px; display:grid; gap:1rem; font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; } .ds-field { min-width:0; } .ds-field > :not(:last-child) { margin-top:0; margin-bottom:0.375rem; } .ds-field-label { display:block; font-size:0.875rem; font-weight:500; line-height:1.25rem; color:var(--color-slate-700, oklch(37.2% 0.044 257.287)); } .ds-required { color:var(--color-rose-500, oklch(64.5% 0.246 16.439)); margin-left:0.25rem; } .ds-input { box-sizing:border-box; width:100%; min-width:0; padding:0.625rem 0.875rem; border-radius:0.75rem; border:1px solid var(--color-slate-200, oklch(92.9% 0.013 255.508)); background:#fff; color:var(--color-slate-900, oklch(20.8% 0.042 265.755)); font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; font-size:1rem; font-weight:400; line-height:1.5rem; box-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05); transition:color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-input::placeholder { color:var(--color-slate-500, oklch(55.4% 0.046 257.417)); opacity:1; } .ds-input:hover { border-color:var(--color-slate-300, oklch(86.9% 0.022 252.894)); } .ds-input:focus { outline:2px solid transparent; outline-offset:2px; border-color:var(--color-primary-500, #a855f7); box-shadow:0 0 0 2px rgb(168 85 247 / 0.2), 0 1px 2px 0 rgb(0 0 0 / 0.05); } .ds-input-error, .ds-input-error:hover { border-color:var(--color-rose-300, oklch(81% 0.117 11.638)); } .ds-input-error:focus { border-color:var(--color-rose-500, oklch(64.5% 0.246 16.439)); box-shadow:0 0 0 2px color-mix(in oklab, var(--color-rose-500, oklch(64.5% 0.246 16.439)) 20%, transparent), 0 1px 2px 0 rgb(0 0 0 / 0.05); } .ds-field-hint, .ds-field-error { margin:0; font-size:0.75rem; line-height:1rem; } .ds-field-hint { color:var(--color-slate-500, oklch(55.4% 0.046 257.417)); } .ds-field-error { color:var(--color-rose-600, oklch(58.6% 0.253 17.585)); font-weight:500; } @media (min-width:40rem) { .ds-input { padding-top:0.5rem; padding-bottom:0.5rem; font-size:0.875rem; line-height:1.25rem; } } @media (prefers-reduced-motion:reduce) { .ds-input { transition-duration:150ms; transform:none; } }"
+    },
+    {
+      "name": "Guru Bottom Navigation",
+      "kind": "nav",
+      "refersTo": "guru-navigation",
+      "description": "Current five-tab presentation: Beranda /guru, Jadwal /guru/jadwal, Presensi /guru/absen, Honor /guru/honor, Profil /guru/profil. Beranda is selected; actual installed Lucide paths are inline SVG. Source fixed positioning is staged inside this bounded preview, preserving the 64px row and floating Presensi control, legacy 9px captions, colours and states. The undefined pb-safe alias contributes no CSS: this sample neither adds safe-area behaviour nor proves runtime clearance or touch compliance. Mengajar is reached from Jadwal, not a tab.",
+      "html": "<div class=\"ds-guru-preview\"><nav class=\"ds-guru-nav\" aria-label=\"Navigasi guru\"><div class=\"ds-guru-grid\"><a class=\"ds-guru-link\" href=\"/guru\" aria-current=\"page\"><svg class=\"ds-guru-icon \" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"></path><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"></path></svg><span class=\"ds-guru-label\">Beranda</span></a><a class=\"ds-guru-link\" href=\"/guru/jadwal\"><svg class=\"ds-guru-icon \" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 2v3\"></path><path d=\"M16 2v3\"></path><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"></rect><path d=\"M3 9h18\"></path><path d=\"M8 13h.01\"></path><path d=\"M12 13h.01\"></path><path d=\"M16 13h.01\"></path><path d=\"M8 17h.01\"></path><path d=\"M12 17h.01\"></path><path d=\"M16 17h.01\"></path></svg><span class=\"ds-guru-label\">Jadwal</span></a><div class=\"ds-guru-center\"><a class=\"ds-guru-attendance\" href=\"/guru/absen\" aria-label=\"Menu Presensi Kehadiran\"><span class=\"ds-guru-pin\"><svg class=\"ds-guru-icon \" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\"></path><circle cx=\"12\" cy=\"10\" r=\"3\"></circle></svg></span><span class=\"ds-guru-attendance-label\">Presensi</span></a></div><a class=\"ds-guru-link\" href=\"/guru/honor\"><svg class=\"ds-guru-icon \" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"></path><path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"></path></svg><span class=\"ds-guru-label\">Honor</span></a><a class=\"ds-guru-link\" href=\"/guru/profil\"><svg class=\"ds-guru-icon \" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"></path><circle cx=\"12\" cy=\"7\" r=\"4\"></circle></svg><span class=\"ds-guru-label\">Profil</span></a></div></nav></div>",
+      "css": ".ds-guru-preview { width:100%; max-width:360px; padding-top:1.5rem; font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; } .ds-guru-nav { position:relative; background:#fff; border-top:1px solid var(--color-slate-200, oklch(92.9% 0.013 255.508)); z-index:1; } .ds-guru-grid { box-sizing:border-box; position:relative; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:center; max-width:28rem; height:4rem; margin:0 auto; padding:0 0.25rem; } .ds-guru-link { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; min-width:0; text-decoration:none; color:var(--color-slate-500, oklch(55.4% 0.046 257.417)); transition:color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-guru-link:hover, .ds-guru-link[aria-current=\"page\"] { color:var(--color-blue-600, oklch(54.6% 0.245 262.881)); } .ds-guru-icon { display:block; width:1.25rem; height:1.25rem; flex-shrink:0; } .ds-guru-link > .ds-guru-icon { margin-bottom:0.25rem; } .ds-guru-link[aria-current=\"page\"] > .ds-guru-icon { fill:var(--color-blue-100, oklch(93.2% 0.032 255.585)); } .ds-guru-label { font-size:9px; font-weight:500; line-height:1; } .ds-guru-center { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; } .ds-guru-attendance { display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; text-decoration:none; } .ds-guru-pin { position:absolute; top:-1.25rem; padding:0.75rem; border-radius:9999px; border:4px solid var(--color-slate-50, oklch(98.4% 0.003 247.858)); box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background:var(--color-primary-600, #9333ea); color:#fff; transition:all 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-guru-attendance:hover .ds-guru-pin { background:var(--color-primary-700, #7e22ce); } .ds-guru-attendance:active .ds-guru-pin { transform:scale(0.95); } .ds-guru-attendance-label { margin-top:1.75rem; font-size:9px; font-weight:700; line-height:1; color:var(--color-primary-600, #9333ea); } .ds-guru-attendance[aria-current=\"page\"] .ds-guru-pin { background:var(--color-emerald-600, oklch(59.6% 0.145 163.225)); } .ds-guru-attendance[aria-current=\"page\"] .ds-guru-attendance-label { color:var(--color-emerald-600, oklch(59.6% 0.145 163.225)); } .ds-guru-link:focus-visible, .ds-guru-attendance:focus-visible { outline:auto; } @media (prefers-reduced-motion:reduce) { .ds-guru-link, .ds-guru-pin { transition-duration:150ms; transform:none; } .ds-guru-attendance:active .ds-guru-pin { transform:none; } }"
+    },
+    {
+      "name": "Primary Badge / Tag",
+      "kind": "chip",
+      "refersTo": "tag-primary",
+      "description": "Badge variant=\"primary\": noninteractive program/category label, not a button or inferred accounting status. The source defines no hover, focus or disabled treatment for this span.",
+      "html": "<span class=\"ds-badge-primary\">Program Reguler</span>",
+      "css": ".ds-badge-primary { display:inline-block; padding:0.25rem 0.75rem; border-radius:9999px; background:var(--color-primary-50, #faf5ff); color:var(--color-primary-700, #7e22ce); font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; font-size:0.75rem; font-weight:500; line-height:1rem; }"
+    },
+    {
+      "name": "Shared Card",
       "kind": "card",
       "refersTo": "card",
-      "description": "Wadah utama untuk form dan konten.",
-      "html": "<div class=\"ds-card\"><h3>Judul Kartu</h3><p>Isi konten yang aman dan tidak kaku.</p></div>",
-      "css": ".ds-card { background: #ffffff; border-radius: 24px; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #f1f5f9; font-family: Poppins, sans-serif; }"
+      "description": "Shared Card with its actual CardHeader (p-8 pb-0) and CardBody (p-8), rounded-2xl, border-slate-100 and shadow-md. There is no CardFooter. Heading and paragraph are illustrative caller-owned content; this passive container has no source hover/focus/disabled states. Default padding is shown rather than silently redesigning the primitive.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><h3 class=\"ds-card-title\">Jadwal bimbingan</h3></div><div class=\"ds-card-body\"><p class=\"ds-card-copy\">Pilih kelas di halaman Jadwal untuk membuka sesi mengajar.</p></div></div>",
+      "css": ".ds-card { box-sizing:border-box; width:100%; max-width:360px; border:1px solid var(--color-slate-100, oklch(96.8% 0.007 247.896)); border-radius:1rem; background:#fff; box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); font-family:var(--font-poppins, Poppins), ui-sans-serif, system-ui, sans-serif; color:var(--color-slate-700, oklch(37.2% 0.044 257.287)); } .ds-card-header { padding:2rem 2rem 0; } .ds-card-body { padding:2rem; } .ds-card-title { margin:0; font-size:1rem; font-weight:600; line-height:1.5rem; } .ds-card-copy { margin:0; font-size:0.875rem; font-weight:400; line-height:1.5rem; }"
     }
   ],
   "narrative": {
     "northStar": "The Friendly Classroom",
-    "overview": "Sistem desain Uzma Course dibangun di atas filosofi ramah, hangat, dan bebas trauma. Kami percaya bahwa antarmuka pendidikan harus terasa mengayomi, bukan mengintimidasi. Oleh karena itu, bahasa visual kami secara sadar menghindari kesan kaku dan korporat (garis tajam dan kisi yang kaku) dan beralih ke bentuk yang lebih organik dan lembut.",
+    "overview": "Warm, rounded, calm interfaces make the tutoring centre approachable without making operational work feel playful or imprecise. Preserve the established purple and magenta identity, Poppins typography, white surfaces, and Slate neutrals. Financial, attendance, permission, and deletion messages must remain factual and serious.",
     "keyCharacteristics": [
-      "Sudut melengkung ekstrem (pill-shaped dan large radius) pada elemen interaktif.",
-      "Warna yang menenangkan (Calm & Nurturing) namun tetap mempertahankan kejelasan operasional.",
-      "Ruang putih (whitespace) yang lapang untuk mengurangi beban kognitif.",
-      "Nuansa elemen yang mengambang lembut (lifted)."
+      "Pill-shaped actions and softly rounded structural surfaces.",
+      "Clear task hierarchy, restrained colour, and readable spacing.",
+      "Desktop tables for administration and focused, single-column teacher workflows.",
+      "Subtle surface lift rather than decorative effects that compete with the task."
     ],
     "rules": [
       {
         "name": "The Non-Corporate Rule",
-        "body": "Hindari penggunaan abu-abu monokromatik ekstrem atau palet baja/biru korporat. Jika butuh warna abu-abu, selalu gunakan Slate (abu-abu dengan hint kebiruan yang hangat).",
+        "body": "Keep neutral structure in Slate and preserve the warm brand. This does not prohibit semantic Blue, Emerald, Amber, or Rose. Pair colour with text or an accessible icon; colour alone must not communicate a status. Measure actual foreground/background contrast, including hover, focus, and tinted surfaces; a token name is not a WCAG pass.",
         "section": "colors"
       }
     ],
     "dos": [
-      "Do pertahankan corner radius ekstrem (rounded-full dan rounded-2xl) di seluruh komponen baru untuk menjaga konsistensi.",
-      "Do gunakan varian warna yang menenangkan (Ungu & Magenta) daripada merah atau biru kaku untuk sistem notifikasi dan interaksi.",
-      "Do maksimalkan whitespace antarelemen."
+      "Do start from the linked components and preserve the Friendly Classroom identity rather than inventing a parallel library.",
+      "Do keep the YAML primitives, source CSS, this usage guide and the sidecar consistent; record deliberate legacy exceptions instead of claiming an automatic application fix.",
+      "Do verify touch targets, reflow, keyboard focus, labels, error recovery and actual contrast for each new surface.",
+      "Do distinguish a local queued action from a server-confirmed result and protect pending data.",
+      "Do inspect every native PDF page and verify the selected document independently of other print surfaces."
     ],
     "donts": [
-      "Don't gunakan sudut kotak (0px radius) di elemen container apa pun.",
-      "Don't menjejalkan data secara padat. Jika terlalu banyak informasi, gunakan paginasi, scroll internal, atau teknik progressive disclosure.",
-      "Don't gunakan warna hitam absolut #000000 untuk teks, gunakan Slate untuk meminimalisasi tegangan mata."
+      "Don't invent utility aliases, component exports, enum values, or navigation tabs that the code does not provide.",
+      "Don't call `showModal()` on a generic portal/container or assume that moving DOM supplies modal behaviour.",
+      "Don't copy a small legacy action target or an undefined `pb-safe` class as a new-feature standard.",
+      "Don't communicate state only with colour, suppress useful errors, or use humour for consequential financial/permission failures.",
+      "Don't hide data, crop documents, disable zoom, or prevent recovery to make a layout check appear to pass."
     ]
   }
 }
