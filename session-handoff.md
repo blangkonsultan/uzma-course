@@ -1,5 +1,13 @@
 # Session Handoff
 
+## Design Documentation PR Published — 2026-10-29
+- **Published branch**: `docs/design-system-patterns` now tracks `origin/docs/design-system-patterns`.
+- **Pull request**: [PR #5 — docs(design): align UI patterns with verified component contracts](https://github.com/blangkonsultan/uzma-course/pull/5), base `main`; created as a normal open PR, not merged.
+- **Verified feature head**: `5b7e90eacd632c84143b90a55233fb48e0ad1f6e`; observed OPEN/CLEAN with successful Vercel checks at that head. Publication-record follow-ups do not inherit an earlier head's check status.
+- **Scope**: Six documentation/metadata files and their related publication records only. Prior full-gate and preview evidence is in `progress.md`; no fresh test run is claimed for Git-only publication.
+- **Next action**: Review the current PR checks and content; merge only on an explicit request. Keep the branch for feedback and preserve unrelated service-worker/SEO working changes.
+- **Tooling note**: For this shell, GitHub CLI needed a valid discovered WSL interoperability socket passed per command; no persistent environment or authentication configuration was changed.
+
 ## Canonical Design Guide Corrected — 2026-10-29
 - **Branch**: `docs/design-system-patterns`, based on `main` at `a5c851a` (PR #4 already merged). No push, merge, or deployment in this task; older branch/publication entries below are historical.
 - **Delivered**: All seven approved DESIGN.md audit corrections, reorganized into the canonical eight-section guide with source links: real Guru tabs/teaching entry, correct modal APIs, mobile targets versus avatar, explicit safe areas, print ownership/pagination, truthful attendance-only offline states, and corrected radius/spacing semantics.

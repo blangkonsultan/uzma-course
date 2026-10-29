@@ -1,5 +1,12 @@
 # Progress Log
 
+## 2026-10-29 (Design System Documentation PR Published)
+- **Authorization and delivery**: On the user's explicit push/PR request, published `docs/design-system-patterns` and created [PR #5](https://github.com/blangkonsultan/uzma-course/pull/5) targeting `main`. Feature commit: `5b7e90eacd632c84143b90a55233fb48e0ad1f6e`.
+- **Remote observation**: PR #5 was OPEN, non-draft and CLEAN at the verified feature head; Vercel and Vercel Preview Comments both reported SUCCESS for that head. Later publication-record commits require their own latest-head status and are not covered by this earlier check result.
+- **Verification scope**: Reused the documented full gate and metadata/browser evidence for the unchanged implementation. This Git-only publication does not claim a new full test run or physical-device/offline certification. The PR body records the 83-suite/481-test gate, documentation-only scope, intentional detector advisories and legacy safe-area limitation.
+- **CLI recovery**: `gh` is a link to the Windows CLI. Its inherited `WSL_INTEROP` pointed at a missing socket; setting the discovered valid socket for individual commands restored listing/creation without installing another CLI, exposing credentials, changing persistent configuration or restarting WSL.
+- **Safety**: No merge, force push, branch deletion or production deployment action. Uncommitted `public/sw.js` and unrelated SEO documents were not staged or published.
+
 ## 2026-10-29 (Source-Backed Design System Documentation)
 - **Scope and branch**: Completed the approved `document → clarify → polish` pass on `docs/design-system-patterns`, based on merged `main` at `a5c851a`. This incorporates the previously uncommitted design-pattern addition and corrects it; no application source, database, dependency, service, port, deployment, or remote publication change.
 - **Seven audit corrections**: Correct five-tab Guru navigation and Jadwal teaching-card entry; separate native/custom modal APIs from portal relocation; distinguish 44px mobile actions from a noninteractive 40px avatar; replace undefined `pb-safe` guidance with explicit safe-area/content-clearance requirements; define print ownership, cleanup and normal-flow pagination; specify attendance-only queued/syncing/acknowledged/failed states and development-worker limits; align the ordinary radius scale with actual Tailwind rem values.
