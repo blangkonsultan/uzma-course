@@ -62,7 +62,7 @@
       "description": "Teacher mobile attendance check-in and check-out verified against branch coordinates with radius validation",
       "dependencies": ["feat-004"],
       "status": "completed",
-      "evidence": "Teacher mobile attendance check-in/out, schedule validation, geofencing, deterministic offline IndexedDB sync, teacher-scoped queues, and PWA notification support implemented on /guru/absen and /guru/profil; Phase 3/Phase 5 verification completed via ./init.sh with 52 suites and 334 tests passing"
+      "evidence": "Teacher mobile attendance check-in/out, schedule validation, geofencing, deterministic offline IndexedDB sync, teacher-scoped queues, and PWA notification support implemented on /guru/absen and /guru/profil; Phase 3/Phase 5 verification completed via ./init.sh with 52 suites and 334 tests passing. 2026-10-29 approved Guru zoom correction: readable touch fields across portrait/landscape/wide touch layouts, preserved mouse-only desktop sizing, native navigation touch-manipulation, and intentional manual zoom without global scale restrictions. Authenticated Chromium smoke verified 16px touch / 14px mouse controls, zero document overflow, stable focus/menu scale, and native two-contact pinch. Before/after full gates passed 83 suites / 481 tests, clean lint, coverage and production Webpack build. Manual cases TC-A11Y-02/07 refined; physical Safari/keyboard, installed PWA and offline/OS behavior remain unverified. No attendance or queue business changes; details in progress.md."
     },
     {
       "id": "feat-009",

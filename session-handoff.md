@@ -1,5 +1,13 @@
 # Session Handoff
 
+## Guru Zoom Correction Verified — 2026-10-29
+- **Branch**: `fix/guru-mobile-zoom`, based on `main` at `bd2db67`; this is the approved zoom-only follow-up, not execution of the complete frontend audit.
+- **Delivered**: Removed Guru maximum/user-scalable restrictions while preserving initial scale 1. Guru-scoped `any-pointer: coarse` styles retain base-size fields on portrait, landscape and wide touch-capable screens; mouse-only desktop/Admin behavior remains unchanged. Updated Honor/branch selector typography and added native `touch-manipulation` to the existing five-tab bottom navigation, with no gesture-blocking JavaScript or business-rule change.
+- **Evidence**: Honor was 12px and landscape password fields 14px before the fix. Afterward, twelve Honor/password viewport/input-mode samples had zero document overflow and the expected 16px touch / 14px mouse fonts, with focus scale 1. Native two-contact Chromium touch increased scale 1 to 5; actual taps across all five menus and double-taps on the current Honor tab stayed at scale 1. Inspected mobile, landscape and desktop screenshots in `/tmp/uzma-guru-zoom-*`.
+- **Gate**: Before/after `taskset -c 0,1 ./init.sh` passed 83 suites / 481 tests, configured coverage, clean ESLint and production Webpack build; scoped detector `[]`. Existing non-failing iframe diagnostics were not suppressed. Manual cases `TC-A11Y-02`/`07` were refined without marking their unexecuted physical-device/screen-reader portions PASS.
+- **Next verification**: On an approved physical iOS/Android installation, confirm focus/virtual-keyboard behavior, pinch and menu taps in browser and installed standalone modes. Chromium emulation is not certification of Safari or PWA installation/offline behavior. Other audit findings, including safe-area/bottom clearance, remain separate work.
+- **Preserved state**: Original modified worker bytes restored after builds; unrelated SEO files unstaged. No operational data, schema/dependency change, new port, service restart, push or deployment. Existing design tokens/static preview metadata remain unchanged because this corrects runtime behavior against their established requirements.
+
 ## Design Documentation PR Published — 2026-10-29
 - **Published branch**: `docs/design-system-patterns` now tracks `origin/docs/design-system-patterns`.
 - **Pull request**: [PR #5 — docs(design): align UI patterns with verified component contracts](https://github.com/blangkonsultan/uzma-course/pull/5), base `main`; created as a normal open PR, not merged.
