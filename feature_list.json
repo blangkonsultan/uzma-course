@@ -14,7 +14,7 @@
       "description": "Dynamic landing page content management system powered by Supabase landing_content table, server actions, and sortable item list forms with live image normalizer",
       "dependencies": ["feat-001"],
       "status": "completed",
-      "evidence": "All 14 sections (hero, programs, why_us, facilities, team, gallery, testimonials, videos, locations, faq, cta, footer, navbar, floating_wa) editable with revalidatePath; Phase 5 A20-A24 hardening covers TikTok SSRF validation, safe image normalization and gallery fallback, sortable collapse-state preservation, and landing anchor/safe-area polish"
+      "evidence": "All 14 sections (hero, programs, why_us, facilities, team, gallery, testimonials, videos, locations, faq, cta, footer, navbar, floating_wa) editable with revalidatePath; Phase 5 A20-A24 hardening covers TikTok SSRF validation, safe image normalization and gallery fallback, sortable collapse-state preservation, and landing anchor/safe-area polish. 2026-10-29 gallery form label association fix: linked URL Gambar and Teks Alt labels to input controls via unique IDs for full accessibility, and standardized mobile photo removal hit areas."
     },
     {
       "id": "feat-003",

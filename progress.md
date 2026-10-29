@@ -1,5 +1,12 @@
 # Progress Log
 
+## 2026-10-29 (CMS Gallery Field Label Associations)
+- **Prior integration**: Attendance presentation PR [#10](https://github.com/blangkonsultan/uzma-course/pull/10), head `b652e33cd7ad117d3a081e37d1b76e533a5d2b3c`, was CLEAN/MERGEABLE with both Vercel checks passing and no blocking review. Merged with exact-head guard as `164cb35ffb1ba92bbb053a3f1c8ef7b612569ed2`; this slice branches from that main on `fix/cms-gallery-labels`.
+- **Root cause and cutover**: In `GalleryForm`, photo list inputs for "URL Gambar" and "Teks Alt" were rendered with plain `<label>` elements without `htmlFor` and inputs without `id`, causing orphaned labels inaccessible to screen readers and unable to receive focus on label click.
+- **Implementation**: Tied each label to its corresponding input using unique deterministic IDs (`gallery-url-${imageId}`, `gallery-alt-${imageId}`) derived from the existing image identity map. Also expanded the photo removal button hit area to 44px on mobile (`min-h-[44px] min-w-[44px]`).
+- **Regression**: Added unit test in `tests/components-cms.test.tsx` verifying accessible label association for both URL and Alt inputs using `screen.getByLabelText`. Failed before, passes after; full CMS test suite 25/25.
+- **Gate & safety**: Full `./init.sh` passed with 84 suites / 487 tests, clean lint, and production Webpack build. Scoped detector returned `[]`. Original worker bytes preserved; no CMS content written to database.
+
 ## 2026-10-29 (Attendance State & Delivery Presentation Correction)
 - **Prior integration**: Payment modal PR [#9](https://github.com/blangkonsultan/uzma-course/pull/9), head `4b5ac29d5a7cc2abcacf832af1ad88c9e666d399`, was CLEAN/MERGEABLE with both Vercel checks passing and no blocking review. Merged with exact-head guard as `f5329de126b6674a2f7cb7b6b21191f625370f3d`; this slice branches from that main on `fix/attendance-state-presentation`.
 - **Root cause and cutover**: Previously, `AttendanceClient` rendered `"Tersambung ke server pusat"` solely from `navigator.onLine` (which only measures browser network interface, not central API reachability), and claimed `"Presensi tersimpan lokal"` even when 0 records existed. Check-in/check-out buttons collapsed queued records into identical server-confirmed labels (`"Sudah Masuk"`, `"Kehadiran tercatat"`).

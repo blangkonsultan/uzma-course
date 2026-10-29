@@ -1,5 +1,11 @@
 # Session Handoff
 
+## CMS Gallery Labels Verified — 2026-10-29
+- **Base & prior integration**: Attendance presentation PR [#10](https://github.com/blangkonsultan/uzma-course/pull/10) merged as `164cb35ffb1ba92bbb053a3f1c8ef7b612569ed2`. Current slice: `fix/cms-gallery-labels`.
+- **Delivered**: Associated "URL Gambar" and "Teks Alt" labels in `GalleryForm` with their respective inputs via unique IDs, and enlarged mobile delete buttons to 44px touch target.
+- **Evidence**: Unit test in `tests/components-cms.test.tsx` passed. Full `./init.sh` gate passed (84 suites / 487 tests). Scoped detector `[]`.
+- **Next**: Publish/integrate PR under clean latest-head gate, then checkout synchronized `main`.
+
 ## Attendance Presentation Verified — 2026-10-29
 - **Base & prior integration**: Payment modal PR [#9](https://github.com/blangkonsultan/uzma-course/pull/9) merged as `f5329de126b6674a2f7cb7b6b21191f625370f3d`. Current slice: `fix/attendance-state-presentation`.
 - **Delivered**: Truthful connectivity and queue state representation on `/guru/absen` conforming with `DESIGN.md`. Distinguishes server-confirmed check-in/out from locally queued attendance in IndexedDB, and updates network banner copy to avoid overstating central server reachability from `navigator.onLine`.

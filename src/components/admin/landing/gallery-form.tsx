@@ -178,6 +178,8 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                           imageIdentityMap.get(img) ??
                           `gallery-image-${nextImageIdentityRef.current++}`;
                         imageIdentityMap.set(img, imageId);
+                        const urlInputId = `gallery-url-${imageId}`;
+                        const altInputId = `gallery-alt-${imageId}`;
                         return (
                           <div
                             key={imageId}
@@ -207,10 +209,11 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                             {/* Inputs */}
                             <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                               <div>
-                                <label className="block text-[11px] font-medium text-slate-600 mb-1">
+                                <label htmlFor={urlInputId} className="block text-[11px] font-medium text-slate-600 mb-1">
                                   URL Gambar (Google Drive, Imgur, lokal, dll)
                                 </label>
                                 <input
+                                  id={urlInputId}
                                   type="text"
                                   value={img.url}
                                   onChange={(e) => {
@@ -238,10 +241,11 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                               </div>
 
                               <div>
-                                <label className="block text-[11px] font-medium text-slate-600 mb-1">
+                                <label htmlFor={altInputId} className="block text-[11px] font-medium text-slate-600 mb-1">
                                   Teks Alt (Aksesibilitas / Keterangan)
                                 </label>
                                 <input
+                                  id={altInputId}
                                   type="text"
                                   value={img.alt}
                                   onChange={(e) =>
@@ -260,7 +264,7 @@ export function GalleryForm({ initialData }: GalleryFormProps) {
                             <button
                               type="button"
                               onClick={() => handleRemoveImage(imgIndex)}
-                              className="self-end sm:self-center w-9 h-9 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 rounded-lg transition-colors"
+                              className="self-end sm:self-center p-2 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-9 sm:h-9 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 rounded-lg transition-colors"
                               title="Hapus foto ini"
                               aria-label="Hapus foto"
                             >
