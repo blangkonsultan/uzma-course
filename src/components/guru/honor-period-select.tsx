@@ -54,7 +54,7 @@ export function HonorPeriodSelect({
             router.push("/guru/honor");
           }
         }}
-        className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        className="w-full min-w-0 px-3 py-1.5 text-base sm:text-sm rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
       >
         <option value="">Bulan Ini (Estimasi Berjalan)</option>
         {periods.map((p) => (

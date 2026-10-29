@@ -52,6 +52,13 @@
     width: 25%;
     animation: indeterminate 1.5s ease-in-out infinite;
   }
+
+  @media (any-pointer: coarse) {
+    [data-guru-portal] :is(input, select, textarea) {
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
