@@ -1,5 +1,12 @@
 # Session Handoff
 
+## Attendance Presentation Verified — 2026-10-29
+- **Base & prior integration**: Payment modal PR [#9](https://github.com/blangkonsultan/uzma-course/pull/9) merged as `f5329de126b6674a2f7cb7b6b21191f625370f3d`. Current slice: `fix/attendance-state-presentation`.
+- **Delivered**: Truthful connectivity and queue state representation on `/guru/absen` conforming with `DESIGN.md`. Distinguishes server-confirmed check-in/out from locally queued attendance in IndexedDB, and updates network banner copy to avoid overstating central server reachability from `navigator.onLine`.
+- **Evidence**: Unit tests in `tests/components/attendance-client.test.tsx` pass (3/3). Offline lifecycle queue tests pass (3/3). Scoped detector returned `[]`.
+- **Gate & safety**: Full `./init.sh` gate passing with 84 test suites / 486 tests. Zero DB schema or persistence logic altered. Original service worker preserved.
+- **Next**: Publish/integrate PR under clean latest-head gate, then proceed to CMS gallery label associations.
+
 ## Payment Modal Focus Lifecycle Verified — 2026-10-29
 - **Base & prior integration**: Admin mobile drawer PR [#8](https://github.com/blangkonsultan/uzma-course/pull/8) merged as `930e1f3ec9fab4bade78437fba2cff592a26d209`. Current slice: `fix/payment-modal-focus`.
 - **Delivered**: Replaced `PaymentModal` custom div overlay with native HTML `<dialog>` portaled to `document.body`. Provides browser-native focus containment, background inertness, cancellation prevention during pending writes, and automatic opener focus restoration on close.
