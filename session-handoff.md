@@ -1,5 +1,12 @@
 # Session Handoff
 
+## Payment Modal Focus Lifecycle Verified — 2026-10-29
+- **Base & prior integration**: Admin mobile drawer PR [#8](https://github.com/blangkonsultan/uzma-course/pull/8) merged as `930e1f3ec9fab4bade78437fba2cff592a26d209`. Current slice: `fix/payment-modal-focus`.
+- **Delivered**: Replaced `PaymentModal` custom div overlay with native HTML `<dialog>` portaled to `document.body`. Provides browser-native focus containment, background inertness, cancellation prevention during pending writes, and automatic opener focus restoration on close.
+- **Evidence**: Opener focus restoration and cancellation guard regressions pass (11/11 in billing-client suite). Live Chromium verified `:modal` status, zero background tab leakage, Escape dismissal, opener restoration, and clean responsive framing across 360px–1280px viewports without document overflow.
+- **Gate & safety**: Scoped detector returned `[]`. No financial writes or database changes performed; original service worker preserved.
+- **Next**: Publish/integrate PR under clean latest-head gate, then proceed to attendance state presentation and CMS gallery labels.
+
 ## Admin Drawer Lifecycle Verified — 2026-10-29
 - **Base/integration**: Tablet PR [#7](https://github.com/blangkonsultan/uzma-course/pull/7) merged with clean successful checks and exact-head protection as `55d96b4265c108d721dd09ed9a909fcac0a38476`. Current source slice: `fix/admin-drawer-focus`.
 - **Delivered**: Shared navigation content is retained across a static desktop aside and native mobile dialog. Closed mobile links are not tabbable; open modal owns inertness/focus, Escape/backdrop/navigation close and opener restoration. Existing scroll state is restored on close/unmount; desktop resize closes the modal. No custom keyboard trap or role/destination change.
