@@ -404,6 +404,33 @@ describe("Landing CMS Editor Components (src/components/admin/landing/)", () => 
       });
     });
 
+    it("associates URL Gambar and Teks Alt labels with their respective input fields", () => {
+      const richGallery = {
+        ...DEFAULT_LANDING_CONTENT.gallery,
+        groups: [
+          {
+            id: "group-wisuda",
+            label: "Wisuda",
+            images: [
+              {
+                url: "https://example.com/w1.jpg",
+                alt: "Wisuda Foto",
+                caption: "Foto 1",
+                aspect: "aspect-square" as const,
+              },
+            ],
+          },
+        ],
+      };
+      render(<GalleryForm initialData={richGallery} />);
+
+      const urlInput = screen.getByLabelText(/URL Gambar/i);
+      expect((urlInput as HTMLInputElement).value).toBe("https://example.com/w1.jpg");
+
+      const altInput = screen.getByLabelText(/Teks Alt/i);
+      expect((altInput as HTMLInputElement).value).toBe("Wisuda Foto");
+    });
+
     it("renders TestimonialsForm and submits", async () => {
       const { container } = render(<TestimonialsForm initialData={DEFAULT_LANDING_CONTENT.testimonials} />);
       const titleInput = screen.getByDisplayValue(DEFAULT_LANDING_CONTENT.testimonials.title);
