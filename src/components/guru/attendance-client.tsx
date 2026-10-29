@@ -130,6 +130,8 @@ export function AttendanceClient({
   const [isCheckedIn, setIsCheckedIn] = useState(initialIsCheckedIn);
   const [isCheckedOut, setIsCheckedOut] = useState(initialIsCheckedOut);
   const [attendanceId, setAttendanceId] = useState<string | null>(initialAttendanceId);
+  const [hasPendingCheckIn, setHasPendingCheckIn] = useState(false);
+  const [hasPendingCheckOut, setHasPendingCheckOut] = useState(false);
 
   const watchIdRef = useRef<number | null>(null);
 
@@ -184,6 +186,27 @@ export function AttendanceClient({
   // Determine current nearest / active shift for the active branch
   const shiftStatusResult = calculateShiftStatus(activeBranchShifts);
 
+  const refreshPendingRecords = useCallback(async () => {
+    const allRecords = await getPendingAttendances();
+    const records = allRecords.filter((r) => r.teacher_id === teacherId);
+    setQueueCount(records.length);
+
+    // Pulihkan status UI secara optimistik jika halaman dimuat ulang sementara data masih ngantre
+    const pendingCheckIn = records.find((r) => r.type === "check_in");
+    setHasPendingCheckIn(Boolean(pendingCheckIn));
+    if (pendingCheckIn) {
+      setIsCheckedIn(true);
+      if (!attendanceId) setAttendanceId(pendingCheckIn.id);
+    }
+    const pendingCheckOut = records.find((r) => r.type === "check_out");
+    setHasPendingCheckOut(Boolean(pendingCheckOut));
+    if (pendingCheckOut) {
+      setIsCheckedOut(true);
+    }
+
+    return records;
+  }, [attendanceId, teacherId]);
+
   const attemptSync = useCallback(async () => {
     if (isSyncingRef.current) return;
     isSyncingRef.current = true;
@@ -196,41 +219,29 @@ export function AttendanceClient({
 
       const result = await syncOfflineAttendances(records);
 
-      if (result.success.length > 0) {
+      if (result && Array.isArray(result.success) && result.success.length > 0) {
         await removePendingAttendances(result.success);
         showToast(`${result.success.length} antrean berhasil disinkronkan ke server!`, "success");
       }
+      if (result && Array.isArray(result.failed) && result.failed.length > 0) {
+        showToast(`${result.failed.length} presensi belum berhasil disinkronkan. Data tetap tersimpan di perangkat.`, "error");
+      }
 
-      const remaining = await getPendingAttendances();
-      setQueueCount(remaining.filter((r) => r.teacher_id === teacherId).length);
+      await refreshPendingRecords();
     } catch (error) {
       console.error("Sync error:", error);
     } finally {
       isSyncingRef.current = false;
       setIsSyncing(false);
     }
-  }, [teacherId]);
+  }, [refreshPendingRecords, teacherId]);
 
   const checkQueue = useCallback(async () => {
-    const allRecords = await getPendingAttendances();
-    const records = allRecords.filter((r) => r.teacher_id === teacherId);
-    setQueueCount(records.length);
-
-    // Pulihkan status UI secara optimistik jika halaman dimuat ulang sementara data masih ngantre
-    const pendingCheckIn = records.find(r => r.type === "check_in");
-    if (pendingCheckIn) {
-      setIsCheckedIn(true);
-      if (!attendanceId) setAttendanceId(pendingCheckIn.id);
-    }
-    const pendingCheckOut = records.find(r => r.type === "check_out");
-    if (pendingCheckOut) {
-      setIsCheckedOut(true);
-    }
-
+    const records = await refreshPendingRecords();
     if (typeof window !== "undefined" && navigator.onLine && records.length > 0) {
       await attemptSync();
     }
-  }, [attemptSync, attendanceId, teacherId]);
+  }, [attemptSync, refreshPendingRecords]);
   // Online / Offline listeners
   useEffect(() => {
     const handleOnline = () => {
@@ -244,7 +255,6 @@ export function AttendanceClient({
       window.addEventListener("online", handleOnline);
       window.addEventListener("offline", handleOffline);
     }
-
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void checkQueue();
 
@@ -355,12 +365,14 @@ export function AttendanceClient({
     void checkQueue();
 
     if (type === "check_in") {
+      setHasPendingCheckIn(true);
       setIsCheckedIn(true);
       setAttendanceId(assignedId);
-      showToast("Koneksi terputus. Presensi masuk antrean offline.", "error");
+      showToast("Koneksi terputus. Presensi tersimpan di perangkat (IndexedDB).", "error");
     } else {
+      setHasPendingCheckOut(true);
       setIsCheckedOut(true);
-      showToast("Koneksi terputus. Presensi masuk antrean offline.", "error");
+      showToast("Koneksi terputus. Presensi tersimpan di perangkat (IndexedDB).", "error");
     }
   }
 
@@ -400,6 +412,7 @@ export function AttendanceClient({
                 timestamp
               );
               if (res.success && res.data) {
+                setHasPendingCheckIn(false);
                 setIsCheckedIn(true);
                 setAttendanceId(res.data.id || sessionId);
                 showToast("Berhasil absen masuk!", "success");
@@ -413,10 +426,10 @@ export function AttendanceClient({
               }
               const res = await processOnlineCheckOut(targetId, latitude, longitude, timestamp);
               if (res.success) {
+                setHasPendingCheckOut(false);
                 setIsCheckedOut(true);
                 showToast("Berhasil absen pulang!", "success");
               } else {
-                throw new Error(res.error || "Gagal mencatat presensi online");
               }
             }
           } catch (err: unknown) {
@@ -473,7 +486,11 @@ export function AttendanceClient({
               {isOnline ? "Mode Online" : "Mode Offline"}
             </p>
             <p className="text-[11px] text-slate-500">
-              {isOnline ? "Tersambung ke server pusat" : "Presensi tersimpan lokal (IndexedDB)"}
+              {isOnline
+                ? "Koneksi internet terdeteksi"
+                : queueCount > 0
+                ? `${queueCount} presensi tersimpan di perangkat (IndexedDB)`
+                : "Presensi akan tersimpan di perangkat (IndexedDB)"}
             </p>
           </div>
         </div>
@@ -671,7 +688,9 @@ export function AttendanceClient({
           <Button
             size="lg"
             className={`w-full py-4.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${
-              isCheckedIn
+              hasPendingCheckIn
+                ? "border-2 border-amber-300 bg-amber-50 text-amber-900 shadow-2xs hover:bg-amber-100"
+                : isCheckedIn
                 ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-2xs"
                 : isInsideRadius
                 ? "bg-primary-600 text-white hover:bg-primary-700 shadow-md shadow-primary-500/20"
@@ -680,12 +699,22 @@ export function AttendanceClient({
             disabled={isCheckedIn || isLoadingGPS || isSyncing}
             onClick={() => void handleAttendance("check_in")}
           >
-            {isCheckedIn ? <Check className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+            {hasPendingCheckIn ? (
+              <Clock className="w-5 h-5 text-amber-600" />
+            ) : isCheckedIn ? (
+              <Check className="w-5 h-5" />
+            ) : (
+              <Clock className="w-5 h-5" />
+            )}
             <span className="font-bold text-sm leading-none">
-              {isCheckedIn ? "Sudah Masuk" : "Check-In"}
+              {hasPendingCheckIn ? "Tersimpan di Perangkat" : isCheckedIn ? "Sudah Masuk" : "Check-In"}
             </span>
             <span className="text-[10px] opacity-80 font-normal">
-              {isCheckedIn ? "Kehadiran tercatat" : "Mulai sesi mengajar"}
+              {hasPendingCheckIn
+                ? "Tersimpan lokal; belum terkirim"
+                : isCheckedIn
+                ? "Terkonfirmasi server"
+                : "Mulai sesi mengajar"}
             </span>
           </Button>
 
@@ -693,7 +722,9 @@ export function AttendanceClient({
             size="lg"
             variant={!isCheckedIn ? "outline" : "primary"}
             className={`w-full py-4.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all active:scale-[0.98] ${
-              isCheckedOut
+              hasPendingCheckOut
+                ? "border-2 border-amber-300 bg-amber-50 text-amber-900 shadow-2xs hover:bg-amber-100"
+                : isCheckedOut
                 ? "bg-slate-100 text-slate-400 border border-slate-200 shadow-none cursor-not-allowed"
                 : !isCheckedIn
                 ? "border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed"
@@ -701,15 +732,24 @@ export function AttendanceClient({
                 ? "bg-primary-700 text-white hover:bg-primary-800 shadow-md shadow-primary-600/20"
                 : "bg-slate-800 text-white hover:bg-slate-900"
             }`}
-            disabled={!isCheckedIn || isCheckedOut || isLoadingGPS || isSyncing}
             onClick={() => void handleAttendance("check_out")}
           >
-            {isCheckedOut ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <MapPin className="w-5 h-5" />}
+            {hasPendingCheckOut ? (
+              <Clock className="w-5 h-5 text-amber-600" />
+            ) : isCheckedOut ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+            ) : (
+              <MapPin className="w-5 h-5" />
+            )}
             <span className="font-bold text-sm leading-none">
-              {isCheckedOut ? "Sudah Pulang" : "Check-Out"}
+              {hasPendingCheckOut ? "Tersimpan di Perangkat" : isCheckedOut ? "Sudah Pulang" : "Check-Out"}
             </span>
             <span className="text-[10px] opacity-80 font-normal">
-              {isCheckedOut ? "Selesai bertugas" : "Akhiri sesi mengajar"}
+              {hasPendingCheckOut
+                ? "Tersimpan lokal; belum terkirim"
+                : isCheckedOut
+                ? "Terkonfirmasi server"
+                : "Akhiri sesi mengajar"}
             </span>
           </Button>
         </div>
