@@ -1,6 +1,19 @@
 import { getWIBDateBounds } from "./attendances";
 import { createAdminClient } from "./supabase/admin";
 
+export interface StudentOverdueSppInfo {
+  due_date: string;
+  total_amount: number;
+  invoice_count: number;
+}
+
+export interface TeacherScheduleStudentItem {
+  id: string;
+  full_name: string;
+  student_number: string | null;
+  overdue_spp?: StudentOverdueSppInfo | null;
+}
+
 export interface TeacherClassItem {
   id: string;
   branch_name: string;
@@ -10,11 +23,8 @@ export interface TeacherClassItem {
   shift_name: string;
   program_name: string;
   variant_name: string;
-  students: {
-    id: string;
-    full_name: string;
-    student_number: string | null;
-  }[];
+  students: TeacherScheduleStudentItem[];
+  overdue_students_count?: number;
   teaching_log_date?: string;
   teaching_log_status?: "draft" | "submitted" | null;
 }
@@ -140,10 +150,16 @@ export async function getTeacherActiveSchedule(teacherId: string) {
   });
 
   const classIds = formattedClasses.map((item) => item.id);
+  const allStudentIds = Array.from(
+    new Set(
+      formattedClasses.flatMap((cls) => cls.students.map((st) => st.id))
+    )
+  );
   const teachingLogDates = Array.from(
     new Set(formattedClasses.map((item) => getPreviousSessionDate(item.day_of_week)))
   );
   const sessionByClassDate = new Map<string, "draft" | "submitted">();
+  const overdueByStudent = new Map<string, StudentOverdueSppInfo>();
 
   if (classIds.length > 0) {
     const { data: teachingSessions } = await supabase
@@ -161,10 +177,50 @@ export async function getTeacherActiveSchedule(teacherId: string) {
     });
   }
 
-  const classesWithTeachingLogs = formattedClasses.map((item) => {
+  if (allStudentIds.length > 0) {
+    const todayWib = getWIBDateBounds().dateString;
+    const { data: invoices, error: invoiceError } = await supabase
+      .from("student_invoices")
+      .select("student_id, due_date, total_amount")
+      .in("student_id", allStudentIds)
+      .eq("status", "unpaid")
+      .lt("due_date", todayWib);
+
+    if (invoiceError) {
+      console.warn("Gagal membaca status SPP jatuh tempo guru:", invoiceError.message);
+    } else if (invoices) {
+      for (const inv of invoices) {
+        const existing = overdueByStudent.get(inv.student_id);
+        const amount = Number(inv.total_amount) || 0;
+        if (!existing) {
+          overdueByStudent.set(inv.student_id, {
+            due_date: inv.due_date,
+            total_amount: amount,
+            invoice_count: 1,
+          });
+        } else {
+          existing.total_amount += amount;
+          existing.invoice_count += 1;
+          if (inv.due_date < existing.due_date) {
+            existing.due_date = inv.due_date;
+          }
+        }
+      }
+    }
+  }
+
+  const classesWithEnrichment = formattedClasses.map((item) => {
     const teachingLogDate = getPreviousSessionDate(item.day_of_week);
+    const enrichedStudents: TeacherScheduleStudentItem[] = item.students.map((st) => ({
+      ...st,
+      overdue_spp: overdueByStudent.get(st.id) ?? null,
+    }));
+    const overdueCount = enrichedStudents.filter((st) => Boolean(st.overdue_spp)).length;
+
     return {
       ...item,
+      students: enrichedStudents,
+      overdue_students_count: overdueCount,
       teaching_log_date: teachingLogDate,
       teaching_log_status:
         sessionByClassDate.get(`${item.id}:${teachingLogDate}`) ?? null,
@@ -172,6 +228,6 @@ export async function getTeacherActiveSchedule(teacherId: string) {
   });
 
   return {
-    classes: classesWithTeachingLogs,
+    classes: classesWithEnrichment,
   };
 }
