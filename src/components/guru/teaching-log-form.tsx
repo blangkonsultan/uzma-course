@@ -235,7 +235,7 @@ export function TeachingLogForm({
                 <span className="flex-1 min-w-0">
                   SPP jatuh tempo: <span className="font-semibold">{formatDateIndo(overdueSpp.due_date)}</span>
                   {" · "}
-                  <span className="font-bold tabular-nums text-amber-950">
+                  <span className="font-bold tabular-nums text-amber-900">
                     Rp {overdueSpp.total_amount.toLocaleString("id-ID")}
                   </span>
                 </span>

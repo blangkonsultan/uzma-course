@@ -138,4 +138,57 @@ describe("Teacher schedule teaching log status", () => {
     });
     expect(cls.students[1].overdue_spp).toBeNull();
   });
+
+  it("handles invoice query errors gracefully without throwing", async () => {
+    const rawClassWithStudents = {
+      ...rawClass,
+      schedule_placements: [
+        {
+          student_id: "student-1",
+          students: { id: "student-1", full_name: "Murid Satu", student_number: "01001" },
+        },
+      ],
+    };
+
+    const scheduleQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      then: (resolve: (value: unknown) => unknown) =>
+        resolve({ data: [rawClassWithStudents], error: null }),
+    };
+
+    const invoiceQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      lt: vi.fn().mockReturnThis(),
+      then: (resolve: (value: unknown) => unknown) =>
+        resolve({ data: null, error: { message: "connection timeout" } }),
+    };
+
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    (createAdminClient as unknown as Mock).mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "schedule_classes") return scheduleQuery;
+        if (table === "student_invoices") return invoiceQuery;
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          in: vi.fn().mockReturnThis(),
+          then: (r: (v: unknown) => unknown) => r({ data: [], error: null }),
+        };
+      }),
+    });
+
+    const result = await getTeacherActiveSchedule("teacher-1");
+    expect(result.classes[0].overdue_students_count).toBe(0);
+    expect(result.classes[0].students[0].overdue_spp).toBeNull();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Gagal membaca status SPP jatuh tempo"),
+      "connection timeout"
+    );
+    warnSpy.mockRestore();
+  });
 });

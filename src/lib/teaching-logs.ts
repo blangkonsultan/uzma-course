@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getWIBDateBounds } from "@/lib/attendances";
 import type { Database } from "@/types/database";
-import type { StudentOverdueSppInfo } from "./teacher-schedule";
+import { getOverdueSppByStudentIds, type StudentOverdueSppInfo } from "./teacher-schedule";
 export type TeachingAttendanceStatus =
   | "present"
   | "absent"
@@ -150,40 +150,7 @@ export async function getTeacherScheduleClassForLog(
     .filter((student): student is TeacherScheduleStudent => student !== null);
 
   const studentIds = rawStudents.map((s) => s.id);
-  const overdueByStudent = new Map<string, StudentOverdueSppInfo>();
-
-  if (studentIds.length > 0) {
-    const todayWib = getWIBDateBounds().dateString;
-    const { data: invoices, error: invoiceError } = await supabase
-      .from("student_invoices")
-      .select("student_id, due_date, total_amount")
-      .in("student_id", studentIds)
-      .eq("status", "unpaid")
-      .lt("due_date", todayWib);
-
-    if (invoiceError) {
-      console.warn("Gagal membaca status SPP jatuh tempo kelas mengajar:", invoiceError.message);
-    } else if (invoices) {
-      for (const inv of invoices) {
-        const existing = overdueByStudent.get(inv.student_id);
-        const amount = Number(inv.total_amount) || 0;
-        if (!existing) {
-          overdueByStudent.set(inv.student_id, {
-            due_date: inv.due_date,
-            total_amount: amount,
-            invoice_count: 1,
-          });
-        } else {
-          existing.total_amount += amount;
-          existing.invoice_count += 1;
-          if (inv.due_date < existing.due_date) {
-            existing.due_date = inv.due_date;
-          }
-        }
-      }
-    }
-  }
-
+  const overdueByStudent = await getOverdueSppByStudentIds(supabase, studentIds);
   const enrichedStudents: TeacherScheduleStudent[] = rawStudents.map((s) => ({
     ...s,
     overdue_spp: overdueByStudent.get(s.id) ?? null,

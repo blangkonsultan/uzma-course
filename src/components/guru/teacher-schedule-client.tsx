@@ -221,7 +221,7 @@ export function TeacherScheduleClient({
                       <span>Daftar Murid ({studentCount})</span>
                     </div>
                     {Boolean(cls.overdue_students_count && cls.overdue_students_count > 0) && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-800">
                         <AlertTriangle className="h-3 w-3 text-amber-600 shrink-0" aria-hidden="true" />
                         {cls.overdue_students_count} Jatuh Tempo
                       </span>
@@ -263,14 +263,14 @@ export function TeacherScheduleClient({
                             )}
                           </div>
                           {st.overdue_spp && (
-                            <div className="flex items-start gap-1.5 rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800">
+                            <div className="flex items-start gap-1.5 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800">
                               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden="true" />
                               <div className="flex-1 min-w-0">
                                 <span className="font-medium">
                                   {st.overdue_spp.invoice_count} tagihan jatuh tempo sejak{" "}
                                   <span className="font-semibold">{formatDateIndo(st.overdue_spp.due_date)}</span>
                                 </span>
-                                <span className="block font-bold tabular-nums text-amber-950">
+                                <span className="block font-bold tabular-nums text-amber-900">
                                   Rp {st.overdue_spp.total_amount.toLocaleString("id-ID")}
                                 </span>
                               </div>
