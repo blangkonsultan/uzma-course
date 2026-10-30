@@ -94,14 +94,14 @@ export interface TeacherScheduleStudent {
 
 ### 5.2 Aturan Bisnis & Query Jatuh Tempo
 - Tanggal referensi: Menggunakan batas waktu hari ini zona WIB (`getWIBDateBounds().dateString`).
-- Kriteria tagihan jatuh tempo:
+- Kriteria tagihan jatuh tempo (Khusus Program Kelas):
   - `status = 'unpaid'`
   - `due_date < todayWib`
-- Agregasi jika murid memiliki lebih dari 1 tagihan jatuh tempo:
-  - `due_date`: ambil tanggal paling lampau (earliest overdue) agar guru tahu sejak kapan tagihan menunggak.
-  - `total_amount`: jumlahkan seluruh `total_amount` dari invoice jatuh tempo tersebut.
-  - `invoice_count`: jumlah lembar tagihan yang menunggak.
-
+  - `program_id = classInfo.program_id` (tagihan difilter khusus untuk program kelas yang sedang diajar guru, sehingga guru kelas AHE hanya melihat tunggakan AHE tanpa mencampur tagihan program lain yang diambil murid).
+- Agregasi jika murid memiliki lebih dari 1 tagihan jatuh tempo pada program tersebut (misal menunggak 2 atau 3 siklus berturut-turut):
+  - `due_date`: ambil tanggal paling lampau (earliest overdue) agar guru tahu sejak kapan tagihan program tersebut menunggak.
+  - `total_amount`: jumlahkan seluruh `total_amount` dari invoice jatuh tempo pada program tersebut.
+  - `invoice_count`: jumlah lembar tagihan yang menunggak pada program tersebut.
 ### 5.3 UI / Tampilan & Penyelarasan Kaidah Desain
 
 Sesuai hasil audit desain (Claude Opus 4.6 & Detektor Impeccable), implementasi wajib mengikuti kaidah visual berikut:

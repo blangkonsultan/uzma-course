@@ -111,8 +111,9 @@ describe("Teacher schedule teaching log status", () => {
       then: (resolve: (value: unknown) => unknown) =>
         resolve({
           data: [
-            { student_id: "student-1", due_date: "2026-10-10", total_amount: 150000 },
-            { student_id: "student-1", due_date: "2026-09-10", total_amount: 150000 },
+            { student_id: "student-1", program_id: "program-1", due_date: "2026-10-10", total_amount: 150000 },
+            { student_id: "student-1", program_id: "program-1", due_date: "2026-09-10", total_amount: 150000 },
+            { student_id: "student-1", program_id: "program-other", due_date: "2026-08-10", total_amount: 250000 },
           ],
           error: null,
         }),

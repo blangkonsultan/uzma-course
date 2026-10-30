@@ -131,7 +131,7 @@ describe("Teaching Log DAL", () => {
       program_variants: {
         name: "Reguler",
         teacher_fee: 3000,
-        programs: { name: "AHE" },
+        programs: { id: "prog-1", name: "AHE" },
       },
       schedule_placements: [
         { students: { id: "student-1", full_name: "Murid Satu", student_number: "01001" } },
@@ -151,8 +151,9 @@ describe("Teaching Log DAL", () => {
       eq: vi.fn(() => invoiceQuery),
       lt: vi.fn().mockResolvedValue({
         data: [
-          { student_id: "student-1", due_date: "2026-10-10", total_amount: 200000 },
-          { student_id: "student-1", due_date: "2026-09-10", total_amount: 150000 },
+          { student_id: "student-1", program_id: "prog-1", due_date: "2026-10-10", total_amount: 200000 },
+          { student_id: "student-1", program_id: "prog-1", due_date: "2026-09-10", total_amount: 150000 },
+          { student_id: "student-1", program_id: "prog-other", due_date: "2026-08-10", total_amount: 500000 },
         ],
         error: null,
       }),

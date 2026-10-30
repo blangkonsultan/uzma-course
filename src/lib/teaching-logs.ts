@@ -138,7 +138,7 @@ export async function getTeacherScheduleClassForLog(
     program_variants: {
       name: string;
       teacher_fee: number;
-      programs: { name: string } | null;
+      programs: { id: string; name: string } | null;
     } | null;
     schedule_placements: Array<{
       students: TeacherScheduleStudent | null;
@@ -150,10 +150,13 @@ export async function getTeacherScheduleClassForLog(
     .filter((student): student is TeacherScheduleStudent => student !== null);
 
   const studentIds = rawStudents.map((s) => s.id);
-  const overdueByStudent = await getOverdueSppByStudentIds(supabase, studentIds);
+  const classProgramId = row.program_variants?.programs?.id;
+  const overdueByStudentAndProgram = await getOverdueSppByStudentIds(supabase, studentIds);
   const enrichedStudents: TeacherScheduleStudent[] = rawStudents.map((s) => ({
     ...s,
-    overdue_spp: overdueByStudent.get(s.id) ?? null,
+    overdue_spp: classProgramId
+      ? (overdueByStudentAndProgram.get(`${s.id}:${classProgramId}`) ?? null)
+      : null,
   }));
 
   return {

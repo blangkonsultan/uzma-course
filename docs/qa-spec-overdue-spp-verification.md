@@ -40,8 +40,8 @@ Tujuan: Memastikan guru memperoleh informasi jatuh tempo yang jelas, mudah dibac
     - Murid yang **tidak menunggak**: Hanya menampilkan nama dan nomor induk murid.
     - Murid yang **menunggak**: Di bawah nama murid terdapat kotak info amber (`border-amber-200 bg-amber-50 rounded-xl`):
       - Ikon segitiga peringatan Lucide.
-      - Teks: `{X} tagihan jatuh tempo sejak {Tanggal Indo}` (misal: *1 tagihan jatuh tempo sejak 10 Okt 2026*).
-      - Nominal uang terformat rapi dengan font seragam: `Rp 350.000` (`tabular-nums`).
+      - Teks: `{X} tagihan jatuh tempo sejak {Tanggal Indo}` (khusus untuk program kelas yang sedang dibuka, misal kelas AHE hanya menampilkan tagihan program AHE).
+      - Nominal uang terformat rapi dengan font seragam: `Rp [Nominal]` (`tabular-nums`).
   - **Batasan Akses:** **TIDAK ADA** tombol WhatsApp atau tautan penagihan mandiri bagi guru (komunikasi pesan WA tetap eksklusif hak Admin).
 
 ### Skenario A3: Penanda Peringatan pada Kartu Mengajar
