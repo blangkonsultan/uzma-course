@@ -249,4 +249,40 @@ describe("TeachingLogForm", () => {
     expect(submitTeachingSession).toHaveBeenCalledWith("session-1");
     expect(screen.getByText("Submitted")).toBeDefined();
   });
+
+  it("renders compact overdue SPP warning banner when student has overdue SPP", () => {
+    const classInfoWithOverdue: TeacherScheduleClassForLog = {
+      ...classInfo,
+      students: [
+        {
+          id: "student-1",
+          full_name: "Murid Satu",
+          student_number: "01001",
+          overdue_spp: {
+            due_date: "2026-10-10",
+            total_amount: 350000,
+            invoice_count: 1,
+          },
+        },
+        {
+          id: "student-2",
+          full_name: "Murid Dua",
+          student_number: "01002",
+          overdue_spp: null,
+        },
+      ],
+    };
+
+    render(
+      <TeachingLogForm
+        classInfo={classInfoWithOverdue}
+        sessionDate="2026-10-14"
+        session={null}
+      />
+    );
+
+    expect(screen.getByText(/SPP jatuh tempo:/)).toBeDefined();
+    expect(screen.getByText("10 Okt 2026")).toBeDefined();
+    expect(screen.getByText(/Rp 350\.000/)).toBeDefined();
+  });
 });

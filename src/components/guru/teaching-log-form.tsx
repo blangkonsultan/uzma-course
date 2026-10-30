@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { CalendarDays, CheckCircle2, Clock, MapPin, Send, Save } from "lucide-react";
+import { AlertTriangle, CalendarDays, CheckCircle2, Clock, MapPin, Send, Save } from "lucide-react";
+import { formatDateIndo } from "@/lib/utils";
 import { saveTeachingSession, submitTeachingSession } from "@/app/guru/mengajar/actions";
 import type {
   TeacherScheduleClassForLog,
@@ -204,7 +205,9 @@ export function TeachingLogForm({
       )}
 
       <div className="space-y-3">
-        {students.map((student) => (
+        {students.map((student) => {
+          const overdueSpp = classInfo.students.find((s) => s.id === student.student_id)?.overdue_spp;
+          return (
           <section
             key={student.student_id}
             className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs"
@@ -226,6 +229,18 @@ export function TeachingLogForm({
               </div>
             </div>
 
+            {overdueSpp && (
+              <div className="flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-800">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden="true" />
+                <span className="flex-1 min-w-0">
+                  SPP jatuh tempo: <span className="font-semibold">{formatDateIndo(overdueSpp.due_date)}</span>
+                  {" · "}
+                  <span className="font-bold tabular-nums text-amber-950">
+                    Rp {overdueSpp.total_amount.toLocaleString("id-ID")}
+                  </span>
+                </span>
+              </div>
+            )}
             <div>
               <label
                 className="mb-1 block text-xs font-semibold text-slate-700"
@@ -295,7 +310,8 @@ export function TeachingLogForm({
               />
             </div>
           </section>
-        ))}
+          );
+        })}
       </div>
 
       {!isSubmitted && (
