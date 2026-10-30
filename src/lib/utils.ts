@@ -112,3 +112,18 @@ export function formatDateString(dateStr: string | null | undefined): string {
     return dateStr;
   }
 }
+
+export function formatDateIndo(dateStr?: string | null): string {
+  if (!dateStr) return "-";
+  try {
+    const d = new Date(dateStr.includes("T") ? dateStr : `${dateStr}T00:00:00Z`);
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(d);
+  } catch {
+    return dateStr;
+  }
+}
