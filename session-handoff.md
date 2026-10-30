@@ -1,5 +1,15 @@
 # Session Handoff
 
+## Teacher Overdue SPP Indicator Verified — 2026-10-30
+- **Branch**: `feat/teacher-overdue-spp-indicator`.
+- **Delivered**:
+  1. Server-side DAL batch query in `src/lib/teacher-schedule.ts` and `src/lib/teaching-logs.ts` enriching active class students with `overdue_spp` (`due_date`, `total_amount`, `invoice_count`) and `overdue_students_count` per class with zero database migrations.
+  2. Responsive PWA UI updates on `/guru/jadwal` (`TeacherScheduleClient`) and `/guru/mengajar/[id]` (`TeachingLogForm`) rendering WCAG AA-compliant amber pill badges (`{count} Jatuh Tempo`) and structured info boxes with `AlertTriangle` and `tabular-nums`.
+  3. Upgraded schedule accordion toggle touch target to 44px (`min-h-11`).
+  4. Strictly verbal reminder design: no direct WhatsApp triggers on teacher portal (Admin WhatsApp central authority preserved).
+- **Evidence**: All 84 test suites (493 tests) pass with coverage thresholds satisfied. ESLint zero warnings/errors. Production Webpack build successful. `./init.sh` exit 0.
+- **Next action**: Review/merge feature branch into `main` via PR or branch integration.
+
 ## CMS Gallery Labels Verified — 2026-10-29
 - **Base & prior integration**: Attendance presentation PR [#10](https://github.com/blangkonsultan/uzma-course/pull/10) merged as `164cb35ffb1ba92bbb053a3f1c8ef7b612569ed2`. Current slice: `fix/cms-gallery-labels`.
 - **Delivered**: Associated "URL Gambar" and "Teks Alt" labels in `GalleryForm` with their respective inputs via unique IDs, and enlarged mobile delete buttons to 44px touch target.
