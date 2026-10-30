@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getWIBDateBounds } from "@/lib/attendances";
 import type { Database } from "@/types/database";
-
+import { getOverdueSppByStudentIds, type StudentOverdueSppInfo } from "./teacher-schedule";
 export type TeachingAttendanceStatus =
   | "present"
   | "absent"
@@ -30,6 +30,7 @@ export interface TeacherScheduleStudent {
   id: string;
   full_name: string;
   student_number: string | null;
+  overdue_spp?: StudentOverdueSppInfo | null;
 }
 
 export interface TeacherScheduleClassForLog {
@@ -137,12 +138,26 @@ export async function getTeacherScheduleClassForLog(
     program_variants: {
       name: string;
       teacher_fee: number;
-      programs: { name: string } | null;
+      programs: { id: string; name: string } | null;
     } | null;
     schedule_placements: Array<{
       students: TeacherScheduleStudent | null;
     }>;
   };
+
+  const rawStudents = (row.schedule_placements || [])
+    .map((placement) => placement.students)
+    .filter((student): student is TeacherScheduleStudent => student !== null);
+
+  const studentIds = rawStudents.map((s) => s.id);
+  const classProgramId = row.program_variants?.programs?.id;
+  const overdueByStudentAndProgram = await getOverdueSppByStudentIds(supabase, studentIds);
+  const enrichedStudents: TeacherScheduleStudent[] = rawStudents.map((s) => ({
+    ...s,
+    overdue_spp: classProgramId
+      ? (overdueByStudentAndProgram.get(`${s.id}:${classProgramId}`) ?? null)
+      : null,
+  }));
 
   return {
     id: row.id,
@@ -154,9 +169,7 @@ export async function getTeacherScheduleClassForLog(
     program_name: row.program_variants?.programs?.name || "Program",
     variant_name: row.program_variants?.name || "-",
     teacher_fee: row.program_variants?.teacher_fee || 0,
-    students: (row.schedule_placements || [])
-      .map((placement) => placement.students)
-      .filter((student): student is TeacherScheduleStudent => student !== null),
+    students: enrichedStudents,
   };
 }
 

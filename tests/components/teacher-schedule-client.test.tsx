@@ -53,3 +53,57 @@ describe("TeacherScheduleClient Teaching Log entry", () => {
     );
   });
 });
+
+describe("TeacherScheduleClient Overdue SPP indicators", () => {
+  const overdueClass: TeacherClassItem = {
+    ...classes[0],
+    overdue_students_count: 1,
+    students: [
+      {
+        id: "student-1",
+        full_name: "Murid Satu",
+        student_number: "01001",
+        overdue_spp: {
+          due_date: "2026-10-10",
+          total_amount: 350000,
+          invoice_count: 2,
+        },
+      },
+      {
+        id: "student-2",
+        full_name: "Murid Dua",
+        student_number: "01002",
+        overdue_spp: null,
+      },
+    ],
+  };
+
+  it("renders a pill badge on the class header when students have overdue SPP", () => {
+    render(<TeacherScheduleClient classes={[overdueClass]} />);
+    const dayLabel = ["", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"][classDay];
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(dayLabel) }));
+
+    expect(screen.getByText("1 Jatuh Tempo")).toBeDefined();
+  });
+
+  it("renders detailed overdue info box under student row when expanded", () => {
+    render(<TeacherScheduleClient classes={[overdueClass]} />);
+    const dayLabel = ["", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"][classDay];
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(dayLabel) }));
+
+    // Open the student list accordion
+    const toggleButton = screen.getByRole("button", { name: /Daftar Murid/ });
+    fireEvent.click(toggleButton);
+
+    expect(screen.getByText(/2 tagihan jatuh tempo sejak/)).toBeDefined();
+    expect(screen.getByText(/Rp 350\.000/)).toBeDefined();
+  });
+
+  it("does not render overdue badge or box when no students have overdue SPP", () => {
+    render(<TeacherScheduleClient classes={classes} />);
+    const dayLabel = ["", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"][classDay];
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(dayLabel) }));
+
+    expect(screen.queryByText(/Jatuh Tempo/)).toBeNull();
+  });
+});

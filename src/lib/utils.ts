@@ -112,3 +112,21 @@ export function formatDateString(dateStr: string | null | undefined): string {
     return dateStr;
   }
 }
+/**
+ * Formats date strings (including date-only YYYY-MM-DD) into Indonesian format (e.g. "10 Okt 2026")
+ * using UTC to prevent timezone boundary shifts. Returns "-" if empty/null.
+ */
+export function formatDateIndo(dateStr?: string | null): string {
+  if (!dateStr) return "-";
+  try {
+    const d = new Date(dateStr.includes("T") ? dateStr : `${dateStr}T00:00:00Z`);
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(d);
+  } catch {
+    return dateStr;
+  }
+}

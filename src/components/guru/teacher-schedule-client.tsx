@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import type { TeacherClassItem } from "@/lib/teacher-schedule";
 import Link from "next/link";
-import { formatTimeString, formatBranchName } from "@/lib/utils";
+import { formatTimeString, formatBranchName, formatDateIndo } from "@/lib/utils";
 import {
+  AlertTriangle,
   Calendar,
   BookOpen,
   CheckCircle2,
@@ -212,11 +213,19 @@ export function TeacherScheduleClient({
                   onClick={() =>
                     setExpandedClassId(isExpanded ? null : cls.id)
                   }
-                  className="w-full bg-slate-50/80 px-4 py-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 hover:bg-slate-100 transition-colors"
+                  className="w-full min-h-11 bg-slate-50/80 px-4 py-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 hover:bg-slate-100 transition-colors"
                 >
-                  <div className="flex items-center space-x-1.5 font-semibold">
-                    <Users className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Daftar Murid ({studentCount})</span>
+                  <div className="flex items-center space-x-2 font-semibold">
+                    <div className="flex items-center space-x-1.5">
+                      <Users className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Daftar Murid ({studentCount})</span>
+                    </div>
+                    {Boolean(cls.overdue_students_count && cls.overdue_students_count > 0) && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-800">
+                        <AlertTriangle className="h-3 w-3 text-amber-600 shrink-0" aria-hidden="true" />
+                        {cls.overdue_students_count} Jatuh Tempo
+                      </span>
+                    )}
                   </div>
                   {isExpanded ? (
                     <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -236,20 +245,36 @@ export function TeacherScheduleClient({
                       cls.students.map((st, idx) => (
                         <div
                           key={st.id}
-                          className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200/80 text-xs"
+                          className="p-2.5 bg-white rounded-xl border border-slate-200/80 text-xs space-y-1.5"
                         >
-                          <div className="flex items-center space-x-2">
-                            <span className="w-5 h-5 rounded-full bg-primary-100 text-primary-700 font-bold flex items-center justify-center text-[10px]">
-                              {idx + 1}
-                            </span>
-                            <span className="font-semibold text-slate-800">
-                              {st.full_name}
-                            </span>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <span className="w-5 h-5 rounded-full bg-primary-100 text-primary-700 font-bold flex items-center justify-center text-[10px]">
+                                {idx + 1}
+                              </span>
+                              <span className="font-semibold text-slate-800">
+                                {st.full_name}
+                              </span>
+                            </div>
+                            {st.student_number && (
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                {st.student_number}
+                              </span>
+                            )}
                           </div>
-                          {st.student_number && (
-                            <span className="text-[10px] text-slate-400 font-mono">
-                              {st.student_number}
-                            </span>
+                          {st.overdue_spp && (
+                            <div className="flex items-start gap-1.5 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800">
+                              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden="true" />
+                              <div className="flex-1 min-w-0">
+                                <span className="font-medium">
+                                  {st.overdue_spp.invoice_count} tagihan jatuh tempo sejak{" "}
+                                  <span className="font-semibold">{formatDateIndo(st.overdue_spp.due_date)}</span>
+                                </span>
+                                <span className="block font-bold tabular-nums text-amber-900">
+                                  Rp {st.overdue_spp.total_amount.toLocaleString("id-ID")}
+                                </span>
+                              </div>
+                            </div>
                           )}
                         </div>
                       ))
