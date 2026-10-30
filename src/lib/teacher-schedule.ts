@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
 import { getWIBDateBounds } from "./attendances";
 import { createAdminClient } from "./supabase/admin";
 
@@ -75,12 +77,8 @@ function getPreviousSessionDate(dayOfWeek: number) {
   date.setUTCDate(date.getUTCDate() - daysBack);
   return date.toISOString().slice(0, 10);
 }
-type SupabaseQueryClient = {
-  from: (table: string) => any;
-};
-
 export async function getOverdueSppByStudentIds(
-  supabase: SupabaseQueryClient,
+  supabase: SupabaseClient<Database>,
   studentIds: string[]
 ): Promise<Map<string, StudentOverdueSppInfo>> {
   const overdueMap = new Map<string, StudentOverdueSppInfo>();
