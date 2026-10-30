@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { BillingClient } from "@/components/admin/billing/billing-client";
 import type { BillingSummary, StudentInvoiceItem } from "@/lib/billing";
 import { recordPaymentAction } from "@/app/admin/spp/actions";
@@ -108,6 +108,10 @@ const sampleBranches = [
 ];
 
 describe("BillingClient Component", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("renders 4 KPI summary cards with correct amounts", () => {
     render(
       <BillingClient
@@ -335,6 +339,68 @@ describe("BillingClient Component", () => {
     expect(pushMock).toHaveBeenLastCalledWith(
       "/admin/spp?branch=branch-1&status=paid"
     );
+  });
+
+  it("debounces search input to prevent rapid server navigations on typing", () => {
+    vi.useFakeTimers();
+    pushMock.mockClear();
+
+    render(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch=""
+      />
+    );
+
+    const searchInput = screen.getByRole("textbox", { name: "Cari tagihan SPP" });
+
+    fireEvent.change(searchInput, { target: { value: "A" } });
+    fireEvent.change(searchInput, { target: { value: "Ah" } });
+    fireEvent.change(searchInput, { target: { value: "Ahm" } });
+
+    expect(pushMock).not.toHaveBeenCalled();
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+
+    expect(pushMock).toHaveBeenCalledTimes(1);
+    expect(pushMock).toHaveBeenCalledWith("/admin/spp?q=Ahm");
+
+    vi.useRealTimers();
+  });
+
+  it("submits search immediately when Enter key is pressed", () => {
+    vi.useFakeTimers();
+    pushMock.mockClear();
+
+    render(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch=""
+      />
+    );
+
+    const searchInput = screen.getByRole("textbox", { name: "Cari tagihan SPP" });
+    fireEvent.change(searchInput, { target: { value: "Budi" } });
+    expect(pushMock).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(searchInput, { key: "Enter", code: "Enter" });
+    expect(pushMock).toHaveBeenCalledTimes(1);
+    expect(pushMock).toHaveBeenCalledWith("/admin/spp?q=Budi");
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(pushMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
   });
 
   it("renders export button and opens SppExportModal on click", async () => {

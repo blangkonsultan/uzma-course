@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   CreditCard,
@@ -80,6 +80,13 @@ export function BillingClient({
   const [branchFilter, setBranchFilter] = useState(currentBranch);
   const [statusFilter, setStatusFilter] = useState(currentStatus);
   const [searchFilter, setSearchFilter] = useState(currentSearch);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
   useEffect(() => {
     let cancelled = false;
     queueMicrotask(() => {
@@ -110,6 +117,9 @@ export function BillingClient({
     nextStatus: string,
     nextSearch: string
   ) => {
+    clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = undefined;
+
     const params = new URLSearchParams();
     if (nextBranch !== "all") params.set("branch", nextBranch);
     if (nextStatus !== "all") params.set("status", nextStatus);
@@ -117,6 +127,14 @@ export function BillingClient({
 
     const qs = params.toString();
     router.push(qs ? `/admin/spp?${qs}` : "/admin/spp");
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchFilter(value);
+    clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      handleFilterChange(branchFilter, statusFilter, value);
+    }, 300);
   };
 
   const handleGenerateInvoices = () => {
@@ -291,9 +309,12 @@ export function BillingClient({
               placeholder="Cari murid, nomor induk, atau nomor invoice..."
               aria-label="Cari tagihan SPP"
               value={searchFilter}
-              onChange={(e) => {
-                setSearchFilter(e.target.value);
-                handleFilterChange(branchFilter, statusFilter, e.target.value);
+              onChange={(e) => handleSearchChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleFilterChange(branchFilter, statusFilter, searchFilter);
+                }
               }}
               className="w-full pl-10 pr-3 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
             />

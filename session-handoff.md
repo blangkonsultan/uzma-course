@@ -1,15 +1,23 @@
 # Session Handoff
 
-## Teacher Overdue SPP Indicator Verified — 2026-10-30
-- **Branch**: `feat/teacher-overdue-spp-indicator`.
+## SPP Search Input Debouncing & Enter Submit Verified — 2026-10-30
+- **Delivered**:
+  1. Implemented 300ms search input debounce in `src/components/admin/billing/billing-client.tsx`, preventing rapid consecutive server navigations on each keystroke while preserving instantaneous local input response.
+  2. Added immediate submission on Enter key press (`onKeyDown`), canceling any pending debounce timer and navigating immediately.
+  3. Changing branch or status dropdown immediately applies the active search value and cancels any pending timer.
+  4. Clean timer disposal on unmount (`clearTimeout(debounceTimerRef.current)`).
+- **Evidence**: Added 2 unit tests in `tests/components/billing-client.test.tsx` (13/13 passing in billing suite). Full `./init.sh` passed with 84 Vitest suites / 496 tests passed (100%), coverage thresholds satisfied (68.89% stmts, 63.03% branch, 70.98% funcs, 70.04% lines), 0 ESLint errors/warnings, and clean production build.
+- **Next action**: Continue with production release smoke, or await owner clarifications for `feat-013` (Local SEO).
+
+## Teacher Overdue SPP Indicator Integrated & Merged — 2026-10-30
+- **Base & prior integration**: Merged into `main` as `06a7298` via PR [#12](https://github.com/blangkonsultan/uzma-course/pull/12).
 - **Delivered**:
   1. Server-side DAL batch query in `src/lib/teacher-schedule.ts` and `src/lib/teaching-logs.ts` enriching active class students with `overdue_spp` (`due_date`, `total_amount`, `invoice_count`) and `overdue_students_count` per class with zero database migrations.
   2. Responsive PWA UI updates on `/guru/jadwal` (`TeacherScheduleClient`) and `/guru/mengajar/[id]` (`TeachingLogForm`) rendering WCAG AA-compliant amber pill badges (`{count} Jatuh Tempo`) and structured info boxes with `AlertTriangle` and `tabular-nums`.
   3. Upgraded schedule accordion toggle touch target to 44px (`min-h-11`).
   4. Strictly verbal reminder design: no direct WhatsApp triggers on teacher portal (Admin WhatsApp central authority preserved).
-- **Evidence**: All 84 test suites (493 tests) pass with coverage thresholds satisfied. ESLint zero warnings/errors. Production Webpack build successful. `./init.sh` exit 0.
-- **Next action**: Review/merge feature branch into `main` via PR or branch integration.
-
+- **Evidence**: All 84 test suites (494 tests) pass with coverage thresholds satisfied. ESLint zero warnings/errors. Production Webpack build successful. `./init.sh` exit 0.
+- **Next action**: Continue with deferred optimizations (debouncing search on `/admin/spp` to reduce rapid server navigations on typing) or production release smoke.
 ## CMS Gallery Labels Verified — 2026-10-29
 - **Base & prior integration**: Attendance presentation PR [#10](https://github.com/blangkonsultan/uzma-course/pull/10) merged as `164cb35ffb1ba92bbb053a3f1c8ef7b612569ed2`. Current slice: `fix/cms-gallery-labels`.
 - **Delivered**: Associated "URL Gambar" and "Teks Alt" labels in `GalleryForm` with their respective inputs via unique IDs, and enlarged mobile delete buttons to 44px touch target.
@@ -177,7 +185,7 @@
   - Browser smoke passed at 360px, 375px, and 1280px with 0 horizontal overflow (`scrollWidth === innerWidth`), computed 44–46px heights, and 16px input font size.
 - **Commits**: `c55c0c2`, `b409fa3`, `2390207`, `286e217`.
 - **Deferred Optimizations (P2/P3)**:
-  - Debounce search on `/admin/spp` to reduce rapid server navigations on typing.
+  - [x] Debounce search on `/admin/spp` to reduce rapid server navigations on typing (Completed 2026-10-30).
   - Add explicit intrinsic dimensions to public landing images for CLS perfection.
   - Replace broad `transition-all` with property-specific transitions (`transition-colors`, `transition-opacity`, `transition-transform`).
 - **Recommended Next Step**: Deploy the verified remediation changes to production. All current functional requirements (`feat-001` through `feat-011`) are fully completed and clean.
