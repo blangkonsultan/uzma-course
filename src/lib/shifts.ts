@@ -68,11 +68,28 @@ export async function updateBranchShift(
   const supabase = await createClient();
 
   if (data.start_time || data.end_time) {
-    const { data: strandedClasses } = await supabase
+    // If either start_time or end_time is not provided, load the current record to check bounds safely
+    let targetStart = data.start_time;
+    let targetEnd = data.end_time;
+
+    if (!targetStart || !targetEnd) {
+      const current = await getBranchShiftById(id);
+      if (!current) {
+        throw new Error("Shift tidak ditemukan.");
+      }
+      targetStart = targetStart || current.start_time;
+      targetEnd = targetEnd || current.end_time;
+    }
+
+    const { data: strandedClasses, error: lookupError } = await supabase
       .from("schedule_classes")
       .select("id, start_time, end_time")
       .eq("shift_id", id)
-      .or(`start_time.lt.${data.start_time},end_time.gt.${data.end_time}`);
+      .or(`start_time.lt.${targetStart},end_time.gt.${targetEnd}`);
+
+    if (lookupError) {
+      throw new Error(`Gagal memeriksa jadwal kelas shift: ${lookupError.message}`);
+    }
 
     if (strandedClasses && strandedClasses.length > 0) {
       throw new Error(
@@ -80,7 +97,6 @@ export async function updateBranchShift(
       );
     }
   }
-
   const { error } = await supabase
     .from("branch_shifts")
     .update(data)

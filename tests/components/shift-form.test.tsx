@@ -3,7 +3,7 @@ import "@testing-library/jest-dom/vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ShiftForm } from "@/components/admin/shift/shift-form";
-
+import { createShift, updateShift } from "@/app/admin/shift/actions";
 
 // Mock the server actions
 vi.mock("@/app/admin/shift/actions", () => ({
@@ -70,5 +70,38 @@ describe("ShiftForm Component", () => {
     render(<ShiftForm branches={mockBranches} />);
     fireEvent.click(screen.getByRole("button", { name: /Batal/i }));
     expect(backMock).toHaveBeenCalled();
+  });
+
+  it("rejected_shift_edit_keeps_name_and_time_inputs_for_retry", async () => {
+    vi.mocked(updateShift).mockResolvedValue({
+      error: "Jam shift tidak dapat dipersempit karena terdapat kelas yang sudah terjadwal di luar jam baru.",
+    });
+
+    const initialData = {
+      id: "shift-1",
+      branch_id: "krian",
+      name: "Pagi",
+      start_time: "08:00:00",
+      end_time: "08:30:00",
+      is_active: true,
+      created_at: "",
+      updated_at: "",
+    };
+
+    render(<ShiftForm branches={mockBranches} initialData={initialData} />);
+
+    const nameInput = screen.getByLabelText(/Nama Shift/i);
+    const startInput = screen.getByLabelText(/Jam Mulai/i);
+
+    fireEvent.change(nameInput, { target: { value: "Pagi Revisi" } });
+    fireEvent.change(startInput, { target: { value: "08:05" } });
+
+    const submitBtn = screen.getByRole("button", { name: /Simpan Perubahan/i });
+    fireEvent.click(submitBtn);
+
+    expect(await screen.findByText(/Jam shift tidak dapat dipersempit/i)).toBeInTheDocument();
+    expect(nameInput).toHaveValue("Pagi Revisi");
+    expect(startInput).toHaveValue("08:05");
+    expect(submitBtn).toBeEnabled();
   });
 });
