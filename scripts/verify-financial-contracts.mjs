@@ -19,6 +19,11 @@ export async function runFinancialContracts(suites) {
   assertLocalSeedTarget(supabaseUrl);
   const databaseUrl = env.SUPABASE_DB_URL || env.DATABASE_URL || "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
   const parsedDb = new URL(databaseUrl);
+  
+  // Reject if query parameters attempt to override host/port
+  if (parsedDb.searchParams.has("host") || parsedDb.searchParams.has("port")) {
+    throw new Error("Database URL query parameters cannot override host or port.");
+  }
   if (parsedDb.hostname !== "127.0.0.1" && parsedDb.hostname !== "localhost") {
     throw new Error(`Database URL must target local loopback host, got: ${parsedDb.hostname}`);
   }
@@ -26,8 +31,15 @@ export async function runFinancialContracts(suites) {
     throw new Error(`Database URL must target local port 54322, got: ${parsedDb.port}`);
   }
 
-  console.log(`[contracts] Running suites: ${suites.join(", ")} on ${databaseUrl.replace(/:[^:@]+@/, ":***@")}`);
-
+  // Safe redaction of password in connection string for logging
+  const sanitizedUrl = new URL(databaseUrl);
+  if (sanitizedUrl.password) {
+    sanitizedUrl.password = "******";
+  }
+  if (sanitizedUrl.searchParams.has("password")) {
+    sanitizedUrl.searchParams.set("password", "******");
+  }
+  console.log(`[contracts] Running suites: ${suites.join(", ")} on ${sanitizedUrl.href}`);
   await withPostgresConnection(databaseUrl, async (client) => {
     for (const suite of suites) {
       const suiteFile = SUITE_FILES[suite];

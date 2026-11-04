@@ -31,6 +31,8 @@ BEGIN
         RAISE EXCEPTION 'Hanya admin yang dapat menerbitkan tagihan SPP.' USING ERRCODE = '42501';
     END IF;
 
+    -- Format YYMM in Asia/Jakarta
+    v_yymm := to_char(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta', 'YYMM');
     FOR v_rec IN
         SELECT sp.student_id,
                sp.program_id,

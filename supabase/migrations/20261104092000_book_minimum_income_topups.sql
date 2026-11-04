@@ -31,7 +31,7 @@ CREATE OR REPLACE FUNCTION public.add_payroll_adjustment(
 RETURNS public.payroll_adjustments
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
 DECLARE
     v_user_id UUID := auth.uid();
@@ -85,7 +85,7 @@ CREATE OR REPLACE FUNCTION public.close_payroll_period(
 RETURNS public.payroll_periods
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
 DECLARE
     v_user_id UUID := auth.uid();
@@ -141,8 +141,9 @@ BEGIN
       AND ts.session_date < (v_period.period_month + INTERVAL '1 month')::DATE
     ON CONFLICT (teaching_session_student_id) DO NOTHING;
 
-    -- Capture teacher profile and fee snapshot once into a temp table to prevent race conditions
-    CREATE TEMP TABLE captured_teacher_snapshots ON COMMIT DROP AS
+    -- Capture teacher profile and fee snapshot into a temp table; ensure previous invocation temp table is dropped
+    DROP TABLE IF EXISTS captured_teacher_snapshots;
+    CREATE TEMP TABLE captured_teacher_snapshots AS
     SELECT
         p.id AS teacher_id,
         COALESCE(p.minimum_income, 0)::INTEGER AS min_income,
@@ -233,7 +234,7 @@ BEGIN
         updated_at = now()
     WHERE id = v_period.id
     RETURNING * INTO v_period;
-
+    DROP TABLE IF EXISTS captured_teacher_snapshots;
     RETURN v_period;
 END;
 $$;

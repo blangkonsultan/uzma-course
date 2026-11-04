@@ -263,15 +263,22 @@ export default async function HonorGuruPage({
         )}
 
         {minimumIncome > 0 && (
-          <div className="p-2.5 bg-slate-50/70 border border-slate-100 rounded-xl flex items-center justify-between text-xs text-slate-600">
-            <span>
-              {periodStatus === "open"
-                ? "Gaji minimum terkonfigurasi"
-                : "Gaji minimum periode ini"}
-            </span>
-            <span className="font-semibold text-slate-800">
-              Rp {minimumIncome.toLocaleString("id-ID")}
-            </span>
+          <div className="p-2.5 bg-slate-50/70 border border-slate-100 rounded-xl space-y-1 text-xs text-slate-600">
+            <div className="flex items-center justify-between">
+              <span>
+                {periodStatus === "open"
+                  ? "Gaji minimum terkonfigurasi"
+                  : "Gaji minimum periode ini"}
+              </span>
+              <span className="font-semibold text-slate-800 whitespace-nowrap tabular-nums">
+                Rp&nbsp;{minimumIncome.toLocaleString("id-ID")}
+              </span>
+            </div>
+            {periodStatus === "open" && (
+              <p className="text-[11px] text-slate-500 leading-normal">
+                Top-up dihitung otomatis saat admin menutup periode.
+              </p>
+            )}
           </div>
         )}
       </div>

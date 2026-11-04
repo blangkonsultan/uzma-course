@@ -35,11 +35,24 @@ export async function getTeacherOverdueSppByClass(
 
     const rows = data || [];
     for (const row of rows) {
+      const totalAmount = Number(row.total_amount);
+      const invoiceCount = Number(row.invoice_count);
+
+      if (!Number.isSafeInteger(totalAmount) || totalAmount < 0 || !Number.isSafeInteger(invoiceCount) || invoiceCount < 0) {
+        console.warn("Nilai agregat SPP tidak valid atau melebihi safe integer:", {
+          class_id: row.class_id,
+          total_amount: row.total_amount,
+          invoice_count: row.invoice_count,
+        });
+        // Discard entire enrichment to avoid displaying corrupted/rounded monetary amounts
+        return new Map<string, StudentOverdueSppInfo>();
+      }
+
       const key = `${row.class_id}:${row.student_id}:${row.program_id}`;
       result.set(key, {
         due_date: row.due_date,
-        total_amount: Number(row.total_amount) || 0,
-        invoice_count: Number(row.invoice_count) || 0,
+        total_amount: totalAmount,
+        invoice_count: invoiceCount,
       });
     }
 

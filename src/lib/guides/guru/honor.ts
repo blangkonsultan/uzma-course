@@ -47,7 +47,7 @@ export const GURU_HONOR = {
               "title": "Periksa komponen dan informasi minimum",
               "paragraphs": [
                 "Baca Total Take-Home Pay, Total Fee Sesi, Tunjangan Tetap, rincian komponen, serta Penyesuaian (Adjustment) bila ditampilkan. Tanda positif menambah dan negatif mengurangi.",
-                "Garansi Minimum Terdaftar adalah informasi yang dibaca terpisah dari total. Jangan menganggap nominal itu otomatis ditambahkan sebagai transaksi/top-up; bila jumlah tidak sesuai ketentuan yang disetujui, minta admin meninjau sebelum pembayaran."
+                "Garansi Minimum Terdaftar adalah dasar evaluasi top-up otomatis saat admin menutup periode payroll. Jika total pendapatan (fee sesi + tunjangan tetap) berada di bawah garansi minimum, sistem akan menambahkan baris penyesuaian otomatis 'Top-up Garansi Gaji Minimum'. Potongan manual yang dicatat kemudian tetap berlaku."
               ]
             },
             {
@@ -67,7 +67,7 @@ export const GURU_HONOR = {
       ],
       "systemRules": [
         "Fee sesi mengikuti kartu submitted dan nilai yang diakui; Hadir menggunakan fee snapshot, sementara Tidak Hadir/Izin/Cancel tidak menambah fee sesi standar saat ini.",
-        "Total terdiri dari fee sesi, tunjangan tetap dan adjustment; informasi minimum terdaftar bukan bukti transfer atau komponen tambahan otomatis.",
+        "Total terdiri dari fee sesi, tunjangan tetap, dan penyesuaian (termasuk top-up otomatis garansi gaji minimum yang dibukukan saat penutupan periode).",
         "Periode tertutup memakai snapshot, sedangkan estimasi masih berjalan.",
         "Guru membaca rekap sendiri dan tidak mengubah payroll, adjustment, atau status pembayaran dari halaman Honor."
       ],

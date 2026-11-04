@@ -81,7 +81,7 @@ export const ADMIN_PAYROLL = {
       "systemRules": [
         "Satu bulan memiliki satu periode payroll.",
         "Dasar fee sesi berasal dari data kartu mengajar yang dikirim dan nilai payable yang diakui sistem, bukan otomatis setiap catatan presensi datang/pulang.",
-        "Total yang tercatat terdiri dari fee sesi, tunjangan tetap, dan adjustment bertanda. Garansi minimum yang terdaftar/disnapshot adalah informasi yang harus ditinjau; jangan menganggap tampilnya nominal itu berarti ada tambahan transaksi otomatis."
+        "Total yang tercatat terdiri dari fee sesi, tunjangan tetap, dan adjustment bertanda. Garansi gaji minimum dihitung otomatis saat penutupan periode (bila fee + tunjangan < minimum_income) dan dicatat sebagai baris penyesuaian 'Top-up Garansi Gaji Minimum'. Potongan manual yang ditambahkan kemudian tetap berlaku."
       ],
       "recommendations": [
         "Bandingkan jumlah akhir dengan ketentuan kompensasi yang disetujui, termasuk honor minimum terdaftar, sebelum pembayaran. Jika perlu penyesuaian yang sah, gunakan adjustment pada status yang diizinkan.",

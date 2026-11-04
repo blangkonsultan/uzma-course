@@ -95,14 +95,24 @@ export function BillingClient({
     searchFilterRef.current = searchFilter;
   }, [branchFilter, statusFilter, searchFilter]);
 
-  // Cancel pending debounce on unmount or popstate
+  // Cancel pending debounce on unmount or popstate and adopt restored URL state
   useEffect(() => {
     const handlePopState = () => {
       clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = undefined;
-      // Adopt current props on navigation history change
+
+      // Invalidate pending work and adopt URL search params directly
       editVersionRef.current += 1;
       lastCommittedVersionRef.current = editVersionRef.current;
+
+      const url = new URL(window.location.href);
+      const q = url.searchParams.get("q") || "";
+      const branch = url.searchParams.get("branch") || "all";
+      const status = url.searchParams.get("status") || "all";
+
+      setBranchFilter(branch);
+      setStatusFilter(status);
+      setSearchFilter(q);
     };
 
     window.addEventListener("popstate", handlePopState);
@@ -112,13 +122,14 @@ export function BillingClient({
     };
   }, []);
 
-  // Acknowledge URL props updates via microtask to avoid cascading renders
+  // Acknowledge URL props updates from server navigation
   useEffect(() => {
     let cancelled = false;
     queueMicrotask(() => {
       if (cancelled) return;
       setBranchFilter(currentBranch);
       setStatusFilter(currentStatus);
+      // Only adopt currentSearch if this acknowledgment corresponds to the latest edit
       if (editVersionRef.current === lastCommittedVersionRef.current) {
         setSearchFilter(currentSearch);
       }

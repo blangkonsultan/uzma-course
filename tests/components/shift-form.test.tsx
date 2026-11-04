@@ -74,7 +74,7 @@ describe("ShiftForm Component", () => {
 
   it("rejected_shift_edit_keeps_name_and_time_inputs_for_retry", async () => {
     vi.mocked(updateShift).mockResolvedValue({
-      error: "Jam shift tidak dapat dipersempit karena terdapat kelas yang sudah terjadwal di luar jam baru.",
+      error: "Ada kelas di luar rentang jam baru. Sesuaikan jadwal kelas terlebih dahulu, lalu simpan ulang.",
     });
 
     const initialData = {
@@ -99,7 +99,7 @@ describe("ShiftForm Component", () => {
     const submitBtn = screen.getByRole("button", { name: /Simpan Perubahan/i });
     fireEvent.click(submitBtn);
 
-    expect(await screen.findByText(/Jam shift tidak dapat dipersempit/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Ada kelas di luar rentang jam baru/i)).toBeInTheDocument();
     expect(nameInput).toHaveValue("Pagi Revisi");
     expect(startInput).toHaveValue("08:05");
     await vi.waitFor(() => {

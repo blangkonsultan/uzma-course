@@ -93,7 +93,7 @@ export async function updateBranchShift(
 
     if (strandedClasses && strandedClasses.length > 0) {
       throw new Error(
-        "Jam shift tidak dapat dipersempit karena terdapat kelas yang sudah terjadwal di luar jam baru."
+        "Ada kelas di luar rentang jam baru. Sesuaikan jadwal kelas terlebih dahulu, lalu simpan ulang."
       );
     }
   }

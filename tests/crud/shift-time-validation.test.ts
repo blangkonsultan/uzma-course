@@ -65,6 +65,6 @@ describe("Shift Time Range Validation", () => {
         start_time: "09:00",
         end_time: "10:00", // Narrowed so 10:00-11:00 class is stranded!
       })
-    ).rejects.toThrow("Jam shift tidak dapat dipersempit");
+    ).rejects.toThrow("Ada kelas di luar rentang jam baru");
   });
 });
