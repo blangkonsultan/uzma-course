@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
 
-// Test the matching rule logic for sensitive routes
-function isSensitiveRoute(pathname: string): boolean {
+// Protected boundary predicate representing Task 3 contract in src/app/sw.ts
+export function isProtectedPath(pathname: string): boolean {
   return (
+    pathname.startsWith("/guru") ||
     pathname.startsWith("/admin") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/login") ||
@@ -10,42 +11,50 @@ function isSensitiveRoute(pathname: string): boolean {
   );
 }
 
-function shouldPurgeCache(cacheKey: string): boolean {
+export function shouldPurgeCacheKey(cacheKey: string): boolean {
   return (
     cacheKey === "others" ||
+    cacheKey === "uzma-pages-v2" ||
+    cacheKey === "uzma-rsc-v2" ||
     cacheKey.includes("rsc-prefetch") ||
     cacheKey.includes("uzma-pages-cache") ||
     cacheKey.includes("uzma-rsc-cache")
   );
 }
 
-describe("PWA Service Worker Cache Isolation Rules", () => {
-  it("strictly matches admin, auth, and api paths as sensitive", () => {
-    expect(isSensitiveRoute("/admin")).toBe(true);
-    expect(isSensitiveRoute("/admin/guru")).toBe(true);
-    expect(isSensitiveRoute("/admin/murid")).toBe(true);
-    expect(isSensitiveRoute("/api/auth/callback")).toBe(true);
-    expect(isSensitiveRoute("/login")).toBe(true);
-    expect(isSensitiveRoute("/logout")).toBe(true);
+describe("PWA Service Worker Cache Isolation Rules (v3)", () => {
+  it("strictly matches all private teacher, admin, auth, and api paths as protected", () => {
+    expect(isProtectedPath("/guru")).toBe(true);
+    expect(isProtectedPath("/guru/jadwal")).toBe(true);
+    expect(isProtectedPath("/guru/absen")).toBe(true);
+    expect(isProtectedPath("/guru/mengajar/123")).toBe(true);
+    expect(isProtectedPath("/guru/honor")).toBe(true);
+    expect(isProtectedPath("/admin")).toBe(true);
+    expect(isProtectedPath("/admin/spp")).toBe(true);
+    expect(isProtectedPath("/admin/payroll")).toBe(true);
+    expect(isProtectedPath("/api/auth/callback")).toBe(true);
+    expect(isProtectedPath("/login")).toBe(true);
+    expect(isProtectedPath("/logout")).toBe(true);
   });
 
-  it("does not flag public and guru operational pages as sensitive", () => {
-    expect(isSensitiveRoute("/")).toBe(false);
-    expect(isSensitiveRoute("/guru")).toBe(false);
-    expect(isSensitiveRoute("/guru/absen")).toBe(false);
-    expect(isSensitiveRoute("/guru/profil")).toBe(false);
+  it("does not flag public pages as protected", () => {
+    expect(isProtectedPath("/")).toBe(false);
+    expect(isProtectedPath("/#programs")).toBe(false);
+    expect(isProtectedPath("/robots.txt")).toBe(false);
   });
 
-  it("identifies legacy and unsafe response caches for purging upon activate", () => {
-    expect(shouldPurgeCache("others")).toBe(true);
-    expect(shouldPurgeCache("pages-rsc-prefetch")).toBe(true);
-    expect(shouldPurgeCache("uzma-pages-cache")).toBe(true);
-    expect(shouldPurgeCache("uzma-rsc-cache")).toBe(true);
+  it("identifies legacy mixed caches (v2) and unsafe caches for purging upon activate", () => {
+    expect(shouldPurgeCacheKey("others")).toBe(true);
+    expect(shouldPurgeCacheKey("uzma-pages-v2")).toBe(true);
+    expect(shouldPurgeCacheKey("uzma-rsc-v2")).toBe(true);
+    expect(shouldPurgeCacheKey("pages-rsc-prefetch")).toBe(true);
+    expect(shouldPurgeCacheKey("uzma-pages-cache")).toBe(true);
+    expect(shouldPurgeCacheKey("uzma-rsc-cache")).toBe(true);
   });
 
-  it("preserves precache and versioned safe caches", () => {
-    expect(shouldPurgeCache("serwist-precache-v2")).toBe(false);
-    expect(shouldPurgeCache("uzma-pages-v2")).toBe(false);
-    expect(shouldPurgeCache("uzma-rsc-v2")).toBe(false);
+  it("preserves precache and new public-only v3 caches", () => {
+    expect(shouldPurgeCacheKey("serwist-precache-v2")).toBe(false);
+    expect(shouldPurgeCacheKey("uzma-public-pages-v3")).toBe(false);
+    expect(shouldPurgeCacheKey("uzma-public-rsc-v3")).toBe(false);
   });
 });

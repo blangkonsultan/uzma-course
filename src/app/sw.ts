@@ -12,6 +12,16 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
+function isProtectedPath(pathname: string): boolean {
+  return (
+    pathname.startsWith("/guru") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/logout")
+  );
+}
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
@@ -28,46 +38,29 @@ const serwist = new Serwist({
     ],
   },
   runtimeCaching: [
-    // 1. Hard network-only boundary for sensitive routes (MUST be first)
+    // 1. Hard network-only boundary for protected paths (MUST be first)
+    // Prevents caching of personal teacher/admin HTML, RSC payloads, and private actions
     {
-      matcher: ({ url }) => {
-        const p = url.pathname;
-        return (
-          p.startsWith("/admin") ||
-          p.startsWith("/api") ||
-          p.startsWith("/logout") ||
-          p.startsWith("/login")
-        );
-      },
+      matcher: ({ url }) => isProtectedPath(url.pathname),
       handler: new NetworkOnly(),
     },
-    // 2. Public and Guru HTML pages cache
+    // 2. Public HTML pages cache
     {
       matcher: ({ request, url }) => {
-        if (
-          url.pathname.startsWith("/admin") ||
-          url.pathname.startsWith("/api") ||
-          url.pathname.startsWith("/login") ||
-          url.pathname.startsWith("/logout")
-        ) {
+        if (isProtectedPath(url.pathname)) {
           return false;
         }
         return request.mode === "navigate";
       },
       handler: new NetworkFirst({
-        cacheName: "uzma-pages-v2",
+        cacheName: "uzma-public-pages-v3",
         networkTimeoutSeconds: 3,
       }),
     },
-    // 3. Public and Guru Next.js RSC data cache
+    // 3. Public Next.js RSC data cache
     {
       matcher: ({ request, url }) => {
-        if (
-          url.pathname.startsWith("/admin") ||
-          url.pathname.startsWith("/api") ||
-          url.pathname.startsWith("/login") ||
-          url.pathname.startsWith("/logout")
-        ) {
+        if (isProtectedPath(url.pathname)) {
           return false;
         }
         return (
@@ -76,7 +69,7 @@ const serwist = new Serwist({
         );
       },
       handler: new StaleWhileRevalidate({
-        cacheName: "uzma-rsc-v2",
+        cacheName: "uzma-public-rsc-v3",
       }),
     },
     ...defaultCache,
@@ -93,6 +86,8 @@ self.addEventListener("activate", (event) => {
         keys.map((key) => {
           if (
             key === "others" ||
+            key === "uzma-pages-v2" ||
+            key === "uzma-rsc-v2" ||
             key.includes("rsc-prefetch") ||
             key.includes("uzma-pages-cache") ||
             key.includes("uzma-rsc-cache")
