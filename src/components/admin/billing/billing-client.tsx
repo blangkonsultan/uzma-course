@@ -80,26 +80,46 @@ export function BillingClient({
   const [branchFilter, setBranchFilter] = useState(currentBranch);
   const [statusFilter, setStatusFilter] = useState(currentStatus);
   const [searchFilter, setSearchFilter] = useState(currentSearch);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
+  // Lifecycle refs
+  const editVersionRef = useRef(0);
+  const lastCommittedVersionRef = useRef(0);
+  const debounceTimerRef = useRef<NodeJS.Timeout | number | undefined>(undefined);
+  const branchFilterRef = useRef(branchFilter);
+  const statusFilterRef = useRef(statusFilter);
+  const searchFilterRef = useRef(searchFilter);
+
+  branchFilterRef.current = branchFilter;
+  statusFilterRef.current = statusFilter;
+  searchFilterRef.current = searchFilter;
+
+  // Cancel pending debounce on unmount or popstate
   useEffect(() => {
+    const handlePopState = () => {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = undefined;
+      // Adopt current props on navigation history change
+      editVersionRef.current += 1;
+      lastCommittedVersionRef.current = editVersionRef.current;
+    };
+
+    window.addEventListener("popstate", handlePopState);
     return () => {
       clearTimeout(debounceTimerRef.current);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, []);
-  useEffect(() => {
-    let cancelled = false;
-    queueMicrotask(() => {
-      if (cancelled) return;
-      setBranchFilter(currentBranch);
-      setStatusFilter(currentStatus);
-      setSearchFilter(currentSearch);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [currentBranch, currentStatus, currentSearch]);
 
+  // Acknowledge URL props updates
+  useEffect(() => {
+    // Only update search input if there are no uncommitted newer local edits
+    setBranchFilter(currentBranch);
+    setStatusFilter(currentStatus);
+
+    if (editVersionRef.current === lastCommittedVersionRef.current) {
+      setSearchFilter(currentSearch);
+    }
+  }, [currentBranch, currentStatus, currentSearch]);
   const [paymentInvoice, setPaymentInvoice] =
     useState<StudentInvoiceItem | null>(null);
   const [receiptInvoice, setReceiptInvoice] =
@@ -120,6 +140,9 @@ export function BillingClient({
     clearTimeout(debounceTimerRef.current);
     debounceTimerRef.current = undefined;
 
+    // Mark this version as committed to server
+    lastCommittedVersionRef.current = editVersionRef.current;
+
     const params = new URLSearchParams();
     if (nextBranch !== "all") params.set("branch", nextBranch);
     if (nextStatus !== "all") params.set("status", nextStatus);
@@ -130,11 +153,23 @@ export function BillingClient({
   };
 
   const handleSearchChange = (value: string) => {
+    editVersionRef.current += 1;
+    const captureVersion = editVersionRef.current;
+
     setSearchFilter(value);
     clearTimeout(debounceTimerRef.current);
     debounceTimerRef.current = setTimeout(() => {
-      handleFilterChange(branchFilter, statusFilter, value);
+      // Only submit if this timer's captured version is still the latest edit
+      if (captureVersion === editVersionRef.current) {
+        handleFilterChange(branchFilterRef.current, statusFilterRef.current, value);
+      }
     }, 300);
+  };
+
+  const handleSearchSubmit = () => {
+    clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = undefined;
+    handleFilterChange(branchFilterRef.current, statusFilterRef.current, searchFilterRef.current);
   };
 
   const handleGenerateInvoices = () => {
@@ -313,7 +348,7 @@ export function BillingClient({
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  handleFilterChange(branchFilter, statusFilter, searchFilter);
+                  handleSearchSubmit();
                 }
               }}
               className="w-full pl-10 pr-3 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"

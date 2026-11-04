@@ -464,4 +464,111 @@ describe("BillingClient Component", () => {
     expect(exportBtn).toBeDisabled();
   });
 
+
+  it("earlier_ack_preserves_newer_draft_and_focus: props settling to earlier search does not overwrite newer draft", async () => {
+    const { rerender } = render(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch=""
+      />
+    );
+
+    const searchInput = screen.getByLabelText("Cari tagihan SPP");
+    searchInput.focus();
+    expect(document.activeElement).toBe(searchInput);
+
+    // User types X
+    fireEvent.change(searchInput, { target: { value: "X" } });
+    expect(searchInput).toHaveValue("X");
+
+    // User continues typing to XY before server acknowledges X
+    fireEvent.change(searchInput, { target: { value: "XY" } });
+    expect(searchInput).toHaveValue("XY");
+
+    // Now server acknowledges the earlier navigation for X
+    rerender(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch="X"
+      />
+    );
+
+    // The draft must remain XY and focus must remain on the search input
+    expect(searchInput).toHaveValue("XY");
+    expect(document.activeElement).toBe(searchInput);
+
+    // Pressing enter now submits XY, not X
+    fireEvent.keyDown(searchInput, { key: "Enter" });
+    expect(pushMock).toHaveBeenLastCalledWith("/admin/spp?q=XY");
+  });
+
+  it("back_and_forward_cancel_pending_search: popstate adopts restored URL and cancels pending timer", () => {
+    vi.useFakeTimers();
+
+    render(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch="initial"
+      />
+    );
+
+    const searchInput = screen.getByLabelText("Cari tagihan SPP");
+    // Type an abandoned draft
+    fireEvent.change(searchInput, { target: { value: "abandoned" } });
+    expect(searchInput).toHaveValue("abandoned");
+
+    // User hits Back (triggers popstate) before 300ms
+    window.dispatchEvent(new PopStateEvent("popstate"));
+
+    // Advance past debounce timer
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    // No push should have been made for "abandoned"
+    expect(pushMock).not.toHaveBeenCalledWith(expect.stringContaining("abandoned"));
+
+    vi.useRealTimers();
+  });
+
+  it("a_b_a_edits_use_version_not_text_equality: returning to earlier query is recognized as a newer edit", () => {
+    const { rerender } = render(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch="A"
+      />
+    );
+
+    const searchInput = screen.getByLabelText("Cari tagihan SPP");
+    // User types B then returns to A (A -> B -> A)
+    fireEvent.change(searchInput, { target: { value: "AB" } });
+    fireEvent.change(searchInput, { target: { value: "A" } });
+    expect(searchInput).toHaveValue("A");
+
+    // Server settles intermediate state AB
+    rerender(
+      <BillingClient
+        initialSummary={sampleSummary}
+        branches={sampleBranches}
+        currentBranch="all"
+        currentStatus="all"
+        currentSearch="AB"
+      />
+    );
+
+    // Input must preserve newer intent A, not get overwritten to AB
+    expect(searchInput).toHaveValue("A");
+  });
 });
