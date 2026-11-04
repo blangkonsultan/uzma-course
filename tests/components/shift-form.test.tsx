@@ -3,7 +3,7 @@ import "@testing-library/jest-dom/vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ShiftForm } from "@/components/admin/shift/shift-form";
-import { createShift, updateShift } from "@/app/admin/shift/actions";
+import { updateShift } from "@/app/admin/shift/actions";
 
 // Mock the server actions
 vi.mock("@/app/admin/shift/actions", () => ({
@@ -102,6 +102,8 @@ describe("ShiftForm Component", () => {
     expect(await screen.findByText(/Jam shift tidak dapat dipersempit/i)).toBeInTheDocument();
     expect(nameInput).toHaveValue("Pagi Revisi");
     expect(startInput).toHaveValue("08:05");
-    expect(submitBtn).toBeEnabled();
+    await vi.waitFor(() => {
+      expect(submitBtn).toBeEnabled();
+    });
   });
 });

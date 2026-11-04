@@ -1,4 +1,3 @@
-import type { Database } from "@/types/database";
 import { getWIBDateBounds } from "./attendances";
 import { createAdminClient } from "./supabase/admin";
 import { getTeacherClassStudents } from "./teacher-roster";

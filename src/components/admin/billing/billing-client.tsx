@@ -89,9 +89,11 @@ export function BillingClient({
   const statusFilterRef = useRef(statusFilter);
   const searchFilterRef = useRef(searchFilter);
 
-  branchFilterRef.current = branchFilter;
-  statusFilterRef.current = statusFilter;
-  searchFilterRef.current = searchFilter;
+  useEffect(() => {
+    branchFilterRef.current = branchFilter;
+    statusFilterRef.current = statusFilter;
+    searchFilterRef.current = searchFilter;
+  }, [branchFilter, statusFilter, searchFilter]);
 
   // Cancel pending debounce on unmount or popstate
   useEffect(() => {
@@ -110,15 +112,20 @@ export function BillingClient({
     };
   }, []);
 
-  // Acknowledge URL props updates
+  // Acknowledge URL props updates via microtask to avoid cascading renders
   useEffect(() => {
-    // Only update search input if there are no uncommitted newer local edits
-    setBranchFilter(currentBranch);
-    setStatusFilter(currentStatus);
-
-    if (editVersionRef.current === lastCommittedVersionRef.current) {
-      setSearchFilter(currentSearch);
-    }
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setBranchFilter(currentBranch);
+      setStatusFilter(currentStatus);
+      if (editVersionRef.current === lastCommittedVersionRef.current) {
+        setSearchFilter(currentSearch);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [currentBranch, currentStatus, currentSearch]);
   const [paymentInvoice, setPaymentInvoice] =
     useState<StudentInvoiceItem | null>(null);

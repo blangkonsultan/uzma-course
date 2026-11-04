@@ -234,6 +234,7 @@ describe("PayrollPeriodClient", () => {
         teacher_id: "teacher-1",
         amount: 25000,
         reason: "Kompensasi cancel murid",
+        kind: "manual",
         created_by: "admin-1",
         created_at: "2026-10-31T20:00:00Z",
       },
