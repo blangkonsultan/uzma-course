@@ -73,14 +73,14 @@ isOneToOne: false
                   ]
                 },"payroll_adjustments": {
                   Row: {
-                    "amount": number,"created_at": string,"created_by": string,"id": string,"period_id": string,"reason": string,"teacher_id": string
+                    "amount": number,"created_at": string,"created_by": string,"id": string,"kind": string,"period_id": string,"reason": string,"teacher_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"created_at"?: string,"created_by": string,"id"?: string,"period_id": string,"reason": string,"teacher_id": string
+                    "amount": number,"created_at"?: string,"created_by": string,"id"?: string,"kind"?: string,"period_id": string,"reason": string,"teacher_id": string
                   }
                   Update: {
-                    "amount"?: number,"created_at"?: string,"created_by"?: string,"id"?: string,"period_id"?: string,"reason"?: string,"teacher_id"?: string
+                    "amount"?: number,"created_at"?: string,"created_by"?: string,"id"?: string,"kind"?: string,"period_id"?: string,"reason"?: string,"teacher_id"?: string
                   }
                   Relationships: [
                     {
@@ -631,6 +631,7 @@ isOneToOne: false
 "created_at": string,
 "created_by": string,
 "id": string,
+"kind": string,
 "period_id": string,
 "reason": string,
 "teacher_id": string
