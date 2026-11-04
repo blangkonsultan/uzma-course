@@ -264,7 +264,7 @@ export default async function HonorGuruPage({
 
         {minimumIncome > 0 && (
           <div className="p-2.5 bg-slate-50/70 border border-slate-100 rounded-xl flex items-center justify-between text-xs text-slate-600">
-            <span>Garansi Minimum Terdaftar</span>
+            <span>Gaji Minimum yang Diterima</span>
             <span className="font-semibold">
               Rp {minimumIncome.toLocaleString("id-ID")}
             </span>
