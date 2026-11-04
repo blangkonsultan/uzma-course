@@ -27,6 +27,7 @@ export type Database = {
                   Row: {
                     "branch_id": string,"created_at": string,"end_time": string,"id": string,"is_active": boolean,"name": string,"start_time": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "branch_id": string,"created_at"?: string,"end_time": string,"id"?: string,"is_active"?: boolean,"name": string,"start_time": string,"updated_at"?: string
                   }
@@ -46,6 +47,7 @@ isOneToOne: false
                   Row: {
                     "address": string,"code": string | null,"created_at": string,"desa": string,"geofence_radius_m": number,"gmaps_url": string | null,"id": string,"is_active": boolean,"kecamatan": string,"latitude": number | null,"longitude": number | null,"map_embed_url": string | null,"name": string,"sub_name": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "address"?: string,"code"?: string | null,"created_at"?: string,"desa"?: string,"geofence_radius_m"?: number,"gmaps_url"?: string | null,"id": string,"is_active"?: boolean,"kecamatan"?: string,"latitude"?: number | null,"longitude"?: number | null,"map_embed_url"?: string | null,"name": string,"sub_name"?: string,"updated_at"?: string
                   }
@@ -59,6 +61,7 @@ isOneToOne: false
                   Row: {
                     "content": NonNullable<Json>,"section": string,"updated_at": string,"updated_by": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "content"?: NonNullable<Json>,"section": string,"updated_at"?: string,"updated_by"?: string | null
                   }
@@ -68,10 +71,139 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"payroll_adjustments": {
+                  Row: {
+                    "amount": number,"created_at": string,"created_by": string,"id": string,"period_id": string,"reason": string,"teacher_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"created_at"?: string,"created_by": string,"id"?: string,"period_id": string,"reason": string,"teacher_id": string
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"created_by"?: string,"id"?: string,"period_id"?: string,"reason"?: string,"teacher_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payroll_adjustments_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payroll_adjustments_period_id_fkey"
+      columns: ["period_id"]
+isOneToOne: false
+      referencedRelation: "payroll_periods"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payroll_adjustments_teacher_id_fkey"
+      columns: ["teacher_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payroll_entries": {
+                  Row: {
+                    "adjustments_total": number,"allowances_snapshot": NonNullable<Json>,"created_at": string,"fee_sessions_total": number,"fixed_allowances_total": number,"id": string,"minimum_income_snapshot": number,"period_id": string,"teacher_id": string,"total_amount": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "adjustments_total"?: number,"allowances_snapshot"?: NonNullable<Json>,"created_at"?: string,"fee_sessions_total"?: number,"fixed_allowances_total"?: number,"id"?: string,"minimum_income_snapshot"?: number,"period_id": string,"teacher_id": string,"total_amount"?: number,"updated_at"?: string
+                  }
+                  Update: {
+                    "adjustments_total"?: number,"allowances_snapshot"?: NonNullable<Json>,"created_at"?: string,"fee_sessions_total"?: number,"fixed_allowances_total"?: number,"id"?: string,"minimum_income_snapshot"?: number,"period_id"?: string,"teacher_id"?: string,"total_amount"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payroll_entries_period_id_fkey"
+      columns: ["period_id"]
+isOneToOne: false
+      referencedRelation: "payroll_periods"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payroll_entries_teacher_id_fkey"
+      columns: ["teacher_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payroll_periods": {
+                  Row: {
+                    "closed_at": string | null,"closed_by": string | null,"created_at": string,"id": string,"paid_at": string | null,"paid_by": string | null,"period_month": string,"status": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "closed_at"?: string | null,"closed_by"?: string | null,"created_at"?: string,"id"?: string,"paid_at"?: string | null,"paid_by"?: string | null,"period_month": string,"status"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "closed_at"?: string | null,"closed_by"?: string | null,"created_at"?: string,"id"?: string,"paid_at"?: string | null,"paid_by"?: string | null,"period_month"?: string,"status"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payroll_periods_closed_by_fkey"
+      columns: ["closed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payroll_periods_paid_by_fkey"
+      columns: ["paid_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payroll_session_lines": {
+                  Row: {
+                    "attendance_status": string,"created_at": string,"id": string,"payable_amount": number,"period_id": string,"session_date": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_id": string,"teaching_session_id": string,"teaching_session_student_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attendance_status": string,"created_at"?: string,"id"?: string,"payable_amount": number,"period_id": string,"session_date": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_id": string,"teaching_session_id": string,"teaching_session_student_id": string
+                  }
+                  Update: {
+                    "attendance_status"?: string,"created_at"?: string,"id"?: string,"payable_amount"?: number,"period_id"?: string,"session_date"?: string,"student_id"?: string,"teacher_fee_snapshot"?: number,"teacher_id"?: string,"teaching_session_id"?: string,"teaching_session_student_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payroll_session_lines_period_id_fkey"
+      columns: ["period_id"]
+isOneToOne: false
+      referencedRelation: "payroll_periods"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payroll_session_lines_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payroll_session_lines_teacher_id_fkey"
+      columns: ["teacher_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payroll_session_lines_teaching_session_id_fkey"
+      columns: ["teaching_session_id"]
+isOneToOne: false
+      referencedRelation: "teaching_sessions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payroll_session_lines_teaching_session_student_id_fkey"
+      columns: ["teaching_session_student_id"]
+isOneToOne: true
+      referencedRelation: "teaching_session_students"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profile_branches": {
                   Row: {
                     "branch_id": string,"created_at": string,"is_primary": boolean,"profile_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "branch_id": string,"created_at"?: string,"is_primary"?: boolean,"profile_id": string
                   }
@@ -97,6 +229,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"profile_id": string,"program_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"profile_id": string,"program_id": string
                   }
@@ -122,6 +255,7 @@ isOneToOne: false
                   Row: {
                     "allowances": NonNullable<Json>,"bank_account_holder": string | null,"bank_account_number": string | null,"bank_name": string | null,"birth_date": string | null,"branch_id": string | null,"created_at": string,"full_name": string,"id": string,"is_active": boolean,"minimum_income": number | null,"phone": string | null,"role": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "allowances"?: NonNullable<Json>,"bank_account_holder"?: string | null,"bank_account_number"?: string | null,"bank_name"?: string | null,"birth_date"?: string | null,"branch_id"?: string | null,"created_at"?: string,"full_name": string,"id": string,"is_active"?: boolean,"minimum_income"?: number | null,"phone"?: string | null,"role"?: string,"updated_at"?: string
                   }
@@ -141,6 +275,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"default_spp": number,"duration": number,"frequency": number,"id": string,"is_active": boolean,"name": string,"program_id": string,"show_on_landing": boolean,"sort_order": number,"system": number,"teacher_fee": number,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"default_spp"?: number,"duration"?: number,"frequency"?: number,"id"?: string,"is_active"?: boolean,"name": string,"program_id": string,"show_on_landing"?: boolean,"sort_order"?: number,"system"?: number,"teacher_fee"?: number,"updated_at"?: string
                   }
@@ -160,6 +295,7 @@ isOneToOne: false
                   Row: {
                     "age_range": string,"created_at": string,"description": string,"duration": number,"features": (string)[],"icon": string,"id": string,"initials": string,"is_active": boolean,"license_description": string | null,"license_provider": string | null,"license_url": string | null,"logo_url": string | null,"name": string,"sort_order": number,"system": number,"tagline": string,"type": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "age_range"?: string,"created_at"?: string,"description"?: string,"duration"?: number,"features"?: (string)[],"icon"?: string,"id"?: string,"initials": string,"is_active"?: boolean,"license_description"?: string | null,"license_provider"?: string | null,"license_url"?: string | null,"logo_url"?: string | null,"name": string,"sort_order"?: number,"system"?: number,"tagline"?: string,"type"?: string,"updated_at"?: string
                   }
@@ -171,13 +307,14 @@ isOneToOne: false
                   ]
                 },"schedule_classes": {
                   Row: {
-                    "created_at": string,"day_of_week": number,"draft_id": string,"id": string,"shift_id": string,"teacher_id": string,"updated_at": string,"variant_id": string, "start_time": string, "end_time": string
+                    "created_at": string,"day_of_week": number,"draft_id": string,"end_time": string,"id": string,"shift_id": string,"start_time": string,"teacher_id": string,"updated_at": string,"variant_id": string
                   }
+                  ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"day_of_week": number,"draft_id": string,"id"?: string,"shift_id": string,"teacher_id": string,"updated_at"?: string,"variant_id": string, "start_time": string, "end_time": string
+                    "created_at"?: string,"day_of_week": number,"draft_id": string,"end_time": string,"id"?: string,"shift_id": string,"start_time": string,"teacher_id": string,"updated_at"?: string,"variant_id": string
                   }
                   Update: {
-                    "created_at"?: string,"day_of_week"?: number,"draft_id"?: string,"id"?: string,"shift_id"?: string,"teacher_id"?: string,"updated_at"?: string,"variant_id"?: string, "start_time"?: string, "end_time"?: string
+                    "created_at"?: string,"day_of_week"?: number,"draft_id"?: string,"end_time"?: string,"id"?: string,"shift_id"?: string,"start_time"?: string,"teacher_id"?: string,"updated_at"?: string,"variant_id"?: string
                   }
                   Relationships: [
                     {
@@ -210,6 +347,7 @@ isOneToOne: false
                   Row: {
                     "branch_id": string,"created_at": string,"effective_date": string | null,"id": string,"name": string,"status": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "branch_id": string,"created_at"?: string,"effective_date"?: string | null,"id"?: string,"name": string,"status"?: string,"updated_at"?: string
                   }
@@ -229,6 +367,7 @@ isOneToOne: false
                   Row: {
                     "class_id": string,"created_at": string,"id": string,"student_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "class_id": string,"created_at"?: string,"id"?: string,"student_id": string
                   }
@@ -250,76 +389,87 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"teaching_sessions": {
+                },"student_invoices": {
                   Row: {
-                    "branch_id": string,"created_at": string,"id": string,"scheduled_end_time": string,"scheduled_start_time": string,"schedule_class_id": string,"session_date": string,"shift_id": string,"status": string,"submitted_at": string | null,"teacher_id": string,"updated_at": string,"variant_id": string
+                    "amount": number,"branch_id": string,"created_at": string,"created_by": string | null,"cycle_number": number,"discount_amount": number,"due_date": string,"id": string,"invoice_number": string,"notes": string | null,"period_end": string,"period_start": string,"program_id": string,"status": string,"student_id": string,"total_amount": number,"updated_at": string,"variant_id": string
                   }
+                  ComputedFields: never
                   Insert: {
-                    "branch_id": string,"created_at"?: string,"id"?: string,"scheduled_end_time": string,"scheduled_start_time": string,"schedule_class_id": string,"session_date": string,"shift_id": string,"status"?: string,"submitted_at"?: string | null,"teacher_id": string,"updated_at"?: string,"variant_id": string
+                    "amount": number,"branch_id": string,"created_at"?: string,"created_by"?: string | null,"cycle_number"?: number,"discount_amount"?: number,"due_date": string,"id"?: string,"invoice_number": string,"notes"?: string | null,"period_end": string,"period_start": string,"program_id": string,"status"?: string,"student_id": string,"total_amount": number,"updated_at"?: string,"variant_id": string
                   }
                   Update: {
-                    "branch_id"?: string,"created_at"?: string,"id"?: string,"scheduled_end_time"?: string,"scheduled_start_time"?: string,"schedule_class_id"?: string,"session_date"?: string,"shift_id"?: string,"status"?: string,"submitted_at"?: string | null,"teacher_id"?: string,"updated_at"?: string,"variant_id"?: string
+                    "amount"?: number,"branch_id"?: string,"created_at"?: string,"created_by"?: string | null,"cycle_number"?: number,"discount_amount"?: number,"due_date"?: string,"id"?: string,"invoice_number"?: string,"notes"?: string | null,"period_end"?: string,"period_start"?: string,"program_id"?: string,"status"?: string,"student_id"?: string,"total_amount"?: number,"updated_at"?: string,"variant_id"?: string
                   }
-                  Relationships: []
-                },"teaching_session_students": {
+                  Relationships: [
+                    {
+      foreignKeyName: "student_invoices_branch_id_fkey"
+      columns: ["branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "student_invoices_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "student_invoices_program_id_fkey"
+      columns: ["program_id"]
+isOneToOne: false
+      referencedRelation: "programs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "student_invoices_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "student_invoices_variant_id_fkey"
+      columns: ["variant_id"]
+isOneToOne: false
+      referencedRelation: "program_variants"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"student_payments": {
                   Row: {
-                    "achievement": string | null,"attendance_status": string | null,"created_at": string,"id": string,"session_id": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_note": string | null,"updated_at": string
+                    "amount_paid": number,"created_at": string,"id": string,"invoice_id": string,"notes": string | null,"payment_date": string,"payment_method": string,"payment_reference": string | null,"receipt_number": string,"received_by": string | null,"student_id": string
                   }
+                  ComputedFields: never
                   Insert: {
-                    "achievement"?: string | null,"attendance_status"?: string | null,"created_at"?: string,"id"?: string,"session_id": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_note"?: string | null,"updated_at"?: string
+                    "amount_paid": number,"created_at"?: string,"id"?: string,"invoice_id": string,"notes"?: string | null,"payment_date"?: string,"payment_method": string,"payment_reference"?: string | null,"receipt_number": string,"received_by"?: string | null,"student_id": string
                   }
                   Update: {
-                    "achievement"?: string | null,"attendance_status"?: string | null,"created_at"?: string,"id"?: string,"session_id"?: string,"student_id"?: string,"teacher_fee_snapshot"?: number,"teacher_note"?: string | null,"updated_at"?: string
+                    "amount_paid"?: number,"created_at"?: string,"id"?: string,"invoice_id"?: string,"notes"?: string | null,"payment_date"?: string,"payment_method"?: string,"payment_reference"?: string | null,"receipt_number"?: string,"received_by"?: string | null,"student_id"?: string
                   }
-                  Relationships: []
-                },"payroll_periods": {
-                  Row: {
-                    "closed_at": string | null,"closed_by": string | null,"created_at": string,"id": string,"paid_at": string | null,"paid_by": string | null,"period_month": string,"status": string,"updated_at": string
-                  }
-                  Insert: {
-                    "closed_at"?: string | null,"closed_by"?: string | null,"created_at"?: string,"id"?: string,"paid_at"?: string | null,"paid_by"?: string | null,"period_month": string,"status"?: string,"updated_at"?: string
-                  }
-                  Update: {
-                    "closed_at"?: string | null,"closed_by"?: string | null,"created_at"?: string,"id"?: string,"paid_at"?: string | null,"paid_by"?: string | null,"period_month"?: string,"status"?: string,"updated_at"?: string
-                  }
-                  Relationships: []
-                },"payroll_session_lines": {
-                  Row: {
-                    "attendance_status": string,"created_at": string,"id": string,"payable_amount": number,"period_id": string,"session_date": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_id": string,"teaching_session_id": string,"teaching_session_student_id": string
-                  }
-                  Insert: {
-                    "attendance_status": string,"created_at"?: string,"id"?: string,"payable_amount": number,"period_id": string,"session_date": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_id": string,"teaching_session_id": string,"teaching_session_student_id": string
-                  }
-                  Update: {
-                    "attendance_status"?: string,"created_at"?: string,"id"?: string,"payable_amount"?: number,"period_id"?: string,"session_date"?: string,"student_id"?: string,"teacher_fee_snapshot"?: number,"teacher_id"?: string,"teaching_session_id"?: string,"teaching_session_student_id"?: string
-                  }
-                  Relationships: []
-                },"payroll_entries": {
-                  Row: {
-                    "adjustments_total": number,"allowances_snapshot": Json,"created_at": string,"fee_sessions_total": number,"fixed_allowances_total": number,"id": string,"minimum_income_snapshot": number,"period_id": string,"teacher_id": string,"total_amount": number,"updated_at": string
-                  }
-                  Insert: {
-                    "adjustments_total"?: number,"allowances_snapshot"?: Json,"created_at"?: string,"fee_sessions_total"?: number,"fixed_allowances_total"?: number,"id"?: string,"minimum_income_snapshot"?: number,"period_id": string,"teacher_id": string,"total_amount"?: number,"updated_at"?: string
-                  }
-                  Update: {
-                    "adjustments_total"?: number,"allowances_snapshot"?: Json,"created_at"?: string,"fee_sessions_total"?: number,"fixed_allowances_total"?: number,"id"?: string,"minimum_income_snapshot"?: number,"period_id"?: string,"teacher_id"?: string,"total_amount"?: number,"updated_at"?: string
-                  }
-                  Relationships: []
-                },"payroll_adjustments": {
-                  Row: {
-                    "amount": number,"created_at": string,"created_by": string,"id": string,"period_id": string,"reason": string,"teacher_id": string
-                  }
-                  Insert: {
-                    "amount": number,"created_at"?: string,"created_by": string,"id"?: string,"period_id": string,"reason": string,"teacher_id": string
-                  }
-                  Update: {
-                    "amount"?: number,"created_at"?: string,"created_by"?: string,"id"?: string,"period_id"?: string,"reason"?: string,"teacher_id"?: string
-                  }
-                  Relationships: []
+                  Relationships: [
+                    {
+      foreignKeyName: "student_payments_invoice_id_fkey"
+      columns: ["invoice_id"]
+isOneToOne: true
+      referencedRelation: "student_invoices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "student_payments_received_by_fkey"
+      columns: ["received_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "student_payments_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"student_programs": {
                   Row: {
                     "created_at": string,"cycle_days": number,"cycle_start_date": string,"enrolled_at": string,"on_time_discount_type": string | null,"on_time_discount_value": number,"program_id": string,"spp_amount": number,"status": string,"student_id": string,"variant_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"cycle_days"?: number,"cycle_start_date"?: string,"enrolled_at"?: string,"on_time_discount_type"?: string | null,"on_time_discount_value"?: number,"program_id": string,"spp_amount"?: number,"status"?: string,"student_id": string,"variant_id": string
                   }
@@ -351,6 +501,7 @@ isOneToOne: false
                   Row: {
                     "address": string | null,"birth_date": string | null,"branch_id": string,"created_at": string,"full_name": string,"id": string,"is_active": boolean,"joined_date": string | null,"notes": string | null,"parent_email": string | null,"parent_name": string,"parent_phone": string,"student_number": string | null,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "address"?: string | null,"birth_date"?: string | null,"branch_id": string,"created_at"?: string,"full_name": string,"id"?: string,"is_active"?: boolean,"joined_date"?: string | null,"notes"?: string | null,"parent_email"?: string | null,"parent_name": string,"parent_phone": string,"student_number"?: string | null,"updated_at"?: string
                   }
@@ -366,11 +517,11 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },
-                "teacher_attendances": {
+                },"teacher_attendances": {
                   Row: {
                     "branch_id": string,"check_in_lat": number | null,"check_in_lng": number | null,"check_in_time": string,"check_out_lat": number | null,"check_out_lng": number | null,"check_out_time": string | null,"created_at": string,"id": string,"notes": string | null,"shift_id": string | null,"teacher_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "branch_id": string,"check_in_lat"?: number | null,"check_in_lng"?: number | null,"check_in_time": string,"check_out_lat"?: number | null,"check_out_lng"?: number | null,"check_out_time"?: string | null,"created_at"?: string,"id"?: string,"notes"?: string | null,"shift_id"?: string | null,"teacher_id": string
                   }
@@ -384,8 +535,13 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "branches"
       referencedColumns: ["id"]
-    },
-                    {
+    },{
+      foreignKeyName: "teacher_attendances_shift_id_fkey"
+      columns: ["shift_id"]
+isOneToOne: false
+      referencedRelation: "branch_shifts"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "teacher_attendances_teacher_id_fkey"
       columns: ["teacher_id"]
 isOneToOne: false
@@ -393,52 +549,238 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                }
-                ,"student_invoices": {
+                },"teaching_session_students": {
                   Row: {
-                    "amount": number,"branch_id": string,"created_at": string,"created_by": string | null,"cycle_number": number,"discount_amount": number,"due_date": string,"id": string,"invoice_number": string,"notes": string | null,"period_end": string,"period_start": string,"program_id": string,"status": "unpaid" | "paid" | "cancelled","student_id": string,"total_amount": number,"updated_at": string,"variant_id": string
+                    "achievement": string | null,"attendance_status": string | null,"created_at": string,"id": string,"session_id": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_note": string | null,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
-                    "amount": number,"branch_id": string,"created_at"?: string,"created_by"?: string | null,"cycle_number"?: number,"discount_amount"?: number,"due_date": string,"id"?: string,"invoice_number": string,"notes"?: string | null,"period_end": string,"period_start": string,"program_id": string,"status"?: "unpaid" | "paid" | "cancelled","student_id": string,"total_amount": number,"updated_at"?: string,"variant_id": string
+                    "achievement"?: string | null,"attendance_status"?: string | null,"created_at"?: string,"id"?: string,"session_id": string,"student_id": string,"teacher_fee_snapshot": number,"teacher_note"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "amount"?: number,"branch_id"?: string,"created_at"?: string,"created_by"?: string | null,"cycle_number"?: number,"discount_amount"?: number,"due_date"?: string,"id"?: string,"invoice_number"?: string,"notes"?: string | null,"period_end"?: string,"period_start"?: string,"program_id"?: string,"status"?: "unpaid" | "paid" | "cancelled","student_id"?: string,"total_amount"?: number,"updated_at"?: string,"variant_id"?: string
+                    "achievement"?: string | null,"attendance_status"?: string | null,"created_at"?: string,"id"?: string,"session_id"?: string,"student_id"?: string,"teacher_fee_snapshot"?: number,"teacher_note"?: string | null,"updated_at"?: string
                   }
-                  Relationships: []
-                },"student_payments": {
+                  Relationships: [
+                    {
+      foreignKeyName: "teaching_session_students_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: false
+      referencedRelation: "teaching_sessions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "teaching_session_students_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"teaching_sessions": {
                   Row: {
-                    "amount_paid": number,"created_at": string,"id": string,"invoice_id": string,"notes": string | null,"payment_date": string,"payment_method": "cash" | "transfer_bca" | "transfer_bri" | "transfer_mandiri" | "qris" | "other","payment_reference": string | null,"receipt_number": string,"received_by": string,"student_id": string
+                    "branch_id": string,"created_at": string,"id": string,"schedule_class_id": string,"scheduled_end_time": string,"scheduled_start_time": string,"session_date": string,"shift_id": string,"status": string,"submitted_at": string | null,"teacher_id": string,"updated_at": string,"variant_id": string
                   }
+                  ComputedFields: never
                   Insert: {
-                    "amount_paid": number,"created_at"?: string,"id"?: string,"invoice_id": string,"notes"?: string | null,"payment_date"?: string,"payment_method": "cash" | "transfer_bca" | "transfer_bri" | "transfer_mandiri" | "qris" | "other","payment_reference"?: string | null,"receipt_number": string,"received_by": string,"student_id": string
+                    "branch_id": string,"created_at"?: string,"id"?: string,"schedule_class_id": string,"scheduled_end_time": string,"scheduled_start_time": string,"session_date": string,"shift_id": string,"status"?: string,"submitted_at"?: string | null,"teacher_id": string,"updated_at"?: string,"variant_id": string
                   }
                   Update: {
-                    "amount_paid"?: number,"created_at"?: string,"id"?: string,"invoice_id"?: string,"notes"?: string | null,"payment_date"?: string,"payment_method"?: "cash" | "transfer_bca" | "transfer_bri" | "transfer_mandiri" | "qris" | "other","payment_reference"?: string | null,"receipt_number"?: string,"received_by"?: string,"student_id"?: string
+                    "branch_id"?: string,"created_at"?: string,"id"?: string,"schedule_class_id"?: string,"scheduled_end_time"?: string,"scheduled_start_time"?: string,"session_date"?: string,"shift_id"?: string,"status"?: string,"submitted_at"?: string | null,"teacher_id"?: string,"updated_at"?: string,"variant_id"?: string
                   }
-                  Relationships: []
+                  Relationships: [
+                    {
+      foreignKeyName: "teaching_sessions_branch_id_fkey"
+      columns: ["branch_id"]
+isOneToOne: false
+      referencedRelation: "branches"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "teaching_sessions_schedule_class_id_fkey"
+      columns: ["schedule_class_id"]
+isOneToOne: false
+      referencedRelation: "schedule_classes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "teaching_sessions_shift_id_fkey"
+      columns: ["shift_id"]
+isOneToOne: false
+      referencedRelation: "branch_shifts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "teaching_sessions_teacher_id_fkey"
+      columns: ["teacher_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "teaching_sessions_variant_id_fkey"
+      columns: ["variant_id"]
+isOneToOne: false
+      referencedRelation: "program_variants"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
             [_ in never]: never
           }
           Functions: {
-            "is_admin":
+            "add_payroll_adjustment":
+{ Args: { "p_amount": number,"p_period_id": string,"p_reason": string,"p_teacher_id": string }; Returns: {
+              "amount": number,
+"created_at": string,
+"created_by": string,
+"id": string,
+"period_id": string,
+"reason": string,
+"teacher_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "payroll_adjustments"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"close_payroll_period":
+{ Args: { "p_period_id": string }; Returns: {
+              "closed_at": string | null,
+"closed_by": string | null,
+"created_at": string,
+"id": string,
+"paid_at": string | null,
+"paid_by": string | null,
+"period_month": string,
+"status": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "payroll_periods"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"generate_due_student_invoices":
+{ Args: { "p_branch_id"?: string }; Returns: {
+              "amount": number,
+"branch_id": string,
+"created_at": string,
+"created_by": string | null,
+"cycle_number": number,
+"discount_amount": number,
+"due_date": string,
+"id": string,
+"invoice_number": string,
+"notes": string | null,
+"period_end": string,
+"period_start": string,
+"program_id": string,
+"status": string,
+"student_id": string,
+"total_amount": number,
+"updated_at": string,
+"variant_id": string
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "student_invoices"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
+"get_teacher_class_students":
+{ Args: { "p_class_ids": (string)[] }; Returns: {
+              "class_id": string,"full_name": string,"student_id": string,"student_number": string
+            }[]
+                           },
+"get_teacher_overdue_spp":
+{ Args: { "p_class_ids": (string)[] }; Returns: {
+              "class_id": string,"due_date": string,"invoice_count": number,"program_id": string,"student_id": string,"total_amount": number
+            }[]
+                           },
+"is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
-                           },"save_teaching_session":
-{ Args: { "p_schedule_class_id": string,"p_session_date": string,"p_students": Json }; Returns: Database["public"]["Tables"]["teaching_sessions"]["Row"]
-                           },"submit_teaching_session":
-{ Args: { "p_session_id": string }; Returns: Database["public"]["Tables"]["teaching_sessions"]["Row"]
-                           },"close_payroll_period":
-{ Args: { "p_period_id": string }; Returns: Database["public"]["Tables"]["payroll_periods"]["Row"]
-                           },"mark_payroll_period_paid":
-{ Args: { "p_period_id": string }; Returns: Database["public"]["Tables"]["payroll_periods"]["Row"]
-                           },"add_payroll_adjustment":
-{ Args: { "p_period_id": string,"p_teacher_id": string,"p_amount": number,"p_reason": string }; Returns: Database["public"]["Tables"]["payroll_adjustments"]["Row"]
-                           },"generate_due_student_invoices":
-{ Args: { "p_branch_id"?: string }; Returns: Database["public"]["Tables"]["student_invoices"]["Row"][]
-                           },"record_student_payment":
-{ Args: { "p_invoice_id": string,"p_payment_method": string,"p_payment_date"?: string,"p_payment_reference"?: string,"p_notes"?: string }; Returns: Database["public"]["Tables"]["student_payments"]["Row"]
-                           }
+                           },
+"mark_payroll_period_paid":
+{ Args: { "p_period_id": string }; Returns: {
+              "closed_at": string | null,
+"closed_by": string | null,
+"created_at": string,
+"id": string,
+"paid_at": string | null,
+"paid_by": string | null,
+"period_month": string,
+"status": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "payroll_periods"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"record_student_payment":
+{ Args: { "p_invoice_id": string,"p_notes"?: string,"p_payment_date"?: string,"p_payment_method": string,"p_payment_reference"?: string }; Returns: {
+              "amount_paid": number,
+"created_at": string,
+"id": string,
+"invoice_id": string,
+"notes": string | null,
+"payment_date": string,
+"payment_method": string,
+"payment_reference": string | null,
+"receipt_number": string,
+"received_by": string | null,
+"student_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "student_payments"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"save_teaching_session":
+{ Args: { "p_schedule_class_id": string,"p_session_date": string,"p_students": Json }; Returns: {
+              "branch_id": string,
+"created_at": string,
+"id": string,
+"schedule_class_id": string,
+"scheduled_end_time": string,
+"scheduled_start_time": string,
+"session_date": string,
+"shift_id": string,
+"status": string,
+"submitted_at": string | null,
+"teacher_id": string,
+"updated_at": string,
+"variant_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "teaching_sessions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"submit_teaching_session":
+{ Args: { "p_session_id": string }; Returns: {
+              "branch_id": string,
+"created_at": string,
+"id": string,
+"schedule_class_id": string,
+"scheduled_end_time": string,
+"scheduled_start_time": string,
+"session_date": string,
+"shift_id": string,
+"status": string,
+"submitted_at": string | null,
+"teacher_id": string,
+"updated_at": string,
+"variant_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "teaching_sessions"
+        isOneToOne: true
+        isSetofReturn: false
+      } }
           }
           Enums: {
             [_ in never]: never
