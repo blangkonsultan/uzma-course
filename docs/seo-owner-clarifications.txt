@@ -1,0 +1,44 @@
+OWNER CLARIFICATIONS - UZMA COURSE SEO
+
+Hello, we are preparing improvements so parents can find Uzma Course through Google, Google Maps, and AI search. Before making changes, please confirm the following. Answer per branch/program where relevant; mark anything uncertain as "not confirmed" rather than guessing.
+
+1. Official brand and unit names
+How should we describe the relationship between Uzma Course, Ahe SumoWangi, AHE Sumokembangsri, and AHE Junwangi? Confirm the public names actually used on signage and official materials.
+
+2. Active branches and contacts
+The website currently lists:
+- Sumokembangsri: Sumotuwo, RT 20 RW 3, Sumokembangsri, Balongbendo, Sidoarjo.
+- Junwangi: Junwatu, RT 2 RW 1, Junwangi, Krian, Sidoarjo.
+Confirm whether these remain accurate and provide any approved corrections, useful landmarks, opening hours/days, and the contact for each branch. Is the published WhatsApp number 0857-3033-2379 valid for both?
+
+3. Areas actually served
+Which of Sidoarjo, Krian, Wonoayu, Balongbendo, Mojokerto, and Mojosari should we prioritize? For Mojokerto, distinguish the city and regency. Explain where students attend; confirm whether home visits or online lessons genuinely exist. We will not imply there is a branch in an area without one.
+
+4. Current programs by branch
+Confirm which branches offer AHE reading/writing, ASE arithmetic, BEE English, and school-subject tutoring. Is subject tutoring for SD only or also SMP? Is "baca tulis hitung" one package or separate reading/writing and arithmetic programs?
+
+5. Enrollment ages and levels
+The AHE card says ages 4-7, while the FAQ says children can start at 3.5. What is the correct minimum age and any readiness requirement? Confirm the age/grade range for each other program.
+
+6. Class format and schedule
+Published copy mentions two students per teacher, five per class, and a 1:4 arithmetic format. Confirm the maximum students per teacher and per session for each program, plus lesson duration and weekly frequency.
+
+7. Fees and what may be published
+Confirm current registration/tuition/material fees and the billing period. Should the website show exact prices, an approved starting price/range, or consultation-only pricing? Include any conditions and expiry dates for public promotions.
+
+8. Free trial and registration
+The website advertises one free trial session. Confirm eligible programs/branches, duration, conditions, and how parents book and enroll.
+
+9. Teaching claims and credentials
+Confirm which methods, licenses, teacher qualifications, founding year, and learning benefits may be stated publicly. Provide approved evidence where available; we will not promise guaranteed learning results.
+
+10. Photos and testimonials
+Identify genuine photos, licenses, and parent testimonials approved for publication. Confirm consent for children's photos and quoted reviews; do not send private student records or unnecessary child-identifying information.
+
+11. Account ownership and authorized access
+Who manages each existing Google Maps/Business Profile, Google Search Console, and the Vercel/domain-DNS setup? Both Maps profiles currently lack a public website link; Junwangi also lacks a public phone number and opening hours. Please coordinate authorized role invitations or the responsible administrator. Do not send passwords, OTPs, API keys, or recovery codes.
+
+12. Success measure and approval contact
+What matters most initially: qualified WhatsApp inquiries, trial bookings, or new enrollments? Name the person who will approve public facts and keep branch hours, prices, and promotions current.
+
+Implementation is deferred until we resume and agree the scope. These answers will establish accurate content; first-page rankings and AI recommendations cannot be guaranteed.
