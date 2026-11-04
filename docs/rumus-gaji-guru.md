@@ -113,6 +113,16 @@ Untuk menjamin kelayakan pendapatan guru yang ditugaskan pada sesi pagi:
    - Nilai `Kurang Gaji Pagi` ditambahkan langsung ke total gaji bulanan.
    - Jika `Gaji Pagi >= Batas Minimum Pagi`, maka `Kurang Gaji Pagi = 0`.
 
+
+### Pembaruan Sistem (2026-11-04): Garansi Gaji Minimum Otomatis Saat Penutupan Periode
+Sesuai keputusan owner pada sistem ERP terkini:
+1. **Perhitungan Otomatis**: Dilakukan secara atomik di dalam basis data saat Admin melakukan aksi **Tutup Periode Payroll** (`close_payroll_period`).
+2. **Rumus Top-up**:
+   `base_gaji = fee_sesi_total + tunjangan_tetap_total`
+   `topup_otomatis = max(0, minimum_income - base_gaji)` (hanya dibuat jika `minimum_income > 0` dan `base_gaji < minimum_income`).
+3. **Pencatatan**: Tercatat sebagai baris penyesuaian bertipe khusus `kind: 'minimum_income_topup'` dengan deskripsi `"Top-up Garansi Gaji Minimum"` (maksimal 1 baris per guru per periode).
+4. **Aturan Potongan Manual**: *Potongan tetap berlaku*. Jika admin menambahkan potongan manual setelah periode ditutup, total take-home pay boleh berkurang di bawah angka garansi tanpa menghitung ulang top-up yang sudah tercatat.
+5. **Non-aktifkan**: Nilai `minimum_income = 0` pada profil guru akan menonaktifkan top-up untuk periode penutupan berikutnya.
 ---
 
 ## §8 Contoh Perhitungan: Guru Fida (S2), Agustus 2025

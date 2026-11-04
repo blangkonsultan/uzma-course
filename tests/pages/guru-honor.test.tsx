@@ -109,8 +109,9 @@ describe("HonorGuruPage (Guru Honor Statement)", () => {
           id: "adj-1",
           period_id: "period-1",
           teacher_id: "teacher-1",
-          amount: 15000,
-          reason: "Kompensasi",
+          amount: 50000,
+          reason: "Top-up Garansi Gaji Minimum",
+          kind: "minimum_income_topup",
           created_by: "admin-1",
           created_at: "2026-10-31T20:00:00Z",
         },
@@ -132,8 +133,9 @@ describe("HonorGuruPage (Guru Honor Statement)", () => {
     expect(screen.getByText("Sudah Ditransfer / Paid")).toBeDefined();
     expect(screen.getByText("Rp 170.000")).toBeDefined();
     expect(screen.getByText("Rp 45.000")).toBeDefined();
-    expect(screen.getByText("Kompensasi")).toBeDefined();
-
+    expect(screen.getByText("Top-up Garansi Gaji Minimum")).toBeDefined();
+    expect(screen.getByText("Otomatis")).toBeDefined();
+    expect(screen.getByText("Gaji minimum periode ini")).toBeDefined();
     // Verify absence of mutation controls
     expect(screen.queryByRole("button", { name: /Tutup Periode/i })).toBeNull();
     expect(screen.queryByRole("button", { name: /Tandai Sudah Dibayar/i })).toBeNull();

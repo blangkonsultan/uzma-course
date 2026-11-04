@@ -549,9 +549,16 @@ export function PayrollPeriodClient({
                     <span className="font-bold text-slate-800 block text-sm">
                       {teacherName}
                     </span>
-                    <span className="text-slate-500 text-xs mt-0.5 block">
-                      {adj.reason}
-                    </span>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-slate-500 text-xs mt-0.5 block truncate">
+                        {adj.reason}
+                      </span>
+                      {adj.kind === "minimum_income_topup" && (
+                        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary-100 text-primary-800 shrink-0">
+                          Otomatis
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <span
                     className={`font-extrabold text-sm ${

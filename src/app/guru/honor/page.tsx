@@ -264,8 +264,12 @@ export default async function HonorGuruPage({
 
         {minimumIncome > 0 && (
           <div className="p-2.5 bg-slate-50/70 border border-slate-100 rounded-xl flex items-center justify-between text-xs text-slate-600">
-            <span>Gaji Minimum yang Diterima</span>
-            <span className="font-semibold">
+            <span>
+              {periodStatus === "open"
+                ? "Gaji minimum terkonfigurasi"
+                : "Gaji minimum periode ini"}
+            </span>
+            <span className="font-semibold text-slate-800">
               Rp {minimumIncome.toLocaleString("id-ID")}
             </span>
           </div>
@@ -295,9 +299,16 @@ export default async function HonorGuruPage({
                 key={adj.id}
                 className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl"
               >
-                <span className="text-slate-700">{adj.reason}</span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-slate-700 truncate">{adj.reason}</span>
+                  {adj.kind === "minimum_income_topup" && (
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary-100 text-primary-800 shrink-0">
+                      Otomatis
+                    </span>
+                  )}
+                </div>
                 <span
-                  className={`font-bold ${
+                  className={`font-bold shrink-0 ${
                     adj.amount < 0 ? "text-rose-600" : "text-emerald-600"
                   }`}
                 >
@@ -309,7 +320,6 @@ export default async function HonorGuruPage({
           </div>
         </div>
       )}
-
       {/* Informational Footer */}
       <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 flex items-start space-x-3 text-xs text-amber-900">
         <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
