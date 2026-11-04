@@ -103,6 +103,14 @@
       "dependencies": ["feat-001", "feat-002", "feat-003", "feat-011"],
       "status": "pending",
       "evidence": "Read-only live/source audit completed; implementation deferred at the user's request. Backlog and audit evidence: docs/seo-ai-search-backlog.md. Owner-ready questions: docs/seo-owner-clarifications.txt. Await confirmed business facts, authorized account coordination, an explicit request to resume, and agreed implementation scope. No SEO product code, CMS data, Google profiles, hosting settings, or DNS changed; unrelated feat-012 remains in progress."
+    },
+    {
+      "id": "feat-014",
+      "name": "Financial Safety and Automatic Minimum-Income Top-up",
+      "description": "Planned remediation of billing RPC authorization, class-scoped teacher financial summaries, PWA privacy, search navigation races, payroll minimum-income closing adjustments, and shift-edit recovery",
+      "dependencies": ["feat-004", "feat-008", "feat-009", "feat-010"],
+      "status": "pending",
+      "evidence": "2026-11-04 planning only: docs/superpowers/specs/2026-11-04-financial-safety-and-minimum-income-design.md and docs/superpowers/plans/2026-11-04-financial-safety-and-minimum-income.md cover every review finding plus shift editing. Owner selected an atomic automatic adjustment in close_payroll_period, manual future deactivation, and later manual deductions remaining effective without top-up recomputation. Independent builder questions resolved, including minimal historical/secondary-branch rosters without financial disclosure. Complete-document approval and execution remain pending; no runtime fix, new migration, production change, or full-suite success is claimed."
     }
   ]
 }

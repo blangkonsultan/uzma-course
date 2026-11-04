@@ -1,5 +1,13 @@
 # Session Handoff
 
+## Financial Safety and Automatic Minimum Income — Ready for Spec/Plan Review, Not Implemented (2026-11-04)
+- **Read first**: `docs/superpowers/specs/2026-11-04-financial-safety-and-minimum-income-design.md` and `docs/superpowers/plans/2026-11-04-financial-safety-and-minimum-income.md`; tracker `feat-014` is pending.
+- **Confirmed business rule**: The admin's close-period RPC atomically inserts one positive typed minimum-income adjustment when captured fees plus fixed allowances are below the configured minimum. Set minimum to `0` to disable future top-ups; no automatic expiry or retroactive backfill. Owner selected **Potongan tetap berlaku**: later deductions may reduce final pay below the closing guarantee without recalculating the automatic row.
+- **Scope/order**: Seven reviewable vertical slices: billing mutation guards; authorized teacher aggregate/minimal roster cutover (raw access, archived/transfer/secondary behavior and row caps); network-only protected PWA responses/cache eviction; search draft/history lifecycle; atomic payroll ledger; truthful compensation surfaces/guides; shift edit recovery/integrity. Use the plan's exact interfaces, ordered migrations, local behavioral checks, and final implementation review.
+- **Evidence limits**: Do not repeat the earlier blanket E2E-success claim. Cache isolation still needs a real active production worker; more-than-1,000 invoice behavior needs a real large dataset; archived/transfer views need the actual DAL/browser, not copied query logic. The earlier shift probe only established an intentional narrowing rejection plus form-value reset.
+- **Fixture safety**: Earlier failed reproduction setup paths may have left owned local dummy records; a clean Git status did not prove database cleanup. Inventory without broad pruning, do not reset/reseed, and track every new fixture ID with checked errors/finally/verified cleanup.
+- **Current state / next**: Documentation only; complete spec/plan review and execution-method approval precede implementation. No migrations or runtime tests were run in this planning stage. Do not push, merge, deploy, backfill historic payroll, or mark `feat-014` complete from these documents alone.
+
 ## SPP Search Input Debouncing & Enter Submit Verified — 2026-10-30
 - **Delivered**:
   1. Implemented 300ms search input debounce in `src/components/admin/billing/billing-client.tsx`, preventing rapid consecutive server navigations on each keystroke while preserving instantaneous local input response.
