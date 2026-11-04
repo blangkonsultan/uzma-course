@@ -1,5 +1,5 @@
 import { getWIBDateBounds } from "./attendances";
-import { createAdminClient } from "./supabase/admin";
+import { createClient } from "./supabase/server";
 import { getTeacherClassStudents } from "./teacher-roster";
 import {
   getTeacherOverdueSppByClass,
@@ -69,7 +69,7 @@ function getPreviousSessionDate(dayOfWeek: number) {
 }
 
 export async function getTeacherActiveSchedule(teacherId: string) {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   // Fetch classes assigned to this teacher in any active draft
   const { data: classes } = await supabase
@@ -96,7 +96,7 @@ export async function getTeacherActiveSchedule(teacherId: string) {
           id,
           name
         )
-      ),
+      )
     `)
     .eq("schedule_drafts.status", "active")
     .eq("teacher_id", teacherId)

@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { getTeacherActiveSchedule } from "@/lib/teacher-schedule";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
-vi.mock("@/lib/supabase/admin", () => ({
-  createAdminClient: vi.fn(),
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: vi.fn(),
 }));
 
 vi.mock("@/lib/attendances", () => ({
@@ -76,7 +76,7 @@ describe("Teacher schedule teaching log status", () => {
       throw new Error(`Unexpected RPC: ${fn}`);
     });
 
-    (createAdminClient as unknown as Mock).mockReturnValue({
+    (createClient as unknown as Mock).mockResolvedValue({
       from: vi.fn((table: string) =>
         table === "schedule_classes" ? scheduleQuery : teachingSessionQuery
       ),
@@ -141,7 +141,7 @@ describe("Teacher schedule teaching log status", () => {
       throw new Error(`Unexpected RPC: ${fn}`);
     });
 
-    (createAdminClient as unknown as Mock).mockReturnValue({
+    (createClient as unknown as Mock).mockResolvedValue({
       from: vi.fn((table: string) => {
         if (table === "schedule_classes") return scheduleQuery;
         if (table === "teaching_sessions") return teachingSessionQuery;
@@ -195,7 +195,7 @@ describe("Teacher schedule teaching log status", () => {
 
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    (createAdminClient as unknown as Mock).mockReturnValue({
+    (createClient as unknown as Mock).mockResolvedValue({
       from: vi.fn((table: string) => {
         if (table === "schedule_classes") return scheduleQuery;
         return {

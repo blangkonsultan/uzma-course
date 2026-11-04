@@ -31,56 +31,35 @@ BEGIN
         RAISE EXCEPTION 'Hanya admin yang dapat menerbitkan tagihan SPP.' USING ERRCODE = '42501';
     END IF;
 
-    -- Format YYMM in Asia/Jakarta
-    v_yymm := to_char(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta', 'YYMM');
-
     FOR v_rec IN
         SELECT sp.student_id,
                sp.program_id,
                sp.variant_id,
                sp.spp_amount,
-               sp.on_time_discount_type,
-               sp.on_time_discount_value,
-               sp.cycle_start_date,
-               sp.cycle_days,
-               s.branch_id
+               COALESCE(sp.cycle_start_date, CURRENT_DATE) AS cycle_start_date,
+               COALESCE(sp.cycle_days, 28) AS cycle_days,
+               COALESCE(sp.on_time_discount_type, 'none') AS discount_type,
+               COALESCE(sp.on_time_discount_value, 0) AS discount_value,
+               st.branch_id
         FROM public.student_programs sp
-        JOIN public.students s ON s.id = sp.student_id
+        JOIN public.students st ON st.id = sp.student_id
         WHERE sp.status = 'active'
-          AND s.is_active = TRUE
-          AND (p_branch_id IS NULL OR s.branch_id = p_branch_id)
-        ORDER BY s.branch_id, s.full_name, sp.program_id
+          AND st.is_active = TRUE
+          AND (p_branch_id IS NULL OR st.branch_id = p_branch_id)
+        ORDER BY sp.student_id, sp.program_id
     LOOP
-        v_cycle_days := COALESCE(v_rec.cycle_days, 28);
-        IF v_cycle_days <= 0 THEN
-            v_cycle_days := 28;
-        END IF;
+        v_cycle_days := GREATEST(1, v_rec.cycle_days);
 
-        -- Find the latest invoice for this student and program
-        SELECT period_end, cycle_number
-        INTO v_end_date, v_cycle_num
-        FROM public.student_invoices
-        WHERE student_id = v_rec.student_id
-          AND program_id = v_rec.program_id
-        ORDER BY period_end DESC
-        LIMIT 1;
+        -- Calculate current cycle based on cycle_start_date
+        v_days_diff := GREATEST(0, (CURRENT_DATE - v_rec.cycle_start_date));
+        v_cycle_num := (v_days_diff / v_cycle_days) + 1;
 
-        IF v_end_date IS NULL THEN
-            -- First cycle starts on cycle_start_date
-            v_start_date := v_rec.cycle_start_date;
-            v_cycle_num := 1;
-        ELSE
-            -- Subsequent cycles start the day after previous period_end
-            v_start_date := v_end_date + 1;
-            v_cycle_num := v_cycle_num + 1;
-        END IF;
+        v_start_date := v_rec.cycle_start_date + ((v_cycle_num - 1) * v_cycle_days);
+        v_end_date := v_start_date + (v_cycle_days - 1);
+        v_due_date := v_start_date + 7;
 
-        v_end_date := v_start_date + v_cycle_days - 1;
-        v_due_date := v_start_date;
-
-        -- Only generate if cycle due_date has arrived or is within rolling threshold
-        -- and no invoice exists for this period_start
-        IF v_start_date <= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::DATE AND NOT EXISTS (
+        -- Only generate if invoice for this exact (student, program, period_start) doesn't exist
+        IF NOT EXISTS (
             SELECT 1 FROM public.student_invoices
             WHERE student_id = v_rec.student_id
               AND program_id = v_rec.program_id
@@ -88,15 +67,15 @@ BEGIN
         ) THEN
             -- Calculate discount
             v_discount := 0;
-            IF v_rec.on_time_discount_type = 'nominal' THEN
-                v_discount := v_rec.on_time_discount_value;
-            ELSIF v_rec.on_time_discount_type = 'percentage' THEN
-                v_discount := ROUND(v_rec.spp_amount * v_rec.on_time_discount_value / 100.0);
+            IF v_rec.discount_type = 'nominal' AND v_rec.discount_value > 0 THEN
+                v_discount := LEAST(v_rec.spp_amount::INTEGER, v_rec.discount_value);
+            ELSIF v_rec.discount_type = 'percentage' AND v_rec.discount_value > 0 THEN
+                v_discount := LEAST(v_rec.spp_amount::INTEGER, ROUND((v_rec.spp_amount * v_rec.discount_value) / 100.0)::INTEGER);
             END IF;
 
-            v_total := GREATEST(0, v_rec.spp_amount - v_discount);
+            v_total := GREATEST(0, v_rec.spp_amount::INTEGER - v_discount);
 
-            -- Generate invoice number INV-YYMM-NNNN
+            -- Next sequential invoice number in current month
             SELECT COALESCE(MAX(SUBSTRING(invoice_number FROM 10 FOR 4)::INTEGER), 0) + 1
             INTO v_next_seq
             FROM public.student_invoices

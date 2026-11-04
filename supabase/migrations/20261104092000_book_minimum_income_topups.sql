@@ -10,6 +10,9 @@ CHECK (kind IN ('manual', 'minimum_income_topup'));
 
 -- Automatic top-ups must have positive amount
 ALTER TABLE public.payroll_adjustments
+DROP CONSTRAINT IF EXISTS chk_payroll_adjustments_positive_topup;
+
+ALTER TABLE public.payroll_adjustments
 ADD CONSTRAINT chk_payroll_adjustments_positive_topup
 CHECK (kind <> 'minimum_income_topup' OR amount > 0);
 
@@ -138,29 +141,32 @@ BEGIN
       AND ts.session_date < (v_period.period_month + INTERVAL '1 month')::DATE
     ON CONFLICT (teaching_session_student_id) DO NOTHING;
 
-    -- Calculate base payroll and insert automatic minimum-income topup if base < minimum_income
-    FOR v_teacher IN
-        SELECT
-            p.id AS teacher_id,
-            COALESCE(p.minimum_income, 0) AS min_income,
-            COALESCE(fees.total_fee, 0) AS total_fee,
-            COALESCE(allowances.total_allowance, 0) AS total_allowance
-        FROM public.profiles p
-        LEFT JOIN LATERAL (
-            SELECT COALESCE(SUM(psl.payable_amount), 0)::INTEGER AS total_fee
-            FROM public.payroll_session_lines psl
-            WHERE psl.period_id = v_period.id
-              AND psl.teacher_id = p.id
-        ) fees ON TRUE
-        LEFT JOIN LATERAL (
-            SELECT COALESCE(SUM((item->>'amount')::INTEGER), 0)::INTEGER AS total_allowance
-            FROM jsonb_array_elements(
-                CASE WHEN jsonb_typeof(p.allowances) = 'array' THEN p.allowances ELSE '[]'::jsonb END
-            ) item
-        ) allowances ON TRUE
-        WHERE p.role = 'guru'
-          AND (p.is_active = TRUE OR fees.total_fee > 0)
-    LOOP
+    -- Capture teacher profile and fee snapshot once into a temp table to prevent race conditions
+    CREATE TEMP TABLE captured_teacher_snapshots ON COMMIT DROP AS
+    SELECT
+        p.id AS teacher_id,
+        COALESCE(p.minimum_income, 0)::INTEGER AS min_income,
+        COALESCE(p.allowances, '[]'::jsonb) AS allowances_json,
+        COALESCE(fees.total_fee, 0)::INTEGER AS total_fee,
+        COALESCE(allowances.total_allowance, 0)::INTEGER AS total_allowance
+    FROM public.profiles p
+    LEFT JOIN LATERAL (
+        SELECT COALESCE(SUM(psl.payable_amount), 0)::INTEGER AS total_fee
+        FROM public.payroll_session_lines psl
+        WHERE psl.period_id = v_period.id
+          AND psl.teacher_id = p.id
+    ) fees ON TRUE
+    LEFT JOIN LATERAL (
+        SELECT COALESCE(SUM((item->>'amount')::INTEGER), 0)::INTEGER AS total_allowance
+        FROM jsonb_array_elements(
+            CASE WHEN jsonb_typeof(p.allowances) = 'array' THEN p.allowances ELSE '[]'::jsonb END
+        ) item
+    ) allowances ON TRUE
+    WHERE p.role = 'guru'
+      AND (p.is_active = TRUE OR fees.total_fee > 0);
+
+    -- Insert automatic minimum-income topup if base < min_income
+    FOR v_teacher IN SELECT * FROM captured_teacher_snapshots LOOP
         v_base := v_teacher.total_fee + v_teacher.total_allowance;
         IF v_teacher.min_income > 0 AND v_base < v_teacher.min_income THEN
             v_topup := v_teacher.min_income - v_base;
@@ -183,7 +189,7 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- Create or update payroll entries including adjustments
+    -- Create or update payroll entries using the SAME captured snapshot
     INSERT INTO public.payroll_entries (
         period_id,
         teacher_id,
@@ -196,36 +202,20 @@ BEGIN
     )
     SELECT
         v_period.id,
-        p.id,
-        COALESCE(fees.total_fee, 0),
-        COALESCE(allowances.total_allowance, 0),
-        COALESCE(p.minimum_income, 0),
-        COALESCE(p.allowances, '[]'::jsonb),
+        cts.teacher_id,
+        cts.total_fee,
+        cts.total_allowance,
+        cts.min_income,
+        cts.allowances_json,
         COALESCE(adjustments.total_adjustment, 0),
-        COALESCE(fees.total_fee, 0)
-          + COALESCE(allowances.total_allowance, 0)
-          + COALESCE(adjustments.total_adjustment, 0)
-    FROM public.profiles p
-    LEFT JOIN LATERAL (
-        SELECT COALESCE(SUM(psl.payable_amount), 0)::INTEGER AS total_fee
-        FROM public.payroll_session_lines psl
-        WHERE psl.period_id = v_period.id
-          AND psl.teacher_id = p.id
-    ) fees ON TRUE
-    LEFT JOIN LATERAL (
-        SELECT COALESCE(SUM((item->>'amount')::INTEGER), 0)::INTEGER AS total_allowance
-        FROM jsonb_array_elements(
-            CASE WHEN jsonb_typeof(p.allowances) = 'array' THEN p.allowances ELSE '[]'::jsonb END
-        ) item
-    ) allowances ON TRUE
+        cts.total_fee + cts.total_allowance + COALESCE(adjustments.total_adjustment, 0)
+    FROM captured_teacher_snapshots cts
     LEFT JOIN LATERAL (
         SELECT COALESCE(SUM(pa.amount), 0)::INTEGER AS total_adjustment
         FROM public.payroll_adjustments pa
         WHERE pa.period_id = v_period.id
-          AND pa.teacher_id = p.id
+          AND pa.teacher_id = cts.teacher_id
     ) adjustments ON TRUE
-    WHERE p.role = 'guru'
-      AND (p.is_active = TRUE OR fees.total_fee > 0)
     ON CONFLICT (period_id, teacher_id) DO UPDATE
     SET fee_sessions_total = EXCLUDED.fee_sessions_total,
         fixed_allowances_total = EXCLUDED.fixed_allowances_total,
@@ -249,6 +239,9 @@ END;
 $$;
 
 -- 4. Secure privileges
+-- Revoke direct DML on payroll_adjustments from application roles to protect ledger integrity
+REVOKE INSERT, UPDATE, DELETE ON public.payroll_adjustments FROM authenticated, anon, PUBLIC;
+
 REVOKE EXECUTE ON FUNCTION public.close_payroll_period(UUID) FROM PUBLIC, anon;
 REVOKE EXECUTE ON FUNCTION public.add_payroll_adjustment(UUID, UUID, INTEGER, TEXT) FROM PUBLIC, anon;
 

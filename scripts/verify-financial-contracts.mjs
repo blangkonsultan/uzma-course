@@ -17,8 +17,14 @@ export async function runFinancialContracts(suites) {
   const env = loadLocalEnvironment();
   const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL || "http://127.0.0.1:54321";
   assertLocalSeedTarget(supabaseUrl);
-
-  const databaseUrl = env.DATABASE_URL || env.SUPABASE_DB_URL || "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+  const databaseUrl = env.SUPABASE_DB_URL || env.DATABASE_URL || "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+  const parsedDb = new URL(databaseUrl);
+  if (parsedDb.hostname !== "127.0.0.1" && parsedDb.hostname !== "localhost") {
+    throw new Error(`Database URL must target local loopback host, got: ${parsedDb.hostname}`);
+  }
+  if (parsedDb.port !== "54322") {
+    throw new Error(`Database URL must target local port 54322, got: ${parsedDb.port}`);
+  }
 
   console.log(`[contracts] Running suites: ${suites.join(", ")} on ${databaseUrl.replace(/:[^:@]+@/, ":***@")}`);
 
