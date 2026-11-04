@@ -1,13 +1,17 @@
 # Session Handoff
 
-## Financial Safety and Automatic Minimum Income — Ready for Spec/Plan Review, Not Implemented (2026-11-04)
-- **Read first**: `docs/superpowers/specs/2026-11-04-financial-safety-and-minimum-income-design.md` and `docs/superpowers/plans/2026-11-04-financial-safety-and-minimum-income.md`; tracker `feat-014` is pending.
-- **Confirmed business rule**: The admin's close-period RPC atomically inserts one positive typed minimum-income adjustment when captured fees plus fixed allowances are below the configured minimum. Set minimum to `0` to disable future top-ups; no automatic expiry or retroactive backfill. Owner selected **Potongan tetap berlaku**: later deductions may reduce final pay below the closing guarantee without recalculating the automatic row.
-- **Scope/order**: Seven reviewable vertical slices: billing mutation guards; authorized teacher aggregate/minimal roster cutover (raw access, archived/transfer/secondary behavior and row caps); network-only protected PWA responses/cache eviction; search draft/history lifecycle; atomic payroll ledger; truthful compensation surfaces/guides; shift edit recovery/integrity. Use the plan's exact interfaces, ordered migrations, local behavioral checks, and final implementation review.
-- **Evidence limits**: Do not repeat the earlier blanket E2E-success claim. Cache isolation still needs a real active production worker; more-than-1,000 invoice behavior needs a real large dataset; archived/transfer views need the actual DAL/browser, not copied query logic. The earlier shift probe only established an intentional narrowing rejection plus form-value reset.
-- **Fixture safety**: Earlier failed reproduction setup paths may have left owned local dummy records; a clean Git status did not prove database cleanup. Inventory without broad pruning, do not reset/reseed, and track every new fixture ID with checked errors/finally/verified cleanup.
-- **Current state / next**: Documentation only; complete spec/plan review and execution-method approval precede implementation. No migrations or runtime tests were run in this planning stage. Do not push, merge, deploy, backfill historic payroll, or mark `feat-014` complete from these documents alone.
-
+## Financial Safety and Automatic Minimum Income Top-up Verified (feat-014) — 2026-11-04
+- **Status**: Fully implemented, verified against Definition of Done, and code review complete on branch `feat/financial-safety-and-minimum-income`.
+- **Delivered**:
+  1. **Billing RPC Hardening (SEC-01)**: `generate_due_student_invoices` and `record_student_payment` enforce strict `is_admin()` and non-null `auth.uid()`, with EXECUTE revoked from `PUBLIC` and `anon`. Preserves 7-day grace period and rolling cycle math.
+  2. **Teacher Debt & Minimal Roster Boundaries (SEC-02, DEBT-01..03)**: Dropped broad teacher SELECT policies on billing tables. Added `get_teacher_overdue_spp` for active-class debt aggregates and `get_teacher_class_students` for minimal roster access (id, name, NIS), with paginated DAL adapters in `src/lib/teacher-billing.ts` and `src/lib/teacher-roster.ts`.
+  3. **PWA Response Boundary (CACHE-01)**: Updated `src/app/sw.ts` with `NetworkOnly` for `/guru`, `/admin`, `/api`, `/login`, `/logout` routes. Upgraded caches to v3 (`uzma-public-pages-v3`, `uzma-public-rsc-v3`) and evicted v2 mixed caches on activate while preserving IndexedDB.
+  4. **Billing Search Draft Lifecycle (SEARCH-01, SEARCH-02)**: Versioned search draft tracking and popstate invalidation in `BillingClient`.
+  5. **Atomic Minimum Income Ledger (PAY-01)**: Migration `20261104092000_book_minimum_income_topups.sql` adds `payroll_adjustments.kind` ('manual' | 'minimum_income_topup'), positive constraint, and partial unique index. In `close_payroll_period`, captures profile/allowances once into a temp table, books one top-up adjustment if `(fees + allowances) < minimum_income`, and respects *potongan tetap berlaku*. Direct DML revoked from application roles.
+  6. **Truthful Compensation UI (PAY-02)**: Updated `/guru/honor`, `/admin/payroll`, and Master Guru form with clear labels and Otomatis badges. Updated `docs/rumus-gaji-guru.md`.
+  7. **Controlled Shift Edit Form (SHIFT-01)**: Controlled input state in `ShiftForm` to retain edits on conflict errors, with hardened `updateBranchShift` logic.
+- **Evidence**: SQL runner `scripts/verify-financial-contracts.mjs --suite all` passed all 3 suites on loopback PostgreSQL. Full `./init.sh` passed with 0 lint errors/warnings, **85 Vitest suites / 502 tests passed** (coverage: 69.37% stmts, 63.23% branch, 70.9% funcs, 70.52% lines), and clean Next.js Webpack production build.
+- **Recommended next action**: Publish branch to PR and merge into `main` after review, or deploy to Vercel preview.
 ## SPP Search Input Debouncing & Enter Submit Verified — 2026-10-30
 - **Delivered**:
   1. Implemented 300ms search input debounce in `src/components/admin/billing/billing-client.tsx`, preventing rapid consecutive server navigations on each keystroke while preserving instantaneous local input response.

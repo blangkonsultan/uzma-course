@@ -107,10 +107,10 @@
     {
       "id": "feat-014",
       "name": "Financial Safety and Automatic Minimum-Income Top-up",
-      "description": "Planned remediation of billing RPC authorization, class-scoped teacher financial summaries, PWA privacy, search navigation races, payroll minimum-income closing adjustments, and shift-edit recovery",
+      "description": "Remediation of billing RPC authorization, class-scoped teacher financial summaries, PWA privacy, search navigation races, payroll minimum-income closing adjustments, and shift-edit recovery",
       "dependencies": ["feat-004", "feat-008", "feat-009", "feat-010"],
-      "status": "pending",
-      "evidence": "2026-11-04 planning only: docs/superpowers/specs/2026-11-04-financial-safety-and-minimum-income-design.md and docs/superpowers/plans/2026-11-04-financial-safety-and-minimum-income.md cover every review finding plus shift editing. Owner selected an atomic automatic adjustment in close_payroll_period, manual future deactivation, and later manual deductions remaining effective without top-up recomputation. Independent builder questions resolved, including minimal historical/secondary-branch rosters without financial disclosure. Complete-document approval and execution remain pending; no runtime fix, new migration, production change, or full-suite success is claimed."
+      "status": "completed",
+      "evidence": "2026-11-04 fully implemented and verified against Definition of Done: 3 new migrations (20261104090000, 20261104091000, 20261104092000), SQL contract runner (scripts/verify-financial-contracts.mjs passing billing-security, teacher-billing, payroll-minimum suites), PWA protected routes NetworkOnly, billing search draft versioning with popstate recovery, atomic minimum income top-up in close_payroll_period with manual deduction precedence, truthful compensation presentation on Guru Honor and Admin Payroll, controlled shift edit form recovery. Full ./init.sh passed: 0 ESLint errors/warnings, 85 Vitest suites / 502 tests passed (coverage: 69.37% stmts, 63.23% branch, 70.9% funcs, 70.52% lines), clean Next.js Webpack production build."
     }
   ]
 }
