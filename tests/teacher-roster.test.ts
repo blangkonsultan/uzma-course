@@ -72,4 +72,52 @@ describe("getTeacherClassStudents", () => {
       "Gagal membaca daftar murid kelas: Database connection failed"
     );
   });
+
+  it.each([
+    { count: 999, ranges: [[0, 999]] },
+    { count: 1000, ranges: [[0, 999], [1000, 1999]] },
+    { count: 1001, ranges: [[0, 999], [1000, 1999]] },
+  ])("returns the complete grouped roster at the $count-row boundary", async ({ count, ranges }) => {
+    const rows = Array.from({ length: count }, (_, index) => ({
+      class_id: index < 500 ? "class-1" : "class-2",
+      student_id: `student-${index}`,
+      full_name: `Murid ${index}`,
+      student_number: index % 2 === 0 ? `${index}` : null,
+    }));
+    const range = vi.fn(async (start: number, end: number) => ({
+      data: rows.slice(start, end + 1),
+      error: null,
+    }));
+    const supabase = { rpc: vi.fn(() => ({ range })) } as unknown as SupabaseClient<Database>;
+
+    const result = await getTeacherClassStudents(supabase, ["class-1", "class-2"]);
+
+    expect(result.get("class-1")).toHaveLength(500);
+    expect(result.get("class-2")).toHaveLength(count - 500);
+    expect(result.get("class-2")?.at(-1)).toEqual({
+      id: `student-${count - 1}`,
+      full_name: `Murid ${count - 1}`,
+      student_number: count === 1000 ? null : `${count - 1}`,
+    });
+    expect(new Set([...result.values()].flat().map((student) => student.id)).size).toBe(count);
+    expect(range.mock.calls).toEqual(ranges);
+  });
+
+  it("rejects instead of returning a partial roster when a later page fails", async () => {
+    const range = vi.fn()
+      .mockResolvedValueOnce({
+        data: Array.from({ length: 1000 }, (_, index) => ({
+          class_id: "class-1", student_id: `student-${index}`,
+          full_name: `Murid ${index}`, student_number: null,
+        })),
+        error: null,
+      })
+      .mockResolvedValueOnce({ data: null, error: { message: "second page failed" } });
+    const supabase = { rpc: vi.fn(() => ({ range })) } as unknown as SupabaseClient<Database>;
+
+    await expect(getTeacherClassStudents(supabase, ["class-1"])).rejects.toThrow(
+      "Gagal membaca daftar murid kelas: second page failed"
+    );
+    expect(range.mock.calls).toEqual([[0, 999], [1000, 1999]]);
+  });
 });

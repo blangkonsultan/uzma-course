@@ -81,6 +81,14 @@ export async function updateBranchShift(
       targetEnd = targetEnd || current.end_time;
     }
 
+    // Validate positive interval ordering on full target range
+    const [sH, sM, sS = 0] = targetStart.split(":").map(Number);
+    const [eH, eM, eS = 0] = targetEnd.split(":").map(Number);
+    const startSec = sH * 3600 + sM * 60 + sS;
+    const endSec = eH * 3600 + eM * 60 + eS;
+    if (startSec >= endSec) {
+      throw new Error("Jam selesai harus lebih akhir dari jam mulai.");
+    }
     const { data: strandedClasses, error: lookupError } = await supabase
       .from("schedule_classes")
       .select("id, start_time, end_time")

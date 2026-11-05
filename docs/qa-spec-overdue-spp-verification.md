@@ -2,6 +2,10 @@
 
 Dokumen ini memuat panduan pengujian manual langkah-demi-langkah (*test scenario matrix*) untuk memverifikasi fitur penanda SPP jatuh tempo pada portal Guru PWA dan integrasinya dengan modul Admin SPP.
 
+**Kontrak aktif 2026-11-04:** Guru hanya menerima agregat melalui RPC terotorisasi `get_teacher_overdue_spp(p_class_ids)` untuk kelas aktif miliknya dan program kelas itu, bukan baris invoice/payment mentah. Agregasi seluruh invoice dilakukan di PostgreSQL sebelum batas respons. Adapter jadwal/kartu memakai urutan deterministik dan halaman 1.000 grup hingga selesai. Roster minimal ID/nama/NIS dibaca lewat `get_teacher_class_students(p_class_ids)`, juga dipaginasi dan tetap mengizinkan kelas historis milik guru/cabang sekunder tanpa saldo berjalan. Tidak ada perluasan akses finansial cabang umum. Rancangan raw-query lama digantikan oleh [spesifikasi financial safety §4](superpowers/specs/2026-11-04-financial-safety-and-minimum-income-design.md).
+
+**Pelaksanaan:** Semua skenario adalah prosedur, bukan bukti PASS. Gunakan fixture milik run yang unik di lingkungan lokal disetujui untuk penulisan/pembayaran/pagination besar; jangan meminjam profil operasional, reset/reseed, mengirim pesan WA, atau membagikan JWT. Tandai NOT_RUN/BLOCKED bila prasyarat belum ada. Tidak adanya peringatan bukan konfirmasi pembayaran; galat enrichment harus dicatat, bukan ditafsirkan sebagai semua tagihan lunas.
+
 ---
 
 ## Ringkasan Akun Pengujian
@@ -117,7 +121,7 @@ Tujuan: Memverifikasi alur verifikasi silang (*cross-role verification*) di mana
   - Sistem membuka tautan WhatsApp resmi (`https://wa.me/...`) yang ditujukan ke nomor HP wali murid dengan template pesan sopan dari Uzma Course.
   - Membuktikan bahwa wewenang penagihan digital tetap berada di tangan Admin.
 
-### Skenario H: Pencatatan Pembayaran & Pembaruan Real-Time ke Guru
+### Skenario H: Pencatatan Pembayaran & Pembaruan setelah Muat Ulang
 - **Halaman:** `/admin/spp` $\rightarrow$ `/guru/jadwal`
 - **Langkah:**
   1. Di akun Admin, klik tombol **Catat Bayar** pada tagihan murid Guru A.
@@ -125,8 +129,8 @@ Tujuan: Memverifikasi alur verifikasi silang (*cross-role verification*) di mana
   3. Status tagihan berubah menjadi `Lunas` (*Paid*).
   4. Beralih ke peramban akun Guru A dan muat ulang (*refresh*) halaman `/guru/jadwal`.
 - **Hasil yang Diharapkan:**
-  - *Badge* `1 Jatuh Tempo` pada header kelas Guru A **langsung hilang**.
-  - Kotak info amber pada baris murid tersebut di jadwal dan kartu mengajar **otomatis lenyap**.
+  - Setelah muat ulang, badge/kotak hilang bila tidak ada lagi invoice overdue pada program tersebut; bila masih ada, total/jumlah/tanggal paling awal diperbarui sesuai sisanya.
+  - Jadwal dan kartu mengajar yang dimuat ulang menampilkan agregat yang sama; tidak mengklaim push real-time pada halaman yang belum dimuat ulang.
 
 ### Skenario I: Penerbitan Siklus Tagihan Baru (Tagihan Belum Jatuh Tempo)
 - **Halaman:** `/admin/spp` $\rightarrow$ `/guru/jadwal`
@@ -150,3 +154,15 @@ Tujuan: Memverifikasi alur verifikasi silang (*cross-role verification*) di mana
 | **P4** | Guru B (`/guru/jadwal`) | Lihat kelas tanpa tunggakan | Bebas badge dan kotak peringatan (*clean state*). |
 | **P5** | Admin (`/admin/spp`) | Klik "Catat Bayar" murid Guru A | Setelah lunas, penanda di Guru A otomatis hilang. |
 | **P6** | Mobile View (360px) | Perkecil viewport ke 360px | 0 horizontal scrollbar, teks wrap natural, touch target $\ge 44$px. |
+
+## 5. Otorisasi, Histori, dan Kelengkapan (tambahan 2026-11-04)
+
+| ID | Prasyarat dan aksi | Hasil yang harus diamati |
+|---|---|---|
+| **J1** | Guru JWT/public key; invoice dan payment milik fixture diketahui ada melalui kontrol admin. Minta raw `student_invoices` dan `student_payments` di cabang utama/sekunder/lain. | Guru menerima kosong/ditolak di semua cabang, admin tetap dapat membaca. Redirect halaman bukan bukti RLS. |
+| **J2** | Panggil RPC summary dengan kelas aktif sendiri, kelas guru lain, kelas arsip, ID berulang, murid sama pada program berbeda. Coba anon, admin, dan service tanpa UID. | Hanya pemanggil guru terautentikasi mendapat agregat own active class/student/program; ID/placement ganda tidak menggandakan uang. Aktor lain ditolak; kelas asing/arsip tidak menghasilkan saldo. Tidak ada notes, receipt, kontak wali, atau raw invoice. |
+| **J3** | Buka jadwal/kartu kelas sendiri pada cabang utama dan sekunder dengan murid pindahan; buka kartu arsip sendiri, termasuk yang muridnya juga masuk kelas aktif. | Jadwal/kartu aktif setara tanpa mengandalkan branch snapshot invoice. Kartu arsip tetap memuat roster minimal dan sesi historis tanpa saldo berjalan atau financial RPC; kepemilikan metadata tidak membuka data cabang umum. |
+| **J4** | Fixture lokal disetujui berisi 1.001 invoice overdue untuk satu pasangan student/program, lalu >1.000 grup summary terotorisasi dan >1.000 baris roster. Tally independen jumlah, total, earliest date; muat kedua layar dan halaman API. | Seluruh invoice dijumlah sebelum pembatasan respons; semua halaman grup/roster dibaca urut sampai selesai, tanpa duplikasi/truncation. Gagal halaman summary tidak menghasilkan total parsial; gagal roster adalah error baca eksplisit, bukan kelas kosong sukses. |
+| **J5** | Kedua peran pada 360px, 375px, lebar menengah, 1280px+; baca saldo besar dan nama panjang, keyboard/touch. | Nominal Rp + angka tetap bersama (NBSP), `whitespace-nowrap`/`tabular-nums`; teks panjang membungkus, tanpa overflow dokumen. Kontrol mobile ≥44px; kontras terukur dan fokus terlihat. |
+
+Catat URL/status/hasil readback dan bukti sanitasi per ID. Fixtures besar memerlukan runner lokal rollback/cleanup yang dimiliki run; jangan mengubah baris operasional untuk mencapai jumlah yang diminta.

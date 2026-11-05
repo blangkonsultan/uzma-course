@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   CreditCard,
   CheckCircle2,
@@ -28,6 +28,12 @@ interface BillingClientProps {
   currentBranch?: string;
   currentStatus?: string;
   currentSearch?: string;
+}
+
+interface BillingFilters {
+  branch: string;
+  status: string;
+  search: string;
 }
 
 function formatDateDisplay(dateStr?: string | null) {
@@ -76,68 +82,107 @@ export function BillingClient({
   currentSearch = "",
 }: BillingClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlBranch = searchParams.get("branch") || "all";
+  const urlStatus = searchParams.get("status") || "all";
+  const urlSearch = searchParams.get("q") || "";
   const summary = initialSummary;
-  const [branchFilter, setBranchFilter] = useState(currentBranch);
-  const [statusFilter, setStatusFilter] = useState(currentStatus);
-  const [searchFilter, setSearchFilter] = useState(currentSearch);
-
-  // Lifecycle refs
+  const [filters, setFilters] = useState<BillingFilters>(() => ({
+    branch: currentBranch,
+    status: currentStatus,
+    search: currentSearch,
+  }));
+  const { branch: branchFilter, status: statusFilter, search: searchFilter } = filters;
+  const draftRef = useRef(filters);
   const editVersionRef = useRef(0);
-  const lastCommittedVersionRef = useRef(0);
-  const debounceTimerRef = useRef<NodeJS.Timeout | number | undefined>(undefined);
-  const branchFilterRef = useRef(branchFilter);
-  const statusFilterRef = useRef(statusFilter);
-  const searchFilterRef = useRef(searchFilter);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const acknowledgedRef = useRef({ branch: urlBranch, status: urlStatus, search: urlSearch });
+  const navigationsRef = useRef<Array<{ filters: BillingFilters; version: number }>>([]);
 
-  useEffect(() => {
-    branchFilterRef.current = branchFilter;
-    statusFilterRef.current = statusFilter;
-    searchFilterRef.current = searchFilter;
-  }, [branchFilter, statusFilter, searchFilter]);
-
-  // Cancel pending debounce on unmount or popstate and adopt restored URL state
   useEffect(() => {
     const handlePopState = () => {
+      const params = new URL(window.location.href).searchParams;
+      const restored = {
+        branch: params.get("branch") || "all",
+        status: params.get("status") || "all",
+        search: params.get("q") || "",
+      };
       clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = undefined;
-
-      // Invalidate pending work and adopt URL search params directly
       editVersionRef.current += 1;
-      lastCommittedVersionRef.current = editVersionRef.current;
+      navigationsRef.current = [];
+      acknowledgedRef.current = restored;
+      draftRef.current = restored;
+      setFilters(restored);
+    };
 
-      const url = new URL(window.location.href);
-      const q = url.searchParams.get("q") || "";
-      const branch = url.searchParams.get("branch") || "all";
-      const status = url.searchParams.get("status") || "all";
+    const handleLinkNavigation = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0
+        || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const anchor = event.target instanceof Element ? event.target.closest("a[href]") : null;
+      if (!(anchor instanceof HTMLAnchorElement) || anchor.hasAttribute("download")
+        || (anchor.target && anchor.target !== "_self")
+        || anchor.getAttribute("href")?.startsWith("#")) return;
+      const destination = new URL(anchor.href);
+      if (destination.origin !== window.location.origin) return;
 
-      setBranchFilter(branch);
-      setStatusFilter(status);
-      setSearchFilter(q);
+      // An external link intent supersedes the draft before a slow RSC commit.
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = undefined;
+      editVersionRef.current += 1;
+      navigationsRef.current = [];
+      if (destination.pathname === "/admin/spp") {
+        const next = {
+          branch: destination.searchParams.get("branch") || "all",
+          status: destination.searchParams.get("status") || "all",
+          search: destination.searchParams.get("q") || "",
+        };
+        draftRef.current = next;
+        setFilters(next);
+      }
     };
 
     window.addEventListener("popstate", handlePopState);
+    document.addEventListener("click", handleLinkNavigation, true);
     return () => {
+      editVersionRef.current += 1;
       clearTimeout(debounceTimerRef.current);
       window.removeEventListener("popstate", handlePopState);
+      document.removeEventListener("click", handleLinkNavigation, true);
     };
   }, []);
 
-  // Acknowledge URL props updates from server navigation
+  // The router URL owns committed filters. Late server props are only data,
+  // not permission to overwrite a newer editable tuple or restored history.
   useEffect(() => {
+    const committed = { branch: urlBranch, status: urlStatus, search: urlSearch };
+    const previous = acknowledgedRef.current;
+    if (previous.branch === urlBranch && previous.status === urlStatus && previous.search === urlSearch) return;
     let cancelled = false;
     queueMicrotask(() => {
       if (cancelled) return;
-      setBranchFilter(currentBranch);
-      setStatusFilter(currentStatus);
-      // Only adopt currentSearch if this acknowledgment corresponds to the latest edit
-      if (editVersionRef.current === lastCommittedVersionRef.current) {
-        setSearchFilter(currentSearch);
+      acknowledgedRef.current = committed;
+      const ownNavigation = navigationsRef.current.findLast(({ filters }) =>
+        filters.branch === urlBranch && filters.status === urlStatus && filters.search === urlSearch
+      );
+      if (ownNavigation) {
+        navigationsRef.current = navigationsRef.current.filter(
+          (navigation) => navigation.version > ownNavigation.version
+        );
+        // The local draft already contains this intent, or a newer one.
+        // In particular, do not cancel a newer draft's valid debounce.
+        return;
       }
+
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = undefined;
+      editVersionRef.current += 1;
+      navigationsRef.current = [];
+      draftRef.current = committed;
+      setFilters(committed);
     });
-    return () => {
-      cancelled = true;
-    };
-  }, [currentBranch, currentStatus, currentSearch]);
+    return () => { cancelled = true; };
+  }, [urlBranch, urlStatus, urlSearch]);
   const [paymentInvoice, setPaymentInvoice] =
     useState<StudentInvoiceItem | null>(null);
   const [receiptInvoice, setReceiptInvoice] =
@@ -150,44 +195,47 @@ export function BillingClient({
 
   const [isGenerating, startGenerating] = useTransition();
 
-  const handleFilterChange = (
-    nextBranch: string,
-    nextStatus: string,
-    nextSearch: string
-  ) => {
+  const updateDraft = (next: BillingFilters) => {
+    editVersionRef.current += 1;
+    draftRef.current = next;
+    setFilters(next);
+    return editVersionRef.current;
+  };
+
+  const navigateFilters = (next: BillingFilters) => {
     clearTimeout(debounceTimerRef.current);
     debounceTimerRef.current = undefined;
-
-    // Mark this version as committed to server
-    lastCommittedVersionRef.current = editVersionRef.current;
-
+    const submitted = { ...next, search: next.search.trim() };
+    const committed = acknowledgedRef.current;
+    if (submitted.branch === committed.branch && submitted.status === committed.status
+      && submitted.search === committed.search) {
+      // Returning to the committed URL supersedes pending requests even when
+      // the router has no changed URL to acknowledge.
+      navigationsRef.current = [];
+    } else {
+      navigationsRef.current.push({ filters: submitted, version: editVersionRef.current });
+    }
     const params = new URLSearchParams();
-    if (nextBranch !== "all") params.set("branch", nextBranch);
-    if (nextStatus !== "all") params.set("status", nextStatus);
-    if (nextSearch.trim()) params.set("q", nextSearch.trim());
-
+    if (submitted.branch !== "all") params.set("branch", submitted.branch);
+    if (submitted.status !== "all") params.set("status", submitted.status);
+    if (submitted.search) params.set("q", submitted.search);
     const qs = params.toString();
     router.push(qs ? `/admin/spp?${qs}` : "/admin/spp");
   };
 
-  const handleSearchChange = (value: string) => {
-    editVersionRef.current += 1;
-    const captureVersion = editVersionRef.current;
-
-    setSearchFilter(value);
-    clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = setTimeout(() => {
-      // Only submit if this timer's captured version is still the latest edit
-      if (captureVersion === editVersionRef.current) {
-        handleFilterChange(branchFilterRef.current, statusFilterRef.current, value);
-      }
-    }, 300);
+  const handleFilterChange = (branch: string, status: string, search: string) => {
+    const next = { branch, status, search };
+    updateDraft(next);
+    navigateFilters(next);
   };
 
-  const handleSearchSubmit = () => {
+  const handleSearchChange = (value: string) => {
+    const next = { ...draftRef.current, search: value };
+    const version = updateDraft(next);
     clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = undefined;
-    handleFilterChange(branchFilterRef.current, statusFilterRef.current, searchFilterRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      if (version === editVersionRef.current) navigateFilters(next);
+    }, 300);
   };
 
   const handleGenerateInvoices = () => {
@@ -246,8 +294,8 @@ export function BillingClient({
               <CreditCard className="w-4 h-4" />
             </span>
           </div>
-          <p className="text-lg sm:text-xl font-extrabold text-slate-900">
-            Rp {kpis.total_invoiced.toLocaleString("id-ID")}
+          <p className="text-lg sm:text-xl font-extrabold text-slate-900 whitespace-nowrap tabular-nums">
+            Rp&nbsp;{kpis.total_invoiced.toLocaleString("id-ID")}
           </p>
           <span className="text-[11px] text-slate-500 block">
             {summary.invoices.length} Faktur Tagihan
@@ -264,8 +312,8 @@ export function BillingClient({
               <CheckCircle2 className="w-4 h-4" />
             </span>
           </div>
-          <p className="text-lg sm:text-xl font-extrabold text-emerald-700">
-            Rp {kpis.total_paid.toLocaleString("id-ID")}
+          <p className="text-lg sm:text-xl font-extrabold text-emerald-700 whitespace-nowrap tabular-nums">
+            Rp&nbsp;{kpis.total_paid.toLocaleString("id-ID")}
           </p>
           <span className="text-[11px] text-slate-500 block">
             Lunas Terbayar
@@ -282,8 +330,8 @@ export function BillingClient({
               <Clock className="w-4 h-4" />
             </span>
           </div>
-          <p className="text-lg sm:text-xl font-extrabold text-amber-800">
-            Rp {kpis.total_outstanding.toLocaleString("id-ID")}
+          <p className="text-lg sm:text-xl font-extrabold text-amber-800 whitespace-nowrap tabular-nums">
+            Rp&nbsp;{kpis.total_outstanding.toLocaleString("id-ID")}
           </p>
           <span className="text-[11px] text-slate-500 block">
             Belum Terbayar
@@ -317,10 +365,9 @@ export function BillingClient({
             <select
               aria-label="Filter Cabang"
               value={branchFilter}
-              onChange={(e) => {
-                setBranchFilter(e.target.value);
-                handleFilterChange(e.target.value, statusFilter, searchFilter);
-              }}
+              onChange={(e) => handleFilterChange(
+                e.target.value, draftRef.current.status, draftRef.current.search
+              )}
               className="w-full appearance-none pl-3 pr-8 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors cursor-pointer"
             >
               <option value="all">Semua Cabang</option>
@@ -338,10 +385,9 @@ export function BillingClient({
             <select
               aria-label="Filter Status Tagihan"
               value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                handleFilterChange(branchFilter, e.target.value, searchFilter);
-              }}
+              onChange={(e) => handleFilterChange(
+                draftRef.current.branch, e.target.value, draftRef.current.search
+              )}
               className="w-full appearance-none pl-3 pr-8 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors cursor-pointer"
             >
               <option value="all">Semua Status</option>
@@ -366,7 +412,7 @@ export function BillingClient({
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  handleSearchSubmit();
+                  navigateFilters(draftRef.current);
                 }
               }}
               className="w-full pl-10 pr-3 py-2.5 sm:py-2 min-h-[44px] sm:min-h-[36px] text-base sm:text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
@@ -473,8 +519,8 @@ export function BillingClient({
                       </td>
 
                       {/* Amount */}
-                      <td className="p-3.5 text-right font-bold text-slate-900 text-sm">
-                        Rp {inv.total_amount.toLocaleString("id-ID")}
+                      <td className="p-3.5 text-right font-bold text-slate-900 text-sm whitespace-nowrap tabular-nums">
+                        Rp&nbsp;{inv.total_amount.toLocaleString("id-ID")}
                       </td>
 
                       {/* Status Badge */}
@@ -518,7 +564,7 @@ export function BillingClient({
                                   href={waUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="p-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors inline-flex items-center justify-center min-h-[36px] min-w-[36px]"
+                                  className="p-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors inline-flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-h-[36px] sm:min-w-[36px]"
                                   title="Kirim Pengingat WhatsApp"
                                   aria-label="Kirim WhatsApp"
                                 >

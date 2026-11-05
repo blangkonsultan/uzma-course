@@ -81,7 +81,9 @@ export const ADMIN_PAYROLL = {
       "systemRules": [
         "Satu bulan memiliki satu periode payroll.",
         "Dasar fee sesi berasal dari data kartu mengajar yang dikirim dan nilai payable yang diakui sistem, bukan otomatis setiap catatan presensi datang/pulang.",
-        "Total yang tercatat terdiri dari fee sesi, tunjangan tetap, dan adjustment bertanda. Garansi gaji minimum dihitung otomatis saat penutupan periode (bila fee + tunjangan < minimum_income) dan dicatat sebagai baris penyesuaian 'Top-up Garansi Gaji Minimum'. Potongan manual yang ditambahkan kemudian tetap berlaku."
+        "Total terdiri dari fee sesi, tunjangan tetap, dan adjustment bertanda. Saat penutupan, selisih positif dari minimum dikurangi fee + tunjangan dibukukan satu kali sebagai Top-up Garansi Gaji Minimum dengan badge Otomatis; estimasi terbuka belum memuatnya.",
+        "Gaji minimum periode ini memakai snapshot. Potongan manual kemudian tetap berlaku meskipun total turun di bawah minimum; bonus kemudian tidak mengurangi top-up. Tidak ada perhitungan ulang atau backfill rekap lama.",
+        "Minimum 0 menonaktifkan top-up pada penutupan berikutnya saja, bukan mengubah snapshot/top-up sebelumnya. Penutupan dan status Dibayar tidak mentransfer uang."
       ],
       "recommendations": [
         "Bandingkan jumlah akhir dengan ketentuan kompensasi yang disetujui, termasuk honor minimum terdaftar, sebelum pembayaran. Jika perlu penyesuaian yang sah, gunakan adjustment pada status yang diizinkan.",
@@ -150,6 +152,7 @@ export const ADMIN_PAYROLL = {
       "systemRules": [
         "Adjustment hanya diizinkan pada periode tertutup sebelum dibayar, bukan pada periode terbuka atau yang sudah dibayar.",
         "Nominal bukan nol dan alasan wajib diisi.",
+        "Adjustment manual tidak mengubah snapshot atau menghitung ulang top-up penutupan. Potongan tetap berlaku; bonus tidak mengurangi top-up yang sudah tercatat. Alasan yang sama dengan top-up pada baris manual lama tidak diberi badge Otomatis.",
         "Adjustment tidak mengubah isi historis kartu mengajar atau mentransfer uang."
       ],
       "recommendations": [
@@ -201,7 +204,7 @@ export const ADMIN_PAYROLL = {
             {
               "title": "Konfirmasi hanya bila siap",
               "paragraphs": [
-                "Pilih Konfirmasi Tutup Periode bila memang akan menutup bulan tersebut. Setelah berhasil, periksa status Ditutup, rekap guru, fee, tunjangan, informasi minimum, dan total.",
+                "Pilih Konfirmasi Tutup Periode bila memang akan menutup bulan tersebut. Setelah berhasil, periksa status Ditutup, snapshot fee/tunjangan/minimum, dan total. Bila fee + tunjangan di bawah minimum positif, periksa satu baris Top-up Garansi Gaji Minimum berbadge Otomatis; tidak ada baris nol bila dasar sudah mencapai minimum.",
                 "Lakukan adjustment yang diotorisasi pada periode tertutup sebelum menandai pembayaran, bila diperlukan. Jangan menganggap penutupan sama dengan transfer honor."
               ]
             }

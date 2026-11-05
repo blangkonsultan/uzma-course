@@ -7,8 +7,6 @@ import {
   type StudentOverdueSppInfo,
 } from "./teacher-billing";
 
-export type { StudentOverdueSppInfo };
-
 export type TeachingAttendanceStatus =
   | "present"
   | "absent"

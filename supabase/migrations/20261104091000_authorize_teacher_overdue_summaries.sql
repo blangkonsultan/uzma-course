@@ -119,7 +119,7 @@ BEGIN
     FROM authorized_classes ac
     JOIN public.schedule_placements sp ON sp.class_id = ac.auth_class_id
     JOIN public.students s ON s.id = sp.student_id
-    ORDER BY ac.auth_class_id, s.id;
+    ORDER BY ac.auth_class_id, s.full_name::TEXT;
 END;
 $$;
 

@@ -7,6 +7,8 @@
 - **Dependencies:** `feat-008` Teacher Presence & Geolocation, `feat-009` Teaching Log & Student Session Cards
 - **Related Business Spec:** `docs/rumus-gaji-guru.md`
 
+> **Superseded contract (2026-11-04):** The metadata-only minimum/non-goal and original closing steps below are historical evidence of the first payroll design, not current implementation instructions. [Financial safety and minimum-income specification](2026-11-04-financial-safety-and-minimum-income-design.md) §7 supersedes them: close books one positive typed `minimum_income_topup` for `max(0, minimum_snapshot − fee − fixed allowances)` when minimum is positive; open estimates do not book it. Later manual deductions remain effective even below the minimum, with no recomputation; bonuses do not reduce the booked subsidy. Minimum 0 disables future closings only. Existing closed/paid statements and legacy manual rows remain unchanged; reason text never determines kind. No bank transfer or morning-specific allocation is introduced. The original proposal/evidence below is preserved.
+
 ---
 
 ## 1. Context and Scope

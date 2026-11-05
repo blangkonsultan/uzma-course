@@ -4,6 +4,8 @@
 **Status:** Draf Menunggu Persetujuan  
 **Target Modul:** Modul Guru PWA (`/guru/jadwal`, `/guru/mengajar/[id]`)
 
+> **Kontrak digantikan (2026-11-04):** Pilihan batch raw invoice/DAL dan non-goal tanpa migrasi di bawah adalah rancangan historis, bukan instruksi implementasi terkini. [Spesifikasi financial safety](2026-11-04-financial-safety-and-minimum-income-design.md) §4 menggantikannya: guru tidak membaca tabel invoice/payment mentah; `get_teacher_overdue_spp(p_class_ids)` mengotorisasi kelas milik pemanggil guru yang aktif dan programnya, lalu mengagregasi seluruh invoice di PostgreSQL sebelum batas respons. Jadwal dan kartu mengajar memakai adapter yang sama dengan pagination deterministik 1.000 grup per halaman hingga selesai. `get_teacher_class_students(p_class_ids)` menyediakan roster minimal (ID, nama, NIS) kelas milik guru termasuk arsip/cabang sekunder, juga dipaginasi; kartu arsip tetap terbaca tanpa saldo berjalan. Akses metadata kelas yang ditugaskan mengikuti ownership, bukan perluasan izin finansial/cabang umum. Bukti dan pertimbangan awal di bawah dipertahankan.
+
 ---
 
 ## 1. Intent & The Why

@@ -159,6 +159,33 @@ export async function getPayrollPeriods(): Promise<PayrollPeriodSummary[]> {
   return data ?? [];
 }
 
+export async function getTeacherPayrollEstimate(
+  teacherId: string,
+  periodMonth: string,
+  allowances: ProfileAllowanceItem[]
+): Promise<PayrollTotals> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("teaching_sessions")
+    .select("teaching_session_students(attendance_status, teacher_fee_snapshot)")
+    .eq("teacher_id", teacherId)
+    .eq("status", "submitted")
+    .gte("session_date", periodMonth)
+    .lt("session_date", getWIBNextMonthFirstDay(periodMonth));
+
+  if (error) {
+    throw new Error(`Gagal membaca sesi untuk estimasi honor: ${error.message}`);
+  }
+  const lines = (data ?? []).flatMap((session) =>
+    (session.teaching_session_students ?? []).map((student) => ({
+      attendance_status: student.attendance_status ?? "",
+      payable_amount:
+        student.attendance_status === "present" ? student.teacher_fee_snapshot : 0,
+    }))
+  );
+  return calculatePayrollTotals(lines, allowances, []);
+}
+
 export async function createPayrollPeriod(
   _adminId: string,
   periodMonth: string

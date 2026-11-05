@@ -10,7 +10,9 @@
 
 **Spec:** [Financial safety and minimum-income design](../specs/2026-11-04-financial-safety-and-minimum-income-design.md).
 
-**Status:** Planning only. The owner approved the database approach and requested this spec/plan; implementation, production migration/deployment, and publication are not completed or implied. Reviewed application baseline: `9a982cea2db0e618d67949a10e0d8b9836ec5d52`.
+**Status:** Implementation and all named local acceptance criteria completed on 2026-11-05; see the current [progress log](../../../progress.md) for executed proof and limits. No production migration/deployment or branch publication was performed. The checklists below preserve the original execution recipe rather than retroactively asserting every planning command was run. Reviewed application baseline: `9a982cea2db0e618d67949a10e0d8b9836ec5d52`.
+
+**Forward delivery:** The three original billing/teacher/payroll migrations retain their recorded creation bytes. Subsequent corrections are versioned in `20261104110000` (financial contracts), `20261104111000` (assigned inactive variant metadata) and `20261105090000` (qualified own-entry payroll-period read policy). All were applied locally through Supabase CLI; deployment must apply pending migrations before the matching application/worker build.
 
 ## Global Constraints
 
@@ -24,7 +26,7 @@
 - UI uses existing primitives and Indonesian copy; `Rp` plus amount stays together using a nonbreaking space, `whitespace-nowrap`, and `tabular-nums`.
 - Verify 360px, 375px, an intermediate width, and 1280px+: zero document overflow; mobile/touch targets at least 44px; deliberately compact desktop controls at least 36px; form text at least 16px on mobile.
 - No new third-party dependencies, compatibility aliases, generic policy engines, or feature scaffolds.
-- Follow the complete spec's remaining invariants. Product code is not changed during this planning session.
+- Follow the complete spec's remaining invariants.
 
 ## Review Focus
 

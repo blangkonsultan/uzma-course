@@ -1,17 +1,19 @@
 # Financial Safety and Automatic Minimum-Income Top-up — Design Specification
 
 - **Date:** 2026-11-04
-- **Status:** Proposed implementation contract; database approach approved, complete spec/plan awaiting owner review. Not implemented.
-- **Tracker:** `feat-014` (planned remediation of existing payroll, billing, PWA, search, and shift workflows).
+- **Status:** Implemented and locally verified on 2026-11-05. Production migration/deployment and branch publication are separate, unperformed operations.
+- **Tracker:** `feat-014` (completed local remediation of existing payroll, billing, PWA, search, and shift workflows).
 - **Reviewed application revision:** `9a982cea2db0e618d67949a10e0d8b9836ec5d52`; review range `cede286..9a982ce`.
 - **Plan:** [Implementation plan](../plans/2026-11-04-financial-safety-and-minimum-income.md).
 - **Existing references:** [Payroll design](2026-10-16-payroll-guru-design.md), [business formula](../../rumus-gaji-guru.md), [teacher debt design](2026-10-30-teacher-overdue-spp-indicator-design.md), [UI contract](../../../DESIGN.md).
+
+**Execution record:** The acceptance matrix and exercised limits are recorded in the current [progress log](../../../progress.md). The observation ledger below preserves the pre-implementation findings; its “remaining proof” column is historical, not the current completion state. Recorded migrations retain their creation bytes; corrections shipped forward in `20261104110000`, `20261104111000` and `20261105090000`, applied locally through Supabase CLI only.
 
 ## 1. Owner decisions, scope, and non-goals
 
 The owner requires an automatic minimum-income subsidy for teachers, usually new teachers whose pupil load is still small. They chose **Approach 1: modify the PostgreSQL `close_payroll_period(uuid)` RPC through a new version-controlled migration**. The RPC must create a separately identifiable positive adjustment when the admin closes a period. Do not implement application-level calls that partially close/pay/top-up a period across multiple transactions.
 
-The existing per-teacher `minimum_income` setting controls eligibility; setting it to `0` disables future top-ups. The owner described disabling the subsidy after several periods, but did not specify an automatic expiry date or number of periods. **Do not invent a scheduler, tenure rule, expiry counter, or new enable switch.** Admin deactivation is the selected conservative interpretation, subject to approval of this document.
+The existing per-teacher `minimum_income` setting controls eligibility; setting it to `0` disables future top-ups. The owner described disabling the subsidy after several periods, but did not specify an automatic expiry date or number of periods. **Do not invent a scheduler, tenure rule, expiry counter, or new enable switch.** Admin deactivation is the selected interpretation.
 
 This specification also covers every distinct review finding: anonymous billing RPCs, excessive teacher financial reads, protected response caches, archived-class enrichment, inconsistent branch authorization, incomplete overdue totals, both search races, and the reported shift-edit failure. The former minimum-income copy finding is resolved by implementing the required business behavior plus truthful estimate/statement wording, not by reverting the label alone.
 

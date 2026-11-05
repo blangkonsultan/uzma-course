@@ -11,13 +11,12 @@ import {
 import {
   getTeacherPayrollStatement,
   getOpenPayrollPeriod,
-  calculatePayrollTotals,
+  getPayrollPeriods,
+  getTeacherPayrollEstimate,
   getWIBMonthFirstDay,
-  getWIBNextMonthFirstDay,
   type ProfileAllowanceItem,
 } from "@/lib/payroll";
 import { HonorPeriodSelect } from "@/components/guru/honor-period-select";
-import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
   title: "Honor Saya | Guru Uzma Course",
@@ -50,24 +49,19 @@ export default async function HonorGuruPage({
   const { period: requestedPeriodId } = await searchParams;
 
   const currentMonthDate = getWIBMonthFirstDay();
-  const nextMonthDate = getWIBNextMonthFirstDay(currentMonthDate);
   const currentMonthLabel = new Intl.DateTimeFormat("id-ID", {
     month: "long",
     year: "numeric",
     timeZone: "Asia/Jakarta",
   }).format(new Date());
 
-  const supabase = await createClient();
-  const { data: availablePeriods } = await supabase
-    .from("payroll_periods")
-    .select("id, period_month, status")
-    .order("period_month", { ascending: false });
+  const availablePeriods = await getPayrollPeriods();
 
   let statement = null;
   if (requestedPeriodId) {
     statement = await getTeacherPayrollStatement(profile.id, requestedPeriodId);
   } else {
-    const currentPeriod = (availablePeriods || []).find(
+    const currentPeriod = availablePeriods.find(
       (p) => p.period_month === currentMonthDate
     );
     if (currentPeriod && currentPeriod.status !== "open") {
@@ -79,38 +73,12 @@ export default async function HonorGuruPage({
   if (!statement) {
     const openPeriod = await getOpenPayrollPeriod(currentMonthDate);
 
-    const { data: submittedSessions } = await supabase
-      .from("teaching_sessions")
-      .select("id, teaching_session_students(attendance_status, teacher_fee_snapshot)")
-      .eq("teacher_id", profile.id)
-      .eq("status", "submitted")
-      .gte("session_date", currentMonthDate)
-      .lt("session_date", nextMonthDate);
-
-    interface SubmittedStudentItem {
-      attendance_status: string;
-      teacher_fee_snapshot: number;
-    }
-    interface SubmittedSessionItem {
-      id: string;
-      teaching_session_students?: SubmittedStudentItem[];
-    }
-
-    const lines = (
-      (submittedSessions || []) as unknown as SubmittedSessionItem[]
-    ).flatMap((s) => {
-      const students = s.teaching_session_students || [];
-      return students.map((st) => ({
-        attendance_status: st.attendance_status,
-        payable_amount:
-          st.attendance_status === "present" ? st.teacher_fee_snapshot : 0,
-      }));
-    });
-
     const allowances = Array.isArray(profile?.allowances)
       ? (profile.allowances as unknown as ProfileAllowanceItem[])
       : [];
-    liveOpenTotals = calculatePayrollTotals(lines, allowances, []);
+    liveOpenTotals = await getTeacherPayrollEstimate(
+      profile.id, currentMonthDate, allowances
+    );
 
     if (openPeriod) {
       statement = {
@@ -159,7 +127,7 @@ export default async function HonorGuruPage({
 
       {/* Period Selection Dropdown */}
       <HonorPeriodSelect
-        periods={availablePeriods || []}
+        periods={availablePeriods}
         currentPeriodId={statement?.period?.id}
       />
 
@@ -198,22 +166,22 @@ export default async function HonorGuruPage({
 
         <div>
           <p className="text-xs text-emerald-100">Total Take-Home Pay</p>
-          <p className="text-3xl font-black font-heading mt-0.5">
-            Rp {totals.total_amount.toLocaleString("id-ID")}
+          <p className="text-3xl font-black font-heading mt-0.5 whitespace-nowrap tabular-nums">
+            Rp&nbsp;{totals.total_amount.toLocaleString("id-ID")}
           </p>
         </div>
 
         <div className="pt-3 border-t border-white/15 grid grid-cols-2 gap-2 text-xs text-emerald-50">
           <div>
             <span className="block text-[11px] opacity-80">Total Fee Sesi</span>
-            <span className="font-bold text-white">
-              Rp {totals.fee_sessions_total.toLocaleString("id-ID")}
+            <span className="font-bold text-white whitespace-nowrap tabular-nums">
+              Rp&nbsp;{totals.fee_sessions_total.toLocaleString("id-ID")}
             </span>
           </div>
           <div>
             <span className="block text-[11px] opacity-80">Tunjangan Tetap</span>
-            <span className="font-bold text-white">
-              Rp {totals.fixed_allowances_total.toLocaleString("id-ID")}
+            <span className="font-bold text-white whitespace-nowrap tabular-nums">
+              Rp&nbsp;{totals.fixed_allowances_total.toLocaleString("id-ID")}
             </span>
           </div>
         </div>
@@ -249,13 +217,13 @@ export default async function HonorGuruPage({
             {allowances.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl text-xs"
+                className="flex items-start justify-between gap-3 p-2.5 bg-slate-50 rounded-xl text-xs"
               >
-                <span className="font-medium text-slate-700">
+                <span className="font-medium text-slate-700 min-w-0 wrap-anywhere">
                   {item.name || "Tunjangan"}
                 </span>
-                <span className="font-bold text-slate-900">
-                  Rp {Number(item.amount || 0).toLocaleString("id-ID")}
+                <span className="font-bold text-slate-900 shrink-0 whitespace-nowrap tabular-nums">
+                  Rp&nbsp;{Number(item.amount || 0).toLocaleString("id-ID")}
                 </span>
               </div>
             ))}
@@ -264,7 +232,7 @@ export default async function HonorGuruPage({
 
         {minimumIncome > 0 && (
           <div className="p-2.5 bg-slate-50/70 border border-slate-100 rounded-xl space-y-1 text-xs text-slate-600">
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between gap-3">
               <span>
                 {periodStatus === "open"
                   ? "Gaji minimum terkonfigurasi"
@@ -291,23 +259,23 @@ export default async function HonorGuruPage({
               Penyesuaian (Adjustment)
             </h3>
             <span
-              className={`text-xs font-bold ${
+              className={`text-xs font-bold shrink-0 whitespace-nowrap tabular-nums ${
                 totals.adjustments_total < 0
-                  ? "text-rose-600"
-                  : "text-emerald-600"
+                  ? "text-rose-700"
+                  : "text-emerald-700"
               }`}
             >
-              Rp {totals.adjustments_total.toLocaleString("id-ID")}
+              {totals.adjustments_total < 0 ? "-" : totals.adjustments_total > 0 ? "+" : ""}Rp&nbsp;{Math.abs(totals.adjustments_total).toLocaleString("id-ID")}
             </span>
           </div>
           <div className="space-y-2 text-xs">
             {statement.adjustments.map((adj) => (
               <div
                 key={adj.id}
-                className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl"
+                className="flex items-start justify-between gap-3 p-2.5 bg-slate-50 rounded-xl"
               >
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-slate-700 truncate">{adj.reason}</span>
+                <div className="flex flex-wrap items-start gap-1.5 min-w-0">
+                  <span className="text-slate-700 min-w-0 wrap-anywhere">{adj.reason}</span>
                   {adj.kind === "minimum_income_topup" && (
                     <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary-100 text-primary-800 shrink-0">
                       Otomatis
@@ -315,12 +283,12 @@ export default async function HonorGuruPage({
                   )}
                 </div>
                 <span
-                  className={`font-bold shrink-0 ${
-                    adj.amount < 0 ? "text-rose-600" : "text-emerald-600"
+                  className={`font-bold shrink-0 whitespace-nowrap tabular-nums ${
+                    adj.amount < 0 ? "text-rose-700" : "text-emerald-700"
                   }`}
                 >
-                  {adj.amount > 0 ? "+" : ""}Rp{" "}
-                  {adj.amount.toLocaleString("id-ID")}
+                  {adj.amount < 0 ? "-" : "+"}Rp&nbsp;
+                  {Math.abs(adj.amount).toLocaleString("id-ID")}
                 </span>
               </div>
             ))}
@@ -333,9 +301,13 @@ export default async function HonorGuruPage({
         <div className="leading-relaxed">
           <p className="font-semibold text-amber-950">Aturan Perhitungan</p>
           <p className="text-amber-800/90 mt-0.5">
-            Fee sesi dihitung otomatis dari kartu mengajar yang telah berstatus
-            Submitted. Rekap final terkunci permanen saat periode ditutup dan
-            dibayar oleh Admin.
+            Fee sesi berasal dari kartu mengajar Submitted. Estimasi terbuka belum
+            memuat top-up; selisih terhadap gaji minimum dibukukan otomatis satu
+            kali saat penutupan. Fee, tunjangan, dan minimum kemudian memakai
+            snapshot periode. Potongan manual setelah penutupan tetap berlaku,
+            sehingga total akhir dapat di bawah minimum tanpa top-up ulang.
+            Rekap lama tidak dihitung ulang. Status Paid dicatat admin dan tidak
+            melakukan transfer bank.
           </p>
         </div>
       </div>

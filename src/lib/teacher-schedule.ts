@@ -6,8 +6,6 @@ import {
   type StudentOverdueSppInfo,
 } from "./teacher-billing";
 
-export type { StudentOverdueSppInfo };
-
 export interface TeacherScheduleStudentItem {
   id: string;
   full_name: string;

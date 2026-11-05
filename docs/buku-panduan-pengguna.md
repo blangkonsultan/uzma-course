@@ -87,7 +87,7 @@ Sistem Uzma Course membagi akses operasional menjadi dua antarmuka khusus:
 - Mendaftarkan profil guru baru, cabang penempatan utama, cabang sekunder (multi-cabang), dan kontak WhatsApp.
 - **Pengaturan Tunjangan & Garansi**:
   - Tunjangan Tetap: Tambahkan komponen tunjangan bulanan (Transport, Kreativitas, dll).
-  - Garansi Honor Minimum: nominal terdaftar untuk ditinjau terhadap ketentuan kompensasi. Nilai ini disnapshot sebagai informasi, bukan otomatis ditambahkan sebagai top-up ke total honor. Admin harus meninjau selisih yang perlu disesuaikan sebelum pembayaran.
+  - Garansi Honor Minimum: dasar top-up satu kali saat penutupan. Jika fee sesi + tunjangan tetap di bawah minimum positif, selisih dibukukan sebagai **Top-up Garansi Gaji Minimum** berbadge **Otomatis**. Isi **0** untuk menonaktifkan top-up pada penutupan berikutnya, bukan mengubah snapshot/top-up sebelumnya.
 
 #### E. Data Murid (`/admin/murid`)
 - Mendaftarkan murid baru beserta data wali/orang tua dan nomor WhatsApp aktif.
@@ -129,11 +129,11 @@ Rute: `/admin/payroll`
    - Periode berstatus **Terbuka (`open`)**: Guru dapat mengisi kartu mengajar; estimasi guru memakai sesi submitted yang diakui. Entry rekap admin dapat belum terbentuk sampai penutupan, sehingga angka nol belum membuktikan tidak ada aktivitas.
    - **Tutup Periode Payroll**:
      - Di akhir bulan kalender, klik tombol **"Tutup Periode Payroll"**.
-     - Sistem secara atomik menarik seluruh sesi mengajar tersubmit, membekukan *snapshot* tunjangan tetap dan garansi minimum, serta mengubah status menjadi **Ditutup (`closed`)**.
+     - Sistem secara atomik menarik sesi submitted, membekukan snapshot tunjangan dan minimum, membukukan selisih positif **minimum − (fee sesi + tunjangan tetap)** satu kali sebagai adjustment otomatis, lalu mengubah status menjadi **Ditutup (`closed`)**. Dasar yang sudah mencapai minimum atau minimum 0 tidak membuat baris top-up.
 2. **Penambahan Penyesuaian (Adjustment)**:
    - Hanya pada status **`closed` sebelum `paid`**, klik **"+ Tambah Adjustment"**. Adjustment tidak ditambahkan pada periode terbuka atau yang sudah dibayar.
    - Masukkan nominal positif (bonus/lembur) atau negatif (potongan/denda) beserta alasan tertulis.
-   - Total honor guru dan grand total payroll terhitung bersih secara otomatis.
+   - Total honor guru dan grand total payroll berubah sesuai nilai bertanda. Potongan sesudah penutupan tetap berlaku meskipun total turun di bawah minimum; tidak ada top-up ulang. Bonus kemudian tidak mengurangi subsidi yang telah dibukukan. Rekap closed/paid lama tidak dihitung ulang atau diberi backfill; alasan yang sama pada baris manual lama tidak menjadikannya otomatis.
 3. **Pencairan Honor (*Mark Paid*)**:
    - Setelah transfer honor dilakukan, klik tombol **"Tandai Sudah Dibayar"**.
    - Tindakan ini mencatat status akhir **`paid`** dan mengunci perubahan yang tidak diizinkan. Tombol tidak melakukan transfer bank; cocokkan penerima, total dan bukti pembayaran nyata sebelum memilihnya.
@@ -236,6 +236,8 @@ Rute: `/guru/jadwal`
 
 - Menampilkan daftar kelas yang ditugaskan kepada Anda sesuai hari yang dipilih (Senin s/d Minggu).
 - Setiap kartu kelas menampilkan: jam mengajar, nama varian program, cabang, jumlah murid terdaftar, dan tautan langsung ke kartu mengajar.
+- Indikator SPP menampilkan agregat tagihan overdue sesuai kelas aktif milik guru dan program kelas, bukan akses invoice/kwitansi mentah. Cabang sekunder dan murid pindahan mengikuti otorisasi penugasan yang sama. Tidak adanya peringatan bukan konfirmasi lunas.
+- Kartu mengajar historis milik sendiri tetap dapat memuat roster minimal (ID, nama, NIS) dan sesi lama, tetapi tidak menampilkan saldo SPP berjalan. Roster dan agregat dibaca sampai seluruh halaman selesai; guru tidak diberi akses keuangan seluruh cabang.
 
 <div align="center">
   <img src="screenshots/11-guru-jadwal.png" width="300" alt="Jadwal Mengajar Harian" />
@@ -270,14 +272,14 @@ Rute: `/guru/honor`
 
 1. **Estimasi Berjalan (Bulan Aktif)**:
    - Menampilkan estimasi dari kartu submitted pada periode berjalan dan komponen yang diakui. Fee sesi standar saat ini memakai status Hadir; Tidak Hadir/Izin/Cancel tidak menambah fee sesi tersebut.
-   - Rincian tunjangan dan **Garansi Minimum Terdaftar** dibaca terpisah dari total. Minimum terdaftar bukan komponen top-up otomatis; minta admin memeriksa ketidaksesuaian dengan ketentuan kompensasi.
+   - **Gaji minimum terkonfigurasi** dibaca terpisah: estimasi belum memuat top-up tercatat. **Top-up dihitung otomatis saat admin menutup periode.** Pada rekap tertutup, **Gaji minimum periode ini** memakai snapshot; periksa baris **Top-up Garansi Gaji Minimum** berbadge **Otomatis** dan adjustment manual, bukan menganggap total selalu minimal sebesar snapshot.
 2. **Arsip Slip Resmi Periode Lampau**:
    - Buka **Pilih Periode Honor** dan gunakan pilihan yang tersedia untuk akun sendiri. Cocokkan bulan/tahun pada rekap, bukan hanya URL.
    - **Estimasi Berjalan**, **Periode Ditutup / Menunggu Transfer**, dan **Sudah Ditransfer / Paid** memiliki arti berbeda. Status pembayaran dicatat admin, bukan bukti aplikasi memverifikasi mutasi bank; laporkan arsip yang tidak tersedia atau penerimaan nyata yang tidak sesuai.
 
 <div align="center">
   <img src="screenshots/13-guru-honor.png" width="300" alt="Slip Honor Guru" />
-  <p><em>Gambar 13: Slip Rekapitulasi Honor & Tunjangan Guru PWA</em></p>
+  <p><em>Gambar 13: Ilustrasi historis estimasi honor sebelum aturan top-up penutupan; label dan angka lama bukan bukti tampilan terkini, top-up tercatat, atau transfer bank.</em></p>
 </div>
 
 ---

@@ -250,16 +250,16 @@ export function PayrollPeriodClient({
             <span className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Total Fee Sesi
             </span>
-            <span className="text-base sm:text-xl font-extrabold text-slate-900">
-              Rp {detail.totals.fee_sessions_total.toLocaleString("id-ID")}
+            <span className="text-base sm:text-xl font-extrabold text-slate-900 whitespace-nowrap tabular-nums">
+              Rp&nbsp;{detail.totals.fee_sessions_total.toLocaleString("id-ID")}
             </span>
           </div>
           <div className="p-3.5 sm:p-4 bg-slate-50/80 rounded-2xl border border-slate-100 shadow-2xs space-y-1">
             <span className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Tunjangan Tetap
             </span>
-            <span className="text-base sm:text-xl font-extrabold text-slate-900">
-              Rp {detail.totals.fixed_allowances_total.toLocaleString("id-ID")}
+            <span className="text-base sm:text-xl font-extrabold text-slate-900 whitespace-nowrap tabular-nums">
+              Rp&nbsp;{detail.totals.fixed_allowances_total.toLocaleString("id-ID")}
             </span>
           </div>
           <div className="p-3.5 sm:p-4 bg-slate-50/80 rounded-2xl border border-slate-100 shadow-2xs space-y-1">
@@ -267,27 +267,27 @@ export function PayrollPeriodClient({
               Adjustment
             </span>
             <span
-              className={`text-base sm:text-xl font-extrabold ${
+              className={`text-base sm:text-xl font-extrabold whitespace-nowrap tabular-nums ${
                 detail.totals.adjustments_total < 0
-                  ? "text-rose-600"
+                  ? "text-rose-700"
                   : detail.totals.adjustments_total > 0
                   ? "text-emerald-700"
                   : "text-slate-900"
               }`}
             >
               {detail.totals.adjustments_total > 0
-                ? `+Rp ${detail.totals.adjustments_total.toLocaleString("id-ID")}`
+                ? `+Rp\u00a0${detail.totals.adjustments_total.toLocaleString("id-ID")}`
                 : detail.totals.adjustments_total < 0
-                ? `-Rp ${Math.abs(detail.totals.adjustments_total).toLocaleString("id-ID")}`
-                : `Rp 0`}
+                ? `-Rp\u00a0${Math.abs(detail.totals.adjustments_total).toLocaleString("id-ID")}`
+                : `Rp\u00a00`}
             </span>
           </div>
           <div className="p-3.5 sm:p-4 bg-primary-50/70 rounded-2xl border border-primary-100/80 shadow-2xs space-y-1">
             <span className="block text-[11px] font-bold text-primary-700 uppercase tracking-wider">
               Grand Total Payroll
             </span>
-            <span className="text-base sm:text-xl font-black text-primary-950">
-              Rp {detail.totals.total_amount.toLocaleString("id-ID")}
+            <span className="text-base sm:text-xl font-black text-primary-950 whitespace-nowrap tabular-nums">
+              Rp&nbsp;{detail.totals.total_amount.toLocaleString("id-ID")}
             </span>
           </div>
         </div>
@@ -495,25 +495,25 @@ export function PayrollPeriodClient({
                         </span>
                       )}
                     </td>
-                    <td className="p-3 text-right font-semibold text-slate-700">
-                      Rp {entry.fee_sessions_total.toLocaleString("id-ID")}
+                    <td className="p-3 text-right font-semibold text-slate-700 whitespace-nowrap tabular-nums">
+                      Rp&nbsp;{entry.fee_sessions_total.toLocaleString("id-ID")}
                     </td>
-                    <td className="p-3 text-right font-semibold text-slate-700">
-                      Rp {entry.fixed_allowances_total.toLocaleString("id-ID")}
+                    <td className="p-3 text-right font-semibold text-slate-700 whitespace-nowrap tabular-nums">
+                      Rp&nbsp;{entry.fixed_allowances_total.toLocaleString("id-ID")}
                     </td>
                     <td
-                      className={`p-3 text-right font-semibold ${
+                      className={`p-3 text-right font-semibold whitespace-nowrap tabular-nums ${
                         entry.adjustments_total < 0
-                          ? "text-rose-600"
+                          ? "text-rose-700"
                           : entry.adjustments_total > 0
-                          ? "text-emerald-600"
+                          ? "text-emerald-700"
                           : "text-slate-500"
                       }`}
                     >
-                      Rp {entry.adjustments_total.toLocaleString("id-ID")}
+                      {entry.adjustments_total < 0 ? "-" : entry.adjustments_total > 0 ? "+" : ""}Rp&nbsp;{Math.abs(entry.adjustments_total).toLocaleString("id-ID")}
                     </td>
-                    <td className="p-3 text-right font-extrabold text-slate-900 text-sm">
-                      Rp {entry.total_amount.toLocaleString("id-ID")}
+                    <td className="p-3 text-right font-extrabold text-slate-900 text-sm whitespace-nowrap tabular-nums">
+                      Rp&nbsp;{entry.total_amount.toLocaleString("id-ID")}
                     </td>
                   </tr>
                 ))}
@@ -544,13 +544,13 @@ export function PayrollPeriodClient({
                 detail.entries.find((e) => e.teacher_id === adj.teacher_id)
                   ?.teacher.full_name || "Guru";
               return (
-                <div key={adj.id} className="p-3 sm:p-4 flex items-center justify-between gap-3">
-                  <div>
+                <div key={adj.id} className="p-3 sm:p-4 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
                     <span className="font-bold text-slate-800 block text-sm">
                       {teacherName}
                     </span>
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-slate-500 text-xs mt-0.5 block truncate">
+                    <div className="flex flex-wrap items-start gap-1.5 min-w-0">
+                      <span className="text-slate-500 text-xs mt-0.5 block min-w-0 wrap-anywhere">
                         {adj.reason}
                       </span>
                       {adj.kind === "minimum_income_topup" && (
@@ -561,11 +561,11 @@ export function PayrollPeriodClient({
                     </div>
                   </div>
                   <span
-                    className={`font-extrabold text-sm ${
-                      adj.amount < 0 ? "text-rose-600" : "text-emerald-600"
+                    className={`font-extrabold text-sm shrink-0 whitespace-nowrap tabular-nums ${
+                      adj.amount < 0 ? "text-rose-700" : "text-emerald-700"
                     }`}
                   >
-                    {adj.amount > 0 ? "+" : ""}Rp {adj.amount.toLocaleString("id-ID")}
+                    {adj.amount < 0 ? "-" : "+"}Rp&nbsp;{Math.abs(adj.amount).toLocaleString("id-ID")}
                   </span>
                 </div>
               );
