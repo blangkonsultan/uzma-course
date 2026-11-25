@@ -3,18 +3,41 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminAction } from "@/lib/auth";
-import { insertBranchShift, updateBranchShift, toggleBranchShiftActive } from "@/lib/shifts";
+import {
+  insertBranchShift,
+  parseShiftTimeToSeconds,
+  updateBranchShift,
+  toggleBranchShiftActive,
+} from "@/lib/shifts";
 
 export interface ShiftActionResponse {
   error?: string;
   fieldErrors?: Record<string, string>;
 }
 
-function parseTimeToSeconds(timeStr: string): number | null {
-  const parts = timeStr.split(":").map(Number);
-  if (parts.length < 2 || parts.some(isNaN)) return null;
-  const [h, m, s = 0] = parts;
-  return h * 3600 + m * 60 + s;
+function validateShiftTimes(
+  startTime: string,
+  endTime: string,
+  fieldErrors: Record<string, string>
+) {
+  const startSec = startTime ? parseShiftTimeToSeconds(startTime) : null;
+  const endSec = endTime ? parseShiftTimeToSeconds(endTime) : null;
+
+  if (!startTime) {
+    fieldErrors.start_time = "Jam mulai wajib diisi.";
+  } else if (startSec === null) {
+    fieldErrors.start_time = "Format jam mulai tidak valid (HH:MM).";
+  }
+
+  if (!endTime) {
+    fieldErrors.end_time = "Jam selesai wajib diisi.";
+  } else if (endSec === null) {
+    fieldErrors.end_time = "Format jam selesai tidak valid (HH:MM).";
+  }
+
+  if (startSec !== null && endSec !== null && startSec >= endSec) {
+    fieldErrors.end_time = "Jam selesai harus lebih akhir dari jam mulai.";
+  }
 }
 
 export async function createShift(formData: FormData): Promise<ShiftActionResponse | void> {
@@ -29,15 +52,7 @@ export async function createShift(formData: FormData): Promise<ShiftActionRespon
 
   if (!branchId) fieldErrors.branch_id = "Cabang wajib dipilih.";
   if (!name) fieldErrors.name = "Nama shift wajib diisi.";
-  if (!startTime) fieldErrors.start_time = "Jam mulai wajib diisi.";
-  if (!endTime) fieldErrors.end_time = "Jam selesai wajib diisi.";
-  else if (startTime) {
-    const startSec = parseTimeToSeconds(startTime);
-    const endSec = parseTimeToSeconds(endTime);
-    if (startSec !== null && endSec !== null && startSec >= endSec) {
-      fieldErrors.end_time = "Jam selesai harus lebih akhir dari jam mulai.";
-    }
-  }
+  validateShiftTimes(startTime, endTime, fieldErrors);
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
@@ -68,15 +83,7 @@ export async function updateShift(id: string, formData: FormData): Promise<Shift
   const fieldErrors: Record<string, string> = {};
 
   if (!name) fieldErrors.name = "Nama shift wajib diisi.";
-  if (!startTime) fieldErrors.start_time = "Jam mulai wajib diisi.";
-  if (!endTime) fieldErrors.end_time = "Jam selesai wajib diisi.";
-  else if (startTime) {
-    const startSec = parseTimeToSeconds(startTime);
-    const endSec = parseTimeToSeconds(endTime);
-    if (startSec !== null && endSec !== null && startSec >= endSec) {
-      fieldErrors.end_time = "Jam selesai harus lebih akhir dari jam mulai.";
-    }
-  }
+  validateShiftTimes(startTime, endTime, fieldErrors);
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }

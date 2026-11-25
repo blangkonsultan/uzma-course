@@ -26,6 +26,15 @@ const rawClass = {
   },
 };
 
+function mockOrderedRange(range: ReturnType<typeof vi.fn>) {
+  const chain = {
+    order: vi.fn(),
+    range,
+  };
+  chain.order.mockReturnValue(chain);
+  return chain;
+}
+
 describe("Teacher schedule teaching log status", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -58,20 +67,20 @@ describe("Teacher schedule teaching log status", () => {
 
     const rpcMock = vi.fn().mockImplementation((fn: string) => {
       if (fn === "get_teacher_class_students") {
-        return {
-          range: vi.fn().mockResolvedValue({
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
             data: [],
             error: null,
-          }),
-        };
+          })
+        );
       }
       if (fn === "get_teacher_overdue_spp") {
-        return {
-          range: vi.fn().mockResolvedValue({
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
             data: [],
             error: null,
-          }),
-        };
+          })
+        );
       }
       throw new Error(`Unexpected RPC: ${fn}`);
     });
@@ -111,19 +120,19 @@ describe("Teacher schedule teaching log status", () => {
 
     const rpcMock = vi.fn().mockImplementation((fn: string) => {
       if (fn === "get_teacher_class_students") {
-        return {
-          range: vi.fn().mockResolvedValue({
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
             data: [
               { class_id: "class-1", student_id: "student-1", full_name: "Murid Satu", student_number: "01001" },
               { class_id: "class-1", student_id: "student-2", full_name: "Murid Dua", student_number: "01002" },
             ],
             error: null,
-          }),
-        };
+          })
+        );
       }
       if (fn === "get_teacher_overdue_spp") {
-        return {
-          range: vi.fn().mockResolvedValue({
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
             data: [
               {
                 class_id: "class-1",
@@ -135,8 +144,8 @@ describe("Teacher schedule teaching log status", () => {
               },
             ],
             error: null,
-          }),
-        };
+          })
+        );
       }
       throw new Error(`Unexpected RPC: ${fn}`);
     });
@@ -178,22 +187,22 @@ describe("Teacher schedule teaching log status", () => {
 
     const rpcMock = vi.fn().mockImplementation((fn: string) => {
       if (fn === "get_teacher_class_students") {
-        return {
-          range: vi.fn().mockResolvedValue({
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
             data: [
               { class_id: "class-1", student_id: "student-1", full_name: "Murid Satu", student_number: "01001" },
             ],
             error: null,
-          }),
-        };
+          })
+        );
       }
       if (fn === "get_teacher_overdue_spp") {
-        return {
-          range: vi.fn().mockResolvedValue({
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
             data: null,
             error: { message: "connection timeout" },
-          }),
-        };
+          })
+        );
       }
       throw new Error(`Unexpected RPC: ${fn}`);
     });
@@ -233,9 +242,11 @@ describe("Teacher schedule teaching log status", () => {
     };
     vi.mocked(createClient).mockResolvedValue({
       from: vi.fn(() => scheduleQuery),
-      rpc: vi.fn(() => ({
-        range: vi.fn().mockResolvedValue({ data: null, error: { message: "roster unavailable" } }),
-      })),
+      rpc: vi.fn(() =>
+        mockOrderedRange(
+          vi.fn().mockResolvedValue({ data: null, error: { message: "roster unavailable" } })
+        )
+      ),
     } as never);
 
     await expect(getTeacherActiveSchedule("teacher-1")).rejects.toThrow(
@@ -269,15 +280,15 @@ describe("Teacher schedule teaching log status", () => {
     vi.mocked(createClient).mockResolvedValue({
       from: vi.fn((table: string) => table === "schedule_classes" ? scheduleQuery : sessions),
       rpc: vi.fn((name: string) => {
-        if (name === "get_teacher_overdue_spp") return { range: summaries };
-        if (name === "get_teacher_class_students") return {
-          range: vi.fn().mockResolvedValue({
+        if (name === "get_teacher_overdue_spp") return mockOrderedRange(summaries);
+        if (name === "get_teacher_class_students") return mockOrderedRange(
+          vi.fn().mockResolvedValue({
             data: [
               { class_id: "class-1", student_id: "student-0", full_name: "Murid", student_number: null },
             ],
             error: null,
-          }),
-        };
+          })
+        );
         throw new Error(`Unexpected RPC: ${name}`);
       }),
     } as never);

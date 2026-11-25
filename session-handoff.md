@@ -1,5 +1,11 @@
 # Session Handoff
 
+## Whole-Branch Code Review Remediation Verified — 2026-11-25
+- **Current status**: `feat-014` on `feat/financial-safety-and-minimum-income` passed a full-branch (`2edf0bbc..78ee0bb8`) Senior Code Review, with all 4 Important findings and 3 Minor items resolved (open-period live estimate on `/guru/honor?period=<open-id>`, strict shift time validation before PostgREST `.or(...)`, explicit outer `.order(...)` + null/blank guards on paginated teacher RPC adapters, missing shift unit regressions, `required` on `Jam Mulai`, period-switch state reset in `PayrollPeriodClient`, and removal of unused `scripts/sql/financial-contract-fixtures.sql`).
+- **Verified**: Clean ESLint (0 errors/warnings), **83 suites / 548 tests passed** (coverage: 70.14% stmts, 64.44% branch, 71.21% funcs, 71.30% lines), and clean Next.js Webpack production build + TypeScript (`eKa3ReG0LP0mlCI5JZrdw`, paired with `public/sw.js`).
+- **Migration/release order**: Unchanged — apply forward migrations through Supabase CLI before deploying the matching application/worker build, then run authenticated hosted smoke. No push, merge, production migration/deployment, reset, or reseed performed.
+- **Next action**: Branch is ready for PR/merge into `main` on owner authorization.
+
 ## Financial Remediation Acceptance Completed Locally — 2026-11-05
 - **Current status**: `feat-014` is `completed` on `feat/financial-safety-and-minimum-income`. The latest `progress.md` entry is authoritative; older completion/release claims below are historical, not production proof.
 - **Verified**: Full `./init.sh`, then final lint/test refresh: clean ESLint, 83 suites / 533 tests, coverage and production build. All three standalone SQL suites and real lock-observed concurrent close/profile-edit cases passed after QA cleanup. Actual Data API/DAL/UI, search/history races, persisted shift recovery, payroll close/manual deduction/future disable, active-worker upgrade/two-account queue/offline matrix and 16 responsive samples passed as recorded in `progress.md`.

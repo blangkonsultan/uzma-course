@@ -3,6 +3,18 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import { getTeacherOverdueSppByClass } from "@/lib/teacher-billing";
 
+function createOrderedRpcChain(
+  range: ReturnType<typeof vi.fn>,
+  orderSpy?: ReturnType<typeof vi.fn>
+) {
+  const chain = {
+    order: orderSpy ?? vi.fn(),
+    range,
+  };
+  chain.order.mockReturnValue(chain);
+  return chain;
+}
+
 describe("getTeacherOverdueSppByClass", () => {
   it("returns empty map when classIds is empty", async () => {
     const supabaseMock = {
@@ -14,34 +26,39 @@ describe("getTeacherOverdueSppByClass", () => {
     expect(supabaseMock.rpc).not.toHaveBeenCalled();
   });
 
-  it("fetches overdue summary pages and constructs class:student:program keys", async () => {
+  it("fetches overdue summary pages with deterministic ordering and constructs class:student:program keys", async () => {
+    const order = vi.fn();
+    const range = vi.fn().mockResolvedValue({
+      data: [
+        {
+          class_id: "class-1",
+          student_id: "student-1",
+          program_id: "prog-1",
+          due_date: "2026-10-01",
+          total_amount: 150000,
+          invoice_count: 1,
+        },
+        {
+          class_id: "class-1",
+          student_id: "student-2",
+          program_id: "prog-1",
+          due_date: "2026-09-01",
+          total_amount: 300000,
+          invoice_count: 2,
+        },
+      ],
+      error: null,
+    });
     const supabaseMock = {
-      rpc: vi.fn().mockReturnValue({
-        range: vi.fn().mockResolvedValue({
-          data: [
-            {
-              class_id: "class-1",
-              student_id: "student-1",
-              program_id: "prog-1",
-              due_date: "2026-10-01",
-              total_amount: 150000,
-              invoice_count: 1,
-            },
-            {
-              class_id: "class-1",
-              student_id: "student-2",
-              program_id: "prog-1",
-              due_date: "2026-09-01",
-              total_amount: 300000,
-              invoice_count: 2,
-            },
-          ],
-          error: null,
-        }),
-      }),
+      rpc: vi.fn().mockReturnValue(createOrderedRpcChain(range, order)),
     } as unknown as SupabaseClient<Database>;
 
     const result = await getTeacherOverdueSppByClass(supabaseMock, ["class-1"]);
+    expect(order.mock.calls).toEqual([
+      ["class_id", { ascending: true }],
+      ["student_id", { ascending: true }],
+      ["program_id", { ascending: true }],
+    ]);
     expect(result.size).toBe(2);
     expect(result.get("class-1:student-1:prog-1")).toEqual({
       due_date: "2026-10-01",
@@ -57,13 +74,12 @@ describe("getTeacherOverdueSppByClass", () => {
 
   it("discards partial results when an RPC error occurs", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const range = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: "Permission denied" },
+    });
     const supabaseMock = {
-      rpc: vi.fn().mockReturnValue({
-        range: vi.fn().mockResolvedValue({
-          data: null,
-          error: { message: "Permission denied" },
-        }),
-      }),
+      rpc: vi.fn().mockReturnValue(createOrderedRpcChain(range)),
     } as unknown as SupabaseClient<Database>;
 
     const result = await getTeacherOverdueSppByClass(supabaseMock, ["class-1"]);
@@ -88,7 +104,7 @@ describe("getTeacherOverdueSppByClass", () => {
       data: rows.slice(start, end + 1),
       error: null,
     }));
-    const supabase = { rpc: vi.fn(() => ({ range })) } as unknown as SupabaseClient<Database>;
+    const supabase = { rpc: vi.fn(() => createOrderedRpcChain(range)) } as unknown as SupabaseClient<Database>;
 
     const result = await getTeacherOverdueSppByClass(supabase, ["class-1", "class-2"]);
 
@@ -111,7 +127,7 @@ describe("getTeacherOverdueSppByClass", () => {
         error: null,
       })
       .mockResolvedValueOnce({ data: null, error: { message: "later page unavailable" } });
-    const supabase = { rpc: vi.fn(() => ({ range })) } as unknown as SupabaseClient<Database>;
+    const supabase = { rpc: vi.fn(() => createOrderedRpcChain(range)) } as unknown as SupabaseClient<Database>;
     try {
       const result = await getTeacherOverdueSppByClass(supabase, ["class-1"]);
       expect(result.size).toBe(0);
@@ -122,18 +138,17 @@ describe("getTeacherOverdueSppByClass", () => {
   });
 
   it("preserves the maximum exact safe-integer amount and invoice count", async () => {
+    const range = vi.fn().mockResolvedValue({
+      data: [{
+        class_id: "class-1", student_id: "student-1", program_id: "program-1",
+        due_date: "2026-09-01",
+        total_amount: Number.MAX_SAFE_INTEGER,
+        invoice_count: Number.MAX_SAFE_INTEGER,
+      }],
+      error: null,
+    });
     const supabase = {
-      rpc: vi.fn(() => ({
-        range: vi.fn().mockResolvedValue({
-          data: [{
-            class_id: "class-1", student_id: "student-1", program_id: "program-1",
-            due_date: "2026-09-01",
-            total_amount: Number.MAX_SAFE_INTEGER,
-            invoice_count: Number.MAX_SAFE_INTEGER,
-          }],
-          error: null,
-        }),
-      })),
+      rpc: vi.fn(() => createOrderedRpcChain(range)),
     } as unknown as SupabaseClient<Database>;
     const result = await getTeacherOverdueSppByClass(supabase, ["class-1"]);
     expect(result.get("class-1:student-1:program-1")).toEqual({
@@ -152,6 +167,11 @@ describe("getTeacherOverdueSppByClass", () => {
     { total_amount: 1, invoice_count: 1.5 },
     { total_amount: Number.NaN, invoice_count: 1 },
     { total_amount: 1, invoice_count: Number.POSITIVE_INFINITY },
+    { total_amount: null, invoice_count: 1 },
+    { total_amount: 1, invoice_count: null },
+    { total_amount: undefined, invoice_count: 1 },
+    { total_amount: "", invoice_count: 1 },
+    { total_amount: 1, invoice_count: "   " },
   ])("discards all summaries for invalid aggregate $total_amount / $invoice_count", async (invalid) => {
     const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
     const range = vi.fn().mockResolvedValue({
@@ -167,7 +187,7 @@ describe("getTeacherOverdueSppByClass", () => {
       ],
       error: null,
     });
-    const supabase = { rpc: vi.fn(() => ({ range })) } as unknown as SupabaseClient<Database>;
+    const supabase = { rpc: vi.fn(() => createOrderedRpcChain(range)) } as unknown as SupabaseClient<Database>;
     try {
       expect((await getTeacherOverdueSppByClass(supabase, ["class-1"])).size).toBe(0);
     } finally {

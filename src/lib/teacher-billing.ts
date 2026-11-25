@@ -7,6 +7,15 @@ export interface StudentOverdueSppInfo {
   invoice_count: number;
 }
 
+function parseSafeNonNegativeInt(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "string" && value.trim() === "") return null;
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  const num = Number(value);
+  if (!Number.isSafeInteger(num) || num < 0) return null;
+  return num;
+}
+
 export async function getTeacherOverdueSppByClass(
   supabase: SupabaseClient<Database>,
   classIds: readonly string[]
@@ -25,6 +34,9 @@ export async function getTeacherOverdueSppByClass(
       .rpc("get_teacher_overdue_spp", {
         p_class_ids: classIds as string[],
       })
+      .order("class_id", { ascending: true })
+      .order("student_id", { ascending: true })
+      .order("program_id", { ascending: true })
       .range(start, start + PAGE_SIZE - 1);
 
     if (error) {
@@ -35,10 +47,10 @@ export async function getTeacherOverdueSppByClass(
 
     const rows = data || [];
     for (const row of rows) {
-      const totalAmount = Number(row.total_amount);
-      const invoiceCount = Number(row.invoice_count);
+      const totalAmount = parseSafeNonNegativeInt(row.total_amount);
+      const invoiceCount = parseSafeNonNegativeInt(row.invoice_count);
 
-      if (!Number.isSafeInteger(totalAmount) || totalAmount < 0 || !Number.isSafeInteger(invoiceCount) || invoiceCount < 0) {
+      if (totalAmount === null || invoiceCount === null) {
         console.warn("Nilai agregat SPP tidak valid atau melebihi safe integer:", {
           class_id: row.class_id,
           total_amount: row.total_amount,

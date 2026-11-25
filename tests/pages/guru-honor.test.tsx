@@ -221,6 +221,86 @@ describe("HonorGuruPage (Guru Honor Statement)", () => {
     expect(screen.getByLabelText("Pilih Periode Honor")).toBeDefined();
   });
 
+  it("renders live estimate instead of zero totals when an open period is explicitly selected", async () => {
+    vi.mocked(requireGuruPage).mockResolvedValue({
+      profile: {
+        ...guruProfile,
+        minimum_income: 450000,
+        allowances: [{ name: "Transport", amount: 400000 }],
+      },
+    } as never);
+
+    vi.mocked(getTeacherPayrollStatement).mockResolvedValue({
+      period: {
+        id: "period-open-nov",
+        period_month: "2026-11-01",
+        status: "open",
+        closed_at: null,
+        closed_by: null,
+        paid_at: null,
+        paid_by: null,
+        created_at: "2026-11-01T00:00:00Z",
+        updated_at: "2026-11-01T00:00:00Z",
+      },
+      entry: null,
+      lines: [],
+      adjustments: [],
+      totals: {
+        fee_sessions_total: 0,
+        fixed_allowances_total: 0,
+        adjustments_total: 0,
+        total_amount: 0,
+      },
+    });
+
+    const gteFn = vi.fn().mockReturnThis();
+    const ltFn = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: "ts-nov-1",
+          teaching_session_students: [
+            { attendance_status: "present", teacher_fee_snapshot: 3000 },
+          ],
+        },
+      ],
+      error: null,
+    });
+
+    vi.mocked(createClient).mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "payroll_periods") {
+          return {
+            select: vi.fn().mockReturnThis(),
+            order: vi.fn().mockResolvedValue({
+              data: [
+                { id: "period-open-nov", period_month: "2026-11-01", status: "open" },
+              ],
+              error: null,
+            }),
+          };
+        }
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          gte: gteFn.mockReturnValue({ lt: ltFn }),
+        };
+      }),
+    } as never);
+
+    const page = await HonorGuruPage({
+      searchParams: Promise.resolve({ period: "period-open-nov" }),
+    });
+    render(page);
+
+    expect(screen.getByText("Estimasi Berjalan")).toBeDefined();
+    expect(screen.getByText("Rp 403.000")).toBeDefined();
+    expect(screen.getByText("Rp 3.000")).toBeDefined();
+    expect(screen.getAllByText("Rp 400.000")).toHaveLength(2);
+    expect(gteFn).toHaveBeenCalledWith("session_date", "2026-11-01");
+    expect(ltFn).toHaveBeenCalledWith("session_date", "2026-12-01");
+    expect(screen.queryByText("Otomatis")).toBeNull();
+  });
+
   it.each([
     ["period options", "order"],
     ["earned sessions", "lt"],

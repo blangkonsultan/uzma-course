@@ -25,6 +25,8 @@ export async function getTeacherClassStudents(
       .rpc("get_teacher_class_students", {
         p_class_ids: classIds as string[],
       })
+      .order("class_id", { ascending: true })
+      .order("student_id", { ascending: true })
       .range(start, start + PAGE_SIZE - 1);
 
     if (error) {

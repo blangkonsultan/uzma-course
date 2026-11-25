@@ -24,6 +24,15 @@ const input = {
   ],
 };
 
+function mockOrderedRange(range: ReturnType<typeof vi.fn>) {
+  const chain = {
+    order: vi.fn(),
+    range,
+  };
+  chain.order.mockReturnValue(chain);
+  return chain;
+}
+
 describe("Teaching Log DAL", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -102,12 +111,12 @@ describe("Teaching Log DAL", () => {
 
     const rpc = vi.fn().mockImplementation((fn: string) => {
       if (fn === "get_teacher_class_students") {
-        return {
-          range: vi.fn().mockResolvedValue({
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
             data: [{ class_id: "class-1", student_id: "student-1", full_name: "Murid", student_number: "01001" }],
             error: null,
-          }),
-        };
+          })
+        );
       }
       throw new Error(`Unexpected RPC: ${fn}`);
     });
@@ -154,19 +163,19 @@ describe("Teaching Log DAL", () => {
 
     const rpc = vi.fn().mockImplementation((fn: string) => {
       if (fn === "get_teacher_class_students") {
-        return {
-          range: vi.fn().mockResolvedValue({
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
             data: [
               { class_id: "class-1", student_id: "student-1", full_name: "Murid Satu", student_number: "01001" },
               { class_id: "class-1", student_id: "student-2", full_name: "Murid Dua", student_number: "01002" },
             ],
             error: null,
-          }),
-        };
+          })
+        );
       }
       if (fn === "get_teacher_overdue_spp") {
-        return {
-          range: vi.fn().mockResolvedValue({
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
             data: [
               {
                 class_id: "class-1",
@@ -178,8 +187,8 @@ describe("Teaching Log DAL", () => {
               },
             ],
             error: null,
-          }),
-        };
+          })
+        );
       }
       throw new Error(`Unexpected RPC: ${fn}`);
     });
@@ -219,9 +228,11 @@ describe("Teaching Log DAL", () => {
     };
     vi.mocked(createClient).mockResolvedValue({
       from: vi.fn(() => query),
-      rpc: vi.fn(() => ({
-        range: vi.fn().mockResolvedValue({ data: null, error: { message: "historical roster denied" } }),
-      })),
+      rpc: vi.fn(() =>
+        mockOrderedRange(
+          vi.fn().mockResolvedValue({ data: null, error: { message: "historical roster denied" } })
+        )
+      ),
     } as never);
 
     await expect(getTeacherScheduleClassForLog("teacher-1", "class-1")).rejects.toThrow(

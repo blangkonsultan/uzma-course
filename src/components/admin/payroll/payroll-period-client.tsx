@@ -54,6 +54,8 @@ export function PayrollPeriodClient({
   if (initialDetail.period.id !== prevPeriodId) {
     setPrevPeriodId(initialDetail.period.id);
     setShowAdjustmentForm(false);
+    setConfirmClose(false);
+    setError(null);
   }
   const [isPending, startTransition] = useTransition();
   const detail =

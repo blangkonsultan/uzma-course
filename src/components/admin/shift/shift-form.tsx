@@ -100,6 +100,7 @@ export function ShiftForm({ initialData, branches }: ShiftFormProps) {
                 name="start_time"
                 id="start_time"
                 type="time"
+                required
                 value={startTime}
                 onChange={(e) => {
                   setStartTime(e.target.value);

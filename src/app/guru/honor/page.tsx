@@ -68,16 +68,20 @@ export default async function HonorGuruPage({
       statement = await getTeacherPayrollStatement(profile.id, currentPeriod.id);
     }
   }
-  // If still no closed statement, calculate live open-period estimate
-  let liveOpenTotals = null;
-  if (!statement) {
-    const openPeriod = await getOpenPayrollPeriod(currentMonthDate);
+  // If no closed/paid statement exists or an open period was selected, calculate live estimate
+  const profileAllowances = Array.isArray(profile?.allowances)
+    ? (profile.allowances as unknown as ProfileAllowanceItem[])
+    : [];
 
-    const allowances = Array.isArray(profile?.allowances)
-      ? (profile.allowances as unknown as ProfileAllowanceItem[])
-      : [];
+  let liveOpenTotals = null;
+  if (!statement || statement.period.status === "open") {
+    const openPeriod =
+      statement?.period ?? (await getOpenPayrollPeriod(currentMonthDate));
+    const targetMonth = openPeriod?.period_month ?? currentMonthDate;
     liveOpenTotals = await getTeacherPayrollEstimate(
-      profile.id, currentMonthDate, allowances
+      profile.id,
+      targetMonth,
+      profileAllowances
     );
 
     if (openPeriod) {
