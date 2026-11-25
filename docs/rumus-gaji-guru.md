@@ -104,6 +104,8 @@ Semua tunjangan disimpan sebagai konfigurasi setting per individu guru (bukan ni
 
 ## §7 Aturan Gaji Minimal Pagi
 
+> **Catatan supersesi:** Aturan sesi pagi dan contoh slip historis di bagian ini dipertahankan sebagai bukti bisnis asal. Kontrak ERP 2026-11-04 pada subbagian berikut memakai minimum bulanan per guru dan seluruh tunjangan tetap terkonfigurasi, bukan mesin alokasi sesi pagi atau prorata kehadiran. Jangan menerapkan kedua rumus sekaligus.
+
 Untuk menjamin kelayakan pendapatan guru yang ditugaskan pada sesi pagi:
 1. `Gaji Pagi = fee_sesi_pagi + kehadiran_pagi + transport_pagi`.
 2. Ambang batas bawah minimum sesi pagi bersifat variabel (default: 250 ribu / Rp 250.000).
@@ -113,6 +115,17 @@ Untuk menjamin kelayakan pendapatan guru yang ditugaskan pada sesi pagi:
    - Nilai `Kurang Gaji Pagi` ditambahkan langsung ke total gaji bulanan.
    - Jika `Gaji Pagi >= Batas Minimum Pagi`, maka `Kurang Gaji Pagi = 0`.
 
+
+### Pembaruan Sistem (2026-11-04): Garansi Gaji Minimum Otomatis Saat Penutupan Periode
+Sesuai keputusan owner pada sistem ERP terkini:
+1. **Perhitungan Otomatis**: Dilakukan secara atomik di dalam basis data saat Admin melakukan aksi **Tutup Periode Payroll** (`close_payroll_period`).
+2. **Rumus Top-up**:
+   `base_gaji = fee_sesi_total + tunjangan_tetap_total`
+   `topup_otomatis = max(0, minimum_income - base_gaji)` (hanya dibuat jika `minimum_income > 0` dan `base_gaji < minimum_income`).
+3. **Pencatatan**: Tercatat sebagai baris penyesuaian bertipe khusus `kind: 'minimum_income_topup'` dengan deskripsi `"Top-up Garansi Gaji Minimum"` (maksimal 1 baris per guru per periode).
+4. **Aturan Potongan Manual**: *Potongan tetap berlaku*. Potongan manual sesudah penutupan dapat menurunkan take-home pay di bawah garansi tanpa top-up ulang; bonus kemudian tidak mengurangi top-up yang sudah dibukukan. `total = fee + tunjangan + SUM(adjustment manual dan otomatis)`; top-up tidak ditambahkan dua kali.
+5. **Non-aktifkan dan Histori**: `minimum_income = 0` menonaktifkan top-up penutupan berikutnya saja. Snapshot fee/tunjangan/minimum/top-up periode sebelumnya tetap; tidak ada backfill atau hitung ulang closed/paid lama. Baris lama tetap `manual` walaupun alasan sama dengan top-up; badge **Otomatis** berdasarkan `kind`, bukan teks alasan.
+6. **Estimasi dan Pencairan**: Estimasi terbuka belum memuat adjustment otomatis. Pada penutupan baru, contoh `Rp3.000 fee + Rp400.000 tunjangan + Rp47.000 top-up = Rp450.000`; potongan kemudian `−Rp25.000` menghasilkan `Rp425.000`. Status Paid adalah pencatatan admin, bukan transfer bank oleh aplikasi.
 ---
 
 ## §8 Contoh Perhitungan: Guru Fida (S2), Agustus 2025

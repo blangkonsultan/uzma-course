@@ -47,7 +47,7 @@ export const GURU_HONOR = {
               "title": "Periksa komponen dan informasi minimum",
               "paragraphs": [
                 "Baca Total Take-Home Pay, Total Fee Sesi, Tunjangan Tetap, rincian komponen, serta Penyesuaian (Adjustment) bila ditampilkan. Tanda positif menambah dan negatif mengurangi.",
-                "Garansi Minimum Terdaftar adalah informasi yang dibaca terpisah dari total. Jangan menganggap nominal itu otomatis ditambahkan sebagai transaksi/top-up; bila jumlah tidak sesuai ketentuan yang disetujui, minta admin meninjau sebelum pembayaran."
+                "Pada Estimasi Berjalan, Gaji minimum terkonfigurasi belum menjadi top-up tercatat. Saat admin menutup periode, selisih positif antara minimum dan fee sesi + tunjangan tetap dibukukan satu kali sebagai Top-up Garansi Gaji Minimum dengan badge Otomatis. Pada rekap tertutup, Gaji minimum periode ini adalah snapshot, bukan batas yang terus dihitung ulang."
               ]
             },
             {
@@ -67,8 +67,11 @@ export const GURU_HONOR = {
       ],
       "systemRules": [
         "Fee sesi mengikuti kartu submitted dan nilai yang diakui; Hadir menggunakan fee snapshot, sementara Tidak Hadir/Izin/Cancel tidak menambah fee sesi standar saat ini.",
-        "Total terdiri dari fee sesi, tunjangan tetap dan adjustment; informasi minimum terdaftar bukan bukti transfer atau komponen tambahan otomatis.",
-        "Periode tertutup memakai snapshot, sedangkan estimasi masih berjalan.",
+        "Total terdiri dari fee sesi, tunjangan tetap, dan penyesuaian (termasuk top-up otomatis garansi gaji minimum yang dibukukan saat penutupan periode).",
+        "Periode tertutup memakai snapshot; rekap lama sebelum aturan top-up tidak dihitung ulang atau ditambah baris otomatis. Alasan yang sama pada adjustment manual lama tidak menjadikannya Otomatis.",
+        "Potongan manual setelah penutupan tetap mengurangi total, termasuk hingga di bawah minimum; bonus kemudian tidak mengurangi top-up yang sudah dibukukan.",
+        "Minimum 0 menonaktifkan top-up untuk penutupan berikutnya, bukan mengubah snapshot atau top-up periode sebelumnya. Aplikasi tidak melakukan transfer bank.",
+        "Estimasi terbuka belum membukukan top-up.",
         "Guru membaca rekap sendiri dan tidak mengubah payroll, adjustment, atau status pembayaran dari halaman Honor."
       ],
       "recommendations": [
@@ -82,7 +85,7 @@ export const GURU_HONOR = {
         },
         {
           "question": "Nominal minimum terdaftar lebih besar dari total.",
-          "answer": "Bandingkan komponen dan ketentuan kompensasi dengan admin. Tampilan minimum bukan janji sistem menambah selisih secara otomatis; selesaikan pemeriksaan sebelum pembayaran."
+          "answer": "Periksa status dan komponen. Estimasi terbuka belum memuat top-up; pada penutupan baru selisih positif dibukukan satu kali. Rekap lama tetap pada nilai historisnya. Pada periode tertutup baru, periksa baris Otomatis dan potongan manual sesudahnya: potongan tetap berlaku dan dapat menurunkan total di bawah minimum tanpa top-up ulang. Minta admin menelusuri selisih yang belum terjelaskan."
         },
         {
           "question": "Kartu sudah dikirim tetapi fee tidak sesuai perkiraan.",

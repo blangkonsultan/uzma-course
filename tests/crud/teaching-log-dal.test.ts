@@ -24,6 +24,15 @@ const input = {
   ],
 };
 
+function mockOrderedRange(range: ReturnType<typeof vi.fn>) {
+  const chain = {
+    order: vi.fn(),
+    range,
+  };
+  chain.order.mockReturnValue(chain);
+  return chain;
+}
+
 describe("Teaching Log DAL", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -78,65 +87,72 @@ describe("Teaching Log DAL", () => {
       getTeacherScheduleClassForLog("teacher-1", "other-class")
     ).resolves.toBeNull();
   });
+
   it("keeps submitted history readable when the source draft is archived", async () => {
     const archivedClass = {
       id: "class-1",
       day_of_week: 3,
       start_time: "09:00:00",
       end_time: "09:30:00",
-      schedule_drafts: { branches: { name: "Cabang" } },
+      schedule_drafts: { status: "archived", branches: { name: "Cabang" } },
       branch_shifts: { name: "Pagi" },
       program_variants: {
-        name: "Reguler",
+        name: "Reguler historis nonaktif",
         teacher_fee: 3000,
-        programs: { name: "AHE" },
+        programs: { id: "prog-1", name: "AHE historis nonaktif" },
       },
-      schedule_placements: [
-        { students: { id: "student-1", full_name: "Murid", student_number: "01001" } },
-      ],
     };
-    const archivedDraftFilter = {
-      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-    };
+
     const query = {
       select: vi.fn(() => query),
-      eq: vi.fn((field: string) =>
-        field === "schedule_drafts.status" ? archivedDraftFilter : query
-      ),
+      eq: vi.fn(() => query),
       maybeSingle: vi.fn().mockResolvedValue({ data: archivedClass, error: null }),
     };
-    const invoiceQuery = {
-      select: vi.fn().mockReturnThis(),
-      in: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      lt: vi.fn().mockResolvedValue({ data: [], error: null }),
-    };
+
+    const rpc = vi.fn().mockImplementation((fn: string) => {
+      if (fn === "get_teacher_class_students") {
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
+            data: [{ class_id: "class-1", student_id: "student-1", full_name: "Murid", student_number: "01001" }],
+            error: null,
+          })
+        );
+      }
+      throw new Error(`Unexpected RPC: ${fn}`);
+    });
+
     vi.mocked(createClient).mockResolvedValue({
-      from: vi.fn((table: string) => (table === "student_invoices" ? invoiceQuery : query)),
+      from: vi.fn(() => query),
+      rpc,
     } as never);
 
     const result = await getTeacherScheduleClassForLog("teacher-1", "class-1");
 
     expect(result?.branch_name).toBe("Cabang");
+    expect(result).toMatchObject({
+      program_name: "AHE historis nonaktif",
+      variant_name: "Reguler historis nonaktif",
+      teacher_fee: 3000,
+    });
+    expect(result?.students[0].full_name).toBe("Murid");
+    expect(result?.students[0].overdue_spp).toBeNull();
+    // Archived draft must NOT call overdue SPP RPC
+    expect(rpc).not.toHaveBeenCalledWith("get_teacher_overdue_spp", expect.anything());
   });
 
-  it("attaches overdue SPP details to class students when overdue invoices exist", async () => {
+  it("attaches overdue SPP details to class students when overdue invoices exist in active draft", async () => {
     const rawClassData = {
       id: "class-1",
       day_of_week: 3,
       start_time: "09:00:00",
       end_time: "09:30:00",
-      schedule_drafts: { branches: { name: "Cabang" } },
+      schedule_drafts: { status: "active", branches: { name: "Cabang" } },
       branch_shifts: { name: "Pagi" },
       program_variants: {
         name: "Reguler",
         teacher_fee: 3000,
         programs: { id: "prog-1", name: "AHE" },
       },
-      schedule_placements: [
-        { students: { id: "student-1", full_name: "Murid Satu", student_number: "01001" } },
-        { students: { id: "student-2", full_name: "Murid Dua", student_number: "01002" } },
-      ],
     };
 
     const classQuery = {
@@ -145,26 +161,41 @@ describe("Teaching Log DAL", () => {
       maybeSingle: vi.fn().mockResolvedValue({ data: rawClassData, error: null }),
     };
 
-    const invoiceQuery = {
-      select: vi.fn(() => invoiceQuery),
-      in: vi.fn(() => invoiceQuery),
-      eq: vi.fn(() => invoiceQuery),
-      lt: vi.fn().mockResolvedValue({
-        data: [
-          { student_id: "student-1", program_id: "prog-1", due_date: "2026-10-10", total_amount: 200000 },
-          { student_id: "student-1", program_id: "prog-1", due_date: "2026-09-10", total_amount: 150000 },
-          { student_id: "student-1", program_id: "prog-other", due_date: "2026-08-10", total_amount: 500000 },
-        ],
-        error: null,
-      }),
-    };
+    const rpc = vi.fn().mockImplementation((fn: string) => {
+      if (fn === "get_teacher_class_students") {
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
+            data: [
+              { class_id: "class-1", student_id: "student-1", full_name: "Murid Satu", student_number: "01001" },
+              { class_id: "class-1", student_id: "student-2", full_name: "Murid Dua", student_number: "01002" },
+            ],
+            error: null,
+          })
+        );
+      }
+      if (fn === "get_teacher_overdue_spp") {
+        return mockOrderedRange(
+          vi.fn().mockResolvedValue({
+            data: [
+              {
+                class_id: "class-1",
+                student_id: "student-1",
+                program_id: "prog-1",
+                due_date: "2026-09-10",
+                total_amount: 350000,
+                invoice_count: 2,
+              },
+            ],
+            error: null,
+          })
+        );
+      }
+      throw new Error(`Unexpected RPC: ${fn}`);
+    });
 
     vi.mocked(createClient).mockResolvedValue({
-      from: vi.fn((table: string) => {
-        if (table === "schedule_classes") return classQuery;
-        if (table === "student_invoices") return invoiceQuery;
-        throw new Error(`Unexpected table: ${table}`);
-      }),
+      from: vi.fn(() => classQuery),
+      rpc,
     } as never);
 
     const result = await getTeacherScheduleClassForLog("teacher-1", "class-1");
@@ -176,5 +207,36 @@ describe("Teaching Log DAL", () => {
       invoice_count: 2,
     });
     expect(result?.students[1].overdue_spp).toBeNull();
+  });
+
+  it("rejects an unreadable historical roster instead of showing an empty teaching card", async () => {
+    const query = {
+      select: vi.fn(() => query),
+      eq: vi.fn(() => query),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: {
+          id: "class-1", day_of_week: 3, start_time: "09:00:00", end_time: "09:30:00",
+          schedule_drafts: { status: "archived", branches: { name: "Cabang Sekunder" } },
+          branch_shifts: { name: "Pagi" },
+          program_variants: {
+            name: "Reguler historis", teacher_fee: 3000,
+            programs: { id: "prog-1", name: "AHE historis" },
+          },
+        },
+        error: null,
+      }),
+    };
+    vi.mocked(createClient).mockResolvedValue({
+      from: vi.fn(() => query),
+      rpc: vi.fn(() =>
+        mockOrderedRange(
+          vi.fn().mockResolvedValue({ data: null, error: { message: "historical roster denied" } })
+        )
+      ),
+    } as never);
+
+    await expect(getTeacherScheduleClassForLog("teacher-1", "class-1")).rejects.toThrow(
+      "Gagal membaca daftar murid kelas: historical roster denied"
+    );
   });
 });

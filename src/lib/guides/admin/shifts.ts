@@ -68,7 +68,11 @@ export const ADMIN_SHIFTS = {
         },
         {
           "question": "Perubahan jam ditolak karena ada kelas.",
-          "answer": "Buka draf/papan jadwal yang memakai shift tersebut dan periksa sesi yang terdampak. Susun perubahan operasional dengan benar sebelum mempersempit batas shift."
+          "answer": "Nama dan jam yang baru dicoba tetap berada di form setelah penolakan; data tersimpan belum berubah. Buka draf/papan jadwal yang memakai shift tersebut dan periksa kelas di luar rentang baru. Sesuaikan jadwal kelas terlebih dahulu atau koreksi rentang shift agar mencakup kelas, lalu pilih Simpan Perubahan lagi. Jangan menghapus perlindungan integritas atau mengulang nilai yang tetap bertentangan."
+        },
+        {
+          "question": "Penyimpanan gagal karena pemeriksaan data atau gangguan database.",
+          "answer": "Baca pesan di form; nama dan jam percobaan tetap tersedia untuk dikoreksi. Jika pemeriksaan kelas gagal, perubahan tidak diteruskan. Pastikan koneksi/data dapat dibaca, perbaiki masukan bila diperlukan, lalu simpan ulang dan periksa hasil tersimpan di daftar."
         }
       ]
     },

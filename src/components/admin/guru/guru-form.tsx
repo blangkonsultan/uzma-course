@@ -484,7 +484,7 @@ export function GuruForm({
                       name="minimum_income"
                       type="number"
                       label="Nominal (Rp)"
-                      hint="Garansi pendapatan minimum jika pendapatan riil berada di bawah nominal ini."
+                      hint="Garansi pendapatan minimum. Top-up dihitung otomatis saat admin menutup periode. Isi 0 untuk menonaktifkan top-up pada penutupan periode berikutnya."
                       placeholder="Contoh: 250000"
                       value={formData.minimum_income}
                       onChange={(e) => updateField("minimum_income", e.target.value)}

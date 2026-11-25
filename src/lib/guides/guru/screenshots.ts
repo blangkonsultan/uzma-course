@@ -82,9 +82,9 @@ export const GURU_SCREENSHOTS = {
   },
   honor: {
     src: "/guides/guru/honor.png", width: 390, height: 844,
-    alt: "Estimasi honor berjalan, fee sesi, tunjangan, dan Garansi Minimum Terdaftar",
-    caption: "Contoh estimasi akun demo. Nominal minimum terdaftar dibaca terpisah dari Total Take-Home Pay; bukan bukti transfer.",
-    sourceRoute: "/guru/honor", state: "own-open-period-estimate",
+    alt: "Ilustrasi historis estimasi honor demo dengan label lama Garansi Minimum Terdaftar",
+    caption: "Ilustrasi historis estimasi akun demo sebelum aturan top-up penutupan. Label dan angka pada gambar lama bukan bukti tampilan terkini, top-up yang dibukukan, atau transfer bank; ikuti penjelasan periode dan snapshot pada artikel.",
+    sourceRoute: "/guru/honor", state: "historical-open-period-estimate",
   },
   password: {
     src: "/guides/guru/password.png", width: 390, height: 844,

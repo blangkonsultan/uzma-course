@@ -42,6 +42,14 @@ export async function getBranchShiftById(id: string) {
   return data as BranchShift;
 }
 
+const SHIFT_TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/;
+
+export function parseShiftTimeToSeconds(timeStr: string): number | null {
+  if (!SHIFT_TIME_PATTERN.test(timeStr)) return null;
+  const [h, m, s = 0] = timeStr.split(":").map(Number);
+  return h * 3600 + m * 60 + s;
+}
+
 export async function insertBranchShift(data: {
   branch_id: string;
   name: string;
@@ -49,6 +57,15 @@ export async function insertBranchShift(data: {
   end_time: string;
   is_active: boolean;
 }) {
+  const startSec = parseShiftTimeToSeconds(data.start_time);
+  const endSec = parseShiftTimeToSeconds(data.end_time);
+  if (startSec === null || endSec === null) {
+    throw new Error("Format jam shift tidak valid.");
+  }
+  if (startSec >= endSec) {
+    throw new Error("Jam selesai harus lebih akhir dari jam mulai.");
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.from("branch_shifts").insert(data);
   if (error) {
@@ -67,20 +84,45 @@ export async function updateBranchShift(
 ) {
   const supabase = await createClient();
 
-  if (data.start_time || data.end_time) {
-    const { data: strandedClasses } = await supabase
+  if (data.start_time !== undefined || data.end_time !== undefined) {
+    // If either start_time or end_time is not provided, load the current record to check bounds safely
+    let targetStart = data.start_time;
+    let targetEnd = data.end_time;
+
+    if (targetStart === undefined || targetEnd === undefined) {
+      const current = await getBranchShiftById(id);
+      if (!current) {
+        throw new Error("Shift tidak ditemukan.");
+      }
+      targetStart = targetStart ?? current.start_time;
+      targetEnd = targetEnd ?? current.end_time;
+    }
+
+    // Validate strict time format and positive interval ordering before building PostgREST filters
+    const startSec = parseShiftTimeToSeconds(targetStart);
+    const endSec = parseShiftTimeToSeconds(targetEnd);
+    if (startSec === null || endSec === null) {
+      throw new Error("Format jam shift tidak valid.");
+    }
+    if (startSec >= endSec) {
+      throw new Error("Jam selesai harus lebih akhir dari jam mulai.");
+    }
+    const { data: strandedClasses, error: lookupError } = await supabase
       .from("schedule_classes")
       .select("id, start_time, end_time")
       .eq("shift_id", id)
-      .or(`start_time.lt.${data.start_time},end_time.gt.${data.end_time}`);
+      .or(`start_time.lt.${targetStart},end_time.gt.${targetEnd}`);
+
+    if (lookupError) {
+      throw new Error(`Gagal memeriksa jadwal kelas shift: ${lookupError.message}`);
+    }
 
     if (strandedClasses && strandedClasses.length > 0) {
       throw new Error(
-        "Jam shift tidak dapat dipersempit karena terdapat kelas yang sudah terjadwal di luar jam baru."
+        "Ada kelas di luar rentang jam baru. Sesuaikan jadwal kelas terlebih dahulu, lalu simpan ulang."
       );
     }
   }
-
   const { error } = await supabase
     .from("branch_shifts")
     .update(data)

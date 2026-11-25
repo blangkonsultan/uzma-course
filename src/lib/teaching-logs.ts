@@ -1,7 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { getWIBDateBounds } from "@/lib/attendances";
 import type { Database } from "@/types/database";
-import { getOverdueSppByStudentIds, type StudentOverdueSppInfo } from "./teacher-schedule";
+import { getTeacherClassStudents } from "./teacher-roster";
+import {
+  getTeacherOverdueSppByClass,
+  type StudentOverdueSppInfo,
+} from "./teacher-billing";
+
 export type TeachingAttendanceStatus =
   | "present"
   | "absent"
@@ -115,8 +120,7 @@ export async function getTeacherScheduleClassForLog(
         end_time,
         schedule_drafts!inner(status, branches(name)),
         branch_shifts(id, name),
-        program_variants(id, name, teacher_fee, programs(id, name)),
-        schedule_placements(student_id, students(id, full_name, student_number))
+        program_variants(id, name, teacher_fee, programs(id, name))
       `
     )
     .eq("id", scheduleClassId)
@@ -133,29 +137,30 @@ export async function getTeacherScheduleClassForLog(
     day_of_week: number;
     start_time: string;
     end_time: string;
-    schedule_drafts: { branches: { name: string } | null } | null;
+    schedule_drafts: { status: string; branches: { name: string } | null } | null;
     branch_shifts: { name: string } | null;
     program_variants: {
       name: string;
       teacher_fee: number;
       programs: { id: string; name: string } | null;
     } | null;
-    schedule_placements: Array<{
-      students: TeacherScheduleStudent | null;
-    }>;
   };
 
-  const rawStudents = (row.schedule_placements || [])
-    .map((placement) => placement.students)
-    .filter((student): student is TeacherScheduleStudent => student !== null);
+  const rosterMap = await getTeacherClassStudents(supabase, [scheduleClassId]);
+  const rawStudents = rosterMap.get(scheduleClassId) || [];
 
-  const studentIds = rawStudents.map((s) => s.id);
+  const isActiveDraft = row.schedule_drafts?.status === "active";
   const classProgramId = row.program_variants?.programs?.id;
-  const overdueByStudentAndProgram = await getOverdueSppByStudentIds(supabase, studentIds);
+
+  let overdueByClassStudentProgram = new Map<string, StudentOverdueSppInfo>();
+  if (isActiveDraft) {
+    overdueByClassStudentProgram = await getTeacherOverdueSppByClass(supabase, [scheduleClassId]);
+  }
+
   const enrichedStudents: TeacherScheduleStudent[] = rawStudents.map((s) => ({
     ...s,
     overdue_spp: classProgramId
-      ? (overdueByStudentAndProgram.get(`${s.id}:${classProgramId}`) ?? null)
+      ? (overdueByClassStudentProgram.get(`${scheduleClassId}:${s.id}:${classProgramId}`) ?? null)
       : null,
   }));
 
@@ -172,7 +177,6 @@ export async function getTeacherScheduleClassForLog(
     students: enrichedStudents,
   };
 }
-
 export async function getTeacherTeachingSession(
   teacherId: string,
   scheduleClassId: string,

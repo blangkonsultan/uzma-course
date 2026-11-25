@@ -182,7 +182,7 @@ All schema changes via Supabase CLI migrations only (`supabase/migrations/`). Ne
 ### Key Domain Rules & Gotchas
 
 - **Rolling 28-Day SPP Cycle**: Student billing does NOT follow calendar months; invoices recur every 28 days based on `student_programs.cycle_start_date`. Invoices are branch-scoped and snapshotted.
-- **Payroll Lifecycle (`open` → `closed` → `paid`)**: Manual adjustments can ONLY be added to `closed` periods prior to payment. The registered minimum guarantee is metadata for review, not an automatic top-up. Marking `paid` records status; it does not trigger bank transfers.
+- **Payroll Lifecycle (`open` → `closed` → `paid`)**: When a period is closed, an automatic `Top-up Garansi Gaji Minimum` adjustment is booked atomically if earned fees plus fixed allowances are below `minimum_income`. Manual adjustments can only be added to `closed` periods prior to payment; subsequent manual deductions remain effective without recomputing the booked subsidy. Setting `minimum_income = 0` disables future top-ups. Marking `paid` records status; it does not trigger bank transfers.
 - **Teaching Cards / Kartu Mengajar**: Submitted cards are permanently locked (read-only). Clicking "Kirim Kartu" saves pending edits before locking. All pupil attendance statuses (Hadir, Tidak Hadir, Izin, Cancel) are required before submit.
 - **PWA Offline Attendance Queue**: Only teacher attendance check-in/out is queued offline in IndexedDB (`UzmaCoursePWA`). Other portal surfaces require an active connection.
 

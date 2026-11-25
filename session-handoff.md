@@ -1,5 +1,37 @@
 # Session Handoff
 
+## Whole-Branch Code Review Remediation Verified — 2026-11-25
+- **Current status**: `feat-014` on `feat/financial-safety-and-minimum-income` passed a full-branch (`2edf0bbc..78ee0bb8`) Senior Code Review, with all 4 Important findings and 3 Minor items resolved (open-period live estimate on `/guru/honor?period=<open-id>`, strict shift time validation before PostgREST `.or(...)`, explicit outer `.order(...)` + null/blank guards on paginated teacher RPC adapters, missing shift unit regressions, `required` on `Jam Mulai`, period-switch state reset in `PayrollPeriodClient`, and removal of unused `scripts/sql/financial-contract-fixtures.sql`).
+- **Verified**: Clean ESLint (0 errors/warnings), **83 suites / 548 tests passed** (coverage: 70.14% stmts, 64.44% branch, 71.21% funcs, 71.30% lines), and clean Next.js Webpack production build + TypeScript (`eKa3ReG0LP0mlCI5JZrdw`, paired with `public/sw.js`).
+- **Migration/release order**: Unchanged — apply forward migrations through Supabase CLI before deploying the matching application/worker build, then run authenticated hosted smoke. No push, merge, production migration/deployment, reset, or reseed performed.
+- **Next action**: Branch is ready for PR/merge into `main` on owner authorization.
+
+## Financial Remediation Acceptance Completed Locally — 2026-11-05
+- **Current status**: `feat-014` is `completed` on `feat/financial-safety-and-minimum-income`. The latest `progress.md` entry is authoritative; older completion/release claims below are historical, not production proof.
+- **Verified**: Full `./init.sh`, then final lint/test refresh: clean ESLint, 83 suites / 533 tests, coverage and production build. All three standalone SQL suites and real lock-observed concurrent close/profile-edit cases passed after QA cleanup. Actual Data API/DAL/UI, search/history races, persisted shift recovery, payroll close/manual deduction/future disable, active-worker upgrade/two-account queue/offline matrix and 16 responsive samples passed as recorded in `progress.md`.
+- **Review state**: Replacement financial/client reviewers found no remaining substantive scoped findings after repairs. Earlier interrupted attempts produced no verdict and were not counted.
+- **Migration/release order**: Original migration files are restored, with corrections delivered forward in `20261104110000`, `20261104111000` and `20261105090000`; these are applied locally only. On a separately authorized release, apply pending migrations through the normal Supabase CLI path before the application, then deploy matching worker/assets and perform authenticated hosted smoke. Never manually reapply recorded migrations.
+- **Restart/safety**: Keep generated `public/sw.js` with build `5yKCPuiTQqRoYbGBmObiT`. All owned runtime QA records were removed and independently audited across 22 entity groups with zero leftovers; private manifests/drivers were removed. Owned tabs/contexts/server are stopped. Existing operational data and unrelated work remain intact.
+- **Next action / limits**: No implementation blocker remains in the agreed local scope. Preserve this feature branch for an owner-authorized PR/release; no push, merge, production migration/deployment, reset or reseed was performed. Physical-device, installed-PWA, OS notification, GPS and printing certification are not claimed.
+
+## Financial Safety, Minimum Income Top-up & Review Remediation Verified (feat-014) — 2026-11-04
+- **Status**: Fully implemented, spec discrepancies and review findings resolved, and verified against Definition of Done on branch `feat/financial-safety-and-minimum-income`.
+- **Delivered & Discrepancies Resolved**:
+  1. **Billing Search In-Flight Snapshot Sequencing (SEARCH-01, SEARCH-02)**: Replaced naive versioning with in-flight navigation snapshots (`inFlightNavsRef`) in `src/components/admin/billing/billing-client.tsx`. Outdated server responses for older in-flight requests (e.g. `X`) never overwrite newer active drafts (e.g. `XY`). On `popstate`, invalidates in-flight queues and timer to preserve browser Back/Forward restored history state.
+  2. **Shift Form Time Precision, Interval Validation & Field Error Linking (SHIFT-01)**:
+     - Preserves raw seconds precision (e.g. `08:30:30`) on unmodified fields in `ShiftForm`.
+     - Converted raw string comparisons to numeric seconds calculation in `src/app/admin/shift/actions.ts` (`parseTimeToSeconds`), correctly catching identical or inverted times across formats (e.g. `08:00` vs `08:00:00`).
+     - Enforced positive interval ordering in `src/lib/shifts.ts` (`updateBranchShift`) when loading opposite bounds from database.
+     - Mapped shift containment conflicts (`Ada kelas di luar rentang jam baru`) directly to `fieldErrors.start_time` and `fieldErrors.end_time`.
+  3. **Payroll Automatic Top-Up & Manual Adjustment Ledger Contracts (PAY-01)**:
+     - Removed forbidden `ON CONFLICT DO NOTHING` on automatic `minimum_income_topup` insertion in `close_payroll_period`.
+     - Guarded `add_payroll_adjustment` to require an existing teacher payroll entry for the closed period, rejecting non-existent entries with SQLSTATE `P0002`.
+  4. **Billing RPC Hardening (SEC-01)**: `generate_due_student_invoices` and `record_student_payment` enforce strict `is_admin()` and non-null `auth.uid()`, with EXECUTE revoked from `PUBLIC` and `anon`.
+  5. **Teacher Debt & Minimal Roster Boundaries (SEC-02, DEBT-01..03)**: Dropped broad teacher SELECT policies on billing tables. Added `get_teacher_overdue_spp` and `get_teacher_class_students` RPCs with paginated DAL adapters in `src/lib/teacher-billing.ts` and `src/lib/teacher-roster.ts`.
+  6. **PWA Response Boundary (CACHE-01)**: Updated `src/app/sw.ts` with `NetworkOnly` for `/guru`, `/admin`, `/api`, `/login`, `/logout` routes. Upgraded caches to v3 (`uzma-public-pages-v3`, `uzma-public-rsc-v3`).
+  7. **Truthful Compensation UI (PAY-02)**: Updated `/guru/honor`, `/admin/payroll`, and Master Guru form with clear labels and Otomatis badges.
+- **Evidence**: SQL runner `scripts/verify-financial-contracts.mjs --suite all` passed all 3 suites on loopback PostgreSQL. Full `./init.sh` passed with 0 lint errors/warnings, **85 Vitest suites / 507 tests passed** (coverage: 69.68% stmts, 63.62% branch, 70.92% funcs, 70.85% lines), and clean Next.js Webpack production build.
+- **Recommended next action**: Publish branch to PR and merge into `main` after review, or deploy to Vercel preview.
 ## SPP Search Input Debouncing & Enter Submit Verified — 2026-10-30
 - **Delivered**:
   1. Implemented 300ms search input debounce in `src/components/admin/billing/billing-client.tsx`, preventing rapid consecutive server navigations on each keystroke while preserving instantaneous local input response.

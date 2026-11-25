@@ -3,11 +3,41 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminAction } from "@/lib/auth";
-import { insertBranchShift, updateBranchShift, toggleBranchShiftActive } from "@/lib/shifts";
+import {
+  insertBranchShift,
+  parseShiftTimeToSeconds,
+  updateBranchShift,
+  toggleBranchShiftActive,
+} from "@/lib/shifts";
 
 export interface ShiftActionResponse {
   error?: string;
   fieldErrors?: Record<string, string>;
+}
+
+function validateShiftTimes(
+  startTime: string,
+  endTime: string,
+  fieldErrors: Record<string, string>
+) {
+  const startSec = startTime ? parseShiftTimeToSeconds(startTime) : null;
+  const endSec = endTime ? parseShiftTimeToSeconds(endTime) : null;
+
+  if (!startTime) {
+    fieldErrors.start_time = "Jam mulai wajib diisi.";
+  } else if (startSec === null) {
+    fieldErrors.start_time = "Format jam mulai tidak valid (HH:MM).";
+  }
+
+  if (!endTime) {
+    fieldErrors.end_time = "Jam selesai wajib diisi.";
+  } else if (endSec === null) {
+    fieldErrors.end_time = "Format jam selesai tidak valid (HH:MM).";
+  }
+
+  if (startSec !== null && endSec !== null && startSec >= endSec) {
+    fieldErrors.end_time = "Jam selesai harus lebih akhir dari jam mulai.";
+  }
 }
 
 export async function createShift(formData: FormData): Promise<ShiftActionResponse | void> {
@@ -22,11 +52,7 @@ export async function createShift(formData: FormData): Promise<ShiftActionRespon
 
   if (!branchId) fieldErrors.branch_id = "Cabang wajib dipilih.";
   if (!name) fieldErrors.name = "Nama shift wajib diisi.";
-  if (!startTime) fieldErrors.start_time = "Jam mulai wajib diisi.";
-  if (!endTime) fieldErrors.end_time = "Jam selesai wajib diisi.";
-  else if (startTime && startTime >= endTime) {
-    fieldErrors.end_time = "Jam selesai harus lebih akhir dari jam mulai.";
-  }
+  validateShiftTimes(startTime, endTime, fieldErrors);
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
@@ -57,11 +83,7 @@ export async function updateShift(id: string, formData: FormData): Promise<Shift
   const fieldErrors: Record<string, string> = {};
 
   if (!name) fieldErrors.name = "Nama shift wajib diisi.";
-  if (!startTime) fieldErrors.start_time = "Jam mulai wajib diisi.";
-  if (!endTime) fieldErrors.end_time = "Jam selesai wajib diisi.";
-  else if (startTime && startTime >= endTime) {
-    fieldErrors.end_time = "Jam selesai harus lebih akhir dari jam mulai.";
-  }
+  validateShiftTimes(startTime, endTime, fieldErrors);
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors };
   }
@@ -74,7 +96,17 @@ export async function updateShift(id: string, formData: FormData): Promise<Shift
       updated_at: new Date().toISOString(),
     });
   } catch (error: unknown) {
-    return { error: `Gagal memperbarui shift: ${error instanceof Error ? error.message : "Unknown error"}` };
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    if (msg.includes("Ada kelas di luar rentang jam baru")) {
+      return {
+        error: msg,
+        fieldErrors: {
+          start_time: "Ada kelas yang berada di luar rentang jam baru.",
+          end_time: "Ada kelas yang berada di luar rentang jam baru.",
+        },
+      };
+    }
+    return { error: `Gagal memperbarui shift: ${msg}` };
   }
 
   revalidatePath("/admin/shift");

@@ -1,12 +1,13 @@
 import "@testing-library/jest-dom/vitest";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BillingClient } from "@/components/admin/billing/billing-client";
 import type { BillingSummary, StudentInvoiceItem } from "@/lib/billing";
 import { recordPaymentAction } from "@/app/admin/spp/actions";
 
 const pushMock = vi.fn();
 vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(window.location.search),
   useRouter: () => ({
     push: pushMock,
     refresh: vi.fn(),
@@ -108,6 +109,10 @@ const sampleBranches = [
 ];
 
 describe("BillingClient Component", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    window.history.replaceState({}, "", "/admin/spp");
+  });
   afterEach(() => {
     vi.useRealTimers();
   });
@@ -260,6 +265,7 @@ describe("BillingClient Component", () => {
       },
     };
 
+    window.history.replaceState({}, "", "/admin/spp?branch=branch-1&status=paid&q=Budi");
     rerender(
       <BillingClient
         initialSummary={filteredSummary}
@@ -296,6 +302,7 @@ describe("BillingClient Component", () => {
     );
     searchInput.focus();
 
+    window.history.replaceState({}, "", "/admin/spp?branch=branch-1&status=paid&q=Budi");
     rerender(
       <BillingClient
         initialSummary={sampleSummary}
@@ -464,4 +471,244 @@ describe("BillingClient Component", () => {
     expect(exportBtn).toBeDisabled();
   });
 
+
+  it("preserves a newer complete draft and focus when an earlier navigation settles", async () => {
+    vi.useFakeTimers();
+    const { rerender } = render(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} />
+    );
+    const input = screen.getByLabelText("Cari tagihan SPP");
+    input.focus();
+    fireEvent.change(input, { target: { value: "X" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.change(input, { target: { value: "XY" } });
+    fireEvent.change(screen.getByLabelText("Filter Cabang"), {
+      target: { value: "branch-2" },
+    });
+    fireEvent.change(screen.getByLabelText("Filter Status Tagihan"), {
+      target: { value: "paid" },
+    });
+
+    window.history.replaceState({}, "", "/admin/spp?q=X");
+    rerender(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch="X" />
+    );
+    await act(async () => { await Promise.resolve(); });
+
+    expect(input).toHaveValue("XY");
+    expect(input).toHaveFocus();
+    expect(screen.getByLabelText("Filter Cabang")).toHaveValue("branch-2");
+    expect(screen.getByLabelText("Filter Status Tagihan")).toHaveValue("paid");
+    const beforeEnter = pushMock.mock.calls.length;
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(pushMock).toHaveBeenLastCalledWith("/admin/spp?branch=branch-2&status=paid&q=XY");
+    act(() => { vi.advanceTimersByTime(301); });
+    expect(pushMock).toHaveBeenCalledTimes(beforeEnter + 1);
+  });
+
+  it("does not cancel a valid newer search timer when an older request settles", async () => {
+    vi.useFakeTimers();
+    const { rerender } = render(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} />
+    );
+    const input = screen.getByLabelText("Cari tagihan SPP");
+    fireEvent.change(input, { target: { value: "X" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.change(input, { target: { value: "XY" } });
+    window.history.replaceState({}, "", "/admin/spp?q=X");
+    rerender(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch="X" />
+    );
+    await act(async () => { await Promise.resolve(); });
+    act(() => { vi.advanceTimersByTime(300); });
+    expect(input).toHaveValue("XY");
+    expect(pushMock).toHaveBeenCalledTimes(2);
+    expect(pushMock).toHaveBeenLastCalledWith("/admin/spp?q=XY");
+  });
+
+  it("adopts external URL filters and invalidates an abandoned search timer after local edits", async () => {
+    vi.useFakeTimers();
+    const { rerender } = render(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} />
+    );
+    const input = screen.getByLabelText("Cari tagihan SPP");
+    fireEvent.change(input, { target: { value: "X" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    window.history.replaceState({}, "", "/admin/spp?q=X");
+    rerender(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch="X" />
+    );
+    await act(async () => { await Promise.resolve(); });
+    fireEvent.change(input, { target: { value: "abandoned" } });
+
+    window.history.replaceState({}, "", "/admin/spp?branch=branch-2&status=paid&q=External");
+    rerender(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches}
+        currentBranch="branch-2" currentStatus="paid" currentSearch="External" />
+    );
+    await act(async () => { await Promise.resolve(); });
+    expect(input).toHaveValue("External");
+    expect(screen.getByLabelText("Filter Cabang")).toHaveValue("branch-2");
+    expect(screen.getByLabelText("Filter Status Tagihan")).toHaveValue("paid");
+    act(() => { vi.advanceTimersByTime(301); });
+    expect(pushMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears a locally edited search when external navigation returns to unfiltered SPP", async () => {
+    const { rerender } = render(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} />
+    );
+    const input = screen.getByLabelText("Cari tagihan SPP");
+    fireEvent.change(input, { target: { value: "X" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    window.history.replaceState({}, "", "/admin/spp?q=X");
+    rerender(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch="X" />
+    );
+    await act(async () => { await Promise.resolve(); });
+    window.history.replaceState({}, "", "/admin/spp");
+    rerender(<BillingClient initialSummary={sampleSummary} branches={sampleBranches} />);
+    await act(async () => { await Promise.resolve(); });
+    expect(input).toHaveValue("");
+    expect(screen.getByLabelText("Cari tagihan SPP")).toBe(input);
+  });
+
+  it.each([
+    ["Back", "/admin/spp?branch=branch-2&status=paid&q=Restored", "branch-2", "paid", "Restored"],
+    ["Forward", "/admin/spp?branch=branch-1&status=unpaid&q=Forward", "branch-1", "unpaid", "Forward"],
+  ])("preserves the entire %s restoration through late props and the debounce deadline",
+    async (_direction, url, branch, status, search) => {
+      vi.useFakeTimers();
+      const { rerender } = render(
+        <BillingClient initialSummary={sampleSummary} branches={sampleBranches} />
+      );
+      const input = screen.getByLabelText("Cari tagihan SPP");
+      fireEvent.change(input, { target: { value: "Old" } });
+      fireEvent.keyDown(input, { key: "Enter" });
+      fireEvent.change(input, { target: { value: "abandoned" } });
+      act(() => {
+        window.history.replaceState({}, "", url);
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      });
+      rerender(
+        <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch="Old" />
+      );
+      await act(async () => { await Promise.resolve(); });
+      act(() => { vi.advanceTimersByTime(301); });
+      expect(input).toHaveValue(search);
+      expect(screen.getByLabelText("Filter Cabang")).toHaveValue(branch);
+      expect(screen.getByLabelText("Filter Status Tagihan")).toHaveValue(status);
+      expect(pushMock).toHaveBeenCalledTimes(1);
+      fireEvent.keyDown(input, { key: "Enter" });
+      expect(pushMock).toHaveBeenLastCalledWith(url);
+    });
+
+  it("keeps a newer A-B-A edit and its timer when the intermediate response arrives", async () => {
+    vi.useFakeTimers();
+    window.history.replaceState({}, "", "/admin/spp?q=A");
+    const { rerender } = render(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch="A" />
+    );
+    const input = screen.getByLabelText("Cari tagihan SPP");
+    fireEvent.change(input, { target: { value: "AB" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.change(input, { target: { value: "A" } });
+    window.history.replaceState({}, "", "/admin/spp?q=AB");
+    rerender(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch="AB" />
+    );
+    await act(async () => { await Promise.resolve(); });
+    expect(input).toHaveValue("A");
+    act(() => { vi.advanceTimersByTime(300); });
+    expect(pushMock).toHaveBeenCalledTimes(2);
+    expect(pushMock).toHaveBeenLastCalledWith("/admin/spp?q=A");
+  });
+
+  it.each([
+    ["unfiltered return", "", "", "/admin/spp"],
+    ["repeated noncommitted query", "C", "B", "/admin/spp?q=B"],
+    ["return to the already committed query", "A", "", "/admin/spp"],
+  ])("adopts external filters after superseded submissions: %s",
+    async (_case, initialSearch, intermediateSearch, externalUrl) => {
+      vi.useFakeTimers();
+      window.history.replaceState({}, "", initialSearch ? `/admin/spp?q=${initialSearch}` : "/admin/spp");
+      const { rerender } = render(
+        <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch={initialSearch} />
+      );
+      const input = screen.getByLabelText("Cari tagihan SPP");
+      for (const search of ["A", intermediateSearch, "A"]) {
+        fireEvent.change(input, { target: { value: search } });
+        fireEvent.keyDown(input, { key: "Enter" });
+      }
+
+      // Only the final request commits; App Router discards superseded requests.
+      window.history.replaceState({}, "", "/admin/spp?q=A");
+      rerender(
+        <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch="A" />
+      );
+      await act(async () => { await Promise.resolve(); });
+      expect(input).toHaveValue("A");
+      fireEvent.change(input, { target: { value: "abandoned" } });
+      const dispatched = pushMock.mock.calls.length;
+
+      window.history.replaceState({}, "", externalUrl);
+      rerender(
+        <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch={intermediateSearch} />
+      );
+      await act(async () => { await Promise.resolve(); });
+      expect(input).toHaveValue(intermediateSearch);
+      act(() => { vi.advanceTimersByTime(301); });
+      expect(pushMock).toHaveBeenCalledTimes(dispatched);
+      fireEvent.keyDown(input, { key: "Enter" });
+      expect(pushMock).toHaveBeenLastCalledWith(externalUrl);
+    });
+
+  it.each([
+    ["/admin/spp", ""],
+    ["/admin/guru", "abandoned"],
+  ])("cancels an abandoned draft as link navigation starts, before its response: %s",
+    async (href, expectedDraft) => {
+      vi.useFakeTimers();
+      window.history.replaceState({}, "", "/admin/spp?q=A");
+      render(
+        <>
+          <a href={href} onClick={(event) => event.preventDefault()}>External navigation</a>
+          <BillingClient initialSummary={sampleSummary} branches={sampleBranches} currentSearch="A" />
+        </>
+      );
+      await act(async () => { await Promise.resolve(); });
+      const input = screen.getByLabelText("Cari tagihan SPP");
+      fireEvent.change(input, { target: { value: "abandoned" } });
+      fireEvent.click(screen.getByRole("link", { name: "External navigation" }));
+      // The external router request is still in flight; the URL has not committed.
+      expect(window.location.search).toBe("?q=A");
+      expect(input).toHaveValue(expectedDraft);
+      act(() => { vi.advanceTimersByTime(350); });
+      expect(pushMock).not.toHaveBeenCalled();
+    });
+
+  it("preserves a valid draft when a link opens a separate browsing context", () => {
+    vi.useFakeTimers();
+    render(
+      <>
+        <a href="/admin/spp" target="_blank" onClick={(event) => event.preventDefault()}>Open another tab</a>
+        <BillingClient initialSummary={sampleSummary} branches={sampleBranches} />
+      </>
+    );
+    fireEvent.change(screen.getByLabelText("Cari tagihan SPP"), { target: { value: "valid" } });
+    fireEvent.click(screen.getByRole("link", { name: "Open another tab" }));
+    act(() => { vi.advanceTimersByTime(300); });
+    expect(pushMock).toHaveBeenLastCalledWith("/admin/spp?q=valid");
+  });
+
+  it("cancels a pending search when the component unmounts", () => {
+    vi.useFakeTimers();
+    const { unmount } = render(
+      <BillingClient initialSummary={sampleSummary} branches={sampleBranches} />
+    );
+    fireEvent.change(screen.getByLabelText("Cari tagihan SPP"), { target: { value: "abandoned" } });
+    unmount();
+    act(() => { vi.advanceTimersByTime(301); });
+    expect(pushMock).not.toHaveBeenCalled();
+  });
 });

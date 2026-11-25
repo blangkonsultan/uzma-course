@@ -127,6 +127,69 @@ const nextClosedPeriodDetail: AdminPayrollPeriodDetail = {
 
 
 describe("PayrollPeriodClient", () => {
+  it.each(["minimum_income_topup", "manual"] as const)(
+    "keeps booked %s separate from a later manual deduction",
+    async (kind) => {
+      const detail: AdminPayrollPeriodDetail = {
+        ...closedPeriodDetail,
+        entries: [{
+          ...closedPeriodDetail.entries[0],
+          fee_sessions_total: 3000,
+          fixed_allowances_total: 400000,
+          minimum_income_snapshot: 450000,
+          allowances_snapshot: [{ name: "Transport", amount: 400000 }],
+          adjustments_total: 47000,
+          total_amount: 450000,
+        }],
+        adjustments: [{
+          id: "automatic-1",
+          period_id: "period-1",
+          teacher_id: "teacher-1",
+          amount: 47000,
+          reason: "Top-up Garansi Gaji Minimum",
+          kind,
+          created_by: "admin-1",
+          created_at: "2026-10-31T20:00:00Z",
+        }],
+        totals: {
+          fee_sessions_total: 3000,
+          fixed_allowances_total: 400000,
+          adjustments_total: 47000,
+          total_amount: 450000,
+        },
+      };
+      const reason = "Potongan manual setelah penutupan untuk koreksi yang telah disetujui";
+      vi.mocked(addAdjustmentAction).mockResolvedValueOnce({
+        data: {
+          id: "manual-1",
+          period_id: "period-1",
+          teacher_id: "teacher-1",
+          amount: -25000,
+          reason,
+          kind: "manual",
+          created_by: "admin-1",
+          created_at: "2026-10-31T21:00:00Z",
+        },
+      });
+      render(<PayrollPeriodClient initialDetail={detail} />);
+      expect(screen.getAllByText("Rp 450.000")).toHaveLength(2);
+      expect(screen.queryByText("Otomatis") !== null).toBe(kind === "minimum_income_topup");
+
+      fireEvent.click(screen.getByRole("button", { name: "+ Tambah Adjustment" }));
+      fireEvent.change(screen.getByLabelText("Nominal Adjustment (Rp)"), { target: { value: "-25000" } });
+      fireEvent.change(screen.getByLabelText("Alasan Adjustment"), { target: { value: reason } });
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Simpan Adjustment" }));
+      });
+
+      expect(screen.getAllByText("Rp 425.000")).toHaveLength(2);
+      expect(screen.getByText("+Rp 47.000")).toBeDefined();
+      expect(screen.getByText("-Rp 25.000")).toBeDefined();
+      expect(screen.getByText(reason)).toBeDefined();
+      expect(screen.queryAllByText("Otomatis")).toHaveLength(kind === "minimum_income_topup" ? 1 : 0);
+    }
+  );
+
   it("renders the newly selected payroll period when server props change", () => {
     const { rerender } = render(
       <PayrollPeriodClient
@@ -234,6 +297,7 @@ describe("PayrollPeriodClient", () => {
         teacher_id: "teacher-1",
         amount: 25000,
         reason: "Kompensasi cancel murid",
+        kind: "manual",
         created_by: "admin-1",
         created_at: "2026-10-31T20:00:00Z",
       },

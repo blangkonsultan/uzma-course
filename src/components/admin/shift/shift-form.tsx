@@ -18,11 +18,20 @@ interface ShiftFormProps {
 
 export function ShiftForm({ initialData, branches }: ShiftFormProps) {
   const router = useRouter();
+  const isEdit = !!initialData;
+
+  const [branchId, setBranchId] = useState(initialData?.branch_id || "");
+  const [name, setName] = useState(initialData?.name || "");
+  // If initialData has seconds (e.g. 08:30:30), preserve the raw value unless edited
+  const initialStartTimeRaw = initialData?.start_time || "";
+  const initialEndTimeRaw = initialData?.end_time || "";
+  const [startTime, setStartTime] = useState(initialStartTimeRaw.slice(0, 5));
+  const [endTime, setEndTime] = useState(initialEndTimeRaw.slice(0, 5));
+  const [isStartTimeDirty, setIsStartTimeDirty] = useState(false);
+  const [isEndTimeDirty, setIsEndTimeDirty] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const isSubmitting = useRef(false);
-
-  const isEdit = !!initialData;
 
   async function action(formData: FormData) {
     if (isSubmitting.current) return;
@@ -30,14 +39,25 @@ export function ShiftForm({ initialData, branches }: ShiftFormProps) {
     setError(null);
     setFieldErrors({});
 
-    const res = isEdit
-      ? await updateShift(initialData.id, formData)
-      : await createShift(formData);
+    try {
+      // If the time input was not modified and initialData had full precision (e.g. seconds), preserve it
+      if (isEdit) {
+        if (!isStartTimeDirty && initialStartTimeRaw) {
+          formData.set("start_time", initialStartTimeRaw);
+        }
+        if (!isEndTimeDirty && initialEndTimeRaw) {
+          formData.set("end_time", initialEndTimeRaw);
+        }
+      }
 
-    if (res?.error) setError(res.error);
-    if (res?.fieldErrors) setFieldErrors(res.fieldErrors);
-
-    isSubmitting.current = false;
+      const res = isEdit
+        ? await updateShift(initialData.id, formData)
+        : await createShift(formData);
+      if (res?.error) setError(res.error);
+      if (res?.fieldErrors) setFieldErrors(res.fieldErrors);
+    } finally {
+      isSubmitting.current = false;
+    }
   }
 
   return (
@@ -56,7 +76,8 @@ export function ShiftForm({ initialData, branches }: ShiftFormProps) {
               name="branch_id"
               id="branch_id"
               required
-              defaultValue={initialData?.branch_id || ""}
+              value={branchId}
+              onChange={(e) => setBranchId(e.target.value)}
               error={fieldErrors.branch_id}
               disabled={isEdit}
               options={branches.map((b) => ({ value: b.id, label: b.name }))}
@@ -68,7 +89,8 @@ export function ShiftForm({ initialData, branches }: ShiftFormProps) {
               id="name"
               required
               placeholder="Contoh: Pagi, Sore"
-              defaultValue={initialData?.name || ""}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               error={fieldErrors.name}
             />
 
@@ -79,7 +101,11 @@ export function ShiftForm({ initialData, branches }: ShiftFormProps) {
                 id="start_time"
                 type="time"
                 required
-                defaultValue={initialData?.start_time || ""}
+                value={startTime}
+                onChange={(e) => {
+                  setStartTime(e.target.value);
+                  setIsStartTimeDirty(true);
+                }}
                 error={fieldErrors.start_time}
               />
               <InputField
@@ -88,7 +114,11 @@ export function ShiftForm({ initialData, branches }: ShiftFormProps) {
                 id="end_time"
                 type="time"
                 required
-                defaultValue={initialData?.end_time || ""}
+                value={endTime}
+                onChange={(e) => {
+                  setEndTime(e.target.value);
+                  setIsEndTimeDirty(true);
+                }}
                 error={fieldErrors.end_time}
               />
             </div>
